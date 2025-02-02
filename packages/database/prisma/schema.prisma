@@ -1,0 +1,229 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+enum Role {
+  ADMIN
+  DEVELOPER
+}
+
+enum FeedbackStatus {
+  OPEN
+  UNDER_REVIEW
+  PLANNED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum DomainStatus {
+  PENDING
+  CONFIRMED_OWNERSHIP
+  VERIFIED
+  FAILED
+}
+
+enum Priority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum ActivityType {
+  FEEDBACK_CREATE
+  FEEDBACK_UPDATE
+  FEEDBACK_VOTE
+  FEEDBACK_COMMENT
+  FEEDBACK_STATUS_CHANGE
+  FEEDBACK_PRIORITY_CHANGE
+  FEEDBACK_TAG_ADD
+  FEEDBACK_TAG_REMOVE
+  FEEDBACK_SCREENSHOT_ADD
+  FEEDBACK_SCREENSHOT_REMOVE
+}
+
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum Language {
+  EN
+  RO
+}
+
+model User {
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String?
+
+  applications   Application[]  @relation("ApplicationOwner")
+  members        Member[]
+  feedbacks      Feedback[]     @relation("FeedbackAuthor")
+  feedbacksOwned Feedback[]     @relation("FeedbackOwner")
+  votes          Vote[]
+  activities     Activity[]
+  likes          ActivityLike[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+model Member {
+  id   String @id @default(uuid())
+  role Role   @default(DEVELOPER) // ADMIN/DEVELOPER/etc.
+
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  application   Application @relation(fields: [applicationId], references: [id])
+  applicationId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, applicationId]) // Prevent duplicate members
+  @@index([userId, applicationId])
+}
+
+model Application {
+  id                String       @id @default(uuid())
+  name              String // Display name (e.g., "Google")
+  subdomain         String       @unique // Reserved subdomain (e.g., "google.supaboard.io")
+  customDomain      String?      @unique // Optional custom domain (e.g., "feedback.google.com")
+  domainStatus      DomainStatus @default(PENDING) // Verification state
+  verificationCode  String? // For DNS TXT record verification
+  logoUrl           String?
+  iconUrl           String?
+  color             String?
+  preferredTheme    Theme        @default(SYSTEM)
+  preferredLanguage Language     @default(EN)
+
+  ownerId String
+  owner   User   @relation("ApplicationOwner", fields: [ownerId], references: [id])
+
+  tags     Tag[]
+  members  Member[]
+  feedback Feedback[]
+  boards   Board[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([subdomain])
+}
+
+model Feedback {
+  id                String         @id @default(uuid())
+  title             String
+  description       String
+  status            FeedbackStatus @default(OPEN)
+  priority          Priority?
+  deviceInfo        String?
+  appVersion        String?
+  estimatedDelivery DateTime?
+
+  boardId       String
+  board         Board       @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  authorId      String?
+  author        User?       @relation(name: "FeedbackAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  ownerId       String?
+  owner         User?       @relation(name: "FeedbackOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  tags       Tag[]
+  votes      Vote[]
+  activities Activity[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([applicationId, status])
+}
+
+model Board {
+  id     String  @id @default(uuid())
+  name   String
+  url    String  @default("/feature-requests")
+  public Boolean @default(false)
+
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  feedbacks Feedback[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([applicationId, url])
+}
+
+model Tag {
+  id    String @id @default(uuid())
+  name  String
+  color String
+
+  feedbacks     Feedback[]
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Activity {
+  id     String       @id @default(uuid())
+  public Boolean      @default(true)
+  pinned Boolean      @default(false)
+  type   ActivityType
+  data   Json
+
+  feedbackId String
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  likes ActivityLike[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ActivityLike {
+  id         String   @id @default(uuid())
+  activityId String
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([activityId, authorId])
+}
+
+model Vote {
+  id         String   @id @default(uuid())
+  feedbackId String
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([feedbackId, authorId])
+}
