@@ -31,7 +31,7 @@ EOL
 ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/
 
 # Obtain SSL certificate
-certbot --nginx --non-interactive --agree-tos -m admin@supaboard.app -d $DOMAIN
+certbot --nginx --non-interactive --agree-tos -m paultibulca@gmail.com -d $DOMAIN
 
 # Reload Nginx
 nginx -s reload
