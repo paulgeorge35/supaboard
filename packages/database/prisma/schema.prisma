@@ -65,7 +65,9 @@ enum Language {
 
 model User {
   id       String  @id @default(uuid())
+  name     String  @default("")
   email    String  @unique
+  avatar   String?
   password String?
 
   applications   Application[]  @relation("ApplicationOwner")
@@ -129,6 +131,7 @@ model Feedback {
   id                String         @id @default(uuid())
   title             String
   description       String
+  slug              String
   status            FeedbackStatus @default(OPEN)
   priority          Priority?
   deviceInfo        String?
@@ -152,12 +155,13 @@ model Feedback {
   updatedAt DateTime @updatedAt
 
   @@index([applicationId, status])
+  @@unique([boardId, slug])
 }
 
 model Board {
   id     String  @id @default(uuid())
   name   String
-  url    String  @default("/feature-requests")
+  slug   String  @default("feature-requests")
   public Boolean @default(false)
 
   applicationId String
@@ -168,7 +172,7 @@ model Board {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([applicationId, url])
+  @@unique([applicationId, slug])
 }
 
 model Tag {

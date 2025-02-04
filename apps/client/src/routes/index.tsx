@@ -1,14 +1,52 @@
-import * as React from 'react'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-
+import { Board as BoardComponent } from '../components/board'
+import { StatusBoard } from '../components/status-board'
+import { applicationBoardsQuery } from './__root'
 export const Route = createFileRoute('/')({
   component: HomeComponent,
 })
 
 function HomeComponent() {
+  const { data: boards } = useSuspenseQuery(applicationBoardsQuery)
+
+  const plannedFeedbacks = boards.flatMap(board => board.feedbacks.filter(feedback => feedback.status === 'PLANNED'))
+  const inProgressFeedbacks = boards.flatMap(board => board.feedbacks.filter(feedback => feedback.status === 'IN_PROGRESS'))
+  const completeFeedbacks = boards.flatMap(board => board.feedbacks.filter(feedback => feedback.status === 'RESOLVED'))
+
   return (
-    <div className="p-2">
-      <h3>Welcome Home!</h3>
-    </div>
+    <>
+      <span className='horizontal center-v justify-between'>
+        <h1 className='font-medium'>Boards</h1>
+      </span>
+      <div className='grid grid-cols-3 gap-8'>
+        {boards.map((board) => (
+          <BoardComponent key={board.slug} title={board.name} items={board.count} to={board.slug} />
+        ))}
+      </div>
+
+      <span className='horizontal center-v justify-between'>
+        <h1 className='font-medium'>Roadmap</h1>
+        <button type='button' className='dark:bg-gray-700 rounded-md border font-light px-2 py-1 text-sm'>Filters</button>
+      </span>
+
+      <div className='grid grid-cols-3 gap-8'>
+        <StatusBoard
+          title='Planned'
+          color='bg-blue-500'
+          items={plannedFeedbacks}
+        />
+        <StatusBoard
+          title='In Progress'
+          color='bg-violet-500'
+          items={inProgressFeedbacks}
+        />
+        <StatusBoard
+          title='Complete'
+          color='bg-green-500'
+          items={completeFeedbacks}
+        />
+      </div>
+    </>
   )
 }

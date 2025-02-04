@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+	--color-background: 0 0% 100%;
+	--color-foreground: 222.2 84% 4.9%;
+
+	--color-card: 0 0% 100%;
+	--color-card-foreground: 222.2 84% 4.9%;
+
+	--color-popover: 0 0% 100%;
+	--color-popover-foreground: 222.2 84% 4.9%;
+
+	--color-primary: 222.2 47.4% 11.2%;
+	--color-primary-foreground: 210 40% 98%;
+
+	--color-secondary: 210 40% 96.1%;
+	--color-secondary-foreground: 222.2 47.4% 11.2%;
+
+	--color-muted: 210 40% 96.1%;
+	--color-muted-foreground: 215.4 16.3% 46.9%;
+
+	--color-accent: 210 40% 96.1%;
+	--color-accent-foreground: 222.2 47.4% 11.2%;
+
+	--color-link: 217 91% 53%;
+	--color-link-hover: 200 100% 43%;
+
+	--color-destructive: 0 84.2% 60.2%;
+	--color-destructive-foreground: 210 40% 98%;
+
+	--color-border: 214.3 31.8% 91.4%;
+	--color-input: 214.3 31.8% 91.4%;
+	--color-ring: 222.2 84% 4.9%;
+
+	--radius: 0.5rem;
+}
+
+@layer base {
+	* {
+		@apply border-gray-200 dark:border-zinc-800 text-stone-950 dark:text-stone-50;
+	}
+
+	body {
+		@apply bg-white dark:bg-zinc-900
+	}
+}
+
+@layer components {
+	.debug {
+		@apply border border-red-500;
+	}
+
+	.horizontal {
+		@apply flex flex-row;
+	}
+
+	.horizontal-rev {
+		@apply flex flex-row-reverse;
+	}
+
+	.vertical {
+		@apply flex flex-col;
+	}
+
+	.vertical-rev {
+		@apply flex flex-col-reverse;
+	}
+
+	.horizontal.center-v {
+		@apply items-center;
+	}
+
+	.horizontal.center-h {
+		@apply justify-center;
+	}
+
+	.horizontal.center {
+		@apply items-center justify-center;
+	}
+
+	.vertical.center-v {
+		@apply justify-center;
+	}
+
+	.vertical.center-h {
+		@apply items-center;
+	}
+
+	.vertical.center {
+		@apply items-center justify-center;
+	}
+
+	.space-between {
+		@apply justify-between;
+	}
+
+	.pb-safe-bottom {
+		@media (display-mode: standalone), (display-mode: fullscreen),
+			(display-mode: minimal-ui) {
+			padding-bottom: 32px;
+		}
+	}
+}

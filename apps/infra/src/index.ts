@@ -2,6 +2,7 @@ import { DomainStatus, db } from '@repo/database';
 import * as Bun from 'bun';
 import { CronJob } from 'cron';
 import dns from 'node:dns/promises';
+import path from 'node:path';
 import { redis } from './redis';
 
 const VERIFICATION_MAX_RETRIES = 5;
@@ -14,7 +15,12 @@ async function incrementVerificationAttempt(applicationId: string, type: 'txt' |
     return attempts;
 }
 
-const addDomain = (domain: string) => Bun.spawn(['./add_domain.sh', domain]);
+const addDomain = (domain: string) => {
+    const scriptPath = path.join(import.meta.dir, 'add_domain.sh');
+    return Bun.spawn(['sh', scriptPath, domain], {
+        cwd: import.meta.dir,
+    });
+};
 
 CronJob.from({
     cronTime: '*/5 * * * * *',

@@ -1,35 +1,139 @@
-import * as React from 'react'
+import type { Application, Board, Feedback, User } from '@repo/database'
+import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
+import { useEffect } from 'react'
+import { AdminButton } from '../components/admin-button'
+import { AuthButtons } from '../components/auth-buttons'
+import { Icons } from '../components/icons'
 
-export const Route = createRootRoute({
-  component: RootComponent,
+type MeQueryData = {
+  user?: Pick<User, 'id' | 'email' | 'name' | 'avatar'>
+  application: Pick<Application, 'id' | 'name' | 'subdomain' | 'customDomain' | 'domainStatus' | 'logoUrl' | 'iconUrl' | 'color' | 'preferredTheme' | 'preferredLanguage' | 'ownerId'>
+}
+
+const meQuery = queryOptions<MeQueryData>({
+  queryKey: ['me'],
+  queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/auth/me`).then(res => res.json())
 })
 
-function RootComponent() {
+export type ApplicationBoardsQueryData = (Pick<Board, 'name' | 'slug'> & {
+  count: number;
+  feedbacks: (Pick<Feedback, 'title' | 'status' | 'slug'> & {
+    votes: number;
+    board: Pick<Board, 'name' | 'slug'>;
+  })[]
+})[]
+
+export const applicationBoardsQuery = queryOptions<ApplicationBoardsQueryData>({
+  queryKey: ['application', 'boards'],
+  queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/application/boards`).then(res => res.json())
+})
+
+export type BoardQueryData = Pick<Board, 'name' | 'slug'> & {
+  feedbacks: (Pick<Feedback, 'id' | 'title' | 'description' | 'status' | 'slug'> & {
+    votes: number;
+    activities: number;
+  })[]
+}
+
+export const boardQuery = (slug: string) => queryOptions<BoardQueryData>({
+  queryKey: ['board', slug],
+  queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/board/${slug}`).then(res => res.json())
+})
+
+export const Route = createRootRoute({
+  context: () => {
+    const queryClient = new QueryClient()
+
+    return {
+      queryClient,
+    }
+  },
+  loader: async ({ context }) => {
+    const queryClient = context.queryClient
+    return queryClient.ensureQueryData(meQuery)
+  },
+  component: () => {
+    const { data } = useSuspenseQuery(meQuery)
+    const { data: boards } = useSuspenseQuery(applicationBoardsQuery)
+    return <RootComponent user={data?.user} application={data?.application} boards={boards} isAdmin={data?.user?.id === data?.application.ownerId} />
+  },
+})
+
+type RootComponentProps = {
+  user?: Pick<User, 'id' | 'email' | 'name' | 'avatar'>
+  application: Pick<Application, 'id' | 'name' | 'subdomain' | 'customDomain' | 'domainStatus' | 'logoUrl' | 'iconUrl' | 'color' | 'preferredTheme' | 'preferredLanguage' | 'ownerId'>
+  boards: ApplicationBoardsQueryData
+  isAdmin: boolean
+}
+
+function RootComponent({ user, application, boards, isAdmin }: RootComponentProps) {
+  useEffect(() => {
+    const theme = application.preferredTheme.toLowerCase()
+    if (theme === 'system') {
+      localStorage.removeItem('currentTheme')
+      document.documentElement.classList.toggle('dark', window.matchMedia('(prefers-color-scheme: dark)').matches)
+    } else {
+      localStorage.currentTheme = theme
+      document.documentElement.classList.toggle('dark', theme === 'dark')
+    }
+  }, [application.preferredTheme])
+
+  useEffect(() => {
+    if (application.iconUrl) {
+      const link = document.createElement('link')
+      link.rel = 'icon'
+      link.href = application.iconUrl
+      document.head.appendChild(link)
+    }
+    document.title = `${application.name} Feedback`
+  }, [application.iconUrl, application.name])
+
+  const defaultBoard = boards[0]?.slug ?? '/';
+
   return (
     <>
-      <div className="p-2 flex gap-2 text-lg">
-        <Link
-          to="/"
-          activeProps={{
-            className: 'font-bold',
-          }}
-          activeOptions={{ exact: true }}
-        >
-          Home
-        </Link>{' '}
-        <Link
-          to="/about"
-          activeProps={{
-            className: 'font-bold',
-          }}
-        >
-          About
-        </Link>
+      <div className="vertical justify-end gap-2 text-lg max-w-4xl mx-auto w-full pt-4">
+        <div className='horizontal center-v gap-2 justify-between'>
+          <span className='horizontal gap-2 center-v'>
+            {application.logoUrl && <img src={application.logoUrl} alt={application.name} className='size-8' />}
+            <h1 className='text-2xl font-medium'>{application.name}</h1>
+          </span>
+          <span className='horizontal gap-2 center-v'>
+            <AdminButton isAdmin={isAdmin} />
+            <AuthButtons user={user} />
+          </span>
+        </div>
+        <div className="horizontal items-end gap-2 text-lg max-w-4xl mx-auto w-full">
+          <Link
+            to="/"
+            activeProps={{
+              className: '!border-gray-500 !text-black [&>svg]:!stroke-black',
+            }}
+            className='-mb-[1px] border-b-[1px] border-transparent font-medium text-gray-400 px-3 py-2 text-sm horizontal center-v gap-2 [&>svg]:stroke-gray-400'
+            activeOptions={{ exact: true }}
+          >
+            <Icons.Map className='size-4' />
+            Roadmap
+          </Link>
+          <Link
+            to={defaultBoard}
+            activeProps={{
+              className: '!border-gray-500 !text-black [&>svg]:!stroke-black',
+            }}
+            disabled={defaultBoard === '/'}
+            className='-mb-[1px] border-b-[1px] border-transparent font-medium text-gray-400 px-3 py-2 text-sm horizontal center-v gap-2 [&>svg]:stroke-gray-400'
+          >
+            <Icons.Lightbulb className='size-4' />
+            Feedback
+          </Link>
+        </div>
       </div>
       <hr />
-      <Outlet />
+      <div className="vertical gap-4 max-w-4xl mx-auto w-full py-8">
+        <Outlet />
+      </div>
       <TanStackRouterDevtools position="bottom-right" />
     </>
   )

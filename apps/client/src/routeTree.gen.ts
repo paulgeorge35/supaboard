@@ -11,20 +11,41 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as AboutImport } from './routes/about'
+import { Route as FeedbackImport } from './routes/feedback'
 import { Route as IndexImport } from './routes/index'
+import { Route as AdminIndexImport } from './routes/admin/index'
+import { Route as BoardIndexImport } from './routes/$board/index'
+import { Route as BoardFeedbackImport } from './routes/$board/$feedback'
 
 // Create/Update Routes
 
-const AboutRoute = AboutImport.update({
-  id: '/about',
-  path: '/about',
+const FeedbackRoute = FeedbackImport.update({
+  id: '/feedback',
+  path: '/feedback',
   getParentRoute: () => rootRoute,
 } as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AdminIndexRoute = AdminIndexImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const BoardIndexRoute = BoardIndexImport.update({
+  id: '/$board/',
+  path: '/$board/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const BoardFeedbackRoute = BoardFeedbackImport.update({
+  id: '/$board/$feedback',
+  path: '/$board/$feedback',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -39,11 +60,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutImport
+    '/feedback': {
+      id: '/feedback'
+      path: '/feedback'
+      fullPath: '/feedback'
+      preLoaderRoute: typeof FeedbackImport
+      parentRoute: typeof rootRoute
+    }
+    '/$board/$feedback': {
+      id: '/$board/$feedback'
+      path: '/$board/$feedback'
+      fullPath: '/$board/$feedback'
+      preLoaderRoute: typeof BoardFeedbackImport
+      parentRoute: typeof rootRoute
+    }
+    '/$board/': {
+      id: '/$board/'
+      path: '/$board'
+      fullPath: '/$board'
+      preLoaderRoute: typeof BoardIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -53,37 +95,58 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/feedback': typeof FeedbackRoute
+  '/$board/$feedback': typeof BoardFeedbackRoute
+  '/$board': typeof BoardIndexRoute
+  '/admin': typeof AdminIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/feedback': typeof FeedbackRoute
+  '/$board/$feedback': typeof BoardFeedbackRoute
+  '/$board': typeof BoardIndexRoute
+  '/admin': typeof AdminIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/feedback': typeof FeedbackRoute
+  '/$board/$feedback': typeof BoardFeedbackRoute
+  '/$board/': typeof BoardIndexRoute
+  '/admin/': typeof AdminIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about'
+  fullPaths: '/' | '/feedback' | '/$board/$feedback' | '/$board' | '/admin'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about'
-  id: '__root__' | '/' | '/about'
+  to: '/' | '/feedback' | '/$board/$feedback' | '/$board' | '/admin'
+  id:
+    | '__root__'
+    | '/'
+    | '/feedback'
+    | '/$board/$feedback'
+    | '/$board/'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
+  FeedbackRoute: typeof FeedbackRoute
+  BoardFeedbackRoute: typeof BoardFeedbackRoute
+  BoardIndexRoute: typeof BoardIndexRoute
+  AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
+  FeedbackRoute: FeedbackRoute,
+  BoardFeedbackRoute: BoardFeedbackRoute,
+  BoardIndexRoute: BoardIndexRoute,
+  AdminIndexRoute: AdminIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -97,14 +160,26 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/about"
+        "/feedback",
+        "/$board/$feedback",
+        "/$board/",
+        "/admin/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/about": {
-      "filePath": "about.tsx"
+    "/feedback": {
+      "filePath": "feedback.tsx"
+    },
+    "/$board/$feedback": {
+      "filePath": "$board/$feedback.tsx"
+    },
+    "/$board/": {
+      "filePath": "$board/index.tsx"
+    },
+    "/admin/": {
+      "filePath": "admin/index.tsx"
     }
   }
 }
