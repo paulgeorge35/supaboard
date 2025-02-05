@@ -52,7 +52,7 @@ function RouteComponent() {
   return (
     <>
       <div className="vertical justify-end gap-2 text-lg max-w-4xl mx-auto w-full pt-4">
-        <div className='horizontal center-v gap-2 justify-between'>
+        <div className='horizontal center-v gap-2 justify-between px-4 md:px-0'>
           <span className='horizontal gap-2 center-v'>
             {application?.logoUrl && <img src={application?.logoUrl} alt={application?.name} className='size-8' />}
             <h1 className='text-2xl font-medium'>{application?.name}</h1>
@@ -90,7 +90,7 @@ function RouteComponent() {
         </div>
       </div>
       <hr />
-      <div className="vertical gap-4 max-w-4xl mx-auto w-full py-8">
+      <div className="vertical gap-4 max-w-4xl mx-auto w-full py-8 px-4 md:px-0">
       <Outlet />
       </div>
       <Sonner richColors expand theme={application?.preferredTheme.toLowerCase() as 'system' | 'dark' | 'light'} />

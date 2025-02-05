@@ -82,7 +82,7 @@ function RouteComponent() {
   })
 
   return (
-    <div className="grid grid-cols-[300px_1fr] gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
       <div className="vertical gap-2">
         <h1 className="text-xs font-medium uppercase text-gray-500 px-3">
           Boards

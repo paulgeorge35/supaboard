@@ -26,7 +26,7 @@ function HomeComponent() {
       <span className="horizontal center-v justify-between">
         <h1 className="font-medium">Boards</h1>
       </span>
-      <div className="grid grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
         {boards.map((board) => (
           <BoardComponent
             key={board.slug}
@@ -48,7 +48,7 @@ function HomeComponent() {
         </button>
       </span>
 
-      <div className="grid grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <StatusBoard status="PLANNED" items={plannedFeedbacks} />
         <StatusBoard status="IN_PROGRESS" items={inProgressFeedbacks} />
         <StatusBoard status="RESOLVED" items={completeFeedbacks} />

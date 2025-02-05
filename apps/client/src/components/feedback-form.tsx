@@ -109,7 +109,7 @@ export function FeedbackForm({ boardId }: FeedbackFormProps) {
                             <p className='text-sm font-medium'>Details</p>
                             <textarea
                                 placeholder='Describe your feedback'
-                                className='w-full text-sm focus:outline-none'
+                                className='w-full md:text-sm focus:outline-none'
                                 value={formData.description}
                                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                             />

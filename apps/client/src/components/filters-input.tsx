@@ -31,16 +31,16 @@ export const FiltersInput = ({ onChange }: FiltersInputProps) => {
             <span className={cn("horizontal gap-2", {
                 'hidden': isFocused || search.length > 0,
             })}>
-                Showing
+                {/* Showing */}
             </span>
             <span
-                className={cn('horizontal center-v gap-2 border rounded-md px-2 py-1 [&>svg]:stroke-gray-500',
+                className={cn('horizontal center-v gap-2 border rounded-md px-2 py-1 [&>svg]:stroke-gray-500 w-[150px]',
                     {
                         'w-full': isFocused || search.length > 0,
                     }
                 )}>
                 <Icons.Search size={16} />
-                <input ref={ref} type="text" placeholder='Search' className='w-full focus:outline-none' value={search} onChange={handleChange} />
+                <input ref={ref} type="text" placeholder='Search...' className='w-full focus:outline-none' value={search} onChange={handleChange} />
                 {search.length > 0 && <button className='[&>svg]:stroke-gray-500 hover:[&>svg]:stroke-gray-700' onClick={handleClear}><Icons.X size={16} /></button>}
             </span>
         </>

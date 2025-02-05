@@ -42,6 +42,10 @@
 		@apply border-gray-200 dark:border-zinc-800 text-stone-950 dark:text-stone-50;
 	}
 
+	html {
+		@apply scroll-smooth bg-white dark:bg-zinc-900;
+	}
+
 	body {
 		@apply bg-white dark:bg-zinc-900
 	}

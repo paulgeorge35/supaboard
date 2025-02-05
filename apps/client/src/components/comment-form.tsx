@@ -18,7 +18,7 @@ export const CommentForm = ({ onSubmit, isPending, value, onChange, className }:
                     ref={ref}
                     type="text"
                     placeholder="Add a comment"
-                    className='w-full focus:outline-none text-sm'
+                    className='w-full focus:outline-none md:text-sm'
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     onKeyDown={(e) => {

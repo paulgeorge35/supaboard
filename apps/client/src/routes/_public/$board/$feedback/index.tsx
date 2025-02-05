@@ -132,8 +132,8 @@ function RouteComponent() {
   })
 
   return (
-    <div className="grid grid-cols-[300px_1fr] gap-8">
-      <div className="vertical gap-2">
+    <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
+      <div className="vertical gap-2 hidden md:block">
         <div className="grid grid-cols-[auto_1fr] gap-2 p-4 border rounded-lg">
           {feedback.estimatedDelivery && (
             <>

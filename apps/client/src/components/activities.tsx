@@ -135,7 +135,7 @@ export function Activities({ pinned, activities, sort, setSort, feedbackSlug, bo
     return (
         <>
             {user ? <span className='horizontal center-v gap-4 grid col-span-full grid-cols-subgrid'>
-                <CommentForm onSubmit={comment} isPending={isPending} value={commentValue} onChange={setCommentValue} className="col-start-2" />
+                <CommentForm onSubmit={comment} isPending={isPending} value={commentValue} onChange={setCommentValue} className="col-span-full md:col-span-1 md:col-start-2" />
             </span> :
                 <span className="horizontal center-v gap-4 grid col-span-full grid-cols-subgrid">
                     <p className="col-start-2 border rounded-lg px-8 py-4 text-center bg-gray-50 text-sm text-gray-500 dark:bg-zinc-800/20 dark:text-zinc-400">Please login to comment</p>

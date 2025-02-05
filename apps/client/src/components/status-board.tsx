@@ -63,7 +63,7 @@ export const StatusBoard = ({ status, items }: StatusBoardProps) => {
     })
 
     return (
-        <div className='w-full border rounded-lg h-[400px] vertical'>
+        <div className='w-full border rounded-lg max-h-[400px] md:h-[400px] vertical'>
             <div className='w-full h-[50px] border-b bg-gray-50 dark:bg-zinc-800/20 rounded-t-lg horizontal center-v px-4 shrink-0'>
                 <span className='text-sm font-medium horizontal center-v gap-2'><Dot status={status} />{label}</span>
             </div>
