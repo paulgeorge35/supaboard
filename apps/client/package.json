@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "dev": "vite --port=3001",
-    "build": "vite build",
+    "dev": "vite --port=3000",
+    "build": "vite build && rsync -av --delete dist/ /var/www/supaboard/",
     "serve": "vite preview",
     "start": "vite"
   },
@@ -14,24 +14,30 @@
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@tanstack/router-plugin": "^1.99.0",
+    "@types/bun": "latest",
+    "@types/luxon": "^3.4.2",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.2",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.1",
     "tailwindcss": "^4.0.3",
-    "vite": "^6.0.3",
-    "@types/bun": "latest"
+    "vite": "^6.0.3"
   },
   "dependencies": {
+    "@paulgeorge35/hooks": "^2.0.0",
     "@tailwindcss/vite": "^4.0.3",
     "@tanstack/react-query": "^5.66.0",
     "@tanstack/react-router": "^1.99.0",
     "@tanstack/router-devtools": "^1.99.0",
+    "framer-motion": "^12.1.0",
     "lucide-react": "^0.474.0",
+    "luxon": "^3.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.0.1"
+    "sonner": "^1.7.4",
+    "tailwind-merge": "^3.0.1",
+    "zustand": "^5.0.3"
   },
   "module": "index.ts",
   "peerDependencies": {

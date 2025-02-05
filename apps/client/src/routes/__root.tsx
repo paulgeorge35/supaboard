@@ -1,51 +1,107 @@
-import type { Application, Board, Feedback, User } from '@repo/database'
+import type { Activity, Application, Board, Feedback, FeedbackStatus, User } from '@repo/database'
 import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { useEffect } from 'react'
+import { Toaster as Sonner } from 'sonner'
 import { AdminButton } from '../components/admin-button'
 import { AuthButtons } from '../components/auth-buttons'
 import { Icons } from '../components/icons'
+import { fetchClient } from '../lib/client'
+import { useAuthStore } from '../stores/auth-store'
 
 type MeQueryData = {
   user?: Pick<User, 'id' | 'email' | 'name' | 'avatar'>
   application: Pick<Application, 'id' | 'name' | 'subdomain' | 'customDomain' | 'domainStatus' | 'logoUrl' | 'iconUrl' | 'color' | 'preferredTheme' | 'preferredLanguage' | 'ownerId'>
 }
 
-const meQuery = queryOptions<MeQueryData>({
+export const meQuery = queryOptions<MeQueryData>({
   queryKey: ['me'],
-  queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/auth/me`).then(res => res.json())
+  queryFn: () => fetchClient("auth/me")
 })
+
+export type FeedbackSummary = Pick<Feedback, 'id' | 'title' | 'status' | 'slug'> & {
+  votes: number;
+  board: Pick<Board, 'name' | 'slug'>;
+  votedByMe: boolean;
+}
 
 export type ApplicationBoardsQueryData = (Pick<Board, 'name' | 'slug'> & {
   count: number;
-  feedbacks: (Pick<Feedback, 'title' | 'status' | 'slug'> & {
-    votes: number;
-    board: Pick<Board, 'name' | 'slug'>;
-  })[]
+  feedbacks: FeedbackSummary[]
 })[]
 
 export const applicationBoardsQuery = queryOptions<ApplicationBoardsQueryData>({
   queryKey: ['application', 'boards'],
-  queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/application/boards`).then(res => res.json())
+  queryFn: () => fetchClient("application/boards")
 })
 
-export type BoardQueryData = Pick<Board, 'name' | 'slug'> & {
+export type BoardQueryData = Pick<Board, 'id' | 'name' | 'slug'> & {
   feedbacks: (Pick<Feedback, 'id' | 'title' | 'description' | 'status' | 'slug'> & {
     votes: number;
     activities: number;
+    votedByMe: boolean;
   })[]
 }
-
 export const boardQuery = (slug: string) => queryOptions<BoardQueryData>({
   queryKey: ['board', slug],
-  queryFn: () => fetch(`${import.meta.env.VITE_API_URL}/board/${slug}`).then(res => res.json())
+  queryFn: () => fetchClient(`board/${slug}`)
+})
+
+
+export type FeedbackQueryData = Pick<Feedback, 'id' | 'title' | 'description' | 'status' | 'slug' | 'createdAt'> & {
+  votes: number;
+  votedByMe: boolean;
+  author: Pick<User, 'id' | 'name' | 'avatar'> & {
+    isAdmin: boolean;
+  };
+}
+
+export const feedbackQuery = (boardSlug: string, feedbackSlug: string) => queryOptions<FeedbackQueryData>({
+  queryKey: ['feedback', boardSlug, feedbackSlug],
+  queryFn: () => fetchClient(`feedback/${boardSlug}/${feedbackSlug}`)
+})
+
+export type ActivityCommentData = {
+  content: string;
+}
+
+export type ActivityStatusChangeData = {
+  status: FeedbackStatus;
+  content?: string;
+}
+
+export type FeedbackActivitySummary = Activity & {
+  likes: number;
+  likedByMe: boolean;
+  author: Pick<User, 'id' | 'name' | 'avatar'> & {
+    isAdmin: boolean;
+  };
+  data: ActivityCommentData | ActivityStatusChangeData;
+};
+
+export type FeedbackActivitiesQueryData = {
+  pinned?: FeedbackActivitySummary;
+  activities: FeedbackActivitySummary[];
+}
+
+export const feedbackActivitiesQuery = (boardSlug: string, feedbackSlug: string, sort: 'newest' | 'oldest' = 'newest') => queryOptions<FeedbackActivitiesQueryData>({
+  queryKey: ['feedback', 'activities', boardSlug, feedbackSlug, sort],
+  queryFn: () => fetchClient(`feedback/${boardSlug}/${feedbackSlug}/activities?sort=${sort}`)
+})
+
+export type FeedbackVotersQueryData = (Pick<User, 'id' | 'name' | 'avatar'> & {
+  isAdmin: boolean;
+})[]
+
+export const feedbackVotersQuery = (boardSlug: string, feedbackSlug: string) => queryOptions<FeedbackVotersQueryData>({
+  queryKey: ['feedback', 'voters', boardSlug, feedbackSlug],
+  queryFn: () => fetchClient(`feedback/${boardSlug}/${feedbackSlug}/voters`)
 })
 
 export const Route = createRootRoute({
   context: () => {
     const queryClient = new QueryClient()
-
     return {
       queryClient,
     }
@@ -57,7 +113,19 @@ export const Route = createRootRoute({
   component: () => {
     const { data } = useSuspenseQuery(meQuery)
     const { data: boards } = useSuspenseQuery(applicationBoardsQuery)
-    return <RootComponent user={data?.user} application={data?.application} boards={boards} isAdmin={data?.user?.id === data?.application.ownerId} />
+    const { setUser, setApplication } = useAuthStore()
+
+    useEffect(() => {
+      setUser(data?.user)
+      setApplication(data?.application)
+    }, [data?.user, data?.application, setUser, setApplication])
+
+    return <RootComponent
+      user={data?.user}
+      application={data?.application}
+      boards={boards}
+      isAdmin={data?.user?.id === data?.application.ownerId}
+    />
   },
 })
 
@@ -134,6 +202,7 @@ function RootComponent({ user, application, boards, isAdmin }: RootComponentProp
       <div className="vertical gap-4 max-w-4xl mx-auto w-full py-8">
         <Outlet />
       </div>
+      <Sonner />
       <TanStackRouterDevtools position="bottom-right" />
     </>
   )

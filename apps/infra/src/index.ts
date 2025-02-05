@@ -103,12 +103,12 @@ CronJob.from({
 
             try {
                 const cnameRecords = await dns.resolveCname(application.customDomain);
-                const valid = cnameRecords.some(record => application.customDomain && record === 'tenant.supaboard.app');
+                const valid = cnameRecords.some(record => application.customDomain && record === 'tenant.supaboard.io');
 
                 if (valid) {
                     console.log(`CNAME for ${application.customDomain} is valid`);
 
-                    await addDomain(application.customDomain).exited;
+                    await addDomain(application.customDomain);
 
                     await db.application.update({
                         where: { id: application.id },

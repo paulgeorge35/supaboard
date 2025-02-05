@@ -63,9 +63,14 @@ enum Language {
   RO
 }
 
+enum OAuthProvider {
+  GITHUB
+  GOOGLE
+}
+
 model User {
   id       String  @id @default(uuid())
-  name     String  @default("")
+  name     String
   email    String  @unique
   avatar   String?
   password String?
@@ -77,11 +82,33 @@ model User {
   votes          Vote[]
   activities     Activity[]
   likes          ActivityLike[]
+  oauthAccounts  OAuthAccount[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([email])
+}
+
+model OAuthAccount {
+  id                String        @id @default(uuid())
+  provider          OAuthProvider @default(GOOGLE)
+  providerAccountId String
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         DateTime?
+  tokenType         String?
+  scope             String?
+  idToken           String?
+  sessionState      String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, provider])
 }
 
 model Member {

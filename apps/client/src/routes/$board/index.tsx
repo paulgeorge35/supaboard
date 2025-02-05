@@ -1,10 +1,13 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { Link, createFileRoute, useParams } from '@tanstack/react-router';
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { createFileRoute, Link, useParams } from '@tanstack/react-router';
+import { toast } from 'sonner';
+import { FeedbackForm } from '../../components/feedback-form';
 import { Icons } from '../../components/icons';
 import { StatusBadge } from '../../components/status-badge';
 import { VoteButton } from '../../components/vote-button';
+import { fetchClient } from '../../lib/client';
 import { cn } from '../../lib/utils';
-import { applicationBoardsQuery, boardQuery } from '../__root';
+import { applicationBoardsQuery, boardQuery, BoardQueryData } from '../__root';
 
 export const Route = createFileRoute('/$board/')({
     component: RouteComponent,
@@ -14,8 +17,54 @@ function RouteComponent() {
     const { board: boardSlug } = useParams({ from: '/$board/' })
     const { data: boards } = useSuspenseQuery(applicationBoardsQuery);
     const { data: board } = useSuspenseQuery(boardQuery(boardSlug));
+    const queryClient = useQueryClient();
 
     const toBoard = (slug: string) => `/${slug}`;
+
+    const { mutate: vote, isPending } = useMutation({
+        mutationFn: (feedbackId: string) => fetchClient(`feedback/${feedbackId}/vote`, { method: "POST" }),
+        onMutate: async (feedbackId: string) => {
+            const feedback = board?.feedbacks.find(f => f.id === feedbackId);
+            if (!feedback) return;
+
+            await queryClient.cancelQueries({ queryKey: ['board'] });
+            
+            const boardQueries = queryClient.getQueriesData<BoardQueryData>({ queryKey: ['board'] })
+            
+            const previousBoardsData = new Map(boardQueries)
+
+            boardQueries.forEach(([queryKey, boardData]) => {
+                if (!boardData) return;
+
+                queryClient.setQueryData(queryKey, {
+                    ...boardData,
+                    feedbacks: boardData.feedbacks.map(feedback =>
+                        feedback.id === feedbackId
+                            ? {
+                                ...feedback,
+                                votes: feedback.votedByMe ? feedback.votes - 1 : feedback.votes + 1,
+                                votedByMe: !feedback.votedByMe
+                            }
+                            : feedback
+                    )
+                })
+            })
+
+            return {
+                previousBoardsData
+            }
+        },
+        onError: (_, __, context) => {
+            context?.previousBoardsData?.forEach((data, queryKey) => {
+                queryClient.setQueryData(queryKey, data)
+            })
+
+            toast.error("Failed to vote")
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ['board'] })
+        }
+    })
 
     return (
         <div className='grid grid-cols-[300px_1fr] gap-8'>
@@ -37,13 +86,18 @@ function RouteComponent() {
             <div className='vertical gap-2'>
                 <h1 className='font-medium'>Give Feedback</h1>
                 <div className='vertical'>
+                    <FeedbackForm boardId={board.id} />
+
+                    <div className='border rounded-t-lg horizontal center-v justify-end gap-2 px-4 py-2 bg-gray-50 mt-4'>
+                        <input type="text" placeholder='Search' className='w-full focus:outline-none' />
+                    </div>
                     {board.feedbacks.map((feedback, index) => (
                         <Link key={feedback.slug} to={feedback.slug} className={cn('p-4 border border-t-0 grid grid-cols-[1fr_auto] items-start transition-colors duration-200 hover:bg-gray-900/5', {
-                            'border-t-1': index === 0
+                            'rounded-b-lg': index === board.feedbacks.length - 1,
                         })}>
                             <div className='vertical gap-2'>
                                 <h2 className='text-sm font-medium'>{feedback.title}</h2>
-                                <p className='text-sm text-gray-500'>{feedback.description}</p>
+                                <p className='text-sm text-gray-500 line-clamp-2'>{feedback.description}</p>
                                 <span className='horizontal gap-2 center-v'>
                                     <Icons.MessageSquare size={12} />
                                     <span className='text-xs text-gray-500'>{feedback.activities}</span>
@@ -53,7 +107,7 @@ function RouteComponent() {
                                     </>}
                                 </span>
                             </div>
-                            <VoteButton votes={feedback.votes} />
+                            <VoteButton votes={feedback.votes} votedByMe={feedback.votedByMe} vote={() => vote(feedback.id)} isPending={isPending} />
                         </Link>
                     ))}
                 </div>

@@ -32,18 +32,15 @@ function HomeComponent() {
 
       <div className='grid grid-cols-3 gap-8'>
         <StatusBoard
-          title='Planned'
-          color='bg-blue-500'
+          status='PLANNED'
           items={plannedFeedbacks}
         />
         <StatusBoard
-          title='In Progress'
-          color='bg-violet-500'
+          status='IN_PROGRESS'
           items={inProgressFeedbacks}
         />
         <StatusBoard
-          title='Complete'
-          color='bg-green-500'
+          status='RESOLVED'
           items={completeFeedbacks}
         />
       </div>

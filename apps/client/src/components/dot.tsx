@@ -6,6 +6,6 @@ type DotProps = {
 
 export const Dot = ({ className }: DotProps) => {
     return (
-        <div className={cn('w-2 h-2 bg-gray-500 rounded-full', className)} />
+        <div className={cn('size-2 bg-gray-500 rounded-full', className)} />
     )
 }
