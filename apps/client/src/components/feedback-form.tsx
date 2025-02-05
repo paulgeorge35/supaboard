@@ -1,10 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useParams } from '@tanstack/react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { fetchClient } from '../lib/client';
+import { useAuthStore } from '../stores/auth-store';
 
 const feedbackSchema = z.object({
     title: z.string().min(1, 'Title is required'),
@@ -18,6 +19,8 @@ interface FeedbackFormProps {
 }
 
 export function FeedbackForm({ boardId }: FeedbackFormProps) {
+    const { board: boardSlug } = useParams({ from: '/_public/$board/' })
+    const { user } = useAuthStore()
     const navigate = useNavigate();
     const [isExpanded, setIsExpanded] = useState(true);
     const [formData, setFormData] = useState<FeedbackInput>({
@@ -36,7 +39,7 @@ export function FeedbackForm({ boardId }: FeedbackFormProps) {
             navigate({
                 to: '/$board/$feedback',
                 params: {
-                    board: boardId ?? "",
+                    board: boardSlug,
                     feedback: data.slug,
                 }
             });
@@ -67,6 +70,14 @@ export function FeedbackForm({ boardId }: FeedbackFormProps) {
         setErrors({});
         setIsExpanded(false);
     };
+
+    if (!user) {
+        return (
+            <p className='px-4 text-center py-4 vertical gap-2 border rounded-lg bg-gray-50 text-sm text-gray-500 dark:bg-zinc-800/20 dark:text-zinc-400'>
+                Please login to add a feedback
+            </p>
+        )
+    }
 
     return (
         <motion.div
@@ -117,17 +128,17 @@ export function FeedbackForm({ boardId }: FeedbackFormProps) {
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.2 }}
-                        className='border-t horizontal center-v justify-end gap-2 px-4 py-2 bg-gray-50'
+                        className='border-t horizontal center-v justify-end gap-2 px-4 py-2 bg-gray-50 dark:bg-zinc-800/20'
                     >
                         <button
-                            className='text-xs p-2 border rounded-lg px-4'
+                            className='button button-secondary'
                             disabled={createFeedback.isPending}
                             onClick={handleCancel}
                         >
                             Cancel
                         </button>
                         <button
-                            className='text-xs p-2 bg-gray-900 text-white rounded-lg px-4 disabled:bg-gray-400'
+                            className='button button-primary'
                             onClick={handleSubmit}
                             disabled={createFeedback.isPending}
                         >

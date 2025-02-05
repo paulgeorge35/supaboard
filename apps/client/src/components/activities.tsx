@@ -138,7 +138,7 @@ export function Activities({ pinned, activities, sort, setSort, feedbackSlug, bo
                 <CommentForm onSubmit={comment} isPending={isPending} value={commentValue} onChange={setCommentValue} className="col-start-2" />
             </span> :
                 <span className="horizontal center-v gap-4 grid col-span-full grid-cols-subgrid">
-                    <p className="col-start-2 border rounded-lg px-8 py-4 bg-gray-50 text-sm text-gray-500">Sign in to comment</p>
+                    <p className="col-start-2 border rounded-lg px-8 py-4 text-center bg-gray-50 text-sm text-gray-500 dark:bg-zinc-800/20 dark:text-zinc-400">Please login to comment</p>
                 </span>
             }
 
@@ -147,7 +147,7 @@ export function Activities({ pinned, activities, sort, setSort, feedbackSlug, bo
                     <Avatar src={pinned.author.avatar ?? undefined} name={pinned.author.name} className='size-6' isAdmin={pinned.author.isAdmin} />
                 </span>
                 <span className='horizontal center-v justify-between'>
-                    <p className={cn('text-sm font-medium', pinned.author.isAdmin && 'text-blue-500')}>{pinned.author.name}</p>
+                    <p className={cn('text-sm font-medium', pinned.author.isAdmin && 'text-[var(--color-primary)]')}>{pinned.author.name}</p>
                     <p className="text-xs text-gray-700 font-bold uppercase horizontal center-v gap-1"><Icons.Pin size={12} /> Pinned</p>
                 </span>
                 {pinned.data.content && <p className='text-sm hyphens-auto font-light col-start-2'>{pinned.data.content}</p>}
@@ -178,7 +178,7 @@ export function Activities({ pinned, activities, sort, setSort, feedbackSlug, bo
                     <span className='horizontal justify-end'>
                         <Avatar src={activity.author.avatar ?? undefined} name={activity.author.name} className='size-6' isAdmin={activity.author.isAdmin} />
                     </span>
-                    <p className={cn('text-sm font-medium', activity.author.isAdmin && 'text-blue-500')}>{activity.author.name}</p>
+                    <p className={cn('text-sm font-medium', activity.author.isAdmin && 'text-[var(--color-primary)]')}>{activity.author.name}</p>
                     {activity.data.content && <p className='text-sm hyphens-auto font-light col-start-2'>{activity.data.content}</p>}
                     <span className='horizontal center-v gap-2 col-start-2'>
                         <LikeButton likes={activity.likes} likedByMe={activity.likedByMe} like={() => like(activity.id)} isPending={isLikePending} />

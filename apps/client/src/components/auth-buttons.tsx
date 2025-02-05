@@ -28,10 +28,10 @@ export function AuthButtons({ user, isAdmin }: AuthButtonsProps) {
     if (!user) {
         return (
             <span className="horizontal gap-2 center-v">
-                <a href={`${apiURL}/auth/google/sign-in`} type="button" className="text-sm font-light px-3 py-1 rounded-lg border hover:bg-gray-100 transition-colors duration-200">
+                <a href={`${apiURL}/auth/google/sign-in`} type="button" className="button button-secondary">
                     Log In
                 </a>
-                <button type="button" className="text-sm font-light px-3 py-1 rounded-lg border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200">
+                <button type="button" className="button button-primary">
                     Sign Up
                 </button>
             </span>
@@ -51,7 +51,7 @@ export function AuthButtons({ user, isAdmin }: AuthButtonsProps) {
             </button>
 
             <div
-                className="absolute right-0 top-full mt-2 w-48 rounded-md bg-white shadow-sm border ring-opacity-5 hidden"
+                className="absolute right-0 top-full mt-2 w-48 rounded-md bg-white dark:bg-zinc-900 shadow-sm border dark:border-zinc-800 ring-opacity-5 hidden"
                 data-popover
                 role="menu"
             >
@@ -60,12 +60,12 @@ export function AuthButtons({ user, isAdmin }: AuthButtonsProps) {
                         <div className="font-medium">{user.name}</div>
                         <div className="text-gray-500 text-xs truncate">{user.email}</div>
                     </div>
-                    {isAdmin && <button type="button" className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                    {isAdmin && <button type="button" className="text-left block w-full px-4 py-2 text-sm text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/20" role="menuitem">
                         Settings
                     </button>}
                     <button
                         type="button"
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-zinc-800/20"
                         role="menuitem"
                         onClick={() => signOut()}
                     >

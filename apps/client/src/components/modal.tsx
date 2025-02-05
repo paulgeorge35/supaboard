@@ -55,7 +55,7 @@ export function Modal({
             >
                 {/* Modal Content */}
                 <div
-                    className={`relative top-1/2 -translate-y-1/2 mx-auto max-w-lg w-full bg-white rounded-lg shadow-lg ${contentClassName} z-50`}
+                    className={`relative top-1/2 -translate-y-1/2 mx-auto max-w-lg w-full bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-lg shadow-lg ${contentClassName} z-50`}
                     onClick={e => e.stopPropagation()}
                 >
                     {/* Header */}
@@ -78,7 +78,7 @@ export function Modal({
                     )}
 
                     {/* Body */}
-                    <div className="px-4 py-3">
+                    <div className="px-4 py-3 font-light text-sm">
                         {children}
                     </div>
 

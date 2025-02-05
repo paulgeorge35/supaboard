@@ -28,11 +28,11 @@ export const CommentForm = ({ onSubmit, isPending, value, onChange, className }:
                     }}
                 />
             </div>
-            <div className={cn('p-2 border-t hidden horizontal gap-2 justify-end bg-gray-50', {
+            <div className={cn('p-2 border-t hidden horizontal gap-2 justify-end bg-gray-50 dark:bg-zinc-800/20', {
                 'flex': isFocused
             })}>
                 <button
-                    className='bg-blue-500 text-white px-2 py-1 text-sm rounded-md'
+                    className='button button-primary'
                     onClick={() => onSubmit(value)}
                     disabled={isPending}
                 >

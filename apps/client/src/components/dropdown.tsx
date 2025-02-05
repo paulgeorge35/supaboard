@@ -35,7 +35,7 @@ export function Dropdown({
 
             {/* Dropdown Menu */}
             <div
-                className={`absolute ${align}-0 top-full mt-2 rounded-md bg-white shadow-sm border ring-opacity-5 hidden min-w-full ${className}`}
+                className={`absolute ${align}-0 top-full mt-2 rounded-md bg-white dark:bg-zinc-900 shadow-sm border ring-opacity-5 hidden min-w-full ${className}`}
                 data-popover
                 role="menu"
             >
@@ -52,7 +52,7 @@ export function Dropdown({
                         <button
                             key={index}
                             type="button"
-                            className={`block w-full text-left px-2 py-1 text-sm ${item.className ?? 'text-gray-700 hover:bg-gray-100'
+                            className={`block w-full text-left px-2 py-1 text-sm ${item.className ?? 'text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/20'
                                 }`}
                             role="menuitem"
                             onClick={item.onClick}

@@ -44,8 +44,8 @@ export function DeleteFeedbackButton({ boardSlug, feedbackSlug }: DeleteFeedback
                 title="Delete Feedback"
                 footer={
                     <div className="horizontal gap-2 center-v justify-end">
-                        <button type="button" onClick={handleCancel} className="border border-gray-300 text-gray-500 px-4 py-2 rounded-md">Cancel</button>
-                        <button onClick={handleDelete} className="bg-red-400 text-white px-4 py-2 rounded-md">Delete</button>
+                        <button type="button" onClick={handleCancel} className="button button-secondary">Cancel</button>
+                        <button onClick={handleDelete} className="button button-primary">Delete</button>
                     </div>
                 }
             >

@@ -8,25 +8,25 @@ import { createFileRoute, Link, useParams } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Activities } from '../../../components/activities'
-import { Avatar } from '../../../components/avatar'
-import { DeleteFeedbackButton } from '../../../components/delete-feedback-button'
-import { EditFeedbackButton } from '../../../components/edit-feedback-button'
-import { EditHistory } from '../../../components/edit-history'
-import { StatusBadge } from '../../../components/status-badge'
-import { VoteButton } from '../../../components/vote-button'
-import { fetchClient } from '../../../lib/client'
-import { cn } from '../../../lib/utils'
-import { useAuthStore } from '../../../stores/auth-store'
+import { Activities } from '../../../../components/activities'
+import { Avatar } from '../../../../components/avatar'
+import { DeleteFeedbackButton } from '../../../../components/delete-feedback-button'
+import { EditFeedbackButton } from '../../../../components/edit-feedback-button'
+import { EditHistory } from '../../../../components/edit-history'
+import { StatusBadge } from '../../../../components/status-badge'
+import { VoteButton } from '../../../../components/vote-button'
+import { fetchClient } from '../../../../lib/client'
+import { cn } from '../../../../lib/utils'
+import { useAuthStore } from '../../../../stores/auth-store'
 import {
   feedbackActivitiesQuery,
   feedbackQuery,
   FeedbackQueryData,
   feedbackVotersQuery,
   FeedbackVotersQueryData,
-} from '../../__root'
+} from '../../../__root'
 
-export const Route = createFileRoute('/$board/$feedback/')({
+export const Route = createFileRoute('/_public/$board/$feedback/')({
   component: RouteComponent,
 })
 
@@ -35,7 +35,7 @@ function RouteComponent() {
   const queryClient = useQueryClient()
   const { user, application } = useAuthStore()
   const { board: boardSlug, feedback: feedbackSlug } = useParams({
-    from: '/$board/$feedback/',
+    from: '/_public/$board/$feedback/',
   })
 
   const { data: feedbackVoters } = useSuspenseQuery(
@@ -44,9 +44,9 @@ function RouteComponent() {
   const { data: feedback } = useSuspenseQuery(
     feedbackQuery(boardSlug, feedbackSlug),
   )
-  const {
-    data,
-  } = useQuery(feedbackActivitiesQuery(boardSlug, feedbackSlug, sort))
+  const { data } = useQuery(
+    feedbackActivitiesQuery(boardSlug, feedbackSlug, sort),
+  )
 
   const { mutate: vote, isPending } = useMutation({
     mutationFn: () =>
@@ -135,15 +135,28 @@ function RouteComponent() {
     <div className="grid grid-cols-[300px_1fr] gap-8">
       <div className="vertical gap-2">
         <div className="grid grid-cols-[auto_1fr] gap-2 p-4 border rounded-lg">
-          {feedback.estimatedDelivery && <>
-            <h1 className="text-xs font-bold uppercase text-gray-500 col-span-full">Estimated</h1>
-            <p className="text-sm font-light text-gray-500 col-span-full">
-              {feedback.estimatedDelivery ? DateTime.fromJSDate(new Date(feedback.estimatedDelivery)).toFormat('MMMM yyyy') : 'Not estimated'}
-            </p>
-          </>}
-          <h1 className="text-xs font-bold uppercase text-gray-500 col-span-full">Voters</h1>
+          {feedback.estimatedDelivery && (
+            <>
+              <h1 className="text-xs font-bold uppercase text-gray-500 col-span-full">
+                Estimated
+              </h1>
+              <p className="text-sm font-light text-gray-500 col-span-full">
+                {feedback.estimatedDelivery
+                  ? DateTime.fromJSDate(
+                      new Date(feedback.estimatedDelivery),
+                    ).toFormat('MMMM yyyy')
+                  : 'Not estimated'}
+              </p>
+            </>
+          )}
+          <h1 className="text-xs font-bold uppercase text-gray-500 col-span-full">
+            Voters
+          </h1>
           {feedbackVoters.map((voter) => (
-            <span key={`voter-${voter.id}`} className="horizontal gap-2 center-v">
+            <span
+              key={`voter-${voter.id}`}
+              className="horizontal gap-2 center-v col-span-full"
+            >
               <Avatar
                 src={voter.avatar ?? undefined}
                 name={voter.name}
@@ -153,16 +166,20 @@ function RouteComponent() {
               <span
                 className={cn(
                   'text-sm font-light',
-                  voter.isAdmin && 'text-blue-500 font-normal',
+                  voter.isAdmin && 'text-[var(--color-primary)] font-normal',
                 )}
               >
                 {voter.name}
               </span>
             </span>
           ))}
-          {feedbackVoters.length > 5 && (
-            <Link to="/$board/$feedback/voters" params={{ board: boardSlug, feedback: feedbackSlug }} className="text-sm font-light col-start-2 text-blue-500 hover:text-blue-600">
-              and {feedbackVoters.length - 5} more
+          {feedbackVoters.length > 3 && (
+            <Link
+              to="/$board/$feedback/voters"
+              params={{ board: boardSlug, feedback: feedbackSlug }}
+              className="text-sm font-light col-start-2 text-[var(--color-primary)] hover:text-[var(--color-primary)]/80"
+            >
+              and {feedbackVoters.length - 3} more
             </Link>
           )}
           {feedbackVoters.length === 0 && (
@@ -198,7 +215,7 @@ function RouteComponent() {
           <p
             className={cn(
               'text-sm font-medium',
-              feedback.author.isAdmin && 'text-blue-500',
+              feedback.author.isAdmin && 'text-[var(--color-primary)]',
             )}
           >
             {feedback.author.name}
@@ -218,9 +235,16 @@ function RouteComponent() {
               feedbackSlug={feedbackSlug}
             />
             {feedback.isDeletable && (
-              <DeleteFeedbackButton boardSlug={boardSlug} feedbackSlug={feedbackSlug} />
+              <DeleteFeedbackButton
+                boardSlug={boardSlug}
+                feedbackSlug={feedbackSlug}
+              />
             )}
-            <EditHistory boardSlug={boardSlug} feedbackSlug={feedbackSlug} edited={feedback.edited} />
+            <EditHistory
+              boardSlug={boardSlug}
+              feedbackSlug={feedbackSlug}
+              edited={feedback.edited}
+            />
           </span>
         </span>
 

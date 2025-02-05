@@ -1,19 +1,21 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useParams } from '@tanstack/react-router'
-import { Avatar } from '../../../components/avatar'
-import { cn } from '../../../lib/utils'
-import { feedbackVotersQuery } from '../../__root'
+import { Avatar } from '../../../../components/avatar'
+import { cn } from '../../../../lib/utils'
+import { feedbackVotersQuery } from '../../../__root'
 
-export const Route = createFileRoute('/$board/$feedback/voters')({
+export const Route = createFileRoute('/_public/$board/$feedback/voters')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const { board: boardSlug, feedback: feedbackSlug } = useParams({
-    from: '/$board/$feedback/voters',
+    from: '/_public/$board/$feedback/voters',
   })
 
-  const { data } = useSuspenseQuery(feedbackVotersQuery(boardSlug, feedbackSlug))
+  const { data } = useSuspenseQuery(
+    feedbackVotersQuery(boardSlug, feedbackSlug),
+  )
 
   return (
     <div className="grid grid-cols-subgrid col-span-full gap-2 border rounded-lg p-8">

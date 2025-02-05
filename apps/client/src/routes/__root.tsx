@@ -1,12 +1,8 @@
 import type { Activity, Application, Board, Feedback, FeedbackStatus, User } from '@repo/database'
 import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import { Link, Outlet, createRootRoute, useParams } from '@tanstack/react-router'
+import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { useEffect } from 'react'
-import { Toaster as Sonner } from 'sonner'
-import { AdminButton } from '../components/admin-button'
-import { AuthButtons } from '../components/auth-buttons'
-import { Icons } from '../components/icons'
 import { fetchClient } from '../lib/client'
 import { useAuthStore } from '../stores/auth-store'
 
@@ -131,7 +127,6 @@ export const Route = createRootRoute({
   },
   component: () => {
     const { data } = useSuspenseQuery(meQuery)
-    const { data: boards } = useSuspenseQuery(applicationBoardsQuery)
     const { setUser, setApplication } = useAuthStore()
 
     useEffect(() => {
@@ -139,95 +134,14 @@ export const Route = createRootRoute({
       setApplication(data?.application)
     }, [data?.user, data?.application, setUser, setApplication])
 
-    return <RootComponent
-      user={data?.user}
-      application={data?.application}
-      boards={boards}
-      isAdmin={data?.user?.id === data?.application.ownerId}
-    />
+    return <RootComponent />
   },
 })
 
-type RootComponentProps = {
-  user?: Pick<User, 'id' | 'email' | 'name' | 'avatar'>
-  application: Pick<Application, 'id' | 'name' | 'subdomain' | 'customDomain' | 'domainStatus' | 'logoUrl' | 'iconUrl' | 'color' | 'preferredTheme' | 'preferredLanguage' | 'ownerId'>
-  boards: ApplicationBoardsQueryData
-  isAdmin: boolean
-}
-
-function RootComponent({ user, application, boards, isAdmin }: RootComponentProps) {
-  const params = useParams({
-    strict: false,
-  })
-
-  useEffect(() => {
-    const theme = application.preferredTheme.toLowerCase()
-    if (theme === 'system') {
-      localStorage.removeItem('currentTheme')
-      document.documentElement.classList.toggle('dark', window.matchMedia('(prefers-color-scheme: dark)').matches)
-    } else {
-      localStorage.currentTheme = theme
-      document.documentElement.classList.toggle('dark', theme === 'dark')
-    }
-  }, [application.preferredTheme])
-
-  useEffect(() => {
-    if (application.iconUrl) {
-      const link = document.createElement('link')
-      link.rel = 'icon'
-      link.href = application.iconUrl
-      document.head.appendChild(link)
-    }
-    document.title = `${application.name} Feedback`
-  }, [application.iconUrl, application.name])
-
-  const defaultBoardSlug = params?.board ?? boards[0]?.slug ?? '/';
-
+function RootComponent() {
   return (
     <>
-      <div className="vertical justify-end gap-2 text-lg max-w-4xl mx-auto w-full pt-4">
-        <div className='horizontal center-v gap-2 justify-between'>
-          <span className='horizontal gap-2 center-v'>
-            {application.logoUrl && <img src={application.logoUrl} alt={application.name} className='size-8' />}
-            <h1 className='text-2xl font-medium'>{application.name}</h1>
-          </span>
-          <span className='horizontal gap-2 center-v'>
-            <AdminButton isAdmin={isAdmin} />
-            <AuthButtons user={user} isAdmin={isAdmin} />
-          </span>
-        </div>
-        <div className="horizontal items-end gap-2 text-lg max-w-4xl mx-auto w-full">
-          <Link
-            to="/"
-            activeProps={{
-              className: '!border-gray-500 !text-black [&>svg]:!stroke-black',
-            }}
-            className='-mb-[1px] border-b-[1px] border-transparent font-medium text-gray-400 px-3 py-2 text-sm horizontal center-v gap-2 [&>svg]:stroke-gray-400'
-            activeOptions={{ exact: true }}
-          >
-            <Icons.Map className='size-4' />
-            Roadmap
-          </Link>
-          <Link
-            to={'/$board'}
-            params={{
-              board: defaultBoardSlug,
-            }}
-            activeProps={{
-              className: '!border-gray-500 !text-black [&>svg]:!stroke-black',
-            }}
-            className='-mb-[1px] border-b-[1px] border-transparent font-medium text-gray-400 px-3 py-2 text-sm horizontal center-v gap-2 [&>svg]:stroke-gray-400'
-          >
-            <Icons.Lightbulb className='size-4' />
-            Feedback
-          </Link>
-        </div>
-      </div>
-      <hr />
-      <div className="vertical gap-4 max-w-4xl mx-auto w-full py-8">
-        <Outlet />
-      </div>
-      <Sonner />
+      <Outlet />
       {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
     </>
   )

@@ -27,10 +27,10 @@ export const VoteButton = ({ votes, votedByMe, className, vote, isPending }: Vot
     return (
         <button
             type='button'
-            className={cn("border rounded-md px-2 py-1 hover:bg-gray-50 transition-colors duration-200 group w-9 vertical center gap-1",
+            className={cn("border hover:border-[var(--color-primary)] [&>span]:text-[var(--color-primary)] [&>svg]:stroke-[var(--color-primary)] rounded-md px-2 py-1 hover:bg-[var(--color-primary)]/30 transition-colors duration-200 group w-9 vertical center gap-1",
                 className,
                 {
-                    "border-blue-500 bg-blue-500/20 [&>span]:text-blue-500 [&>svg]:stroke-blue-500": votedByMe,
+                    "border-[var(--color-primary)] bg-[var(--color-primary)]/20 [&>span]:text-[var(--color-primary)] [&>svg]:stroke-[var(--color-primary)]": votedByMe,
                 }
             )}
             onClick={handleVote}>

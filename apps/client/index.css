@@ -96,6 +96,22 @@
 		@apply justify-between;
 	}
 
+	.button {
+		@apply flex items-center justify-center gap-2 rounded-lg text-xs px-4 py-2 bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)]/80 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none
+	}
+
+	.button.button-primary {
+		@apply bg-[var(--color-primary)] text-white [&>svg]:stroke-white dark:text-zinc-900 dark:[&>svg]:stroke-zinc-900 hover:bg-[var(--color-primary)]/80
+	}
+
+	.button.button-secondary {
+		@apply bg-transparent border border-[var(--color-primary)] text-[var(--color-primary)] [&>svg]:stroke-[var(--color-primary)] hover:bg-[var(--color-primary)]/10
+	}
+
+	.button.button-small {
+		@apply rounded-md text-xs px-2 py-1;
+	}
+
 	.pb-safe-bottom {
 		@media (display-mode: standalone), (display-mode: fullscreen),
 			(display-mode: minimal-ui) {

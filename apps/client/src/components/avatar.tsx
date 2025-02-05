@@ -37,9 +37,20 @@ const colors = [
 export function Avatar({ src, name, className, isAdmin }: AvatarProps) {
     const color = colors[name.charCodeAt(0) % colors.length]
     return (
-        <div className={cn("size-8 rounded-full flex items-center justify-center relative", color.bg, color.text, className)}>
-            {src ? <img src={src} alt={name} className="size-8 rounded-full" /> : name.slice(0, 1).toUpperCase()}
-            {isAdmin && <Icons.Star className="absolute right-[-5px] bottom-[-2px] size-[16px] p-[1px] bg-blue-500 stroke-blue-500 rounded-full fill-white border-[2px] border-white" />}
+        <div className={cn("size-8 rounded-full relative", className)}
+        >
+            {isAdmin && <Icons.Star className="absolute z-10 right-[-5px] bottom-[-2px] size-[12px] p-[1px] bg-[var(--color-primary)] stroke-[var(--color-primary)] rounded-full fill-white border-white" />}
+            {src ?
+                <img src={src} alt={name} className="size-8 rounded-full" />
+                :
+                <span
+                    className={cn("aspect-square w-full rounded-full flex items-center justify-center", color.bg, color.text)}
+                    style={{
+                        mask: isAdmin ? "radial-gradient(circle 8px at 23px 82%, transparent 99%, #fff 100%)" : undefined
+                    }}
+                >
+                    {name.slice(0, 1).toUpperCase()}
+                </span>}
         </div>
     )
 }
