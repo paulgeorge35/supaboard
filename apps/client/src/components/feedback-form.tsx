@@ -14,7 +14,7 @@ const feedbackSchema = z.object({
 type FeedbackInput = z.infer<typeof feedbackSchema>;
 
 interface FeedbackFormProps {
-    boardId: string;
+    boardId?: string;
 }
 
 export function FeedbackForm({ boardId }: FeedbackFormProps) {
@@ -28,15 +28,15 @@ export function FeedbackForm({ boardId }: FeedbackFormProps) {
 
     const createFeedback = useMutation({
         mutationFn: async (data: FeedbackInput) => await fetchClient(`/feedback/${boardId}/create`, {
-                method: 'POST',
-                body: JSON.stringify(data),
+            method: 'POST',
+            body: JSON.stringify(data),
         }),
         onSuccess: (data) => {
             toast.success('Feedback created successfully');
             navigate({
                 to: '/$board/$feedback',
                 params: {
-                    board: boardId,
+                    board: boardId ?? "",
                     feedback: data.slug,
                 }
             });
@@ -69,7 +69,7 @@ export function FeedbackForm({ boardId }: FeedbackFormProps) {
     };
 
     return (
-        <motion.div 
+        <motion.div
             className="border rounded-lg overflow-hidden"
             animate={{ height: isExpanded ? "auto" : "60px" }}
             transition={{ duration: 0.2 }}
@@ -86,7 +86,7 @@ export function FeedbackForm({ boardId }: FeedbackFormProps) {
                 {errors.title && (
                     <p className='text-red-500 text-xs'>{errors.title}</p>
                 )}
-                
+
                 <AnimatePresence>
                     {isExpanded && (
                         <motion.div

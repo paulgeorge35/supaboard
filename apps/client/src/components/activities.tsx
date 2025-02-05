@@ -134,11 +134,13 @@ export function Activities({ pinned, activities, sort, setSort, feedbackSlug, bo
 
     return (
         <>
-
-            {user && <span className='horizontal center-v gap-4 grid col-span-full grid-cols-subgrid'>
-                <span className='flex-1' />
-                <CommentForm onSubmit={comment} isPending={isPending} value={commentValue} onChange={setCommentValue} />
-            </span>}
+            {user ? <span className='horizontal center-v gap-4 grid col-span-full grid-cols-subgrid'>
+                <CommentForm onSubmit={comment} isPending={isPending} value={commentValue} onChange={setCommentValue} className="col-start-2" />
+            </span> :
+                <span className="horizontal center-v gap-4 grid col-span-full grid-cols-subgrid">
+                    <p className="col-start-2 border rounded-lg px-8 py-4 bg-gray-50 text-sm text-gray-500">Sign in to comment</p>
+                </span>
+            }
 
             {pinned && <span className='horizontal center-v gap-4 grid col-span-full grid-cols-subgrid'>
                 <span className='horizontal justify-end'>
@@ -148,10 +150,8 @@ export function Activities({ pinned, activities, sort, setSort, feedbackSlug, bo
                     <p className={cn('text-sm font-medium', pinned.author.isAdmin && 'text-blue-500')}>{pinned.author.name}</p>
                     <p className="text-xs text-gray-700 font-bold uppercase horizontal center-v gap-1"><Icons.Pin size={12} /> Pinned</p>
                 </span>
-                <span className='flex-1' />
-                {pinned.data.content && <p className='text-sm hyphens-auto font-light'>{pinned.data.content}</p>}
-                <span className='flex-1' />
-                <span className='horizontal center-v gap-2'>
+                {pinned.data.content && <p className='text-sm hyphens-auto font-light col-start-2'>{pinned.data.content}</p>}
+                <span className='horizontal center-v gap-2 col-start-2'>
                     <LikeButton likes={pinned.likes} likedByMe={pinned.likedByMe} like={() => like(pinned.id)} isPending={isLikePending} />
                     <p className='text-xs text-gray-500'>&bull;</p>
                     <p className='text-xs text-gray-500'>{DateTime.fromJSDate(new Date(pinned.createdAt)).toFormat('MMMM dd, yyyy')}</p>
@@ -160,8 +160,7 @@ export function Activities({ pinned, activities, sort, setSort, feedbackSlug, bo
             </span>}
 
             {activities.length > 0 && <span className='horizontal center-v gap-4 grid col-span-full grid-cols-subgrid'>
-                <span className='flex-1' />
-                <span className='horizontal center-v justify-between'>
+                <span className='horizontal center-v justify-between col-start-2'>
                     <p className='text-sm text-gray-500'>Activity Feed</p>
                     <Dropdown trigger={
                         <button className='text-sm text-gray-500 horizontal center-v justify-between border rounded-md px-2 py-1 w-32'>
@@ -180,10 +179,8 @@ export function Activities({ pinned, activities, sort, setSort, feedbackSlug, bo
                         <Avatar src={activity.author.avatar ?? undefined} name={activity.author.name} className='size-6' isAdmin={activity.author.isAdmin} />
                     </span>
                     <p className={cn('text-sm font-medium', activity.author.isAdmin && 'text-blue-500')}>{activity.author.name}</p>
-                    <span className='flex-1' />
-                    {activity.data.content && <p className='text-sm hyphens-auto font-light'>{activity.data.content}</p>}
-                    <span className='flex-1' />
-                    <span className='horizontal center-v gap-2'>
+                    {activity.data.content && <p className='text-sm hyphens-auto font-light col-start-2'>{activity.data.content}</p>}
+                    <span className='horizontal center-v gap-2 col-start-2'>
                         <LikeButton likes={activity.likes} likedByMe={activity.likedByMe} like={() => like(activity.id)} isPending={isLikePending} />
                         <p className='text-xs text-gray-500'>&bull;</p>
                         <p className='text-xs text-gray-500'>{DateTime.fromJSDate(new Date(activity.createdAt)).toFormat('MMMM dd, yyyy')}</p>

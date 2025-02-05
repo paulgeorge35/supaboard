@@ -12,6 +12,12 @@ export async function getBoardBySlug(req: BareSessionRequest, res: Response) {
             name: true,
             slug: true,
             feedbacks: {
+                where: {
+                    OR: req.query.search ? [
+                        { title: { contains: req.query.search as string } },
+                        { description: { contains: req.query.search as string } },
+                    ] : undefined
+                },
                 select: {
                     id: true,
                     title: true,

@@ -1,4 +1,4 @@
-import { ArrowRight, ChevronDown, ChevronUp, Eye, Heart, Lightbulb, MapIcon, MessageSquare, Pin, Star, TicketX } from 'lucide-react';
+import { ArrowRight, ChevronDown, ChevronUp, Eye, Filter, Heart, Lightbulb, MapIcon, MessageSquare, Pin, Search, Star, TicketX, X } from 'lucide-react';
 import type { RefAttributes, SVGProps } from "react";
 
 type SVGAttributes = Partial<SVGProps<SVGSVGElement>>;
@@ -20,6 +20,9 @@ export const Icons = {
     Eye,
     Heart,
     Pin,
+    Search,
+    X,
+    Filter,
     Google: ({ ...props }: IconProps) => (
         <svg
             aria-hidden="true"

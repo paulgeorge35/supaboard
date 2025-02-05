@@ -1,6 +1,6 @@
 import type { Activity, Application, Board, Feedback, FeedbackStatus, User } from '@repo/database'
 import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import { Link, Outlet, createRootRoute } from '@tanstack/react-router'
+import { Link, Outlet, createRootRoute, useParams } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { useEffect } from 'react'
 import { Toaster as Sonner } from 'sonner'
@@ -43,15 +43,17 @@ export type BoardQueryData = Pick<Board, 'id' | 'name' | 'slug'> & {
     votedByMe: boolean;
   })[]
 }
-export const boardQuery = (slug: string) => queryOptions<BoardQueryData>({
-  queryKey: ['board', slug],
-  queryFn: () => fetchClient(`board/${slug}`)
+export const boardQuery = (slug: string, search?: string, sort: 'newest' | 'oldest' = 'newest') => queryOptions<BoardQueryData>({
+  queryKey: ['board', slug, search, sort],
+  queryFn: () => fetchClient(`board/${slug}?${search ? `search=${search}&` : ''}${sort ? `sort=${sort}` : ''}`)
 })
 
 
-export type FeedbackQueryData = Pick<Feedback, 'id' | 'title' | 'description' | 'status' | 'slug' | 'createdAt'> & {
+export type FeedbackQueryData = Pick<Feedback, 'id' | 'title' | 'description' | 'status' | 'slug' | 'createdAt' | 'edited' | 'estimatedDelivery'> & {
   votes: number;
   votedByMe: boolean;
+  isDeletable: boolean;
+  isEditable: boolean;
   author: Pick<User, 'id' | 'name' | 'avatar'> & {
     isAdmin: boolean;
   };
@@ -99,6 +101,23 @@ export const feedbackVotersQuery = (boardSlug: string, feedbackSlug: string) => 
   queryFn: () => fetchClient(`feedback/${boardSlug}/${feedbackSlug}/voters`)
 })
 
+export type FeedbackEditActivity = Activity & {
+  from: {
+    title: string;
+    description: string;
+  };
+  to: {
+    title: string;
+    description: string;
+  };
+}
+
+export type FeedbackEditHistoryQueryData = FeedbackEditActivity[];
+
+export const feedbackEditHistoryQuery = (boardSlug: string, feedbackSlug: string) => queryOptions<FeedbackEditHistoryQueryData>({
+  queryKey: ['feedback', 'edit-history', boardSlug, feedbackSlug],
+  queryFn: () => fetchClient(`feedback/${boardSlug}/${feedbackSlug}/edit-history`)
+})
 export const Route = createRootRoute({
   context: () => {
     const queryClient = new QueryClient()
@@ -137,6 +156,10 @@ type RootComponentProps = {
 }
 
 function RootComponent({ user, application, boards, isAdmin }: RootComponentProps) {
+  const params = useParams({
+    strict: false,
+  })
+
   useEffect(() => {
     const theme = application.preferredTheme.toLowerCase()
     if (theme === 'system') {
@@ -158,7 +181,7 @@ function RootComponent({ user, application, boards, isAdmin }: RootComponentProp
     document.title = `${application.name} Feedback`
   }, [application.iconUrl, application.name])
 
-  const defaultBoard = boards[0]?.slug ?? '/';
+  const defaultBoardSlug = params?.board ?? boards[0]?.slug ?? '/';
 
   return (
     <>
@@ -170,7 +193,7 @@ function RootComponent({ user, application, boards, isAdmin }: RootComponentProp
           </span>
           <span className='horizontal gap-2 center-v'>
             <AdminButton isAdmin={isAdmin} />
-            <AuthButtons user={user} />
+            <AuthButtons user={user} isAdmin={isAdmin} />
           </span>
         </div>
         <div className="horizontal items-end gap-2 text-lg max-w-4xl mx-auto w-full">
@@ -186,11 +209,13 @@ function RootComponent({ user, application, boards, isAdmin }: RootComponentProp
             Roadmap
           </Link>
           <Link
-            to={defaultBoard}
+            to={'/$board'}
+            params={{
+              board: defaultBoardSlug,
+            }}
             activeProps={{
               className: '!border-gray-500 !text-black [&>svg]:!stroke-black',
             }}
-            disabled={defaultBoard === '/'}
             className='-mb-[1px] border-b-[1px] border-transparent font-medium text-gray-400 px-3 py-2 text-sm horizontal center-v gap-2 [&>svg]:stroke-gray-400'
           >
             <Icons.Lightbulb className='size-4' />
@@ -203,7 +228,7 @@ function RootComponent({ user, application, boards, isAdmin }: RootComponentProp
         <Outlet />
       </div>
       <Sonner />
-      <TanStackRouterDevtools position="bottom-right" />
+      {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
     </>
   )
 }

@@ -6,16 +6,13 @@ import { Avatar } from "./avatar"
 
 type AuthButtonsProps = {
     user?: Pick<User, 'id' | 'email' | 'name' | 'avatar'>
+    isAdmin: boolean
 }
 
-export function AuthButtons({ user }: AuthButtonsProps) {
+export function AuthButtons({ user, isAdmin }: AuthButtonsProps) {
     const apiURL = window.location.hostname.endsWith('supaboard.io') ? 'https://api.supaboard.io' : `https://${window.location.hostname}/api`
     const queryClient = useQueryClient();
 
-    // const { data: session } = useQuery({
-    //     queryKey: ['auth', 'google', 'sign-in'],
-    //     queryFn: () => fetchClient("auth/google/sign-in", { method: 'GET' }),
-    // });
 
     const { mutate: signOut } = useMutation<{ message: string }, Error, void>({
         mutationFn: () => fetchClient("auth/logout", { method: 'POST' }),
@@ -41,8 +38,6 @@ export function AuthButtons({ user }: AuthButtonsProps) {
         )
     }
 
-    const initial = user.name.slice(0, 1).toUpperCase()
-
     return (
         <div className="relative">
             <button
@@ -65,9 +60,9 @@ export function AuthButtons({ user }: AuthButtonsProps) {
                         <div className="font-medium">{user.name}</div>
                         <div className="text-gray-500 text-xs truncate">{user.email}</div>
                     </div>
-                    <button type="button" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                    {isAdmin && <button type="button" className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
                         Settings
-                    </button>
+                    </button>}
                     <button
                         type="button"
                         className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"

@@ -1,7 +1,9 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useParams } from '@tanstack/react-router';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { FeedbackForm } from '../../components/feedback-form';
+import { FiltersInput } from '../../components/filters-input';
 import { Icons } from '../../components/icons';
 import { StatusBadge } from '../../components/status-badge';
 import { VoteButton } from '../../components/vote-button';
@@ -14,9 +16,10 @@ export const Route = createFileRoute('/$board/')({
 })
 
 function RouteComponent() {
+    const [search, setSearch] = useState('');
     const { board: boardSlug } = useParams({ from: '/$board/' })
     const { data: boards } = useSuspenseQuery(applicationBoardsQuery);
-    const { data: board } = useSuspenseQuery(boardQuery(boardSlug));
+    const { data: board } = useQuery(boardQuery(boardSlug, search));
     const queryClient = useQueryClient();
 
     const toBoard = (slug: string) => `/${slug}`;
@@ -27,9 +30,9 @@ function RouteComponent() {
             const feedback = board?.feedbacks.find(f => f.id === feedbackId);
             if (!feedback) return;
 
-            await queryClient.cancelQueries({ queryKey: ['board'] });
+            await queryClient.cancelQueries({ queryKey: ['board', boardSlug, search] });
             
-            const boardQueries = queryClient.getQueriesData<BoardQueryData>({ queryKey: ['board'] })
+            const boardQueries = queryClient.getQueriesData<BoardQueryData>({ queryKey: ['board', boardSlug, search] })
             
             const previousBoardsData = new Map(boardQueries)
 
@@ -86,14 +89,14 @@ function RouteComponent() {
             <div className='vertical gap-2'>
                 <h1 className='font-medium'>Give Feedback</h1>
                 <div className='vertical'>
-                    <FeedbackForm boardId={board.id} />
+                    <FeedbackForm boardId={board?.id} />
 
-                    <div className='border rounded-t-lg horizontal center-v justify-end gap-2 px-4 py-2 bg-gray-50 mt-4'>
-                        <input type="text" placeholder='Search' className='w-full focus:outline-none' />
+                    <div className='border rounded-t-lg horizontal center-v justify-between gap-2 px-4 py-2 bg-gray-50 mt-4'>
+                        <FiltersInput onChange={setSearch} />
                     </div>
-                    {board.feedbacks.map((feedback, index) => (
+                    {board?.feedbacks.map((feedback, index) => (
                         <Link key={feedback.slug} to={feedback.slug} className={cn('p-4 border border-t-0 grid grid-cols-[1fr_auto] items-start transition-colors duration-200 hover:bg-gray-900/5', {
-                            'rounded-b-lg': index === board.feedbacks.length - 1,
+                            'rounded-b-lg': index === board?.feedbacks.length - 1,
                         })}>
                             <div className='vertical gap-2'>
                                 <h2 className='text-sm font-medium'>{feedback.title}</h2>
@@ -110,6 +113,7 @@ function RouteComponent() {
                             <VoteButton votes={feedback.votes} votedByMe={feedback.votedByMe} vote={() => vote(feedback.id)} isPending={isPending} />
                         </Link>
                     ))}
+                    {board?.feedbacks.length === 0 && <p className='text-sm text-gray-500 p-4 border border-t-0 rounded-b-lg'>There are no feedbacks yet</p>}
                 </div>
             </div>
         </div>

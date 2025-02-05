@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { applicationMiddleware } from '../../middleware/application';
 import { requireAuth } from '../../middleware/auth';
-import { comment, createFeedback, getActivities, getFeedbackBySlug, getVoters, like, pin, vote } from './feedback.controller';
+import { comment, createFeedback, deleteFeedback, editHistory, getActivities, getFeedbackBySlug, getVoters, like, pin, updateFeedback, vote } from './feedback.controller';
 
 const router = Router();
 
@@ -13,5 +13,8 @@ router.get('/:boardSlug/:feedbackSlug/activities', requireAuth, applicationMiddl
 router.post('/:boardSlug/:feedbackSlug/comment', requireAuth, applicationMiddleware, comment);
 router.post('/:boardSlug/:feedbackSlug/like/:activityId', requireAuth, applicationMiddleware, like);
 router.post('/:boardSlug/:feedbackSlug/pin/:activityId', requireAuth, applicationMiddleware, pin);
+router.delete('/:boardSlug/:feedbackSlug', requireAuth, applicationMiddleware, deleteFeedback);
+router.put('/:boardSlug/:feedbackSlug', requireAuth, applicationMiddleware, updateFeedback);
+router.get('/:boardSlug/:feedbackSlug/edit-history', requireAuth, applicationMiddleware, editHistory);
 
 export { router as feedbackRouter };

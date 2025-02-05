@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import ReactDOM from 'react-dom/client'
 import { routeTree } from './routeTree.gen'
+import { initializeModals } from './utils/modal'
 import { initializePopovers } from './utils/popover'
 // Set up a Router instance
 const router = createRouter({
@@ -32,3 +33,4 @@ if (!rootElement.innerHTML) {
 
 // Initialize popovers after the app mounts
 initializePopovers()
+initializeModals()

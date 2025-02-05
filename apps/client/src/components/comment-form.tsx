@@ -6,12 +6,13 @@ type CommentFormProps = {
     isPending: boolean;
     value: string;
     onChange: (value: string) => void;
+    className?: string;
 }
 
-export const CommentForm = ({ onSubmit, isPending, value, onChange }: CommentFormProps) => {
+export const CommentForm = ({ onSubmit, isPending, value, onChange, className }: CommentFormProps) => {
     const [ref, isFocused] = useFocus<HTMLInputElement>()
     return (
-        <div className='flex-1 border'>
+        <div className={cn('flex-1 border', className)}>
             <div className='p-2'>
                 <input
                     ref={ref}

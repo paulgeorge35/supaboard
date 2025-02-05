@@ -38,8 +38,8 @@ export async function vote(req: BareSessionRequest, res: Response) {
 }
 
 const feedbackSchema = z.object({
-    title: z.string().min(1),
-    description: z.string().min(1),
+    title: z.string().min(1).trim(),
+    description: z.string().min(1).trim(),
 });
 
 async function generateUniqueSlug(title: string, boardId: string): Promise<string> {
@@ -102,6 +102,8 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
     const { boardSlug, feedbackSlug } = req.params;
     const { application } = req;
 
+    const member = await db.member.findFirst({ where: { userId, applicationId: application?.id } });
+
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId: application?.id } });
 
     if (!board) {
@@ -117,6 +119,7 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
                     id: true,
                     authorId: true,
                 },
+                take: 5,
             },
             author: {
                 select: {
@@ -138,14 +141,20 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
         return;
     }
 
+    const hasActivity = await db.activity.findFirst({ where: { feedbackId: feedback.id } });
+
     res.status(200).json({
         id: feedback.id,
         title: feedback.title,
         description: feedback.description,
         slug: feedback.slug,
+        edited: feedback.edited,
         status: feedback.status,
+        estimatedDelivery: feedback.estimatedDelivery,
         votes: feedback._count.votes,
         votedByMe: feedback.votes.some((vote) => vote.authorId === userId),
+        isDeletable: hasActivity ? member : userId === feedback.authorId,
+        isEditable: userId === feedback.authorId,
         createdAt: feedback.createdAt,
         author: {
             id: feedback.author?.id ?? "deleted",
@@ -450,4 +459,159 @@ export async function pin(req: BareSessionRequest, res: Response) {
     }
 
     res.status(200).json({ success: true });
+}
+
+export async function updateFeedback(req: BareSessionRequest, res: Response) {
+    const { boardSlug, feedbackSlug } = req.params;
+    const applicationId = req.application?.id;
+    const userId = req.auth?.id;
+
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+
+    const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
+
+    if (!board) {
+        res.status(404).json({ error: 'Board not found' });
+        return;
+    }
+
+    const feedback = await db.feedback.findFirst({ where: { slug: feedbackSlug, boardId: board.id } });
+
+    if (!feedback) {
+        res.status(404).json({ error: 'Feedback not found' });
+        return;
+    }
+
+    const { success, data } = feedbackSchema.safeParse(req.body);
+
+    if (!success) {
+        res.status(400).json({ error: 'Invalid feedback data' });
+        return;
+    }
+
+    await db.$transaction(async (tx) => {
+        await tx.feedback.update({
+            where: { id: feedback.id }, data: {
+                title: data.title,
+                description: data.description,
+                edited: true,
+            }
+        });
+
+        await tx.activity.create({
+            data: {
+                type: 'FEEDBACK_UPDATE',
+                data: {
+                    from: {
+                        title: feedback.title,
+                        description: feedback.description,
+                    },
+                    to: {
+                        title: data.title,
+                        description: data.description,
+                    }
+                },
+                feedback: { connect: { id: feedback.id } },
+                author: { connect: { id: userId } },
+            },
+        });
+    });
+
+    res.status(200).json({ success: true });
+}
+
+export async function deleteFeedback(req: BareSessionRequest, res: Response) {
+    const { boardSlug, feedbackSlug } = req.params;
+    const applicationId = req.application?.id;
+    const userId = req.auth?.id;
+
+
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+
+    const member = await db.member.findFirst({ where: { userId, applicationId } });
+
+    const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
+
+    if (!board) {
+        res.status(404).json({ error: 'Board not found' });
+        return;
+    }
+
+    const feedback = await db.feedback.findFirst({ where: { slug: feedbackSlug, boardId: board.id } });
+
+
+    if (!feedback) {
+        res.status(404).json({ error: 'Feedback not found' });
+        return;
+    }
+
+    const hasActivity = await db.activity.findFirst({ where: { feedbackId: feedback.id } });
+
+    if (hasActivity) {
+        if (member) {
+            await db.feedback.delete({ where: { id: feedback.id } });
+        } else {
+            res.status(403).json({ error: 'You are not allowed to delete this feedback' });
+            return;
+        }
+    } else {
+        if (userId === feedback.authorId) {
+            await db.feedback.delete({ where: { id: feedback.id } });
+        } else {
+            res.status(403).json({ error: 'You are not allowed to delete this feedback' });
+            return;
+        }
+    }
+
+    res.status(200).json({ success: true });
+}
+
+const editHistorySchema = z.object({
+    from: z.object({
+        title: z.string().min(1),
+        description: z.string().min(1),
+    }),
+    to: z.object({
+        title: z.string().min(1),
+        description: z.string().min(1),
+    }),
+});
+
+export async function editHistory(req: BareSessionRequest, res: Response) {
+    const { boardSlug, feedbackSlug } = req.params;
+    const applicationId = req.application?.id;
+
+    const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
+
+    if (!board) {
+        res.status(404).json({ error: 'Board not found' });
+        return;
+    }
+
+    const feedback = await db.feedback.findFirst({ where: { slug: feedbackSlug, boardId: board.id } });
+
+    if (!feedback) {
+        res.status(404).json({ error: 'Feedback not found' });
+        return;
+    }
+
+    const activities = await db.activity.findMany({
+        where: { feedbackId: feedback.id, type: 'FEEDBACK_UPDATE' },
+        orderBy: { createdAt: 'asc' }
+    });
+
+    const result = activities.map((activity) => {
+        return {
+            ...activity,
+            ...editHistorySchema.parse(activity.data),
+        };
+    });
+
+    res.status(200).json(result);
 }
