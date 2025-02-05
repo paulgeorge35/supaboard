@@ -41,7 +41,7 @@ export async function getBoardBySlug(req: BareSessionRequest, res: Response) {
     });
 
     if (!board) {
-        res.status(404).json({ error: 'Board not found' });
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
         return;
     }
 

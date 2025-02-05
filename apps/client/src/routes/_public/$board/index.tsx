@@ -4,12 +4,13 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query'
-import { createFileRoute, Link, useParams } from '@tanstack/react-router'
+import { createFileRoute, Link, notFound, useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { FeedbackForm } from '../../../components/feedback-form'
 import { FiltersInput } from '../../../components/filters-input'
 import { Icons } from '../../../components/icons'
+import { NotFoundPage } from '../../../components/not-found'
 import { StatusBadge } from '../../../components/status-badge'
 import { VoteButton } from '../../../components/vote-button'
 import { fetchClient } from '../../../lib/client'
@@ -18,6 +19,19 @@ import { applicationBoardsQuery, boardQuery, BoardQueryData } from '../../__root
 
 export const Route = createFileRoute('/_public/$board/')({
   component: RouteComponent,
+  notFoundComponent: () => <NotFoundPage />,
+  loader: async ({ params }) => {
+    const { board: boardSlug } = params
+    const board = await fetchClient(`board/${boardSlug}`)
+
+    if (!board) {
+      throw notFound();
+    }
+
+    return {
+      board,
+    }
+  },
 })
 
 function RouteComponent() {

@@ -1,3 +1,4 @@
+import { notFound } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 export const fetchClient = async (path: string | URL | globalThis.Request, options?: RequestInit) => {
@@ -12,13 +13,23 @@ export const fetchClient = async (path: string | URL | globalThis.Request, optio
             ...options,
         });
 
+        
         if (!res.ok) {
+            if (res.status === 404) {
+                throw notFound();
+            }
             const error = await res.json();
+            if (error?.code === 'NOT_FOUND') {
+                throw notFound();
+            }
             throw new Error(error.error || 'Something went wrong');
         }
 
         return res.json();
-    } catch (err) {
+    } catch (err: any) {
+        if ('isNotFound' in err) {
+            throw notFound();
+        }
         toast.error(err instanceof Error ? err.message : 'Something went wrong');
         throw err;
     }

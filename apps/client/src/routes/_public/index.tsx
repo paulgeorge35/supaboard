@@ -4,6 +4,7 @@ import { Board as BoardComponent } from '../../components/board'
 import { Icons } from '../../components/icons'
 import { StatusBoard } from '../../components/status-board'
 import { applicationBoardsQuery } from '../__root'
+
 export const Route = createFileRoute('/_public/')({
   component: HomeComponent,
 })

@@ -15,14 +15,14 @@ export async function vote(req: BareSessionRequest, res: Response) {
     }
 
     if (!application) {
-        res.status(404).json({ error: 'Application not found' });
+        res.status(404).json({ error: 'Application not found', code: 'NOT_FOUND' });
         return;
     }
 
     const feedback = await db.feedback.findUnique({ where: { id: feedbackId, board: { applicationId: application.id } } });
 
     if (!feedback) {
-        res.status(404).json({ error: 'Feedback not found' });
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
         return;
     }
 
@@ -107,7 +107,7 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId: application?.id } });
 
     if (!board) {
-        res.status(404).json({ error: 'Board not found' });
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
         return;
     }
 
@@ -137,7 +137,7 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
     });
 
     if (!feedback) {
-        res.status(404).json({ error: 'Feedback not found' });
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
         return;
     }
 
@@ -172,21 +172,21 @@ export async function getVoters(req: BareSessionRequest, res: Response) {
     const application = await db.application.findUnique({ where: { id: applicationId } });
 
     if (!application) {
-        res.status(404).json({ error: 'Application not found' });
+        res.status(404).json({ error: 'Application not found', code: 'NOT_FOUND' });
         return;
     }
 
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
 
     if (!board) {
-        res.status(404).json({ error: 'Board not found' });
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
         return;
     }
 
     const feedback = await db.feedback.findFirst({ where: { slug: feedbackSlug, boardId: board.id } });
 
     if (!feedback) {
-        res.status(404).json({ error: 'Feedback not found' });
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
         return;
     }
 
@@ -226,20 +226,20 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
     const application = await db.application.findUnique({ where: { id: applicationId } });
 
     if (!application) {
-        res.status(404).json({ error: 'Application not found' });
+        res.status(404).json({ error: 'Application not found', code: 'NOT_FOUND' });
         return;
     }
 
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
     if (!board) {
-        res.status(404).json({ error: 'Board not found' });
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
         return;
     }
 
     const feedback = await db.feedback.findFirst({ where: { slug: feedbackSlug, boardId: board.id } });
 
     if (!feedback) {
-        res.status(404).json({ error: 'Feedback not found' });
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
         return;
     }
 
@@ -348,14 +348,14 @@ export async function comment(req: BareSessionRequest, res: Response) {
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
 
     if (!board) {
-        res.status(404).json({ error: 'Board not found' });
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
         return;
     }
 
     const feedback = await db.feedback.findFirst({ where: { slug: feedbackSlug, boardId: board.id } });
 
     if (!feedback) {
-        res.status(404).json({ error: 'Feedback not found' });
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
         return;
     }
 
@@ -388,21 +388,21 @@ export async function like(req: BareSessionRequest, res: Response) {
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
 
     if (!board) {
-        res.status(404).json({ error: 'Board not found' });
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
         return;
     }
 
     const feedback = await db.feedback.findFirst({ where: { slug: feedbackSlug, boardId: board.id } });
 
     if (!feedback) {
-        res.status(404).json({ error: 'Feedback not found' });
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
         return;
     }
 
     const activity = await db.activity.findFirst({ where: { id: activityId, feedbackId: feedback.id } });
 
     if (!activity) {
-        res.status(404).json({ error: 'Activity not found' });
+        res.status(404).json({ error: 'Activity not found', code: 'NOT_FOUND' });
         return;
     }
 
@@ -431,21 +431,21 @@ export async function pin(req: BareSessionRequest, res: Response) {
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
 
     if (!board) {
-        res.status(404).json({ error: 'Board not found' });
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
         return;
     }
 
     const feedback = await db.feedback.findFirst({ where: { slug: feedbackSlug, boardId: board.id } });
 
     if (!feedback) {
-        res.status(404).json({ error: 'Feedback not found' });
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
         return;
     }
 
     const activity = await db.activity.findFirst({ where: { id: activityId, feedbackId: feedback.id } });
 
     if (!activity) {
-        res.status(404).json({ error: 'Activity not found' });
+        res.status(404).json({ error: 'Activity not found', code: 'NOT_FOUND' });
         return;
     }
 
@@ -474,14 +474,14 @@ export async function updateFeedback(req: BareSessionRequest, res: Response) {
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
 
     if (!board) {
-        res.status(404).json({ error: 'Board not found' });
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
         return;
     }
 
     const feedback = await db.feedback.findFirst({ where: { slug: feedbackSlug, boardId: board.id } });
 
     if (!feedback) {
-        res.status(404).json({ error: 'Feedback not found' });
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
         return;
     }
 
@@ -539,7 +539,7 @@ export async function deleteFeedback(req: BareSessionRequest, res: Response) {
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
 
     if (!board) {
-        res.status(404).json({ error: 'Board not found' });
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
         return;
     }
 
@@ -547,7 +547,7 @@ export async function deleteFeedback(req: BareSessionRequest, res: Response) {
 
 
     if (!feedback) {
-        res.status(404).json({ error: 'Feedback not found' });
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
         return;
     }
 
@@ -590,14 +590,14 @@ export async function editHistory(req: BareSessionRequest, res: Response) {
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
 
     if (!board) {
-        res.status(404).json({ error: 'Board not found' });
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
         return;
     }
 
     const feedback = await db.feedback.findFirst({ where: { slug: feedbackSlug, boardId: board.id } });
 
     if (!feedback) {
-        res.status(404).json({ error: 'Feedback not found' });
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
         return;
     }
 

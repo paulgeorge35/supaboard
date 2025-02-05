@@ -8,7 +8,7 @@ export async function getApplication(req: BareSessionRequest, res: Response) {
     });
 
     if (!application) {
-        res.status(404).json({ error: 'Application not found' });
+        res.status(404).json({ error: 'Application not found', code: 'NOT_FOUND' });
         return;
     }
 

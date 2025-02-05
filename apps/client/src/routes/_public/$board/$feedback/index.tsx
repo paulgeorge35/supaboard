@@ -4,7 +4,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query'
-import { createFileRoute, Link, useParams } from '@tanstack/react-router'
+import { createFileRoute, Link, notFound, useParams } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -13,6 +13,7 @@ import { Avatar } from '../../../../components/avatar'
 import { DeleteFeedbackButton } from '../../../../components/delete-feedback-button'
 import { EditFeedbackButton } from '../../../../components/edit-feedback-button'
 import { EditHistory } from '../../../../components/edit-history'
+import { NotFoundPage } from '../../../../components/not-found'
 import { StatusBadge } from '../../../../components/status-badge'
 import { VoteButton } from '../../../../components/vote-button'
 import { fetchClient } from '../../../../lib/client'
@@ -28,6 +29,17 @@ import {
 
 export const Route = createFileRoute('/_public/$board/$feedback/')({
   component: RouteComponent,
+  notFoundComponent: () => <NotFoundPage />,
+  loader: async ({ params }) => {
+    const { board: boardSlug, feedback: feedbackSlug } = params
+    const feedback = await fetchClient(`feedback/${boardSlug}/${feedbackSlug}`)
+
+    if (!feedback) {
+      throw notFound()
+    }
+
+    return { feedback }
+  },
 })
 
 function RouteComponent() {

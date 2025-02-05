@@ -5,11 +5,13 @@ import { Toaster as Sonner } from 'sonner'
 import { AdminButton } from '../components/admin-button'
 import { AuthButtons } from '../components/auth-buttons'
 import { Icons } from '../components/icons'
+import { NotFoundPage } from '../components/not-found'
 import { useAuthStore } from '../stores/auth-store'
 import { applicationBoardsQuery } from './__root'
 
 export const Route = createFileRoute('/_public')({
   component: RouteComponent,
+  notFoundComponent: () => <NotFoundPage />,
 })
 
 function RouteComponent() {
