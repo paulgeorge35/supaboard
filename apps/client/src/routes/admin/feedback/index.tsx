@@ -9,5 +9,7 @@ function RouteComponent() {
   const { application } = useAuthStore()
   const url = `/admin/feedback/${application?.boards[0].slug}/`
 
+  console.log('/admin/feedback/')
+
   return <Navigate to={url} />
 }
