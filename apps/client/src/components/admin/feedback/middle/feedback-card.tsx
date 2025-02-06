@@ -9,7 +9,7 @@ export function FeedbackCard({ slug, title, description, status, activities, vot
     activities: number;
     votedByMe: boolean;
 }) {
-    const { boardSlug } = useParams({ from: "/admin/feedback/$boardSlug/" })
+    const { boardSlug } = useParams({ from: "/admin/feedback/$boardSlug" })
 
     return (
         <>

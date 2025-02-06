@@ -44,8 +44,8 @@ export function DeleteFeedbackButton({ boardSlug, feedbackSlug }: DeleteFeedback
                 title="Delete Feedback"
                 footer={
                     <div className="horizontal gap-2 center-v justify-end">
-                        <button type="button" onClick={handleCancel} className="button button-secondary">Cancel</button>
-                        <button onClick={handleDelete} className="button button-primary">Delete</button>
+                        <button type="button" onClick={handleCancel} className="button button-secondary" disabled={isPending}>Cancel</button>
+                        <button type="button" onClick={handleDelete} className="button button-primary" disabled={isPending}>{isPending ? 'Deleting...' : 'Delete'}</button>
                     </div>
                 }
             >

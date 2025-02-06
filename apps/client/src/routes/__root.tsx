@@ -42,9 +42,10 @@ export type BoardQueryData = Pick<Board, 'id' | 'name' | 'slug'> & {
     votedByMe: boolean;
   })[]
 }
-export const boardQuery = (slug: string, search?: string, sort: 'newest' | 'oldest' = 'newest') => queryOptions<BoardQueryData>({
+export const boardQuery = (slug?: string, search?: string, sort: 'newest' | 'oldest' = 'newest') => queryOptions<BoardQueryData>({
   queryKey: ['board', slug, search, sort],
-  queryFn: () => fetchClient(`board/${slug}?${search ? `search=${search}&` : ''}${sort ? `sort=${sort}` : ''}`)
+  queryFn: () => fetchClient(`board/${slug}?${search ? `search=${search}&` : ''}${sort ? `sort=${sort}` : ''}`),
+  enabled: !!slug
 })
 
 
@@ -144,7 +145,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <div className='h-[100dvh]'>
+    <div className='h-[100dvh] max-h-[100dvh]'>
       <Outlet />
       {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
     </div>

@@ -1,0 +1,165 @@
+import { Avatar, NotFoundPage, VoteButton } from '@/components'
+import { Skeleton } from '@/components/skeleton'
+import { fetchClient } from '@/lib/client'
+import {
+    feedbackQuery,
+    FeedbackQueryData,
+    feedbackVotersQuery,
+    FeedbackVotersQueryData,
+} from '@/routes/__root'
+import { useAuthStore } from '@/stores/auth-store'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+    createFileRoute,
+    notFound,
+    Outlet,
+    useParams,
+} from '@tanstack/react-router'
+import { toast } from 'sonner'
+
+export const Route = createFileRoute(
+  '/admin/feedback/$boardSlug/$feedbackSlug',
+)({
+  component: RouteComponent,
+  notFoundComponent: () => <NotFoundPage />,
+})
+
+function RouteComponent() {
+  const { boardSlug, feedbackSlug } = useParams({
+    from: '/admin/feedback/$boardSlug/$feedbackSlug',
+  })
+  const { data: feedback, isLoading } = useQuery(
+    feedbackQuery(boardSlug, feedbackSlug),
+  )
+  const queryClient = useQueryClient()
+  const { application, user } = useAuthStore()
+
+  const { mutate: vote, isPending } = useMutation({
+    mutationFn: () =>
+      fetchClient(`feedback/${feedback?.id}/vote`, { method: 'POST' }),
+    onMutate: async () => {
+      await queryClient.cancelQueries({
+        queryKey: feedbackQuery(boardSlug, feedbackSlug).queryKey,
+      })
+      await queryClient.cancelQueries({
+        queryKey: feedbackVotersQuery(boardSlug, feedbackSlug).queryKey,
+      })
+
+      const previousFeedback = queryClient.getQueryData(
+        feedbackQuery(boardSlug, feedbackSlug).queryKey,
+      )
+      const previousFeedbackVoters = queryClient.getQueryData(
+        feedbackVotersQuery(boardSlug, feedbackSlug).queryKey,
+      )
+
+      queryClient.setQueryData(
+        feedbackQuery(boardSlug, feedbackSlug).queryKey,
+        (old: FeedbackQueryData | undefined) => {
+          if (!old) return undefined
+
+          return {
+            ...old,
+            votes: old.votedByMe ? old.votes - 1 : old.votes + 1,
+            votedByMe: !old.votedByMe,
+          }
+        },
+      )
+
+      queryClient.setQueryData(
+        feedbackVotersQuery(boardSlug, feedbackSlug).queryKey,
+        (old: FeedbackVotersQueryData | undefined) => {
+          if (!old) return []
+
+          if (old.some((voter) => voter.id === user?.id)) {
+            return old.filter((voter) => voter.id !== user?.id)
+          }
+
+          if (!user) return old
+
+          return [
+            ...old,
+            {
+              id: user.id,
+              name: user.name,
+              avatar: user.avatar,
+              isAdmin: application?.ownerId === user.id,
+            },
+          ]
+        },
+      )
+
+      return { previousFeedback, previousFeedbackVoters }
+    },
+    onError: (_, __, context) => {
+      if (context?.previousFeedback) {
+        queryClient.setQueryData(
+          feedbackQuery(boardSlug, feedbackSlug).queryKey,
+          context.previousFeedback,
+        )
+      }
+
+      if (context?.previousFeedbackVoters) {
+        queryClient.setQueryData(
+          feedbackVotersQuery(boardSlug, feedbackSlug).queryKey,
+          context.previousFeedbackVoters,
+        )
+      }
+
+      toast.error('Failed to vote')
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: feedbackQuery(boardSlug, feedbackSlug).queryKey,
+      })
+      queryClient.invalidateQueries({
+        queryKey: feedbackVotersQuery(boardSlug, feedbackSlug).queryKey,
+      })
+    },
+  })
+
+  if (isLoading) {
+    return (
+      <Skeleton className="border-4 border-zinc-300 w-full h-full rounded-2xl" />
+    )
+  }
+
+  if (!feedback) {
+    throw notFound()
+  }
+
+  return (
+    <div className="border-4 border-zinc-300 w-full rounded-2xl max-h-full h-full">
+      <span className="horizontal gap-2 center-v p-4 border-b h-20">
+        <VoteButton
+          votes={feedback.votes}
+          votedByMe={feedback.votedByMe}
+          vote={vote}
+          isPending={isPending}
+        />
+        <h1 className="text-lg font-medium">{feedback.title}</h1>
+      </span>
+      <div className="grid grid-cols-[minmax(400px,1fr)_minmax(250px,auto)] h-[calc(100%-80px)]">
+        <div className="vertical grow relative overflow-hidden">
+          <div className="h-full overflow-y-auto p-4 vertical items-start">
+            <Outlet />
+          </div>
+          <div className="mt-auto h-10 border-t px-4 py-8 vertical center-v">
+            <span className="horizontal gap-2">
+              <Avatar
+                src={user?.avatar ?? undefined}
+                name={user?.name ?? 'P'}
+              />
+              <input
+                type="text"
+                className="grow focus:outline-none"
+                placeholder="Add a comment"
+              />
+            </span>
+            <span></span>
+          </div>
+        </div>
+        <div className="p-4 border-l h-full w-full"></div>
+      </div>
+    </div>
+  )
+}
