@@ -1,9 +1,7 @@
+import { Board as BoardComponent, Icons, StatusBoard } from '@/components'
+import { applicationBoardsQuery } from '@/routes/__root'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { Board as BoardComponent } from '../../components/board'
-import { Icons } from '../../components/icons'
-import { StatusBoard } from '../../components/status-board'
-import { applicationBoardsQuery } from '../__root'
 
 export const Route = createFileRoute('/_public/')({
   component: HomeComponent,

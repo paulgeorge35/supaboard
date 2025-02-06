@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Icons } from './icons'
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>(() => {
@@ -34,34 +35,34 @@ export function ThemeToggle() {
   }, [theme])
 
   return (
-    <div className="flex gap-2">
+    <div className="relative">
       <button
         type="button"
-        onClick={() => updateTheme('light')}
-        className={`px-3 py-1 rounded ${
-          theme === 'light' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700'
-        }`}
+        className="button button-small button-primary aspect-square size-8"
+        data-popover-trigger
+        aria-expanded="false"
+        aria-haspopup="true"
       >
-        Light
+        {theme === 'system' ? <Icons.Monitor /> : theme === 'light' ? <Icons.Sun /> : <Icons.Moon />}
       </button>
-      <button
-        type="button"
-        onClick={() => updateTheme('dark')}
-        className={`px-3 py-1 rounded ${
-          theme === 'dark' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700'
-        }`}
+
+      <div
+        className="absolute right-0 top-full mt-2 w-20 rounded-md bg-white dark:bg-zinc-900 shadow-sm border dark:border-zinc-800 ring-opacity-5 hidden"
+        data-popover
+        role="menu"
       >
-        Dark
-      </button>
-      <button
-        type="button"
-        onClick={() => updateTheme('system')}
-        className={`px-3 py-1 rounded ${
-          theme === 'system' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700'
-        }`}
-      >
-        System
-      </button>
+        <div className="py-1" role="none">
+          <button onClick={() => updateTheme('light')} type="button" className="w-full px-2 py-1 text-xs horizontal center-v gap-2 text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/20" role="menuitem">
+            <Icons.Sun size={16} /> Light
+          </button>
+          <button onClick={() => updateTheme('dark')} type="button" className="w-full px-2 py-1 text-xs horizontal center-v gap-2 text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/20" role="menuitem">
+            <Icons.Moon size={16} /> Dark
+          </button>
+          <button onClick={() => updateTheme('system')} type="button" className="w-full px-2 py-1 text-xs horizontal center-v gap-2 text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/20" role="menuitem">
+            <Icons.Monitor size={16} /> System
+          </button>
+        </div>
+      </div>
     </div>
   )
 } 

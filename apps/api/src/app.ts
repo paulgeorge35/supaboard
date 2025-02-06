@@ -27,7 +27,7 @@ async function initializeCorsOrigins(): Promise<string[]> {
 
     const customDomains = applications.map(app => `https://${app.customDomain}`);
     const tenantDomains = tenants.map(app => `https://${app.subdomain}.supaboard.io`);
-    
+
     return [...customDomains, ...tenantDomains, 'https://supaboard.io', 'http://localhost:3001'];
 }
 
@@ -36,16 +36,21 @@ async function initializeCorsOrigins(): Promise<string[]> {
  */
 async function createApp(): Promise<Application> {
     const app = express();
-    
+
     // Security middleware
     app.use(helmet());
     app.use(compression());
-    
+
     // CORS configuration
     const whitelist = await initializeCorsOrigins();
-    console.log(whitelist);
     app.use(cors({
-        origin: whitelist,
+        origin: (origin, callback) => {
+            if (!origin || whitelist.includes(origin) || origin.match(/^https:\/\/([a-z0-9-]+\.)*supaboard\.io$/)) {
+                callback(null, origin);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,

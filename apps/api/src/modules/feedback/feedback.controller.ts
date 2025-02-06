@@ -102,7 +102,7 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
     const { boardSlug, feedbackSlug } = req.params;
     const { application } = req;
 
-    const member = await db.member.findFirst({ where: { userId, applicationId: application?.id } });
+    const member = userId ? await db.member.findFirst({ where: { userId, applicationId: application?.id } }) : null;
 
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId: application?.id } });
 
@@ -153,7 +153,7 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
         estimatedDelivery: feedback.estimatedDelivery,
         votes: feedback._count.votes,
         votedByMe: feedback.votes.some((vote) => vote.authorId === userId),
-        isDeletable: hasActivity ? member : userId === feedback.authorId,
+        isDeletable: hasActivity ? !!member : userId === feedback.authorId,
         isEditable: userId === feedback.authorId,
         createdAt: feedback.createdAt,
         author: {

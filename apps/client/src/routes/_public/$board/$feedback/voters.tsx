@@ -1,8 +1,8 @@
+import { Avatar } from '@/components'
+import { cn } from '@/lib/utils'
+import { feedbackVotersQuery } from '@/routes/__root'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useParams } from '@tanstack/react-router'
-import { Avatar } from '../../../../components/avatar'
-import { cn } from '../../../../lib/utils'
-import { feedbackVotersQuery } from '../../../__root'
 
 export const Route = createFileRoute('/_public/$board/$feedback/voters')({
   component: RouteComponent,

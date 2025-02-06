@@ -1,13 +1,10 @@
+import { AdminButton, AuthButtons, Icons, NotFoundPage } from '@/components'
+import { applicationBoardsQuery } from '@/routes/__root'
+import { useAuthStore } from '@/stores/auth-store'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, Outlet, useParams } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { Toaster as Sonner } from 'sonner'
-import { AdminButton } from '../components/admin-button'
-import { AuthButtons } from '../components/auth-buttons'
-import { Icons } from '../components/icons'
-import { NotFoundPage } from '../components/not-found'
-import { useAuthStore } from '../stores/auth-store'
-import { applicationBoardsQuery } from './__root'
 
 export const Route = createFileRoute('/_public')({
   component: RouteComponent,

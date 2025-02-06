@@ -1,3 +1,5 @@
+import { fetchClient } from '@/lib/client'
+import { feedbackQuery } from '@/routes/__root'
 import {
   useMutation,
   useQueryClient,
@@ -6,8 +8,6 @@ import {
 import { createFileRoute, useParams, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { fetchClient } from '../../../../lib/client'
-import { feedbackQuery } from '../../../__root'
 
 export const Route = createFileRoute('/_public/$board/$feedback/edit')({
   component: RouteComponent,

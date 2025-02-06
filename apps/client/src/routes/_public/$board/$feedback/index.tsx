@@ -1,3 +1,14 @@
+import { Activities, Avatar, DeleteFeedbackButton, EditFeedbackButton, EditHistory, NotFoundPage, StatusBadge, VoteButton } from '@/components'
+import { fetchClient } from '@/lib/client'
+import { cn } from '@/lib/utils'
+import {
+  feedbackActivitiesQuery,
+  feedbackQuery,
+  FeedbackQueryData,
+  feedbackVotersQuery,
+  FeedbackVotersQueryData,
+} from '@/routes/__root'
+import { useAuthStore } from '@/stores/auth-store'
 import {
   useMutation,
   useQuery,
@@ -8,24 +19,6 @@ import { createFileRoute, Link, notFound, useParams } from '@tanstack/react-rout
 import { DateTime } from 'luxon'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Activities } from '../../../../components/activities'
-import { Avatar } from '../../../../components/avatar'
-import { DeleteFeedbackButton } from '../../../../components/delete-feedback-button'
-import { EditFeedbackButton } from '../../../../components/edit-feedback-button'
-import { EditHistory } from '../../../../components/edit-history'
-import { NotFoundPage } from '../../../../components/not-found'
-import { StatusBadge } from '../../../../components/status-badge'
-import { VoteButton } from '../../../../components/vote-button'
-import { fetchClient } from '../../../../lib/client'
-import { cn } from '../../../../lib/utils'
-import { useAuthStore } from '../../../../stores/auth-store'
-import {
-  feedbackActivitiesQuery,
-  feedbackQuery,
-  FeedbackQueryData,
-  feedbackVotersQuery,
-  FeedbackVotersQueryData,
-} from '../../../__root'
 
 export const Route = createFileRoute('/_public/$board/$feedback/')({
   component: RouteComponent,
@@ -238,7 +231,7 @@ function RouteComponent() {
           <span className="horizontal gap-2 col-start-2">
             <p className="text-xs text-gray-500">
               {DateTime.fromJSDate(new Date(feedback.createdAt)).toFormat(
-                'MMMM dd, yyyy',
+                'MMMM dd, yyyy, HH:mm',
               )}
             </p>
             <EditFeedbackButton

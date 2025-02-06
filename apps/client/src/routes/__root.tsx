@@ -1,14 +1,17 @@
+import { NotFoundPage } from '@/components'
+import { fetchClient } from '@/lib/client'
+import { useAuthStore } from '@/stores/auth-store'
 import type { Activity, Application, Board, Feedback, FeedbackStatus, User } from '@repo/database'
 import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { useEffect } from 'react'
-import { fetchClient } from '../lib/client'
-import { useAuthStore } from '../stores/auth-store'
 
 type MeQueryData = {
   user?: Pick<User, 'id' | 'email' | 'name' | 'avatar'>
-  application: Pick<Application, 'id' | 'name' | 'subdomain' | 'customDomain' | 'domainStatus' | 'logoUrl' | 'iconUrl' | 'color' | 'preferredTheme' | 'preferredLanguage' | 'ownerId'>
+  application: Pick<Application, 'id' | 'name' | 'subdomain' | 'customDomain' | 'domainStatus' | 'logoUrl' | 'iconUrl' | 'color' | 'preferredTheme' | 'preferredLanguage' | 'ownerId'> & {
+    boards: Pick<Board, 'id' | 'name' | 'slug'>[]
+  }
 }
 
 export const meQuery = queryOptions<MeQueryData>({
@@ -115,6 +118,7 @@ export const feedbackEditHistoryQuery = (boardSlug: string, feedbackSlug: string
   queryFn: () => fetchClient(`feedback/${boardSlug}/${feedbackSlug}/edit-history`)
 })
 export const Route = createRootRoute({
+  notFoundComponent: () => <NotFoundPage redirect="https://supaboard.io" />,
   context: () => {
     const queryClient = new QueryClient()
     return {
@@ -140,9 +144,9 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <>
+    <div className='h-[100dvh]'>
       <Outlet />
       {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
-    </>
+    </div>
   )
 }

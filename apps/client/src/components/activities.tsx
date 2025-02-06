@@ -154,7 +154,7 @@ export function Activities({ pinned, activities, sort, setSort, feedbackSlug, bo
                 <span className='horizontal center-v gap-2 col-start-2'>
                     <LikeButton likes={pinned.likes} likedByMe={pinned.likedByMe} like={() => like(pinned.id)} isPending={isLikePending} />
                     <p className='text-xs text-gray-500'>&bull;</p>
-                    <p className='text-xs text-gray-500'>{DateTime.fromJSDate(new Date(pinned.createdAt)).toFormat('MMMM dd, yyyy')}</p>
+                    <p className='text-xs text-gray-500'>{DateTime.fromJSDate(new Date(pinned.createdAt)).toFormat('MMMM dd, yyyy, HH:mm')}</p>
                     <PinButton pinned={pinned.pinned} pin={() => pin(pinned.id)} isPending={isPinPending} />
                 </span>
             </span>}
@@ -183,7 +183,7 @@ export function Activities({ pinned, activities, sort, setSort, feedbackSlug, bo
                     <span className='horizontal center-v gap-2 col-start-2'>
                         <LikeButton likes={activity.likes} likedByMe={activity.likedByMe} like={() => like(activity.id)} isPending={isLikePending} />
                         <p className='text-xs text-gray-500'>&bull;</p>
-                        <p className='text-xs text-gray-500'>{DateTime.fromJSDate(new Date(activity.createdAt)).toFormat('MMMM dd, yyyy')}</p>
+                        <p className='text-xs text-gray-500'>{DateTime.fromJSDate(new Date(activity.createdAt)).toFormat('MMMM dd, yyyy, HH:mm')}</p>
                         <PinButton pinned={activity.pinned} pin={() => pin(activity.id)} isPending={isPinPending} />
                     </span>
                 </span>

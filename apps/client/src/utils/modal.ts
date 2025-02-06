@@ -7,9 +7,7 @@ export function initializeModals(): void {
         
         // Handle close button clicks
         if (closeButton) {
-            console.log('closeButton', closeButton)
             const modal = closeButton.closest('[data-modal]');
-            console.log('modal', modal)
             if (modal) {
                 closeModal(modal as HTMLElement);
                 return;

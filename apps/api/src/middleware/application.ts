@@ -40,6 +40,17 @@ export async function applicationMiddleware(req: BareSessionRequest, res: Respon
         return;
     }
 
-    req.application = application;
+    const boards = await db.board.findMany({
+        where: {
+            applicationId: application.id,
+        },
+        select: {
+            id: true,
+            name: true,
+            slug: true,
+        }
+    });
+
+    req.application = { ...application, boards };
     next();
 }

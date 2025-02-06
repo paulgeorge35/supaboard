@@ -27,6 +27,11 @@ export const applicationSchema = z.object({
     preferredTheme: z.nativeEnum(Theme),
     preferredLanguage: z.nativeEnum(Language),
     ownerId: z.string(),
+    boards: z.array(z.object({
+        id: z.string(),
+        name: z.string(),
+        slug: z.string(),
+    })),
 });
 
 export type ApplicationSession = z.infer<typeof applicationSchema>;

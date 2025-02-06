@@ -2,7 +2,7 @@ import { notFound } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 export const fetchClient = async (path: string | URL | globalThis.Request, options?: RequestInit) => {
-    const apiURL = window.location.hostname.endsWith('supaboard.io') ? 'https://api.supaboard.io' : `https://${window.location.hostname}/api`
+    const apiURL = window.location.hostname.endsWith('supaboard.io') ? 'https://api.supaboard.io' : `https://${window.location.hostname}/api/`
     try {
         const res = await fetch(`${apiURL}/${path}`, {
             credentials: 'include',

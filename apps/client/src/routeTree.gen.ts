@@ -11,32 +11,40 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as AdminImport } from './routes/admin'
 import { Route as PublicImport } from './routes/_public'
-import { Route as AdminImport } from './routes/_admin'
 import { Route as AdminIndexImport } from './routes/admin/index'
 import { Route as PublicIndexImport } from './routes/_public/index'
+import { Route as AdminUsersIndexImport } from './routes/admin/users/index'
+import { Route as AdminSettingsIndexImport } from './routes/admin/settings/index'
+import { Route as AdminRoadmapIndexImport } from './routes/admin/roadmap/index'
+import { Route as AdminFeedbackIndexImport } from './routes/admin/feedback/index'
+import { Route as AdminChangelogIndexImport } from './routes/admin/changelog/index'
 import { Route as PublicBoardIndexImport } from './routes/_public/$board/index'
+import { Route as AdminFeedbackBoardSlugIndexImport } from './routes/admin/feedback/$boardSlug/index'
 import { Route as PublicBoardFeedbackIndexImport } from './routes/_public/$board/$feedback/index'
 import { Route as PublicBoardFeedbackVotersImport } from './routes/_public/$board/$feedback/voters'
 import { Route as PublicBoardFeedbackEditHistoryImport } from './routes/_public/$board/$feedback/edit-history'
 import { Route as PublicBoardFeedbackEditImport } from './routes/_public/$board/$feedback/edit'
+import { Route as AdminFeedbackBoardSlugFeedbackSlugIndexImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/index'
 
 // Create/Update Routes
+
+const AdminRoute = AdminImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const PublicRoute = PublicImport.update({
   id: '/_public',
   getParentRoute: () => rootRoute,
 } as any)
 
-const AdminRoute = AdminImport.update({
-  id: '/_admin',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const AdminIndexRoute = AdminIndexImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 
 const PublicIndexRoute = PublicIndexImport.update({
@@ -45,11 +53,48 @@ const PublicIndexRoute = PublicIndexImport.update({
   getParentRoute: () => PublicRoute,
 } as any)
 
+const AdminUsersIndexRoute = AdminUsersIndexImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => AdminRoute,
+} as any)
+
+const AdminSettingsIndexRoute = AdminSettingsIndexImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => AdminRoute,
+} as any)
+
+const AdminRoadmapIndexRoute = AdminRoadmapIndexImport.update({
+  id: '/roadmap/',
+  path: '/roadmap/',
+  getParentRoute: () => AdminRoute,
+} as any)
+
+const AdminFeedbackIndexRoute = AdminFeedbackIndexImport.update({
+  id: '/feedback/',
+  path: '/feedback/',
+  getParentRoute: () => AdminRoute,
+} as any)
+
+const AdminChangelogIndexRoute = AdminChangelogIndexImport.update({
+  id: '/changelog/',
+  path: '/changelog/',
+  getParentRoute: () => AdminRoute,
+} as any)
+
 const PublicBoardIndexRoute = PublicBoardIndexImport.update({
   id: '/$board/',
   path: '/$board/',
   getParentRoute: () => PublicRoute,
 } as any)
+
+const AdminFeedbackBoardSlugIndexRoute =
+  AdminFeedbackBoardSlugIndexImport.update({
+    id: '/feedback/$boardSlug/',
+    path: '/feedback/$boardSlug/',
+    getParentRoute: () => AdminRoute,
+  } as any)
 
 const PublicBoardFeedbackIndexRoute = PublicBoardFeedbackIndexImport.update({
   id: '/$board/$feedback/',
@@ -76,22 +121,29 @@ const PublicBoardFeedbackEditRoute = PublicBoardFeedbackEditImport.update({
   getParentRoute: () => PublicRoute,
 } as any)
 
+const AdminFeedbackBoardSlugFeedbackSlugIndexRoute =
+  AdminFeedbackBoardSlugFeedbackSlugIndexImport.update({
+    id: '/feedback/$boardSlug/$feedbackSlug/',
+    path: '/feedback/$boardSlug/$feedbackSlug/',
+    getParentRoute: () => AdminRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_admin': {
-      id: '/_admin'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AdminImport
-      parentRoute: typeof rootRoute
-    }
     '/_public': {
       id: '/_public'
       path: ''
       fullPath: ''
       preLoaderRoute: typeof PublicImport
+      parentRoute: typeof rootRoute
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminImport
       parentRoute: typeof rootRoute
     }
     '/_public/': {
@@ -103,10 +155,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/': {
       id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin'
+      path: '/'
+      fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof AdminImport
     }
     '/_public/$board/': {
       id: '/_public/$board/'
@@ -114,6 +166,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/$board'
       preLoaderRoute: typeof PublicBoardIndexImport
       parentRoute: typeof PublicImport
+    }
+    '/admin/changelog/': {
+      id: '/admin/changelog/'
+      path: '/changelog'
+      fullPath: '/admin/changelog'
+      preLoaderRoute: typeof AdminChangelogIndexImport
+      parentRoute: typeof AdminImport
+    }
+    '/admin/feedback/': {
+      id: '/admin/feedback/'
+      path: '/feedback'
+      fullPath: '/admin/feedback'
+      preLoaderRoute: typeof AdminFeedbackIndexImport
+      parentRoute: typeof AdminImport
+    }
+    '/admin/roadmap/': {
+      id: '/admin/roadmap/'
+      path: '/roadmap'
+      fullPath: '/admin/roadmap'
+      preLoaderRoute: typeof AdminRoadmapIndexImport
+      parentRoute: typeof AdminImport
+    }
+    '/admin/settings/': {
+      id: '/admin/settings/'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsIndexImport
+      parentRoute: typeof AdminImport
+    }
+    '/admin/users/': {
+      id: '/admin/users/'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersIndexImport
+      parentRoute: typeof AdminImport
     }
     '/_public/$board/$feedback/edit': {
       id: '/_public/$board/$feedback/edit'
@@ -143,6 +230,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicBoardFeedbackIndexImport
       parentRoute: typeof PublicImport
     }
+    '/admin/feedback/$boardSlug/': {
+      id: '/admin/feedback/$boardSlug/'
+      path: '/feedback/$boardSlug'
+      fullPath: '/admin/feedback/$boardSlug'
+      preLoaderRoute: typeof AdminFeedbackBoardSlugIndexImport
+      parentRoute: typeof AdminImport
+    }
+    '/admin/feedback/$boardSlug/$feedbackSlug/': {
+      id: '/admin/feedback/$boardSlug/$feedbackSlug/'
+      path: '/feedback/$boardSlug/$feedbackSlug'
+      fullPath: '/admin/feedback/$boardSlug/$feedbackSlug'
+      preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugIndexImport
+      parentRoute: typeof AdminImport
+    }
   }
 }
 
@@ -169,86 +270,151 @@ const PublicRouteChildren: PublicRouteChildren = {
 const PublicRouteWithChildren =
   PublicRoute._addFileChildren(PublicRouteChildren)
 
+interface AdminRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminChangelogIndexRoute: typeof AdminChangelogIndexRoute
+  AdminFeedbackIndexRoute: typeof AdminFeedbackIndexRoute
+  AdminRoadmapIndexRoute: typeof AdminRoadmapIndexRoute
+  AdminSettingsIndexRoute: typeof AdminSettingsIndexRoute
+  AdminUsersIndexRoute: typeof AdminUsersIndexRoute
+  AdminFeedbackBoardSlugIndexRoute: typeof AdminFeedbackBoardSlugIndexRoute
+  AdminFeedbackBoardSlugFeedbackSlugIndexRoute: typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
+  AdminChangelogIndexRoute: AdminChangelogIndexRoute,
+  AdminFeedbackIndexRoute: AdminFeedbackIndexRoute,
+  AdminRoadmapIndexRoute: AdminRoadmapIndexRoute,
+  AdminSettingsIndexRoute: AdminSettingsIndexRoute,
+  AdminUsersIndexRoute: AdminUsersIndexRoute,
+  AdminFeedbackBoardSlugIndexRoute: AdminFeedbackBoardSlugIndexRoute,
+  AdminFeedbackBoardSlugFeedbackSlugIndexRoute:
+    AdminFeedbackBoardSlugFeedbackSlugIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 export interface FileRoutesByFullPath {
   '': typeof PublicRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
   '/': typeof PublicIndexRoute
-  '/admin': typeof AdminIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/$board': typeof PublicBoardIndexRoute
+  '/admin/changelog': typeof AdminChangelogIndexRoute
+  '/admin/feedback': typeof AdminFeedbackIndexRoute
+  '/admin/roadmap': typeof AdminRoadmapIndexRoute
+  '/admin/settings': typeof AdminSettingsIndexRoute
+  '/admin/users': typeof AdminUsersIndexRoute
   '/$board/$feedback/edit': typeof PublicBoardFeedbackEditRoute
   '/$board/$feedback/edit-history': typeof PublicBoardFeedbackEditHistoryRoute
   '/$board/$feedback/voters': typeof PublicBoardFeedbackVotersRoute
   '/$board/$feedback': typeof PublicBoardFeedbackIndexRoute
+  '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugIndexRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '': typeof AdminRoute
   '/': typeof PublicIndexRoute
   '/admin': typeof AdminIndexRoute
   '/$board': typeof PublicBoardIndexRoute
+  '/admin/changelog': typeof AdminChangelogIndexRoute
+  '/admin/feedback': typeof AdminFeedbackIndexRoute
+  '/admin/roadmap': typeof AdminRoadmapIndexRoute
+  '/admin/settings': typeof AdminSettingsIndexRoute
+  '/admin/users': typeof AdminUsersIndexRoute
   '/$board/$feedback/edit': typeof PublicBoardFeedbackEditRoute
   '/$board/$feedback/edit-history': typeof PublicBoardFeedbackEditHistoryRoute
   '/$board/$feedback/voters': typeof PublicBoardFeedbackVotersRoute
   '/$board/$feedback': typeof PublicBoardFeedbackIndexRoute
+  '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugIndexRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/_admin': typeof AdminRoute
   '/_public': typeof PublicRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
   '/_public/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/_public/$board/': typeof PublicBoardIndexRoute
+  '/admin/changelog/': typeof AdminChangelogIndexRoute
+  '/admin/feedback/': typeof AdminFeedbackIndexRoute
+  '/admin/roadmap/': typeof AdminRoadmapIndexRoute
+  '/admin/settings/': typeof AdminSettingsIndexRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
   '/_public/$board/$feedback/edit': typeof PublicBoardFeedbackEditRoute
   '/_public/$board/$feedback/edit-history': typeof PublicBoardFeedbackEditHistoryRoute
   '/_public/$board/$feedback/voters': typeof PublicBoardFeedbackVotersRoute
   '/_public/$board/$feedback/': typeof PublicBoardFeedbackIndexRoute
+  '/admin/feedback/$boardSlug/': typeof AdminFeedbackBoardSlugIndexRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | ''
-    | '/'
     | '/admin'
+    | '/'
+    | '/admin/'
     | '/$board'
+    | '/admin/changelog'
+    | '/admin/feedback'
+    | '/admin/roadmap'
+    | '/admin/settings'
+    | '/admin/users'
     | '/$board/$feedback/edit'
     | '/$board/$feedback/edit-history'
     | '/$board/$feedback/voters'
     | '/$board/$feedback'
+    | '/admin/feedback/$boardSlug'
+    | '/admin/feedback/$boardSlug/$feedbackSlug'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | ''
     | '/'
     | '/admin'
     | '/$board'
+    | '/admin/changelog'
+    | '/admin/feedback'
+    | '/admin/roadmap'
+    | '/admin/settings'
+    | '/admin/users'
     | '/$board/$feedback/edit'
     | '/$board/$feedback/edit-history'
     | '/$board/$feedback/voters'
     | '/$board/$feedback'
+    | '/admin/feedback/$boardSlug'
+    | '/admin/feedback/$boardSlug/$feedbackSlug'
   id:
     | '__root__'
-    | '/_admin'
     | '/_public'
+    | '/admin'
     | '/_public/'
     | '/admin/'
     | '/_public/$board/'
+    | '/admin/changelog/'
+    | '/admin/feedback/'
+    | '/admin/roadmap/'
+    | '/admin/settings/'
+    | '/admin/users/'
     | '/_public/$board/$feedback/edit'
     | '/_public/$board/$feedback/edit-history'
     | '/_public/$board/$feedback/voters'
     | '/_public/$board/$feedback/'
+    | '/admin/feedback/$boardSlug/'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  AdminRoute: typeof AdminRoute
   PublicRoute: typeof PublicRouteWithChildren
-  AdminIndexRoute: typeof AdminIndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  AdminRoute: AdminRoute,
   PublicRoute: PublicRouteWithChildren,
-  AdminIndexRoute: AdminIndexRoute,
+  AdminRoute: AdminRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -261,13 +427,9 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/_admin",
         "/_public",
-        "/admin/"
+        "/admin"
       ]
-    },
-    "/_admin": {
-      "filePath": "_admin.tsx"
     },
     "/_public": {
       "filePath": "_public.tsx",
@@ -280,16 +442,50 @@ export const routeTree = rootRoute
         "/_public/$board/$feedback/"
       ]
     },
+    "/admin": {
+      "filePath": "admin.tsx",
+      "children": [
+        "/admin/",
+        "/admin/changelog/",
+        "/admin/feedback/",
+        "/admin/roadmap/",
+        "/admin/settings/",
+        "/admin/users/",
+        "/admin/feedback/$boardSlug/",
+        "/admin/feedback/$boardSlug/$feedbackSlug/"
+      ]
+    },
     "/_public/": {
       "filePath": "_public/index.tsx",
       "parent": "/_public"
     },
     "/admin/": {
-      "filePath": "admin/index.tsx"
+      "filePath": "admin/index.tsx",
+      "parent": "/admin"
     },
     "/_public/$board/": {
       "filePath": "_public/$board/index.tsx",
       "parent": "/_public"
+    },
+    "/admin/changelog/": {
+      "filePath": "admin/changelog/index.tsx",
+      "parent": "/admin"
+    },
+    "/admin/feedback/": {
+      "filePath": "admin/feedback/index.tsx",
+      "parent": "/admin"
+    },
+    "/admin/roadmap/": {
+      "filePath": "admin/roadmap/index.tsx",
+      "parent": "/admin"
+    },
+    "/admin/settings/": {
+      "filePath": "admin/settings/index.tsx",
+      "parent": "/admin"
+    },
+    "/admin/users/": {
+      "filePath": "admin/users/index.tsx",
+      "parent": "/admin"
     },
     "/_public/$board/$feedback/edit": {
       "filePath": "_public/$board/$feedback/edit.tsx",
@@ -306,6 +502,14 @@ export const routeTree = rootRoute
     "/_public/$board/$feedback/": {
       "filePath": "_public/$board/$feedback/index.tsx",
       "parent": "/_public"
+    },
+    "/admin/feedback/$boardSlug/": {
+      "filePath": "admin/feedback/$boardSlug/index.tsx",
+      "parent": "/admin"
+    },
+    "/admin/feedback/$boardSlug/$feedbackSlug/": {
+      "filePath": "admin/feedback/$boardSlug/$feedbackSlug/index.tsx",
+      "parent": "/admin"
     }
   }
 }

@@ -1,3 +1,7 @@
+import { FeedbackForm, FiltersInput, Icons, NotFoundPage, StatusBadge, VoteButton } from '@/components'
+import { fetchClient } from '@/lib/client'
+import { cn } from '@/lib/utils'
+import { applicationBoardsQuery, boardQuery, BoardQueryData } from '@/routes/__root'
 import {
   useMutation,
   useQuery,
@@ -7,15 +11,6 @@ import {
 import { createFileRoute, Link, notFound, useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { FeedbackForm } from '../../../components/feedback-form'
-import { FiltersInput } from '../../../components/filters-input'
-import { Icons } from '../../../components/icons'
-import { NotFoundPage } from '../../../components/not-found'
-import { StatusBadge } from '../../../components/status-badge'
-import { VoteButton } from '../../../components/vote-button'
-import { fetchClient } from '../../../lib/client'
-import { cn } from '../../../lib/utils'
-import { applicationBoardsQuery, boardQuery, BoardQueryData } from '../../__root'
 
 export const Route = createFileRoute('/_public/$board/')({
   component: RouteComponent,
@@ -115,7 +110,7 @@ function RouteComponent() {
         </div>
       </div>
       <div className="vertical gap-2">
-        <h1 className="font-medium">Give Feedback</h1>
+        <h1 className="font-medium">{board?.name}</h1>
         <div className="vertical">
           <FeedbackForm boardId={board?.id} />
 
@@ -127,7 +122,7 @@ function RouteComponent() {
               key={feedback.slug}
               to={feedback.slug}
               className={cn(
-                'p-4 border border-t-0 grid grid-cols-[1fr_auto] items-start transition-colors duration-200 hover:bg-gray-900/5',
+                'p-4 border border-t-0 grid grid-cols-[1fr_auto] items-start transition-colors duration-200 hover:bg-gray-300/20 dark:hover:bg-zinc-800/20',
                 {
                   'rounded-b-lg': index === board?.feedbacks.length - 1,
                 },

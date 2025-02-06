@@ -1,7 +1,7 @@
+import { feedbackEditHistoryQuery, feedbackQuery } from '@/routes/__root'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
-import { feedbackEditHistoryQuery, feedbackQuery } from '../../../__root'
 
 export const Route = createFileRoute('/_public/$board/$feedback/edit-history')({
   component: RouteComponent,

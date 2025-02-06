@@ -69,7 +69,7 @@ export async function register(req: Request, res: Response) {
         },
     });
 
-    res.cookie('userId', user.id, cookieOptions);
+    res.cookie(COOKIE_NAME, user.id, cookieOptions);
     res.json({ user });
 }
 
@@ -194,9 +194,11 @@ export async function googleSignInCallback(req: Request, res: Response) {
         if (state.includes(APP_DOMAIN))
             res.redirect(state ?? '/');
         else {
-            const url = new URL(`${state}/api/auth/custom-cookie`);
+            const baseUrl = new URL(state).origin;
+            const url = new URL(`${baseUrl}/api/auth/custom-cookie`);
             url.searchParams.set('cookie', token);
             url.searchParams.set('state', state);
+            url.searchParams.set('redirect', state);
 
             res.redirect(url.toString());
         }
@@ -208,11 +210,11 @@ export async function googleSignInCallback(req: Request, res: Response) {
 }
 
 export async function customCookie(req: Request, res: Response) {
-    const { cookie, state } = req.query;
+    const { cookie, state, redirect } = req.query;
 
     res.cookie(COOKIE_NAME, cookie as string, {
         ...cookieOptions,
         domain: `${new URL(state as string).hostname}`
     });
-    res.redirect(state as string);
+    res.redirect(redirect as string);
 }
