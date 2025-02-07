@@ -1,26 +1,42 @@
-import { FeedbackForm, FiltersInput, Icons, NotFoundPage, StatusBadge, VoteButton } from '@/components'
+import {
+  FeedbackForm,
+  FiltersInput,
+  Icons,
+  NotFoundPage,
+  StatusBadge,
+  VoteButton,
+} from '@/components'
 import { fetchClient } from '@/lib/client'
 import { cn } from '@/lib/utils'
-import { applicationBoardsQuery, boardQuery, BoardQueryData } from '@/routes/__root'
+import {
+  applicationBoardsQuery,
+  boardQuery,
+  BoardQueryData,
+} from '@/routes/__root'
 import {
   useMutation,
   useQuery,
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query'
-import { createFileRoute, Link, notFound, useParams } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  notFound,
+  useParams,
+} from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-export const Route = createFileRoute('/_public/$board/')({
+export const Route = createFileRoute('/_public/$boardSlug/')({
   component: RouteComponent,
   notFoundComponent: () => <NotFoundPage />,
   loader: async ({ params }) => {
-    const { board: boardSlug } = params
+    const { boardSlug } = params
     const board = await fetchClient(`board/${boardSlug}`)
 
     if (!board) {
-      throw notFound();
+      throw notFound()
     }
 
     return {
@@ -31,7 +47,7 @@ export const Route = createFileRoute('/_public/$board/')({
 
 function RouteComponent() {
   const [search, setSearch] = useState('')
-  const { board: boardSlug } = useParams({ from: '/_public/$board/' })
+  const { boardSlug } = useParams({ from: '/_public/$boardSlug/' })
   const { data: boards } = useSuspenseQuery(applicationBoardsQuery)
   const { data: board } = useQuery(boardQuery(boardSlug, search))
   const queryClient = useQueryClient()
@@ -102,7 +118,10 @@ function RouteComponent() {
               key={board.slug}
               to={toBoard(board.slug)}
               className="text-sm font-light transition-colors duration-200 text-gray-500 hover:bg-gray-900/5 dark:text-zinc-400 dark:hover:bg-zinc-800/20 rounded-lg px-3 py-2 truncate"
-              activeProps={{ className: '!text-gray-800 dark:!text-zinc-100 !bg-gray-900/5 dark:!bg-zinc-800/20' }}
+              activeProps={{
+                className:
+                  '!text-gray-800 dark:!text-zinc-100 !bg-gray-900/5 dark:!bg-zinc-800/20',
+              }}
             >
               {board.name}
             </Link>

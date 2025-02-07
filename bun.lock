@@ -49,6 +49,7 @@
         "@tanstack/react-query": "^5.66.0",
         "@tanstack/react-router": "^1.99.0",
         "@tanstack/router-devtools": "^1.99.0",
+        "@tanstack/zod-adapter": "^1.99.9",
         "framer-motion": "^12.1.0",
         "lucide-react": "^0.474.0",
         "luxon": "^3.5.0",
@@ -407,6 +408,8 @@
     "@tanstack/store": ["@tanstack/store@0.7.0", "", {}, "sha512-CNIhdoUsmD2NolYuaIs8VfWM467RK6oIBAW4nPEKZhg1smZ+/CwtCdpURgp7nxSqOaV9oKkzdWD80+bC66F/Jg=="],
 
     "@tanstack/virtual-file-routes": ["@tanstack/virtual-file-routes@1.99.0", "", {}, "sha512-XvX8bfdo4CYiCW+ItVdBfCorh3PwQFqYqd7ll+XKWiWOJpqUGIG7VlziVavARZpUySiY2VBlHadiUYS7jhgjRg=="],
+
+    "@tanstack/zod-adapter": ["@tanstack/zod-adapter@1.99.9", "", { "peerDependencies": { "@tanstack/react-router": ">=1.43.2", "zod": "^3.23.8" } }, "sha512-LMWcZgWl9O9cymb5p8zQUYQt/ByNS6/233YHzKeEuxvvrK+rtb9y27UvmSdlx6xhEcsWCoDX8/f87lz22ywb0Q=="],
 
     "@types/babel__core": ["@types/babel__core@7.20.5", "", { "dependencies": { "@babel/parser": "^7.20.7", "@babel/types": "^7.20.7", "@types/babel__generator": "*", "@types/babel__template": "*", "@types/babel__traverse": "*" } }, "sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA=="],
 

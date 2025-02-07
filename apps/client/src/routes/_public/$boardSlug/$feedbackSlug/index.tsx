@@ -1,4 +1,13 @@
-import { Activities, Avatar, DeleteFeedbackButton, EditFeedbackButton, EditHistory, NotFoundPage, StatusBadge, VoteButton } from '@/components'
+import {
+  Activities,
+  Avatar,
+  DeleteFeedbackButton,
+  EditFeedbackButton,
+  EditHistory,
+  NotFoundPage,
+  StatusBadge,
+  VoteButton,
+} from '@/components'
 import { fetchClient } from '@/lib/client'
 import { cn } from '@/lib/utils'
 import {
@@ -15,16 +24,21 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query'
-import { createFileRoute, Link, notFound, useParams } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  notFound,
+  useParams,
+} from '@tanstack/react-router'
 import { DateTime } from 'luxon'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-export const Route = createFileRoute('/_public/$board/$feedback/')({
+export const Route = createFileRoute('/_public/$boardSlug/$feedbackSlug/')({
   component: RouteComponent,
   notFoundComponent: () => <NotFoundPage />,
   loader: async ({ params }) => {
-    const { board: boardSlug, feedback: feedbackSlug } = params
+    const { boardSlug, feedbackSlug } = params
     const feedback = await fetchClient(`feedback/${boardSlug}/${feedbackSlug}`)
 
     if (!feedback) {
@@ -39,8 +53,8 @@ function RouteComponent() {
   const [sort, setSort] = useState<'newest' | 'oldest'>('newest')
   const queryClient = useQueryClient()
   const { user, application } = useAuthStore()
-  const { board: boardSlug, feedback: feedbackSlug } = useParams({
-    from: '/_public/$board/$feedback/',
+  const { boardSlug, feedbackSlug } = useParams({
+    from: '/_public/$boardSlug/$feedbackSlug/',
   })
 
   const { data: feedbackVoters } = useSuspenseQuery(
@@ -148,8 +162,8 @@ function RouteComponent() {
               <p className="text-sm font-light text-gray-500 col-span-full">
                 {feedback.estimatedDelivery
                   ? DateTime.fromJSDate(
-                      new Date(feedback.estimatedDelivery),
-                    ).toFormat('MMMM yyyy')
+                    new Date(feedback.estimatedDelivery),
+                  ).toFormat('MMMM yyyy')
                   : 'Not estimated'}
               </p>
             </>
@@ -180,8 +194,8 @@ function RouteComponent() {
           ))}
           {feedbackVoters.length > 3 && (
             <Link
-              to="/$board/$feedback/voters"
-              params={{ board: boardSlug, feedback: feedbackSlug }}
+              to="/$boardSlug/$feedbackSlug/voters"
+              params={{ boardSlug, feedbackSlug }}
               className="text-sm font-light col-start-2 text-[var(--color-primary)] hover:text-[var(--color-primary)]/80"
             >
               and {feedbackVoters.length - 3} more

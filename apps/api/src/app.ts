@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Application } from 'express';
 import helmet from 'helmet';
+import { adminRouter } from './modules/admin/admin.router';
 import { applicationRouter } from './modules/application/application.router';
 import { authRouter } from './modules/auth/auth.router';
 import { boardRouter } from './modules/board/board.router';
@@ -71,6 +72,7 @@ async function createApp(): Promise<Application> {
     app.use('/application', applicationRouter);
     app.use('/board', boardRouter);
     app.use('/feedback', feedbackRouter);
+    app.use('/admin', adminRouter);
     return app;
 }
 

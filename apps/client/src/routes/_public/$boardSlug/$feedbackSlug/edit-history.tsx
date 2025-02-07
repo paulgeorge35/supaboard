@@ -3,13 +3,15 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
 
-export const Route = createFileRoute('/_public/$board/$feedback/edit-history')({
+export const Route = createFileRoute(
+  '/_public/$boardSlug/$feedbackSlug/edit-history',
+)({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { board: boardSlug, feedback: feedbackSlug } = useParams({
-    from: '/_public/$board/$feedback/edit-history',
+  const { boardSlug, feedbackSlug } = useParams({
+    from: '/_public/$boardSlug/$feedbackSlug/edit-history',
   })
   const { data, isLoading } = useSuspenseQuery(
     feedbackEditHistoryQuery(boardSlug, feedbackSlug),

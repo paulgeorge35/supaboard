@@ -4,9 +4,10 @@ type EditFeedbackButtonProps = {
     isEditable: boolean;
     boardSlug: string;
     feedbackSlug: string;
+    to?: string;
 }
 
-export function EditFeedbackButton({ isEditable, boardSlug, feedbackSlug }: EditFeedbackButtonProps) {
+export function EditFeedbackButton({ isEditable, boardSlug, feedbackSlug, to = "/$boardSlug/$feedbackSlug/edit" }: EditFeedbackButtonProps) {
 
     if (!isEditable) return null;
 
@@ -14,7 +15,7 @@ export function EditFeedbackButton({ isEditable, boardSlug, feedbackSlug }: Edit
         <>
             <p className="text-xs text-gray-500">&bull;</p>
             <Link
-                to="/admin/feedback/$boardSlug/$feedbackSlug/edit"
+                to={to}
                 params={{ boardSlug, feedbackSlug }}
                 className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200"
             >

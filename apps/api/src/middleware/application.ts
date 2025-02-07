@@ -1,4 +1,4 @@
-import { db } from "@repo/database";
+import { applicationSummarySelect, boardSummarySelect, db } from "@repo/database";
 import type { NextFunction, Response } from "express";
 import type { BareSessionRequest } from "../types";
 
@@ -7,8 +7,9 @@ export async function applicationMiddleware(req: BareSessionRequest, res: Respon
     const subdomain = origin?.match(/^https:\/\/([^.]+)\.supaboard\.io$/)?.[1];
     const customDomain = !subdomain && origin !== 'http://localhost:3001' ? origin?.replace(/^https?:\/\//, '') : undefined;
     let localSubdomain = undefined;
+    const userId = req.auth?.id;
 
-    if(origin === 'http://localhost:3001') {
+    if (origin === 'http://localhost:3001') {
         localSubdomain = 'alpha';
     }
 
@@ -20,19 +21,7 @@ export async function applicationMiddleware(req: BareSessionRequest, res: Respon
 
     const application = await db.application.findFirst({
         where: { customDomain, subdomain: subdomain || localSubdomain },
-        select: {
-            id: true,
-            name: true,
-            subdomain: true,
-            customDomain: true,
-            domainStatus: true,
-            logoUrl: true,
-            iconUrl: true,
-            color: true,
-            preferredTheme: true,
-            preferredLanguage: true,
-            ownerId: true,
-        }
+        select: applicationSummarySelect
     });
 
     if (!application) {
@@ -40,15 +29,19 @@ export async function applicationMiddleware(req: BareSessionRequest, res: Respon
         return;
     }
 
+    const member = userId ? await db.member.findFirst({
+        where: {
+            userId,
+            applicationId: application.id,
+        }
+    }) : null;
+
     const boards = await db.board.findMany({
         where: {
             applicationId: application.id,
+            public: member ? undefined : true,
         },
-        select: {
-            id: true,
-            name: true,
-            slug: true,
-        }
+        select: boardSummarySelect
     });
 
     req.application = { ...application, boards };

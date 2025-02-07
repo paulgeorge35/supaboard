@@ -4,7 +4,7 @@ import { Icons } from './icons'
 interface ModalProps {
     trigger: ReactNode
     title?: string
-    children: ReactNode
+    children?: ReactNode
     footer?: ReactNode
     className?: string
     contentClassName?: string
@@ -60,7 +60,7 @@ export function Modal({
                 >
                     {/* Header */}
                     {title && (
-                        <div className="flex items-center justify-between px-4 py-3 border-b">
+                        <div className="flex items-center justify-between px-4 py-3">
                             <h2 className="text-lg font-medium">{title}</h2>
                             {dismissable && <button
                                 type="button"
@@ -78,13 +78,13 @@ export function Modal({
                     )}
 
                     {/* Body */}
-                    <div className="px-4 py-3 font-light text-sm">
+                    {children && <div className="px-4 py-3 font-light text-sm">
                         {children}
-                    </div>
+                    </div>}
 
                     {/* Footer */}
                     {footer && (
-                        <div className="px-4 py-3 border-t">
+                        <div className="px-4 py-3">
                             {footer}
                         </div>
                     )}

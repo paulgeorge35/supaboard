@@ -9,15 +9,15 @@ import { createFileRoute, useParams, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-export const Route = createFileRoute('/_public/$board/$feedback/edit')({
+export const Route = createFileRoute('/_public/$boardSlug/$feedbackSlug/edit')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const queryClient = useQueryClient()
   const router = useRouter()
-  const { board: boardSlug, feedback: feedbackSlug } = useParams({
-    from: '/_public/$board/$feedback/edit',
+  const { boardSlug, feedbackSlug } = useParams({
+    from: '/_public/$boardSlug/$feedbackSlug/edit',
   })
 
   const { data: feedback } = useSuspenseQuery(
@@ -45,16 +45,16 @@ function RouteComponent() {
         queryKey: feedbackQuery(boardSlug, feedbackSlug).queryKey,
       })
       router.navigate({
-        to: '/$board/$feedback',
-        params: { board: boardSlug, feedback: feedbackSlug },
+        to: '/$boardSlug/$feedbackSlug',
+        params: { boardSlug, feedbackSlug },
       })
     },
   })
 
   const handleCancel = () => {
     router.navigate({
-      to: '/$board/$feedback',
-      params: { board: boardSlug, feedback: feedbackSlug },
+      to: '/$boardSlug/$feedbackSlug',
+      params: { boardSlug, feedbackSlug },
     })
   }
 

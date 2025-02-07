@@ -1,4 +1,4 @@
-import { ActivityType, db, FeedbackStatus } from "@repo/database";
+import { ActivityType, db, feedbackDetail, FeedbackStatus, feeedbackSummarySelect, Prisma } from "@repo/database";
 import type { Response } from "express";
 import { z } from "zod";
 import type { BareSessionRequest } from "../../types";
@@ -99,12 +99,13 @@ export async function createFeedback(req: BareSessionRequest<z.infer<typeof feed
 
 export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) {
     const userId = req.auth?.id;
+    const applicationId = req.application?.id;
+    const ownerId = req.application?.ownerId;
     const { boardSlug, feedbackSlug } = req.params;
-    const { application } = req;
 
-    const member = userId ? await db.member.findFirst({ where: { userId, applicationId: application?.id } }) : null;
+    const member = userId ? await db.member.findFirst({ where: { userId, applicationId } }) : null;
 
-    const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId: application?.id } });
+    const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
 
     if (!board) {
         res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
@@ -113,27 +114,7 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
 
     const feedback = await db.feedback.findFirst({
         where: { slug: feedbackSlug, boardId: board.id },
-        include: {
-            votes: {
-                select: {
-                    id: true,
-                    authorId: true,
-                },
-                take: 5,
-            },
-            author: {
-                select: {
-                    id: true,
-                    name: true,
-                    avatar: true,
-                },
-            },
-            _count: {
-                select: {
-                    votes: true,
-                },
-            },
-        },
+        include: feedbackDetail
     });
 
     if (!feedback) {
@@ -152,6 +133,8 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
         status: feedback.status,
         estimatedDelivery: feedback.estimatedDelivery,
         votes: feedback._count.votes,
+        tags: feedback.tags,
+        category: feedback.category,
         votedByMe: feedback.votes.some((vote) => vote.authorId === userId),
         isDeletable: hasActivity ? !!member : userId === feedback.authorId,
         isEditable: userId === feedback.authorId,
@@ -160,8 +143,9 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
             id: feedback.author?.id ?? "deleted",
             name: feedback.author?.name ?? "Deleted User",
             avatar: feedback.author?.avatar ?? undefined,
-            isAdmin: feedback.author?.id === application?.ownerId,
+            isAdmin: feedback.author?.id === ownerId,
         },
+        owner: feedback.owner,
     });
 }
 
@@ -223,6 +207,8 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
     const applicationId = req.application?.id;
     const userId = req.auth?.id;
 
+    const member = userId ? await db.member.findFirst({ where: { userId, applicationId } }) : null;
+
     const application = await db.application.findUnique({ where: { id: applicationId } });
 
     if (!application) {
@@ -249,7 +235,11 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
     ];
 
     const pinned = await db.activity.findFirst({
-        where: { feedbackId: feedback.id, pinned: true, type: { in: activityTypes } },
+        where: {
+            feedbackId: feedback.id,
+            pinned: true,
+            type: { in: activityTypes }
+        },
         include: {
             likes: {
                 select: {
@@ -273,7 +263,11 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
     });
 
     const activities = await db.activity.findMany({
-        where: { feedbackId: feedback.id, type: { in: activityTypes } },
+        where: {
+            feedbackId: feedback.id,
+            type: { in: activityTypes },
+            public: member ? undefined : true,
+        },
         include: {
             likes: {
                 select: {
@@ -611,6 +605,121 @@ export async function editHistory(req: BareSessionRequest, res: Response) {
             ...activity,
             ...editHistorySchema.parse(activity.data),
         };
+    });
+
+    res.status(200).json(result);
+}
+
+const feedbacksSchema = z.object({
+    cursor: z.string().optional(),
+    take: z.number().default(10),
+    order: z.enum(['newest', 'oldest']).default('newest'),
+    boards: z.union([z.array(z.string()), z.string()]).optional(),
+    status: z.union([z.array(z.nativeEnum(FeedbackStatus)), z.nativeEnum(FeedbackStatus)]).optional().default(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS']),
+    categories: z.union([z.array(z.string()), z.string()]).optional(),
+    uncategorized: z.coerce.boolean().optional(),
+    tags: z.union([z.array(z.string()), z.string()]).optional(),
+    untagged: z.coerce.boolean().optional(),
+    owner: z.string().optional(),
+    unassigned: z.coerce.boolean().optional(),
+    search: z.string().optional().transform(
+        (value) => {
+            if (!value) return undefined;
+            return value.trim().replace(/ +(?= )/g, '')
+                .split(' ')
+                .filter((word) => word.length > 2)
+                .join(' ');
+        }
+    )
+});
+
+export async function getFeedbacks(req: BareSessionRequest, res: Response) {
+    const applicationId = req.application?.id;
+    const userId = req.auth?.id;
+
+    const member = userId ? await db.member.findFirst({ where: { userId, applicationId } }) : null;
+
+    const { success, data, error } = feedbacksSchema.safeParse(req.query);
+
+    if (!success) {
+        res.status(400).json({ error: 'Invalid feedbacks data' });
+        console.log(req.query);
+        console.log(error);
+        return;
+    }
+
+    const { cursor, take, order, ...filters } = data;
+
+    const where: Prisma.FeedbackWhereInput = {};
+
+    if (member) {
+        if (filters?.boards) {
+            where.board = {
+                applicationId,
+                slug: { in: Array.isArray(filters.boards) ? filters.boards : [filters.boards] },
+            }
+        } else {
+            where.board = {
+                applicationId,
+            }
+        }
+    } else {
+        if (filters?.boards) {
+            where.board = {
+                applicationId,
+                slug: { in: Array.isArray(filters.boards) ? filters.boards : [filters.boards] },
+                public: true,
+            }
+        } else {
+            where.board = {
+                applicationId,
+                public: true,
+            }
+        }
+    }
+
+    if (filters?.status) {
+        where.status = { in: Array.isArray(filters.status) ? filters.status : [filters.status] };
+    }
+
+    if (filters?.categories) {
+        where.categoryId = { in: Array.isArray(filters.categories) ? filters.categories : [filters.categories] };
+    }
+
+    if (filters?.uncategorized && !filters.categories) {
+        where.categoryId = null;
+    }
+
+    if (filters?.tags) {
+        where.tags = { some: { name: { in: Array.isArray(filters.tags) ? filters.tags : [filters.tags] } } };
+    }
+
+    if (filters?.untagged && !filters.tags) {
+        where.tags = { none: {} };
+    }
+
+    if (filters?.owner) {
+        where.ownerId = filters.owner;
+    }
+
+    if (filters?.unassigned) {
+        where.ownerId = null;
+    }
+
+    if (filters?.search) {
+        where.title = { search: filters.search };
+        where.description = { search: filters.search };
+    }
+
+    const orderBy: Prisma.FeedbackOrderByWithRelationInput = order === 'newest' ? { createdAt: 'desc' } : { createdAt: 'asc' };
+
+    const result = await db.feedback.findMany({
+        where,
+        orderBy,
+        take,
+        cursor: cursor ? { id: cursor } : undefined,
+        skip: cursor ? 1 : 0,
+        select: feeedbackSummarySelect,
     });
 
     res.status(200).json(result);

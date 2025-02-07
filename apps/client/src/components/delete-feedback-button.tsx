@@ -17,9 +17,9 @@ export function DeleteFeedbackButton({ boardSlug, feedbackSlug }: DeleteFeedback
         }),
         onSuccess: () => {
             toast.success('Feedback deleted successfully')
-            router.navigate({ to: '/$board', params: { board: boardSlug } })
+            router.navigate({ to: '/$boardSlug', params: { boardSlug } })
         },
-        onError: () => {
+        onError: () => {    
             toast.error('Failed to delete feedback')
         }
     })
@@ -39,9 +39,10 @@ export function DeleteFeedbackButton({ boardSlug, feedbackSlug }: DeleteFeedback
             <p className="text-xs text-gray-500">&bull;</p>
             <Modal
                 trigger='Delete'
-                triggerClassName="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                triggerClassName="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200 cursor-pointer"
                 dismissable={false}
-                title="Delete Feedback"
+                contentClassName="max-w-sm"
+                // title="Delete Feedback"
                 footer={
                     <div className="horizontal gap-2 center-v justify-end">
                         <button type="button" onClick={handleCancel} className="button button-secondary" disabled={isPending}>Cancel</button>

@@ -1,7 +1,7 @@
 import { cn } from "../lib/utils";
 import { Icons } from "./icons";
 
-type AvatarProps = {
+type AvatarProps = React.HTMLAttributes<HTMLDivElement> & {
     src?: string;
     name: string;
     className?: string;
@@ -34,7 +34,7 @@ const colors = [
         text: 'text-orange-500',
     },
 ]
-export function Avatar({ src, name, className, isAdmin }: AvatarProps) {
+export function Avatar({ src, name, className, isAdmin, ...props }: AvatarProps) {
     const color = colors[name.charCodeAt(0) % colors.length]
     return (
         <div className={cn("size-8 rounded-full relative", className)}
@@ -48,6 +48,7 @@ export function Avatar({ src, name, className, isAdmin }: AvatarProps) {
                     style={{
                         mask: isAdmin ? "radial-gradient(circle 8px at 23px 82%, transparent 99%, #fff 100%)" : undefined
                     }}
+                    {...props}
                 >
                     {name.slice(0, 1).toUpperCase()}
                 </span>}

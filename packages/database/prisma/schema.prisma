@@ -49,6 +49,10 @@ enum ActivityType {
   FEEDBACK_PRIORITY_CHANGE
   FEEDBACK_TAG_ADD
   FEEDBACK_TAG_REMOVE
+  FEEDBACK_CATEGORY_CHANGE
+  FEEDBACK_OWNER_CHANGE
+  FEEDBACK_BOARD_CHANGE
+  FEEDBACK_ESTIMATED_DELIVERY_CHANGE
   FEEDBACK_SCREENSHOT_ADD
   FEEDBACK_SCREENSHOT_REMOVE
 }
@@ -137,7 +141,7 @@ model Application {
   verificationCode  String? // For DNS TXT record verification
   logoUrl           String?
   iconUrl           String?
-  color             String?
+  color             String       @default("#a684ff")
   preferredTheme    Theme        @default(SYSTEM)
   preferredLanguage Language     @default(EN)
 
@@ -168,13 +172,15 @@ model Feedback {
   edited            Boolean        @default(false)
 
   boardId       String
-  board         Board       @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  board         Board             @relation(fields: [boardId], references: [id], onDelete: Cascade)
   authorId      String?
-  author        User?       @relation(name: "FeedbackAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  author        User?             @relation(name: "FeedbackAuthor", fields: [authorId], references: [id], onDelete: SetNull)
   ownerId       String?
-  owner         User?       @relation(name: "FeedbackOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  owner         User?             @relation(name: "FeedbackOwner", fields: [ownerId], references: [id], onDelete: SetNull)
   applicationId String
-  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  application   Application       @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  categoryId    String?
+  category      FeedbackCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   tags       Tag[]
   votes      Vote[]
@@ -187,6 +193,22 @@ model Feedback {
   @@index([applicationId, status])
 }
 
+model FeedbackCategory {
+  id   String @id @default(uuid())
+  name String
+  slug String
+
+  boardId String
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  feedbacks Feedback[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([boardId, slug])
+}
+
 model Board {
   id     String  @id @default(uuid())
   name   String
@@ -196,7 +218,8 @@ model Board {
   applicationId String
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
-  feedbacks Feedback[]
+  feedbacks  Feedback[]
+  categories FeedbackCategory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -209,9 +232,10 @@ model Tag {
   name  String
   color String
 
-  feedbacks     Feedback[]
   applicationId String
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  feedbacks Feedback[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

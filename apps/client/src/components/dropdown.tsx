@@ -5,6 +5,7 @@ export interface DropdownItem {
     onClick?: () => void
     className?: string
     icon?: ReactNode
+    disabled?: boolean
 }
 
 interface DropdownProps {
@@ -12,30 +13,36 @@ interface DropdownProps {
     items: DropdownItem[]
     header?: ReactNode
     className?: string
+    wrapperClassName?: string
     align?: 'left' | 'right'
+    disabled?: boolean
 }
 
 export function Dropdown({
     trigger,
     items,
     header,
-    className = '',
-    align = 'left'
+    wrapperClassName,
+    className,
+    align = 'left',
+    disabled = false
 }: DropdownProps) {
     return (
-        <div className="relative">
+        <div className={`relative min-w-0 ${wrapperClassName}`}>
             {/* Trigger Button */}
             <div
                 data-popover-trigger
                 aria-expanded="false"
                 aria-haspopup="true"
+                aria-disabled={disabled}
+                className={`${disabled ? 'cursor-not-allowed pointer-events-none' : 'cursor-pointer'}`}
             >
                 {trigger}
             </div>
 
             {/* Dropdown Menu */}
             <div
-                className={`absolute ${align}-0 top-full mt-2 rounded-md bg-white dark:bg-zinc-900 shadow-sm border ring-opacity-5 hidden min-w-full ${className}`}
+                className={`absolute ${align}-0 top-full mt-2 rounded-md bg-white dark:bg-zinc-900 shadow-sm border z-50 ring-opacity-5 hidden min-w-fit ${className}`}
                 data-popover
                 role="menu"
             >
@@ -52,10 +59,10 @@ export function Dropdown({
                         <button
                             key={index}
                             type="button"
-                            className={`block w-full text-left px-2 py-1 text-sm ${item.className ?? 'text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/20'
-                                }`}
+                            className={`block text-nowrap w-full text-left px-2 py-1 text-sm text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/20 ${item.className} ${item.disabled ? 'cursor-not-allowed pointer-events-none' : 'cursor-pointer'}`}
                             role="menuitem"
                             onClick={item.onClick}
+                            disabled={item.disabled}
                         >
                             {item.icon && (
                                 <span className="mr-2 inline-block">{item.icon}</span>

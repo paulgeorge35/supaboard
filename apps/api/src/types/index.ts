@@ -23,7 +23,7 @@ export const applicationSchema = z.object({
     domainStatus: z.nativeEnum(DomainStatus),
     logoUrl: z.string().nullish(),
     iconUrl: z.string().nullish(),
-    color: z.string().nullish(),
+    color: z.string(),
     preferredTheme: z.nativeEnum(Theme),
     preferredLanguage: z.nativeEnum(Language),
     ownerId: z.string(),

@@ -46,7 +46,7 @@ function RouteComponent() {
     }
   }, [application?.color])
 
-  const defaultBoardSlug = params?.board ?? boards[0]?.slug ?? '/';
+  const defaultBoardSlug = params?.boardSlug ?? boards[0]?.slug ?? '/';
 
   return (
     <>
@@ -74,9 +74,9 @@ function RouteComponent() {
             Roadmap
           </Link>
           <Link
-            to={'/$board'}
+            to="/$boardSlug"
             params={{
-              board: defaultBoardSlug,
+              boardSlug: defaultBoardSlug,
             }}
             activeProps={{
               className: '!border-[var(--color-primary)] !text-[var(--color-primary)] [&>svg]:!stroke-[var(--color-primary)]',

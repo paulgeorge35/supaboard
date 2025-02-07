@@ -1,6 +1,7 @@
+import { Skeleton } from '@/components'
 import { feedbackEditHistoryQuery, feedbackQuery } from '@/routes/__root'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute, useParams } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { createFileRoute, notFound, useParams } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
 
 export const Route = createFileRoute(
@@ -13,18 +14,31 @@ function RouteComponent() {
   const { boardSlug, feedbackSlug } = useParams({
     from: '/admin/feedback/$boardSlug/$feedbackSlug/edit-history',
   })
-  const { data, isLoading } = useSuspenseQuery(
+  const { data, isLoading } = useQuery(
     feedbackEditHistoryQuery(boardSlug, feedbackSlug),
   )
-  const { data: feedback } = useSuspenseQuery(
+  const { data: feedback } = useQuery(
     feedbackQuery(boardSlug, feedbackSlug),
   )
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading) return (
+    <div className="vertical gap-4 grid grid-cols-[auto_1fr] w-full">
+      <h1 className="font-light">Edit History</h1>
+      <div className="grid grid-cols-subgrid col-span-full gap-2">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <Skeleton key={index} className="col-span-full h-10" />
+        ))}
+      </div>
+    </div>
+  )
+
+  if (!feedback) {
+    throw notFound()
+  }
 
   return (
     <div className="vertical gap-4 grid grid-cols-[auto_1fr] w-full">
-      <p className="text-sm font-medium">Edit History</p>
+      <h1 className="font-light">Edit History</h1>
       <div
         key={data?.[0].id}
         className="grid grid-cols-subgrid col-span-full gap-2"

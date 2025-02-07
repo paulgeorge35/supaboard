@@ -58,6 +58,7 @@ function RouteComponent() {
           isEditable={feedback.isEditable}
           boardSlug={boardSlug}
           feedbackSlug={feedbackSlug}
+          to="/admin/feedback/$boardSlug/$feedbackSlug/edit"
         />
         <DeleteFeedbackButton
           boardSlug={boardSlug}
@@ -67,6 +68,7 @@ function RouteComponent() {
           boardSlug={boardSlug}
           feedbackSlug={feedbackSlug}
           edited={feedback.edited}
+          to="/admin/feedback/$boardSlug/$feedbackSlug/edit-history"
         />
       </span>
     </span>

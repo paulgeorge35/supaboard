@@ -19,7 +19,7 @@ interface FeedbackFormProps {
 }
 
 export function FeedbackForm({ boardId }: FeedbackFormProps) {
-    const { board: boardSlug } = useParams({ from: '/_public/$board/' })
+    const { boardSlug } = useParams({ from: '/_public/$boardSlug/' })
     const { user } = useAuthStore()
     const navigate = useNavigate();
     const [isExpanded, setIsExpanded] = useState(true);
@@ -37,10 +37,10 @@ export function FeedbackForm({ boardId }: FeedbackFormProps) {
         onSuccess: (data) => {
             toast.success('Feedback created successfully');
             navigate({
-                to: '/$board/$feedback',
+                to: '/$boardSlug/$feedbackSlug',
                 params: {
-                    board: boardSlug,
-                    feedback: data.slug,
+                    boardSlug,
+                    feedbackSlug: data.slug,
                 }
             });
         },

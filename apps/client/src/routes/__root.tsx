@@ -1,16 +1,17 @@
 import { NotFoundPage } from '@/components'
 import { fetchClient } from '@/lib/client'
 import { useAuthStore } from '@/stores/auth-store'
-import type { Activity, Application, Board, Feedback, FeedbackStatus, User } from '@repo/database'
+import { ApplicationSummary, BoardSummary, FeedbackCategory, FeedbackSummary, Tag, UserSummary, type Activity, type Board, type Feedback, type FeedbackStatus, type User } from '@repo/database'
 import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { useEffect } from 'react'
+import { FeedbackSearch } from './admin/feedback'
 
 type MeQueryData = {
   user?: Pick<User, 'id' | 'email' | 'name' | 'avatar'>
-  application: Pick<Application, 'id' | 'name' | 'subdomain' | 'customDomain' | 'domainStatus' | 'logoUrl' | 'iconUrl' | 'color' | 'preferredTheme' | 'preferredLanguage' | 'ownerId'> & {
-    boards: Pick<Board, 'id' | 'name' | 'slug'>[]
+  application: ApplicationSummary & {
+    boards: BoardSummary[]
   }
 }
 
@@ -19,7 +20,7 @@ export const meQuery = queryOptions<MeQueryData>({
   queryFn: () => fetchClient("auth/me")
 })
 
-export type FeedbackSummary = Pick<Feedback, 'id' | 'title' | 'status' | 'slug'> & {
+export type BoardFeedbackSummary = Pick<Feedback, 'id' | 'title' | 'status' | 'slug'> & {
   votes: number;
   board: Pick<Board, 'name' | 'slug'>;
   votedByMe: boolean;
@@ -27,12 +28,19 @@ export type FeedbackSummary = Pick<Feedback, 'id' | 'title' | 'status' | 'slug'>
 
 export type ApplicationBoardsQueryData = (Pick<Board, 'name' | 'slug'> & {
   count: number;
-  feedbacks: FeedbackSummary[]
+  feedbacks: BoardFeedbackSummary[]
 })[]
 
 export const applicationBoardsQuery = queryOptions<ApplicationBoardsQueryData>({
   queryKey: ['application', 'boards'],
   queryFn: () => fetchClient("application/boards")
+})
+
+export const feedbacksQuery = (queryParams?: FeedbackSearch) => queryOptions<FeedbackSummary[]>({
+  queryKey: ['feedback', queryParams],
+  queryFn: () => fetchClient("feedback", {
+    queryParams
+  })
 })
 
 export type BoardQueryData = Pick<Board, 'id' | 'name' | 'slug'> & {
@@ -57,11 +65,23 @@ export type FeedbackQueryData = Pick<Feedback, 'id' | 'title' | 'description' | 
   author: Pick<User, 'id' | 'name' | 'avatar'> & {
     isAdmin: boolean;
   };
+  owner?: Pick<User, 'id' | 'name' | 'avatar'>;
+  category?: Pick<FeedbackCategory, 'name' | 'slug'>;
+  tags: Pick<Tag, 'name' | 'color'>[];
 }
 
 export const feedbackQuery = (boardSlug: string, feedbackSlug: string) => queryOptions<FeedbackQueryData>({
   queryKey: ['feedback', boardSlug, feedbackSlug],
   queryFn: () => fetchClient(`feedback/${boardSlug}/${feedbackSlug}`)
+})
+
+export const tagsQuery = (search?: string) => queryOptions<Pick<Tag, 'name' | 'color'>[]>({
+  queryKey: ['tags', search],
+  queryFn: () => fetchClient("admin/tags", {
+    queryParams: {
+      search
+    }
+  })
 })
 
 export type ActivityCommentData = {
@@ -118,6 +138,12 @@ export const feedbackEditHistoryQuery = (boardSlug: string, feedbackSlug: string
   queryKey: ['feedback', 'edit-history', boardSlug, feedbackSlug],
   queryFn: () => fetchClient(`feedback/${boardSlug}/${feedbackSlug}/edit-history`)
 })
+
+export const membersQuery = queryOptions<UserSummary[]>({
+  queryKey: ['admin', 'users'],
+  queryFn: () => fetchClient("admin/users")
+})
+
 export const Route = createRootRoute({
   notFoundComponent: () => <NotFoundPage redirect="https://supaboard.io" />,
   context: () => {

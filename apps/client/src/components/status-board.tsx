@@ -4,14 +4,14 @@ import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { fetchClient } from "../lib/client";
 import { FeedbackStatusConfig } from "../lib/utils";
-import { applicationBoardsQuery, ApplicationBoardsQueryData, FeedbackSummary } from "../routes/__root";
+import { applicationBoardsQuery, ApplicationBoardsQueryData, BoardFeedbackSummary } from "../routes/__root";
 import { Dot } from "./dot";
 import { Icons } from "./icons";
 import { VoteButton } from "./vote-button";
 
 interface StatusBoardProps {
     status: FeedbackStatus;
-    items: FeedbackSummary[]
+    items: BoardFeedbackSummary[]
 }
 export const StatusBoard = ({ status, items }: StatusBoardProps) => {
     const { label } = FeedbackStatusConfig[status];

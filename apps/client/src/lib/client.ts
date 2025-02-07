@@ -1,10 +1,16 @@
 import { notFound } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { buildQueryString } from "./utils";
 
-export const fetchClient = async (path: string | URL | globalThis.Request, options?: RequestInit) => {
+type FetchClientOptions = RequestInit & {
+    queryParams?: Record<string, string | string[] | undefined | boolean>;
+}
+
+export const fetchClient = async (path: string | URL | globalThis.Request, options?: FetchClientOptions) => {
     const apiURL = window.location.hostname.endsWith('supaboard.io') ? 'https://api.supaboard.io' : `https://${window.location.hostname}/api/`
+    const searchParams = options?.queryParams ? buildQueryString(options.queryParams) : undefined;
     try {
-        const res = await fetch(`${apiURL}/${path}`, {
+        const res = await fetch(`${apiURL}/${path}${searchParams ? `?${searchParams}` : ''}`, {
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',

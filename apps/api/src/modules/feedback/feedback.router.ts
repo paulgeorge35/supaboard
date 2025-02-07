@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { applicationMiddleware } from '../../middleware/application';
 import { requireAuth } from '../../middleware/auth';
-import { comment, createFeedback, deleteFeedback, editHistory, getActivities, getFeedbackBySlug, getVoters, like, pin, updateFeedback, vote } from './feedback.controller';
+import { comment, createFeedback, deleteFeedback, editHistory, getActivities, getFeedbackBySlug, getFeedbacks, getVoters, like, pin, updateFeedback, vote } from './feedback.controller';
 
 const router = Router();
 
+router.get('/', requireAuth, applicationMiddleware, getFeedbacks);
 router.post('/:boardId/create', requireAuth, applicationMiddleware, createFeedback);
 router.post('/:feedbackId/vote', requireAuth, applicationMiddleware, vote);
 router.get('/:boardSlug/:feedbackSlug', requireAuth, applicationMiddleware, getFeedbackBySlug);

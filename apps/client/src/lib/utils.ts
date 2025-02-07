@@ -10,6 +10,21 @@ export const SORT_OPTIONS = [
   { label: 'Oldest first', value: 'oldest' },
 ]
 
+export const buildQueryString = (search: Record<string, any>): string => {
+  const params = new URLSearchParams();
+
+  Object.entries(search).forEach(([key, value]) => {
+    if (value === undefined) return;
+    if (Array.isArray(value)) {
+      value.forEach((item) => params.append(key, item));
+    } else {
+      params.append(key, value.toString());
+    }
+  });
+
+  return params.toString();
+}
+
 export const FeedbackStatusConfig = {
   OPEN: {
     label: 'Open',

@@ -20,14 +20,15 @@ import { Route as AdminUsersIndexImport } from './routes/admin/users/index'
 import { Route as AdminSettingsIndexImport } from './routes/admin/settings/index'
 import { Route as AdminRoadmapIndexImport } from './routes/admin/roadmap/index'
 import { Route as AdminChangelogIndexImport } from './routes/admin/changelog/index'
-import { Route as PublicBoardIndexImport } from './routes/_public/$board/index'
+import { Route as PublicBoardSlugIndexImport } from './routes/_public/$boardSlug/index'
 import { Route as AdminFeedbackBoardSlugImport } from './routes/admin/feedback/$boardSlug'
-import { Route as PublicBoardFeedbackIndexImport } from './routes/_public/$board/$feedback/index'
+import { Route as PublicBoardSlugFeedbackSlugIndexImport } from './routes/_public/$boardSlug/$feedbackSlug/index'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug'
-import { Route as PublicBoardFeedbackVotersImport } from './routes/_public/$board/$feedback/voters'
-import { Route as PublicBoardFeedbackEditHistoryImport } from './routes/_public/$board/$feedback/edit-history'
-import { Route as PublicBoardFeedbackEditImport } from './routes/_public/$board/$feedback/edit'
+import { Route as PublicBoardSlugFeedbackSlugVotersImport } from './routes/_public/$boardSlug/$feedbackSlug/voters'
+import { Route as PublicBoardSlugFeedbackSlugEditHistoryImport } from './routes/_public/$boardSlug/$feedbackSlug/edit-history'
+import { Route as PublicBoardSlugFeedbackSlugEditImport } from './routes/_public/$boardSlug/$feedbackSlug/edit'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugIndexImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/index'
+import { Route as AdminFeedbackBoardSlugFeedbackSlugVotersImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/voters'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugEditHistoryImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugEditImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/edit'
 
@@ -86,9 +87,9 @@ const AdminChangelogIndexRoute = AdminChangelogIndexImport.update({
   getParentRoute: () => AdminRoute,
 } as any)
 
-const PublicBoardIndexRoute = PublicBoardIndexImport.update({
-  id: '/$board/',
-  path: '/$board/',
+const PublicBoardSlugIndexRoute = PublicBoardSlugIndexImport.update({
+  id: '/$boardSlug/',
+  path: '/$boardSlug/',
   getParentRoute: () => PublicRoute,
 } as any)
 
@@ -98,11 +99,12 @@ const AdminFeedbackBoardSlugRoute = AdminFeedbackBoardSlugImport.update({
   getParentRoute: () => AdminFeedbackRoute,
 } as any)
 
-const PublicBoardFeedbackIndexRoute = PublicBoardFeedbackIndexImport.update({
-  id: '/$board/$feedback/',
-  path: '/$board/$feedback/',
-  getParentRoute: () => PublicRoute,
-} as any)
+const PublicBoardSlugFeedbackSlugIndexRoute =
+  PublicBoardSlugFeedbackSlugIndexImport.update({
+    id: '/$boardSlug/$feedbackSlug/',
+    path: '/$boardSlug/$feedbackSlug/',
+    getParentRoute: () => PublicRoute,
+  } as any)
 
 const AdminFeedbackBoardSlugFeedbackSlugRoute =
   AdminFeedbackBoardSlugFeedbackSlugImport.update({
@@ -111,29 +113,38 @@ const AdminFeedbackBoardSlugFeedbackSlugRoute =
     getParentRoute: () => AdminFeedbackBoardSlugRoute,
   } as any)
 
-const PublicBoardFeedbackVotersRoute = PublicBoardFeedbackVotersImport.update({
-  id: '/$board/$feedback/voters',
-  path: '/$board/$feedback/voters',
-  getParentRoute: () => PublicRoute,
-} as any)
-
-const PublicBoardFeedbackEditHistoryRoute =
-  PublicBoardFeedbackEditHistoryImport.update({
-    id: '/$board/$feedback/edit-history',
-    path: '/$board/$feedback/edit-history',
+const PublicBoardSlugFeedbackSlugVotersRoute =
+  PublicBoardSlugFeedbackSlugVotersImport.update({
+    id: '/$boardSlug/$feedbackSlug/voters',
+    path: '/$boardSlug/$feedbackSlug/voters',
     getParentRoute: () => PublicRoute,
   } as any)
 
-const PublicBoardFeedbackEditRoute = PublicBoardFeedbackEditImport.update({
-  id: '/$board/$feedback/edit',
-  path: '/$board/$feedback/edit',
-  getParentRoute: () => PublicRoute,
-} as any)
+const PublicBoardSlugFeedbackSlugEditHistoryRoute =
+  PublicBoardSlugFeedbackSlugEditHistoryImport.update({
+    id: '/$boardSlug/$feedbackSlug/edit-history',
+    path: '/$boardSlug/$feedbackSlug/edit-history',
+    getParentRoute: () => PublicRoute,
+  } as any)
+
+const PublicBoardSlugFeedbackSlugEditRoute =
+  PublicBoardSlugFeedbackSlugEditImport.update({
+    id: '/$boardSlug/$feedbackSlug/edit',
+    path: '/$boardSlug/$feedbackSlug/edit',
+    getParentRoute: () => PublicRoute,
+  } as any)
 
 const AdminFeedbackBoardSlugFeedbackSlugIndexRoute =
   AdminFeedbackBoardSlugFeedbackSlugIndexImport.update({
     id: '/',
     path: '/',
+    getParentRoute: () => AdminFeedbackBoardSlugFeedbackSlugRoute,
+  } as any)
+
+const AdminFeedbackBoardSlugFeedbackSlugVotersRoute =
+  AdminFeedbackBoardSlugFeedbackSlugVotersImport.update({
+    id: '/voters',
+    path: '/voters',
     getParentRoute: () => AdminFeedbackBoardSlugFeedbackSlugRoute,
   } as any)
 
@@ -197,11 +208,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeedbackBoardSlugImport
       parentRoute: typeof AdminFeedbackImport
     }
-    '/_public/$board/': {
-      id: '/_public/$board/'
-      path: '/$board'
-      fullPath: '/$board'
-      preLoaderRoute: typeof PublicBoardIndexImport
+    '/_public/$boardSlug/': {
+      id: '/_public/$boardSlug/'
+      path: '/$boardSlug'
+      fullPath: '/$boardSlug'
+      preLoaderRoute: typeof PublicBoardSlugIndexImport
       parentRoute: typeof PublicImport
     }
     '/admin/changelog/': {
@@ -232,25 +243,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersIndexImport
       parentRoute: typeof AdminImport
     }
-    '/_public/$board/$feedback/edit': {
-      id: '/_public/$board/$feedback/edit'
-      path: '/$board/$feedback/edit'
-      fullPath: '/$board/$feedback/edit'
-      preLoaderRoute: typeof PublicBoardFeedbackEditImport
+    '/_public/$boardSlug/$feedbackSlug/edit': {
+      id: '/_public/$boardSlug/$feedbackSlug/edit'
+      path: '/$boardSlug/$feedbackSlug/edit'
+      fullPath: '/$boardSlug/$feedbackSlug/edit'
+      preLoaderRoute: typeof PublicBoardSlugFeedbackSlugEditImport
       parentRoute: typeof PublicImport
     }
-    '/_public/$board/$feedback/edit-history': {
-      id: '/_public/$board/$feedback/edit-history'
-      path: '/$board/$feedback/edit-history'
-      fullPath: '/$board/$feedback/edit-history'
-      preLoaderRoute: typeof PublicBoardFeedbackEditHistoryImport
+    '/_public/$boardSlug/$feedbackSlug/edit-history': {
+      id: '/_public/$boardSlug/$feedbackSlug/edit-history'
+      path: '/$boardSlug/$feedbackSlug/edit-history'
+      fullPath: '/$boardSlug/$feedbackSlug/edit-history'
+      preLoaderRoute: typeof PublicBoardSlugFeedbackSlugEditHistoryImport
       parentRoute: typeof PublicImport
     }
-    '/_public/$board/$feedback/voters': {
-      id: '/_public/$board/$feedback/voters'
-      path: '/$board/$feedback/voters'
-      fullPath: '/$board/$feedback/voters'
-      preLoaderRoute: typeof PublicBoardFeedbackVotersImport
+    '/_public/$boardSlug/$feedbackSlug/voters': {
+      id: '/_public/$boardSlug/$feedbackSlug/voters'
+      path: '/$boardSlug/$feedbackSlug/voters'
+      fullPath: '/$boardSlug/$feedbackSlug/voters'
+      preLoaderRoute: typeof PublicBoardSlugFeedbackSlugVotersImport
       parentRoute: typeof PublicImport
     }
     '/admin/feedback/$boardSlug/$feedbackSlug': {
@@ -260,11 +271,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugImport
       parentRoute: typeof AdminFeedbackBoardSlugImport
     }
-    '/_public/$board/$feedback/': {
-      id: '/_public/$board/$feedback/'
-      path: '/$board/$feedback'
-      fullPath: '/$board/$feedback'
-      preLoaderRoute: typeof PublicBoardFeedbackIndexImport
+    '/_public/$boardSlug/$feedbackSlug/': {
+      id: '/_public/$boardSlug/$feedbackSlug/'
+      path: '/$boardSlug/$feedbackSlug'
+      fullPath: '/$boardSlug/$feedbackSlug'
+      preLoaderRoute: typeof PublicBoardSlugFeedbackSlugIndexImport
       parentRoute: typeof PublicImport
     }
     '/admin/feedback/$boardSlug/$feedbackSlug/edit': {
@@ -281,6 +292,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryImport
       parentRoute: typeof AdminFeedbackBoardSlugFeedbackSlugImport
     }
+    '/admin/feedback/$boardSlug/$feedbackSlug/voters': {
+      id: '/admin/feedback/$boardSlug/$feedbackSlug/voters'
+      path: '/voters'
+      fullPath: '/admin/feedback/$boardSlug/$feedbackSlug/voters'
+      preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugVotersImport
+      parentRoute: typeof AdminFeedbackBoardSlugFeedbackSlugImport
+    }
     '/admin/feedback/$boardSlug/$feedbackSlug/': {
       id: '/admin/feedback/$boardSlug/$feedbackSlug/'
       path: '/'
@@ -295,20 +313,22 @@ declare module '@tanstack/react-router' {
 
 interface PublicRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
-  PublicBoardIndexRoute: typeof PublicBoardIndexRoute
-  PublicBoardFeedbackEditRoute: typeof PublicBoardFeedbackEditRoute
-  PublicBoardFeedbackEditHistoryRoute: typeof PublicBoardFeedbackEditHistoryRoute
-  PublicBoardFeedbackVotersRoute: typeof PublicBoardFeedbackVotersRoute
-  PublicBoardFeedbackIndexRoute: typeof PublicBoardFeedbackIndexRoute
+  PublicBoardSlugIndexRoute: typeof PublicBoardSlugIndexRoute
+  PublicBoardSlugFeedbackSlugEditRoute: typeof PublicBoardSlugFeedbackSlugEditRoute
+  PublicBoardSlugFeedbackSlugEditHistoryRoute: typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
+  PublicBoardSlugFeedbackSlugVotersRoute: typeof PublicBoardSlugFeedbackSlugVotersRoute
+  PublicBoardSlugFeedbackSlugIndexRoute: typeof PublicBoardSlugFeedbackSlugIndexRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
-  PublicBoardIndexRoute: PublicBoardIndexRoute,
-  PublicBoardFeedbackEditRoute: PublicBoardFeedbackEditRoute,
-  PublicBoardFeedbackEditHistoryRoute: PublicBoardFeedbackEditHistoryRoute,
-  PublicBoardFeedbackVotersRoute: PublicBoardFeedbackVotersRoute,
-  PublicBoardFeedbackIndexRoute: PublicBoardFeedbackIndexRoute,
+  PublicBoardSlugIndexRoute: PublicBoardSlugIndexRoute,
+  PublicBoardSlugFeedbackSlugEditRoute: PublicBoardSlugFeedbackSlugEditRoute,
+  PublicBoardSlugFeedbackSlugEditHistoryRoute:
+    PublicBoardSlugFeedbackSlugEditHistoryRoute,
+  PublicBoardSlugFeedbackSlugVotersRoute:
+    PublicBoardSlugFeedbackSlugVotersRoute,
+  PublicBoardSlugFeedbackSlugIndexRoute: PublicBoardSlugFeedbackSlugIndexRoute,
 }
 
 const PublicRouteWithChildren =
@@ -317,6 +337,7 @@ const PublicRouteWithChildren =
 interface AdminFeedbackBoardSlugFeedbackSlugRouteChildren {
   AdminFeedbackBoardSlugFeedbackSlugEditRoute: typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
   AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute: typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
+  AdminFeedbackBoardSlugFeedbackSlugVotersRoute: typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
   AdminFeedbackBoardSlugFeedbackSlugIndexRoute: typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
 }
 
@@ -326,6 +347,8 @@ const AdminFeedbackBoardSlugFeedbackSlugRouteChildren: AdminFeedbackBoardSlugFee
       AdminFeedbackBoardSlugFeedbackSlugEditRoute,
     AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute:
       AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute,
+    AdminFeedbackBoardSlugFeedbackSlugVotersRoute:
+      AdminFeedbackBoardSlugFeedbackSlugVotersRoute,
     AdminFeedbackBoardSlugFeedbackSlugIndexRoute:
       AdminFeedbackBoardSlugFeedbackSlugIndexRoute,
   }
@@ -389,18 +412,19 @@ export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
-  '/$board': typeof PublicBoardIndexRoute
+  '/$boardSlug': typeof PublicBoardSlugIndexRoute
   '/admin/changelog': typeof AdminChangelogIndexRoute
   '/admin/roadmap': typeof AdminRoadmapIndexRoute
   '/admin/settings': typeof AdminSettingsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
-  '/$board/$feedback/edit': typeof PublicBoardFeedbackEditRoute
-  '/$board/$feedback/edit-history': typeof PublicBoardFeedbackEditHistoryRoute
-  '/$board/$feedback/voters': typeof PublicBoardFeedbackVotersRoute
+  '/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
+  '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
+  '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
-  '/$board/$feedback': typeof PublicBoardFeedbackIndexRoute
+  '/$boardSlug/$feedbackSlug': typeof PublicBoardSlugFeedbackSlugIndexRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
 }
 
@@ -409,17 +433,18 @@ export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
-  '/$board': typeof PublicBoardIndexRoute
+  '/$boardSlug': typeof PublicBoardSlugIndexRoute
   '/admin/changelog': typeof AdminChangelogIndexRoute
   '/admin/roadmap': typeof AdminRoadmapIndexRoute
   '/admin/settings': typeof AdminSettingsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
-  '/$board/$feedback/edit': typeof PublicBoardFeedbackEditRoute
-  '/$board/$feedback/edit-history': typeof PublicBoardFeedbackEditHistoryRoute
-  '/$board/$feedback/voters': typeof PublicBoardFeedbackVotersRoute
-  '/$board/$feedback': typeof PublicBoardFeedbackIndexRoute
+  '/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
+  '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
+  '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
+  '/$boardSlug/$feedbackSlug': typeof PublicBoardSlugFeedbackSlugIndexRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
 }
 
@@ -431,18 +456,19 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
-  '/_public/$board/': typeof PublicBoardIndexRoute
+  '/_public/$boardSlug/': typeof PublicBoardSlugIndexRoute
   '/admin/changelog/': typeof AdminChangelogIndexRoute
   '/admin/roadmap/': typeof AdminRoadmapIndexRoute
   '/admin/settings/': typeof AdminSettingsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
-  '/_public/$board/$feedback/edit': typeof PublicBoardFeedbackEditRoute
-  '/_public/$board/$feedback/edit-history': typeof PublicBoardFeedbackEditHistoryRoute
-  '/_public/$board/$feedback/voters': typeof PublicBoardFeedbackVotersRoute
+  '/_public/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
+  '/_public/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
+  '/_public/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
-  '/_public/$board/$feedback/': typeof PublicBoardFeedbackIndexRoute
+  '/_public/$boardSlug/$feedbackSlug/': typeof PublicBoardSlugFeedbackSlugIndexRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
 }
 
@@ -455,18 +481,19 @@ export interface FileRouteTypes {
     | '/'
     | '/admin/'
     | '/admin/feedback/$boardSlug'
-    | '/$board'
+    | '/$boardSlug'
     | '/admin/changelog'
     | '/admin/roadmap'
     | '/admin/settings'
     | '/admin/users'
-    | '/$board/$feedback/edit'
-    | '/$board/$feedback/edit-history'
-    | '/$board/$feedback/voters'
+    | '/$boardSlug/$feedbackSlug/edit'
+    | '/$boardSlug/$feedbackSlug/edit-history'
+    | '/$boardSlug/$feedbackSlug/voters'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
-    | '/$board/$feedback'
+    | '/$boardSlug/$feedbackSlug'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
     | '/admin/feedback/$boardSlug/$feedbackSlug/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -474,17 +501,18 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin/feedback/$boardSlug'
-    | '/$board'
+    | '/$boardSlug'
     | '/admin/changelog'
     | '/admin/roadmap'
     | '/admin/settings'
     | '/admin/users'
-    | '/$board/$feedback/edit'
-    | '/$board/$feedback/edit-history'
-    | '/$board/$feedback/voters'
-    | '/$board/$feedback'
+    | '/$boardSlug/$feedbackSlug/edit'
+    | '/$boardSlug/$feedbackSlug/edit-history'
+    | '/$boardSlug/$feedbackSlug/voters'
+    | '/$boardSlug/$feedbackSlug'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
   id:
     | '__root__'
@@ -494,18 +522,19 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/admin/'
     | '/admin/feedback/$boardSlug'
-    | '/_public/$board/'
+    | '/_public/$boardSlug/'
     | '/admin/changelog/'
     | '/admin/roadmap/'
     | '/admin/settings/'
     | '/admin/users/'
-    | '/_public/$board/$feedback/edit'
-    | '/_public/$board/$feedback/edit-history'
-    | '/_public/$board/$feedback/voters'
+    | '/_public/$boardSlug/$feedbackSlug/edit'
+    | '/_public/$boardSlug/$feedbackSlug/edit-history'
+    | '/_public/$boardSlug/$feedbackSlug/voters'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
-    | '/_public/$board/$feedback/'
+    | '/_public/$boardSlug/$feedbackSlug/'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
     | '/admin/feedback/$boardSlug/$feedbackSlug/'
   fileRoutesById: FileRoutesById
 }
@@ -538,11 +567,11 @@ export const routeTree = rootRoute
       "filePath": "_public.tsx",
       "children": [
         "/_public/",
-        "/_public/$board/",
-        "/_public/$board/$feedback/edit",
-        "/_public/$board/$feedback/edit-history",
-        "/_public/$board/$feedback/voters",
-        "/_public/$board/$feedback/"
+        "/_public/$boardSlug/",
+        "/_public/$boardSlug/$feedbackSlug/edit",
+        "/_public/$boardSlug/$feedbackSlug/edit-history",
+        "/_public/$boardSlug/$feedbackSlug/voters",
+        "/_public/$boardSlug/$feedbackSlug/"
       ]
     },
     "/admin": {
@@ -578,8 +607,8 @@ export const routeTree = rootRoute
         "/admin/feedback/$boardSlug/$feedbackSlug"
       ]
     },
-    "/_public/$board/": {
-      "filePath": "_public/$board/index.tsx",
+    "/_public/$boardSlug/": {
+      "filePath": "_public/$boardSlug/index.tsx",
       "parent": "/_public"
     },
     "/admin/changelog/": {
@@ -598,16 +627,16 @@ export const routeTree = rootRoute
       "filePath": "admin/users/index.tsx",
       "parent": "/admin"
     },
-    "/_public/$board/$feedback/edit": {
-      "filePath": "_public/$board/$feedback/edit.tsx",
+    "/_public/$boardSlug/$feedbackSlug/edit": {
+      "filePath": "_public/$boardSlug/$feedbackSlug/edit.tsx",
       "parent": "/_public"
     },
-    "/_public/$board/$feedback/edit-history": {
-      "filePath": "_public/$board/$feedback/edit-history.tsx",
+    "/_public/$boardSlug/$feedbackSlug/edit-history": {
+      "filePath": "_public/$boardSlug/$feedbackSlug/edit-history.tsx",
       "parent": "/_public"
     },
-    "/_public/$board/$feedback/voters": {
-      "filePath": "_public/$board/$feedback/voters.tsx",
+    "/_public/$boardSlug/$feedbackSlug/voters": {
+      "filePath": "_public/$boardSlug/$feedbackSlug/voters.tsx",
       "parent": "/_public"
     },
     "/admin/feedback/$boardSlug/$feedbackSlug": {
@@ -616,11 +645,12 @@ export const routeTree = rootRoute
       "children": [
         "/admin/feedback/$boardSlug/$feedbackSlug/edit",
         "/admin/feedback/$boardSlug/$feedbackSlug/edit-history",
+        "/admin/feedback/$boardSlug/$feedbackSlug/voters",
         "/admin/feedback/$boardSlug/$feedbackSlug/"
       ]
     },
-    "/_public/$board/$feedback/": {
-      "filePath": "_public/$board/$feedback/index.tsx",
+    "/_public/$boardSlug/$feedbackSlug/": {
+      "filePath": "_public/$boardSlug/$feedbackSlug/index.tsx",
       "parent": "/_public"
     },
     "/admin/feedback/$boardSlug/$feedbackSlug/edit": {
@@ -629,6 +659,10 @@ export const routeTree = rootRoute
     },
     "/admin/feedback/$boardSlug/$feedbackSlug/edit-history": {
       "filePath": "admin/feedback/$boardSlug/$feedbackSlug/edit-history.tsx",
+      "parent": "/admin/feedback/$boardSlug/$feedbackSlug"
+    },
+    "/admin/feedback/$boardSlug/$feedbackSlug/voters": {
+      "filePath": "admin/feedback/$boardSlug/$feedbackSlug/voters.tsx",
       "parent": "/admin/feedback/$boardSlug/$feedbackSlug"
     },
     "/admin/feedback/$boardSlug/$feedbackSlug/": {

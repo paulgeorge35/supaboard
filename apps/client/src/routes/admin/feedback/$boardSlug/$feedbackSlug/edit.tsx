@@ -43,8 +43,8 @@ function RouteComponent() {
         queryKey: feedbackQuery(boardSlug, feedbackSlug).queryKey,
       })
       router.navigate({
-        to: '/$board/$feedback',
-        params: { board: boardSlug, feedback: feedbackSlug },
+        to: '/$boardSlug/$feedbackSlug',
+        params: { boardSlug, feedbackSlug },
       })
     },
   })
@@ -67,8 +67,8 @@ function RouteComponent() {
       form.description.trim() === feedback.description)
   return (
 
-    <div className="rounded-lg vertical gap-4 items-start w-full">
-      <h1 className="">Edit Feedback</h1>
+    <div className="vertical gap-4 w-full">
+      <h1 className="font-light">Edit Feedback</h1>
       <form
         className="w-full vertical gap-4 items-start"
         onSubmit={handleSubmit}

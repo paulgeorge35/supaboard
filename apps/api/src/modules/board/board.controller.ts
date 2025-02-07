@@ -1,5 +1,5 @@
+import { db } from "@repo/database";
 import type { Response } from "express";
-import { db } from "../../../../../packages/database/src/client";
 import type { BareSessionRequest } from "../../types";
 
 export async function getBoardBySlug(req: BareSessionRequest, res: Response) {

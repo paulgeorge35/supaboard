@@ -1,21 +1,17 @@
-import { Link, useParams } from "@tanstack/react-router";
-import { Feedback } from "../../../../../../../packages/database/generated/client";
-import { Icons } from "../../../icons";
-import { StatusBadge } from "../../../status-badge";
+import { Icons, StatusBadge } from "@/components";
+import { FeedbackSummary } from "@repo/database";
+import { Link, useParams, useSearch } from "@tanstack/react-router";
 
-
-export function FeedbackCard({ slug, title, description, status, activities, votes }: Pick<Feedback, 'id' | 'title' | 'description' | 'status' | 'slug'> & {
-    votes: number;
-    activities: number;
-    votedByMe: boolean;
-}) {
+export function FeedbackCard({ slug, title, description, status, board, _count }: FeedbackSummary) {
     const { boardSlug } = useParams({ from: "/admin/feedback/$boardSlug" })
+    const search = useSearch({ from: "/admin/feedback/$boardSlug" })
 
     return (
         <>
             <Link
                 to={"/admin/feedback/$boardSlug/$feedbackSlug"}
-                params={{ boardSlug, feedbackSlug: slug }}
+                params={{ boardSlug: board.slug, feedbackSlug: slug }}
+                search={search}
                 activeProps={{ className: "[&>div]:bg-gray-900/5 [&>div]:border-l-2 [&>div]:border-[var(--color-primary)]" }}
             >
                 <div className="p-4 border-zinc-200 dark:border-zinc-800 vertical gap-2 bg-white dark:bg-zinc-900 hover:bg-gray-300/20 dark:hover:bg-zinc-800/20 transition-colors duration-200">
@@ -26,11 +22,11 @@ export function FeedbackCard({ slug, title, description, status, activities, vot
                     <span className="horizontal gap-2 center-v">
                         <Icons.Triangle size={12} />
                         <span className="text-xs text-gray-500">
-                            {votes}
+                            {_count.votes}
                         </span>
                         <Icons.MessageSquare size={12} />
                         <span className="text-xs text-gray-500">
-                            {activities}
+                            {_count.activities}
                         </span>
                         {status !== 'OPEN' && (
                             <StatusBadge status={status} className="ml-auto" />
