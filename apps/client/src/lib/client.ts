@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { buildQueryString } from "./utils";
 
 type FetchClientOptions = RequestInit & {
-    queryParams?: Record<string, string | string[] | undefined | boolean>;
+    queryParams?: Record<string, string | string[] | undefined | boolean | number>;
 }
 
 export const fetchClient = async (path: string | URL | globalThis.Request, options?: FetchClientOptions) => {

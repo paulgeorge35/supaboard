@@ -1,4 +1,5 @@
 import { AdminButton, AuthButtons, Icons, NotFoundPage } from '@/components'
+import { PoweredBy } from '@/components/powered-by'
 import { applicationBoardsQuery } from '@/routes/__root'
 import { useAuthStore } from '@/stores/auth-store'
 import { useSuspenseQuery } from '@tanstack/react-query'
@@ -31,14 +32,8 @@ function RouteComponent() {
   }, [application?.preferredTheme])
 
   useEffect(() => {
-    if (application?.iconUrl) {
-      const link = document.createElement('link')
-      link.rel = 'icon'
-      link.href = application.iconUrl
-      document.head.appendChild(link)
-    }
-    document.title = `${application?.name} Feedback`
-  }, [application?.iconUrl, application?.name])
+    document.title = `${application?.name} | Feedback Board`
+  }, [application?.icon, application?.name])
 
   useEffect(() => {
     if (application?.color) {
@@ -49,11 +44,11 @@ function RouteComponent() {
   const defaultBoardSlug = params?.boardSlug ?? boards[0]?.slug ?? '/';
 
   return (
-    <>
-      <div className="vertical justify-end gap-2 text-lg max-w-4xl mx-auto w-full pt-4">
+    <div className='vertical justify-between h-full'>
+      <div className="vertical justify-end gap-2 text-lg max-w-4xl mx-auto w-full pt-4 z-[1]">
         <div className='horizontal center-v gap-2 justify-between px-4 md:px-0'>
           <span className='horizontal gap-2 center-v'>
-            {application?.logoUrl && <img src={application?.logoUrl} alt={application?.name} className='size-8' />}
+            {application?.logo && <img src={application?.logo} alt={application?.name} className='size-8' />}
             <h1 className='text-2xl font-medium'>{application?.name}</h1>
           </span>
           <span className='horizontal gap-2 center-v'>
@@ -88,11 +83,12 @@ function RouteComponent() {
           </Link>
         </div>
       </div>
-      <hr />
+      <hr  className='z-[0]'/>
       <div className="vertical gap-4 max-w-4xl mx-auto w-full py-8 px-4 md:px-0">
-      <Outlet />
+        <Outlet />
       </div>
+      <PoweredBy className='mt-auto mx-auto pb-8' />
       <Sonner richColors expand theme={application?.preferredTheme.toLowerCase() as 'system' | 'dark' | 'light'} />
-    </>
+    </div>
   )
 }

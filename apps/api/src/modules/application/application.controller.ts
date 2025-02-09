@@ -1,5 +1,6 @@
 import { db } from "@repo/database";
 import { type Response } from "express";
+import { z } from "zod";
 import type { BareSessionRequest } from "../../types";
 
 export async function getApplication(req: BareSessionRequest, res: Response) {
@@ -12,15 +13,87 @@ export async function getApplication(req: BareSessionRequest, res: Response) {
         return;
     }
 
+    const stats = await db.$transaction(async (tx) => {
+        const feedbacks = await tx.feedback.count({
+            where: {
+                applicationId: application.id,
+            },
+        });
+        const votes = await tx.vote.count({
+            where: {
+                feedback: {
+                    applicationId: application.id,
+                },
+            },
+        });
+        const comments = await tx.activity.count({
+            where: {
+                type: 'FEEDBACK_COMMENT',
+                feedback: {
+                    applicationId: application.id,
+                },
+            },
+        });
+        const users = await tx.member.count({
+            where: {
+                applicationId: application.id,
+            },
+        });
+
+        return {
+            feedbacks,
+            votes,
+            comments,
+            users,
+        };  
+    });
+
+    res.status(200).json({
+        ...application,
+        ...stats,
+    });
+}
+
+const updateApplicationSchema = z.object({
+    logo: z.string().optional(),
+    icon: z.string().optional(),
+    name: z.string().min(3).optional(),
+    subdomain: z.string().min(3).optional(),
+    color: z.string().min(1).optional(),
+    preferredTheme: z.enum(['LIGHT', 'DARK', 'SYSTEM']).optional(),
+    preferredLanguage: z.enum(['EN', 'RO']).optional(),
+});
+
+export async function updateApplication(req: BareSessionRequest, res: Response) {
+    const userId = req.auth?.id;
+    const applicationId = req.application?.id;
+
+    if (!userId || !applicationId) {
+        res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
+        return;
+    }
+
+    const data = updateApplicationSchema.parse(req.body);
+
+    const application = await db.application.update({
+        where: { id: req.application?.id },
+        data,
+    });
+
     res.status(200).json(application);
 }
 
 export async function getBoards(req: BareSessionRequest, res: Response) {
+    const userId = req.auth?.id;
+
+    const member = userId ? await db.user.findUnique({ where: { id: userId } }) : null;
+
     const boards = await db.board.findMany({
-        where: { applicationId: req.application?.id },
+        where: { applicationId: req.application?.id, public: member ? undefined : true },
         select: {
             name: true,
             slug: true,
+            showOnHome: true,
             feedbacks: {
                 where: {
                     status: {
@@ -67,6 +140,7 @@ export async function getBoards(req: BareSessionRequest, res: Response) {
     res.status(200).json(boards.map(board => ({
         name: board.name,
         slug: board.slug,
+        showOnHome: board.showOnHome,
         count: board._count.feedbacks,
         feedbacks: board.feedbacks.map(feedback => ({
             id: feedback.id,

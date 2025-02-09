@@ -47,6 +47,15 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
       onChange?.(e.target.value);
     };
 
+    const handleClick = (optionValue: string, isDisabled: boolean) => {
+      if (isDisabled) return;
+      
+      const input = document.getElementById(`${name}-${optionValue}`) as HTMLInputElement;
+      if (input) {
+        input.click();
+      }
+    };
+
     return (
       <div 
         ref={ref} 
@@ -71,28 +80,46 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
           {options.map((option) => {
             const id = `${name}-${option.value}`;
             const isDisabled = disabled || option.disabled;
+            const isChecked = value === option.value;
 
             return (
-              <div key={option.value} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  id={id}
-                  name={name}
-                  value={option.value}
-                  checked={value === option.value}
-                  onChange={handleChange}
-                  disabled={isDisabled}
-                  className={cn(
-                    'h-4 w-4 border-gray-300 text-primary-600 focus:ring-primary-600',
-                    'disabled:cursor-not-allowed disabled:opacity-50',
-                    error && 'border-red-500'
-                  )}
-                />
+              <div key={option.value} className="flex items-center gap-2 group">
+                <div className="relative inline-flex h-5 w-5">
+                  <input
+                    type="radio"
+                    id={id}
+                    name={name}
+                    value={option.value}
+                    checked={isChecked}
+                    onChange={handleChange}
+                    disabled={isDisabled}
+                    className="peer sr-only"
+                  />
+                  <span
+                    onClick={() => handleClick(option.value, isDisabled ?? false)}
+                    className={cn(
+                      'absolute inset-0 flex items-center justify-center rounded-full border-2 group',
+                      'border-gray-300 bg-white dark:bg-zinc-900 dark:border-zinc-800 transition-colors duration-200 ease-in-out peer-checked:border-[var(--color-primary)]',
+                      'peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
+                      error && 'border-red-500'
+                    )}
+                  >
+                    <span 
+                      className={cn(
+                        'size-2 rounded-full opacity-0 transition-opacity',
+                        'bg-[var(--color-primary)]',
+                        'peer-checked:opacity-100',
+                        !isChecked && 'group-hover:opacity-20',
+                        isChecked && 'opacity-100'
+                      )}
+                    />
+                  </span>
+                </div>
                 <label
                   htmlFor={id}
                   className={cn(
-                    'text-sm font-light',
-                    'cursor-pointer',
+                    'text-sm font-light dark:text-zinc-300',
+                    'cursor-pointer select-none',
                     isDisabled && 'cursor-not-allowed opacity-50'
                   )}
                 >

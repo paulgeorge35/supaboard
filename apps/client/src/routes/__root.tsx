@@ -8,7 +8,7 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { useEffect } from 'react'
 import { FeedbackSearch } from './admin/feedback'
 
-type MeQueryData = {
+export type MeQueryData = {
   user?: Pick<User, 'id' | 'email' | 'name' | 'avatar'>
   application: ApplicationSummary & {
     boards: BoardSummary[]
@@ -26,7 +26,7 @@ export type BoardFeedbackSummary = Pick<Feedback, 'id' | 'title' | 'status' | 's
   votedByMe: boolean;
 }
 
-export type ApplicationBoardsQueryData = (Pick<Board, 'name' | 'slug'> & {
+export type ApplicationBoardsQueryData = (Pick<Board, 'name' | 'slug' | 'showOnHome'> & {
   count: number;
   feedbacks: BoardFeedbackSummary[]
 })[]
@@ -36,28 +36,48 @@ export const applicationBoardsQuery = queryOptions<ApplicationBoardsQueryData>({
   queryFn: () => fetchClient("application/boards")
 })
 
-export const feedbacksQuery = (queryParams?: FeedbackSearch) => queryOptions<FeedbackSummary[]>({
+export const feedbacksQuery = (queryParams?: FeedbackSearch) => queryOptions<FeedbackPage>({
   queryKey: ['feedback', queryParams],
   queryFn: () => fetchClient("feedback", {
     queryParams
   })
 })
 
-export type BoardQueryData = Pick<Board, 'id' | 'name' | 'slug'> & {
+export interface FeedbackPage {
+  feedbacks: FeedbackSummary[];
+  nextCursor?: string | undefined;
+}
+
+export const feedbacksInfiniteQuery = (queryParams?: FeedbackSearch) => ({
+  queryKey: ['feedback', queryParams],
+  queryFn: ({ pageParam }: { pageParam: string | undefined }): Promise<FeedbackPage> =>
+    fetchClient("feedback", {
+      queryParams: {
+        ...queryParams,
+        cursor: pageParam,
+      },
+    }),
+  initialPageParam: undefined,
+  getNextPageParam: (lastPage: FeedbackPage) => {
+    return lastPage.nextCursor || undefined
+  }
+});
+
+export type BoardQueryData = Pick<Board, 'id' | 'name' | 'slug' | 'title' | 'details' | 'detailsRequired' | 'callToAction' | 'buttonText'> & {
   feedbacks: (Pick<Feedback, 'id' | 'title' | 'description' | 'status' | 'slug'> & {
     votes: number;
     activities: number;
     votedByMe: boolean;
   })[]
 }
-export const boardQuery = (slug?: string, search?: string, sort: 'newest' | 'oldest' = 'newest') => queryOptions<BoardQueryData>({
-  queryKey: ['board', slug, search, sort],
-  queryFn: () => fetchClient(`board/${slug}?${search ? `search=${search}&` : ''}${sort ? `sort=${sort}` : ''}`),
+export const boardDetailedQuery = (slug?: string, search?: string, sort: 'newest' | 'oldest' = 'newest') => queryOptions<BoardQueryData>({
+  queryKey: ['board', slug, 'detailed', search, sort],
+  queryFn: () => fetchClient(`board/${slug}/detailed?${search ? `search=${search}&` : ''}${sort ? `sort=${sort}` : ''}`),
   enabled: !!slug
 })
 
 
-export type FeedbackQueryData = Pick<Feedback, 'id' | 'title' | 'description' | 'status' | 'slug' | 'createdAt' | 'edited' | 'estimatedDelivery'> & {
+export type FeedbackQueryData = Pick<Feedback, 'id' | 'title' | 'description' | 'status' | 'slug' | 'createdAt' | 'edited' | 'estimatedDelivery' | 'publicEstimate'> & {
   votes: number;
   votedByMe: boolean;
   isDeletable: boolean;
@@ -84,18 +104,20 @@ export const tagsQuery = (search?: string) => queryOptions<Pick<Tag, 'name' | 'c
   })
 })
 
-export type ActivityCommentData = {
+export interface ActivityCommentData {
   content: string;
 }
 
-export type ActivityStatusChangeData = {
-  status: FeedbackStatus;
+export interface ActivityStatusChangeData {
+  from: FeedbackStatus;
+  to: FeedbackStatus;
   content?: string;
 }
 
 export type FeedbackActivitySummary = Activity & {
   likes: number;
   likedByMe: boolean;
+  files: string[];
   author: Pick<User, 'id' | 'name' | 'avatar'> & {
     isAdmin: boolean;
   };
@@ -165,13 +187,22 @@ export const Route = createRootRoute({
       setApplication(data?.application)
     }, [data?.user, data?.application, setUser, setApplication])
 
+    useEffect(() => {
+      if (data?.application?.icon) {
+        const link = document.createElement('link')
+        link.rel = 'icon'
+        link.href = data?.application?.icon
+        document.head.appendChild(link)
+      }
+    }, [data?.application?.icon])
+
     return <RootComponent />
   },
 })
 
 function RootComponent() {
   return (
-    <div className='h-[100dvh] max-h-[100dvh]'>
+    <div className='h-[100dvh]'>
       <Outlet />
       {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
     </div>

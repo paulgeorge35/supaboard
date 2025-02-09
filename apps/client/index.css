@@ -40,6 +40,12 @@
 @layer base {
 	* {
 		@apply border-gray-200 dark:border-zinc-800 text-stone-950 dark:text-stone-50;
+		scrollbar-color: var(--color-gray-300) transparent;
+
+		@media (prefers-color-scheme: dark) {
+			scrollbar-color: var(--color-zinc-800) transparent;
+		}
+
 	}
 
 	html {
@@ -125,8 +131,10 @@
 	}
 
 	.pb-safe-bottom {
-		@media (display-mode: standalone), (display-mode: fullscreen),
-			(display-mode: minimal-ui) {
+
+		@media (display-mode: standalone),
+		(display-mode: fullscreen),
+		(display-mode: minimal-ui) {
 			padding-bottom: 32px;
 		}
 	}
@@ -138,6 +146,6 @@
 
 @keyframes pulse {
 	50% {
-	  opacity: 0.5;
+		opacity: 0.5;
 	}
 }

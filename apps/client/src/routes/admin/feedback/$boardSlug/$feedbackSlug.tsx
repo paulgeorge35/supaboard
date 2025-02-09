@@ -1,4 +1,5 @@
-import { Avatar, NotFoundPage, VoteButton } from '@/components'
+import { NotFoundPage, VoteButton } from '@/components'
+import { AdminComment } from '@/components/admin/admin-comment'
 import { Details } from '@/components/admin/feedback/controls/details'
 import { Tags } from '@/components/admin/feedback/controls/tags'
 import { Voters } from '@/components/admin/feedback/controls/voters'
@@ -131,7 +132,7 @@ function RouteComponent() {
     }
 
     return (
-        <div className="border-4 border-zinc-300 rounded-2xl max-h-full h-full">
+        <div className="border-4 border-zinc-300 dark:border-zinc-800 rounded-2xl max-h-full h-full min-w-[100dvw] lg:min-w-0">
             <span className="horizontal gap-2 center-v p-4 border-b h-20">
                 <VoteButton
                     votes={feedback.votes}
@@ -146,20 +147,7 @@ function RouteComponent() {
                     <div className="h-full overflow-y-auto p-4 vertical items-start">
                         <Outlet />
                     </div>
-                    <div className="mt-auto h-10 border-t px-4 py-8 vertical center-v">
-                        <span className="horizontal gap-2">
-                            <Avatar
-                                src={user?.avatar ?? undefined}
-                                name={user?.name ?? 'P'}
-                            />
-                            <input
-                                type="text"
-                                className="grow focus:outline-none"
-                                placeholder="Add a comment"
-                            />
-                        </span>
-                        <span></span>
-                    </div>
+                    <AdminComment />
                 </div>
                 <div className="p-4 border-l h-full w-full vertical gap-8 overflow-y-auto">
                     <Details />

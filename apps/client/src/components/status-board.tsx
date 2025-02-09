@@ -12,8 +12,9 @@ import { VoteButton } from "./vote-button";
 interface StatusBoardProps {
     status: FeedbackStatus;
     items: BoardFeedbackSummary[]
+    admin?: boolean
 }
-export const StatusBoard = ({ status, items }: StatusBoardProps) => {
+export const StatusBoard = ({ status, items, admin }: StatusBoardProps) => {
     const { label } = FeedbackStatusConfig[status];
     const queryClient = useQueryClient();
 
@@ -75,7 +76,7 @@ export const StatusBoard = ({ status, items }: StatusBoardProps) => {
                     </div>
                 )}
                 {items.map((item, index) => {
-                    const to = `/${item.board.slug}/${item.slug}`
+                    const to = admin ? `/admin/feedback/${item.board.slug}/${item.slug}` : `/${item.board.slug}/${item.slug}`
                     return (
                         <div key={`${item.board.slug}-${item.slug}`} className='w-full grid grid-cols-[auto_1fr] gap-4 text-sm horizontal items-start'>
                             <VoteButton votes={item.votes} votedByMe={item.votedByMe} vote={() => vote(index)} isPending={isPending} />

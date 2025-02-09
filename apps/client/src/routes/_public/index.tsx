@@ -26,7 +26,7 @@ function HomeComponent() {
         <h1 className="font-medium">Boards</h1>
       </span>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-        {boards.map((board) => (
+        {boards.filter((board) => board.showOnHome).map((board) => (
           <BoardComponent
             key={board.slug}
             title={board.name}

@@ -15,19 +15,38 @@ import { Route as AdminImport } from './routes/admin'
 import { Route as PublicImport } from './routes/_public'
 import { Route as AdminIndexImport } from './routes/admin/index'
 import { Route as PublicIndexImport } from './routes/_public/index'
+import { Route as AdminSettingsImport } from './routes/admin/settings'
 import { Route as AdminFeedbackImport } from './routes/admin/feedback'
 import { Route as AdminUsersIndexImport } from './routes/admin/users/index'
 import { Route as AdminSettingsIndexImport } from './routes/admin/settings/index'
 import { Route as AdminRoadmapIndexImport } from './routes/admin/roadmap/index'
 import { Route as AdminChangelogIndexImport } from './routes/admin/changelog/index'
 import { Route as PublicBoardSlugIndexImport } from './routes/_public/$boardSlug/index'
+import { Route as AdminSettingsProfileImport } from './routes/admin/settings/profile'
+import { Route as AdminSettingsPreferencesImport } from './routes/admin/settings/preferences'
+import { Route as AdminSettingsCompanyImport } from './routes/admin/settings/company'
+import { Route as AdminSettingsBoardsImport } from './routes/admin/settings/boards'
+import { Route as AdminSettingsAdminsImport } from './routes/admin/settings/admins'
 import { Route as AdminFeedbackBoardSlugImport } from './routes/admin/feedback/$boardSlug'
+import { Route as AdminSettingsCustomDomainsIndexImport } from './routes/admin/settings/custom-domains.index'
 import { Route as PublicBoardSlugFeedbackSlugIndexImport } from './routes/_public/$boardSlug/$feedbackSlug/index'
+import { Route as AdminSettingsPreferencesLanguageImport } from './routes/admin/settings/preferences.language'
+import { Route as AdminSettingsPreferencesEmailImport } from './routes/admin/settings/preferences.email'
+import { Route as AdminSettingsCompanyPreferencesImport } from './routes/admin/settings/company.preferences'
+import { Route as AdminSettingsCompanyDeleteImport } from './routes/admin/settings/company.delete'
+import { Route as AdminSettingsCompanyBrandingImport } from './routes/admin/settings/company.branding'
+import { Route as AdminSettingsAdminsPeopleImport } from './routes/admin/settings/admins.people'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug'
 import { Route as PublicBoardSlugFeedbackSlugVotersImport } from './routes/_public/$boardSlug/$feedbackSlug/voters'
 import { Route as PublicBoardSlugFeedbackSlugEditHistoryImport } from './routes/_public/$boardSlug/$feedbackSlug/edit-history'
 import { Route as PublicBoardSlugFeedbackSlugEditImport } from './routes/_public/$boardSlug/$feedbackSlug/edit'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugIndexImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/index'
+import { Route as AdminSettingsBoardsBoardSlugTagsImport } from './routes/admin/settings/boards.$boardSlug.tags'
+import { Route as AdminSettingsBoardsBoardSlugPrivacyImport } from './routes/admin/settings/boards.$boardSlug.privacy'
+import { Route as AdminSettingsBoardsBoardSlugGeneralImport } from './routes/admin/settings/boards.$boardSlug.general'
+import { Route as AdminSettingsBoardsBoardSlugDeleteImport } from './routes/admin/settings/boards.$boardSlug.delete'
+import { Route as AdminSettingsBoardsBoardSlugCreateFormImport } from './routes/admin/settings/boards.$boardSlug.create-form'
+import { Route as AdminSettingsBoardsBoardSlugCategoriesImport } from './routes/admin/settings/boards.$boardSlug.categories'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugVotersImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/voters'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugEditHistoryImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugEditImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/edit'
@@ -57,6 +76,12 @@ const PublicIndexRoute = PublicIndexImport.update({
   getParentRoute: () => PublicRoute,
 } as any)
 
+const AdminSettingsRoute = AdminSettingsImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+
 const AdminFeedbackRoute = AdminFeedbackImport.update({
   id: '/feedback',
   path: '/feedback',
@@ -70,9 +95,9 @@ const AdminUsersIndexRoute = AdminUsersIndexImport.update({
 } as any)
 
 const AdminSettingsIndexRoute = AdminSettingsIndexImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => AdminRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminSettingsRoute,
 } as any)
 
 const AdminRoadmapIndexRoute = AdminRoadmapIndexImport.update({
@@ -93,11 +118,48 @@ const PublicBoardSlugIndexRoute = PublicBoardSlugIndexImport.update({
   getParentRoute: () => PublicRoute,
 } as any)
 
+const AdminSettingsProfileRoute = AdminSettingsProfileImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AdminSettingsRoute,
+} as any)
+
+const AdminSettingsPreferencesRoute = AdminSettingsPreferencesImport.update({
+  id: '/preferences',
+  path: '/preferences',
+  getParentRoute: () => AdminSettingsRoute,
+} as any)
+
+const AdminSettingsCompanyRoute = AdminSettingsCompanyImport.update({
+  id: '/company',
+  path: '/company',
+  getParentRoute: () => AdminSettingsRoute,
+} as any)
+
+const AdminSettingsBoardsRoute = AdminSettingsBoardsImport.update({
+  id: '/boards',
+  path: '/boards',
+  getParentRoute: () => AdminSettingsRoute,
+} as any)
+
+const AdminSettingsAdminsRoute = AdminSettingsAdminsImport.update({
+  id: '/admins',
+  path: '/admins',
+  getParentRoute: () => AdminSettingsRoute,
+} as any)
+
 const AdminFeedbackBoardSlugRoute = AdminFeedbackBoardSlugImport.update({
   id: '/$boardSlug',
   path: '/$boardSlug',
   getParentRoute: () => AdminFeedbackRoute,
 } as any)
+
+const AdminSettingsCustomDomainsIndexRoute =
+  AdminSettingsCustomDomainsIndexImport.update({
+    id: '/custom-domains/',
+    path: '/custom-domains/',
+    getParentRoute: () => AdminSettingsRoute,
+  } as any)
 
 const PublicBoardSlugFeedbackSlugIndexRoute =
   PublicBoardSlugFeedbackSlugIndexImport.update({
@@ -105,6 +167,48 @@ const PublicBoardSlugFeedbackSlugIndexRoute =
     path: '/$boardSlug/$feedbackSlug/',
     getParentRoute: () => PublicRoute,
   } as any)
+
+const AdminSettingsPreferencesLanguageRoute =
+  AdminSettingsPreferencesLanguageImport.update({
+    id: '/language',
+    path: '/language',
+    getParentRoute: () => AdminSettingsPreferencesRoute,
+  } as any)
+
+const AdminSettingsPreferencesEmailRoute =
+  AdminSettingsPreferencesEmailImport.update({
+    id: '/email',
+    path: '/email',
+    getParentRoute: () => AdminSettingsPreferencesRoute,
+  } as any)
+
+const AdminSettingsCompanyPreferencesRoute =
+  AdminSettingsCompanyPreferencesImport.update({
+    id: '/preferences',
+    path: '/preferences',
+    getParentRoute: () => AdminSettingsCompanyRoute,
+  } as any)
+
+const AdminSettingsCompanyDeleteRoute = AdminSettingsCompanyDeleteImport.update(
+  {
+    id: '/delete',
+    path: '/delete',
+    getParentRoute: () => AdminSettingsCompanyRoute,
+  } as any,
+)
+
+const AdminSettingsCompanyBrandingRoute =
+  AdminSettingsCompanyBrandingImport.update({
+    id: '/branding',
+    path: '/branding',
+    getParentRoute: () => AdminSettingsCompanyRoute,
+  } as any)
+
+const AdminSettingsAdminsPeopleRoute = AdminSettingsAdminsPeopleImport.update({
+  id: '/people',
+  path: '/people',
+  getParentRoute: () => AdminSettingsAdminsRoute,
+} as any)
 
 const AdminFeedbackBoardSlugFeedbackSlugRoute =
   AdminFeedbackBoardSlugFeedbackSlugImport.update({
@@ -139,6 +243,48 @@ const AdminFeedbackBoardSlugFeedbackSlugIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AdminFeedbackBoardSlugFeedbackSlugRoute,
+  } as any)
+
+const AdminSettingsBoardsBoardSlugTagsRoute =
+  AdminSettingsBoardsBoardSlugTagsImport.update({
+    id: '/$boardSlug/tags',
+    path: '/$boardSlug/tags',
+    getParentRoute: () => AdminSettingsBoardsRoute,
+  } as any)
+
+const AdminSettingsBoardsBoardSlugPrivacyRoute =
+  AdminSettingsBoardsBoardSlugPrivacyImport.update({
+    id: '/$boardSlug/privacy',
+    path: '/$boardSlug/privacy',
+    getParentRoute: () => AdminSettingsBoardsRoute,
+  } as any)
+
+const AdminSettingsBoardsBoardSlugGeneralRoute =
+  AdminSettingsBoardsBoardSlugGeneralImport.update({
+    id: '/$boardSlug/general',
+    path: '/$boardSlug/general',
+    getParentRoute: () => AdminSettingsBoardsRoute,
+  } as any)
+
+const AdminSettingsBoardsBoardSlugDeleteRoute =
+  AdminSettingsBoardsBoardSlugDeleteImport.update({
+    id: '/$boardSlug/delete',
+    path: '/$boardSlug/delete',
+    getParentRoute: () => AdminSettingsBoardsRoute,
+  } as any)
+
+const AdminSettingsBoardsBoardSlugCreateFormRoute =
+  AdminSettingsBoardsBoardSlugCreateFormImport.update({
+    id: '/$boardSlug/create-form',
+    path: '/$boardSlug/create-form',
+    getParentRoute: () => AdminSettingsBoardsRoute,
+  } as any)
+
+const AdminSettingsBoardsBoardSlugCategoriesRoute =
+  AdminSettingsBoardsBoardSlugCategoriesImport.update({
+    id: '/$boardSlug/categories',
+    path: '/$boardSlug/categories',
+    getParentRoute: () => AdminSettingsBoardsRoute,
   } as any)
 
 const AdminFeedbackBoardSlugFeedbackSlugVotersRoute =
@@ -187,6 +333,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeedbackImport
       parentRoute: typeof AdminImport
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsImport
+      parentRoute: typeof AdminImport
+    }
     '/_public/': {
       id: '/_public/'
       path: '/'
@@ -207,6 +360,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/feedback/$boardSlug'
       preLoaderRoute: typeof AdminFeedbackBoardSlugImport
       parentRoute: typeof AdminFeedbackImport
+    }
+    '/admin/settings/admins': {
+      id: '/admin/settings/admins'
+      path: '/admins'
+      fullPath: '/admin/settings/admins'
+      preLoaderRoute: typeof AdminSettingsAdminsImport
+      parentRoute: typeof AdminSettingsImport
+    }
+    '/admin/settings/boards': {
+      id: '/admin/settings/boards'
+      path: '/boards'
+      fullPath: '/admin/settings/boards'
+      preLoaderRoute: typeof AdminSettingsBoardsImport
+      parentRoute: typeof AdminSettingsImport
+    }
+    '/admin/settings/company': {
+      id: '/admin/settings/company'
+      path: '/company'
+      fullPath: '/admin/settings/company'
+      preLoaderRoute: typeof AdminSettingsCompanyImport
+      parentRoute: typeof AdminSettingsImport
+    }
+    '/admin/settings/preferences': {
+      id: '/admin/settings/preferences'
+      path: '/preferences'
+      fullPath: '/admin/settings/preferences'
+      preLoaderRoute: typeof AdminSettingsPreferencesImport
+      parentRoute: typeof AdminSettingsImport
+    }
+    '/admin/settings/profile': {
+      id: '/admin/settings/profile'
+      path: '/profile'
+      fullPath: '/admin/settings/profile'
+      preLoaderRoute: typeof AdminSettingsProfileImport
+      parentRoute: typeof AdminSettingsImport
     }
     '/_public/$boardSlug/': {
       id: '/_public/$boardSlug/'
@@ -231,10 +419,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/settings/': {
       id: '/admin/settings/'
-      path: '/settings'
-      fullPath: '/admin/settings'
+      path: '/'
+      fullPath: '/admin/settings/'
       preLoaderRoute: typeof AdminSettingsIndexImport
-      parentRoute: typeof AdminImport
+      parentRoute: typeof AdminSettingsImport
     }
     '/admin/users/': {
       id: '/admin/users/'
@@ -271,12 +459,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugImport
       parentRoute: typeof AdminFeedbackBoardSlugImport
     }
+    '/admin/settings/admins/people': {
+      id: '/admin/settings/admins/people'
+      path: '/people'
+      fullPath: '/admin/settings/admins/people'
+      preLoaderRoute: typeof AdminSettingsAdminsPeopleImport
+      parentRoute: typeof AdminSettingsAdminsImport
+    }
+    '/admin/settings/company/branding': {
+      id: '/admin/settings/company/branding'
+      path: '/branding'
+      fullPath: '/admin/settings/company/branding'
+      preLoaderRoute: typeof AdminSettingsCompanyBrandingImport
+      parentRoute: typeof AdminSettingsCompanyImport
+    }
+    '/admin/settings/company/delete': {
+      id: '/admin/settings/company/delete'
+      path: '/delete'
+      fullPath: '/admin/settings/company/delete'
+      preLoaderRoute: typeof AdminSettingsCompanyDeleteImport
+      parentRoute: typeof AdminSettingsCompanyImport
+    }
+    '/admin/settings/company/preferences': {
+      id: '/admin/settings/company/preferences'
+      path: '/preferences'
+      fullPath: '/admin/settings/company/preferences'
+      preLoaderRoute: typeof AdminSettingsCompanyPreferencesImport
+      parentRoute: typeof AdminSettingsCompanyImport
+    }
+    '/admin/settings/preferences/email': {
+      id: '/admin/settings/preferences/email'
+      path: '/email'
+      fullPath: '/admin/settings/preferences/email'
+      preLoaderRoute: typeof AdminSettingsPreferencesEmailImport
+      parentRoute: typeof AdminSettingsPreferencesImport
+    }
+    '/admin/settings/preferences/language': {
+      id: '/admin/settings/preferences/language'
+      path: '/language'
+      fullPath: '/admin/settings/preferences/language'
+      preLoaderRoute: typeof AdminSettingsPreferencesLanguageImport
+      parentRoute: typeof AdminSettingsPreferencesImport
+    }
     '/_public/$boardSlug/$feedbackSlug/': {
       id: '/_public/$boardSlug/$feedbackSlug/'
       path: '/$boardSlug/$feedbackSlug'
       fullPath: '/$boardSlug/$feedbackSlug'
       preLoaderRoute: typeof PublicBoardSlugFeedbackSlugIndexImport
       parentRoute: typeof PublicImport
+    }
+    '/admin/settings/custom-domains/': {
+      id: '/admin/settings/custom-domains/'
+      path: '/custom-domains'
+      fullPath: '/admin/settings/custom-domains'
+      preLoaderRoute: typeof AdminSettingsCustomDomainsIndexImport
+      parentRoute: typeof AdminSettingsImport
     }
     '/admin/feedback/$boardSlug/$feedbackSlug/edit': {
       id: '/admin/feedback/$boardSlug/$feedbackSlug/edit'
@@ -298,6 +535,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/feedback/$boardSlug/$feedbackSlug/voters'
       preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugVotersImport
       parentRoute: typeof AdminFeedbackBoardSlugFeedbackSlugImport
+    }
+    '/admin/settings/boards/$boardSlug/categories': {
+      id: '/admin/settings/boards/$boardSlug/categories'
+      path: '/$boardSlug/categories'
+      fullPath: '/admin/settings/boards/$boardSlug/categories'
+      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugCategoriesImport
+      parentRoute: typeof AdminSettingsBoardsImport
+    }
+    '/admin/settings/boards/$boardSlug/create-form': {
+      id: '/admin/settings/boards/$boardSlug/create-form'
+      path: '/$boardSlug/create-form'
+      fullPath: '/admin/settings/boards/$boardSlug/create-form'
+      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugCreateFormImport
+      parentRoute: typeof AdminSettingsBoardsImport
+    }
+    '/admin/settings/boards/$boardSlug/delete': {
+      id: '/admin/settings/boards/$boardSlug/delete'
+      path: '/$boardSlug/delete'
+      fullPath: '/admin/settings/boards/$boardSlug/delete'
+      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugDeleteImport
+      parentRoute: typeof AdminSettingsBoardsImport
+    }
+    '/admin/settings/boards/$boardSlug/general': {
+      id: '/admin/settings/boards/$boardSlug/general'
+      path: '/$boardSlug/general'
+      fullPath: '/admin/settings/boards/$boardSlug/general'
+      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugGeneralImport
+      parentRoute: typeof AdminSettingsBoardsImport
+    }
+    '/admin/settings/boards/$boardSlug/privacy': {
+      id: '/admin/settings/boards/$boardSlug/privacy'
+      path: '/$boardSlug/privacy'
+      fullPath: '/admin/settings/boards/$boardSlug/privacy'
+      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugPrivacyImport
+      parentRoute: typeof AdminSettingsBoardsImport
+    }
+    '/admin/settings/boards/$boardSlug/tags': {
+      id: '/admin/settings/boards/$boardSlug/tags'
+      path: '/$boardSlug/tags'
+      fullPath: '/admin/settings/boards/$boardSlug/tags'
+      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugTagsImport
+      parentRoute: typeof AdminSettingsBoardsImport
     }
     '/admin/feedback/$boardSlug/$feedbackSlug/': {
       id: '/admin/feedback/$boardSlug/$feedbackSlug/'
@@ -385,21 +664,114 @@ const AdminFeedbackRouteWithChildren = AdminFeedbackRoute._addFileChildren(
   AdminFeedbackRouteChildren,
 )
 
+interface AdminSettingsAdminsRouteChildren {
+  AdminSettingsAdminsPeopleRoute: typeof AdminSettingsAdminsPeopleRoute
+}
+
+const AdminSettingsAdminsRouteChildren: AdminSettingsAdminsRouteChildren = {
+  AdminSettingsAdminsPeopleRoute: AdminSettingsAdminsPeopleRoute,
+}
+
+const AdminSettingsAdminsRouteWithChildren =
+  AdminSettingsAdminsRoute._addFileChildren(AdminSettingsAdminsRouteChildren)
+
+interface AdminSettingsBoardsRouteChildren {
+  AdminSettingsBoardsBoardSlugCategoriesRoute: typeof AdminSettingsBoardsBoardSlugCategoriesRoute
+  AdminSettingsBoardsBoardSlugCreateFormRoute: typeof AdminSettingsBoardsBoardSlugCreateFormRoute
+  AdminSettingsBoardsBoardSlugDeleteRoute: typeof AdminSettingsBoardsBoardSlugDeleteRoute
+  AdminSettingsBoardsBoardSlugGeneralRoute: typeof AdminSettingsBoardsBoardSlugGeneralRoute
+  AdminSettingsBoardsBoardSlugPrivacyRoute: typeof AdminSettingsBoardsBoardSlugPrivacyRoute
+  AdminSettingsBoardsBoardSlugTagsRoute: typeof AdminSettingsBoardsBoardSlugTagsRoute
+}
+
+const AdminSettingsBoardsRouteChildren: AdminSettingsBoardsRouteChildren = {
+  AdminSettingsBoardsBoardSlugCategoriesRoute:
+    AdminSettingsBoardsBoardSlugCategoriesRoute,
+  AdminSettingsBoardsBoardSlugCreateFormRoute:
+    AdminSettingsBoardsBoardSlugCreateFormRoute,
+  AdminSettingsBoardsBoardSlugDeleteRoute:
+    AdminSettingsBoardsBoardSlugDeleteRoute,
+  AdminSettingsBoardsBoardSlugGeneralRoute:
+    AdminSettingsBoardsBoardSlugGeneralRoute,
+  AdminSettingsBoardsBoardSlugPrivacyRoute:
+    AdminSettingsBoardsBoardSlugPrivacyRoute,
+  AdminSettingsBoardsBoardSlugTagsRoute: AdminSettingsBoardsBoardSlugTagsRoute,
+}
+
+const AdminSettingsBoardsRouteWithChildren =
+  AdminSettingsBoardsRoute._addFileChildren(AdminSettingsBoardsRouteChildren)
+
+interface AdminSettingsCompanyRouteChildren {
+  AdminSettingsCompanyBrandingRoute: typeof AdminSettingsCompanyBrandingRoute
+  AdminSettingsCompanyDeleteRoute: typeof AdminSettingsCompanyDeleteRoute
+  AdminSettingsCompanyPreferencesRoute: typeof AdminSettingsCompanyPreferencesRoute
+}
+
+const AdminSettingsCompanyRouteChildren: AdminSettingsCompanyRouteChildren = {
+  AdminSettingsCompanyBrandingRoute: AdminSettingsCompanyBrandingRoute,
+  AdminSettingsCompanyDeleteRoute: AdminSettingsCompanyDeleteRoute,
+  AdminSettingsCompanyPreferencesRoute: AdminSettingsCompanyPreferencesRoute,
+}
+
+const AdminSettingsCompanyRouteWithChildren =
+  AdminSettingsCompanyRoute._addFileChildren(AdminSettingsCompanyRouteChildren)
+
+interface AdminSettingsPreferencesRouteChildren {
+  AdminSettingsPreferencesEmailRoute: typeof AdminSettingsPreferencesEmailRoute
+  AdminSettingsPreferencesLanguageRoute: typeof AdminSettingsPreferencesLanguageRoute
+}
+
+const AdminSettingsPreferencesRouteChildren: AdminSettingsPreferencesRouteChildren =
+  {
+    AdminSettingsPreferencesEmailRoute: AdminSettingsPreferencesEmailRoute,
+    AdminSettingsPreferencesLanguageRoute:
+      AdminSettingsPreferencesLanguageRoute,
+  }
+
+const AdminSettingsPreferencesRouteWithChildren =
+  AdminSettingsPreferencesRoute._addFileChildren(
+    AdminSettingsPreferencesRouteChildren,
+  )
+
+interface AdminSettingsRouteChildren {
+  AdminSettingsAdminsRoute: typeof AdminSettingsAdminsRouteWithChildren
+  AdminSettingsBoardsRoute: typeof AdminSettingsBoardsRouteWithChildren
+  AdminSettingsCompanyRoute: typeof AdminSettingsCompanyRouteWithChildren
+  AdminSettingsPreferencesRoute: typeof AdminSettingsPreferencesRouteWithChildren
+  AdminSettingsProfileRoute: typeof AdminSettingsProfileRoute
+  AdminSettingsIndexRoute: typeof AdminSettingsIndexRoute
+  AdminSettingsCustomDomainsIndexRoute: typeof AdminSettingsCustomDomainsIndexRoute
+}
+
+const AdminSettingsRouteChildren: AdminSettingsRouteChildren = {
+  AdminSettingsAdminsRoute: AdminSettingsAdminsRouteWithChildren,
+  AdminSettingsBoardsRoute: AdminSettingsBoardsRouteWithChildren,
+  AdminSettingsCompanyRoute: AdminSettingsCompanyRouteWithChildren,
+  AdminSettingsPreferencesRoute: AdminSettingsPreferencesRouteWithChildren,
+  AdminSettingsProfileRoute: AdminSettingsProfileRoute,
+  AdminSettingsIndexRoute: AdminSettingsIndexRoute,
+  AdminSettingsCustomDomainsIndexRoute: AdminSettingsCustomDomainsIndexRoute,
+}
+
+const AdminSettingsRouteWithChildren = AdminSettingsRoute._addFileChildren(
+  AdminSettingsRouteChildren,
+)
+
 interface AdminRouteChildren {
   AdminFeedbackRoute: typeof AdminFeedbackRouteWithChildren
+  AdminSettingsRoute: typeof AdminSettingsRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
   AdminChangelogIndexRoute: typeof AdminChangelogIndexRoute
   AdminRoadmapIndexRoute: typeof AdminRoadmapIndexRoute
-  AdminSettingsIndexRoute: typeof AdminSettingsIndexRoute
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminFeedbackRoute: AdminFeedbackRouteWithChildren,
+  AdminSettingsRoute: AdminSettingsRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
   AdminChangelogIndexRoute: AdminChangelogIndexRoute,
   AdminRoadmapIndexRoute: AdminRoadmapIndexRoute,
-  AdminSettingsIndexRoute: AdminSettingsIndexRoute,
   AdminUsersIndexRoute: AdminUsersIndexRoute,
 }
 
@@ -409,22 +781,41 @@ export interface FileRoutesByFullPath {
   '': typeof PublicRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/admin/feedback': typeof AdminFeedbackRouteWithChildren
+  '/admin/settings': typeof AdminSettingsRouteWithChildren
   '/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
+  '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
+  '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
+  '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
+  '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
+  '/admin/settings/profile': typeof AdminSettingsProfileRoute
   '/$boardSlug': typeof PublicBoardSlugIndexRoute
   '/admin/changelog': typeof AdminChangelogIndexRoute
   '/admin/roadmap': typeof AdminRoadmapIndexRoute
-  '/admin/settings': typeof AdminSettingsIndexRoute
+  '/admin/settings/': typeof AdminSettingsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
   '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
   '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
+  '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
+  '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
+  '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
+  '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
+  '/admin/settings/preferences/email': typeof AdminSettingsPreferencesEmailRoute
+  '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
   '/$boardSlug/$feedbackSlug': typeof PublicBoardSlugFeedbackSlugIndexRoute
+  '/admin/settings/custom-domains': typeof AdminSettingsCustomDomainsIndexRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
+  '/admin/settings/boards/$boardSlug/categories': typeof AdminSettingsBoardsBoardSlugCategoriesRoute
+  '/admin/settings/boards/$boardSlug/create-form': typeof AdminSettingsBoardsBoardSlugCreateFormRoute
+  '/admin/settings/boards/$boardSlug/delete': typeof AdminSettingsBoardsBoardSlugDeleteRoute
+  '/admin/settings/boards/$boardSlug/general': typeof AdminSettingsBoardsBoardSlugGeneralRoute
+  '/admin/settings/boards/$boardSlug/privacy': typeof AdminSettingsBoardsBoardSlugPrivacyRoute
+  '/admin/settings/boards/$boardSlug/tags': typeof AdminSettingsBoardsBoardSlugTagsRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
 }
 
@@ -433,6 +824,11 @@ export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
+  '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
+  '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
+  '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
+  '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
+  '/admin/settings/profile': typeof AdminSettingsProfileRoute
   '/$boardSlug': typeof PublicBoardSlugIndexRoute
   '/admin/changelog': typeof AdminChangelogIndexRoute
   '/admin/roadmap': typeof AdminRoadmapIndexRoute
@@ -441,10 +837,23 @@ export interface FileRoutesByTo {
   '/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
   '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
   '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
+  '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
+  '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
+  '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
+  '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
+  '/admin/settings/preferences/email': typeof AdminSettingsPreferencesEmailRoute
+  '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
   '/$boardSlug/$feedbackSlug': typeof PublicBoardSlugFeedbackSlugIndexRoute
+  '/admin/settings/custom-domains': typeof AdminSettingsCustomDomainsIndexRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
+  '/admin/settings/boards/$boardSlug/categories': typeof AdminSettingsBoardsBoardSlugCategoriesRoute
+  '/admin/settings/boards/$boardSlug/create-form': typeof AdminSettingsBoardsBoardSlugCreateFormRoute
+  '/admin/settings/boards/$boardSlug/delete': typeof AdminSettingsBoardsBoardSlugDeleteRoute
+  '/admin/settings/boards/$boardSlug/general': typeof AdminSettingsBoardsBoardSlugGeneralRoute
+  '/admin/settings/boards/$boardSlug/privacy': typeof AdminSettingsBoardsBoardSlugPrivacyRoute
+  '/admin/settings/boards/$boardSlug/tags': typeof AdminSettingsBoardsBoardSlugTagsRoute
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
 }
 
@@ -453,9 +862,15 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/admin/feedback': typeof AdminFeedbackRouteWithChildren
+  '/admin/settings': typeof AdminSettingsRouteWithChildren
   '/_public/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
+  '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
+  '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
+  '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
+  '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
+  '/admin/settings/profile': typeof AdminSettingsProfileRoute
   '/_public/$boardSlug/': typeof PublicBoardSlugIndexRoute
   '/admin/changelog/': typeof AdminChangelogIndexRoute
   '/admin/roadmap/': typeof AdminRoadmapIndexRoute
@@ -465,10 +880,23 @@ export interface FileRoutesById {
   '/_public/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
   '/_public/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
+  '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
+  '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
+  '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
+  '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
+  '/admin/settings/preferences/email': typeof AdminSettingsPreferencesEmailRoute
+  '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
   '/_public/$boardSlug/$feedbackSlug/': typeof PublicBoardSlugFeedbackSlugIndexRoute
+  '/admin/settings/custom-domains/': typeof AdminSettingsCustomDomainsIndexRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
+  '/admin/settings/boards/$boardSlug/categories': typeof AdminSettingsBoardsBoardSlugCategoriesRoute
+  '/admin/settings/boards/$boardSlug/create-form': typeof AdminSettingsBoardsBoardSlugCreateFormRoute
+  '/admin/settings/boards/$boardSlug/delete': typeof AdminSettingsBoardsBoardSlugDeleteRoute
+  '/admin/settings/boards/$boardSlug/general': typeof AdminSettingsBoardsBoardSlugGeneralRoute
+  '/admin/settings/boards/$boardSlug/privacy': typeof AdminSettingsBoardsBoardSlugPrivacyRoute
+  '/admin/settings/boards/$boardSlug/tags': typeof AdminSettingsBoardsBoardSlugTagsRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
 }
 
@@ -478,22 +906,41 @@ export interface FileRouteTypes {
     | ''
     | '/admin'
     | '/admin/feedback'
+    | '/admin/settings'
     | '/'
     | '/admin/'
     | '/admin/feedback/$boardSlug'
+    | '/admin/settings/admins'
+    | '/admin/settings/boards'
+    | '/admin/settings/company'
+    | '/admin/settings/preferences'
+    | '/admin/settings/profile'
     | '/$boardSlug'
     | '/admin/changelog'
     | '/admin/roadmap'
-    | '/admin/settings'
+    | '/admin/settings/'
     | '/admin/users'
     | '/$boardSlug/$feedbackSlug/edit'
     | '/$boardSlug/$feedbackSlug/edit-history'
     | '/$boardSlug/$feedbackSlug/voters'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
+    | '/admin/settings/admins/people'
+    | '/admin/settings/company/branding'
+    | '/admin/settings/company/delete'
+    | '/admin/settings/company/preferences'
+    | '/admin/settings/preferences/email'
+    | '/admin/settings/preferences/language'
     | '/$boardSlug/$feedbackSlug'
+    | '/admin/settings/custom-domains'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
     | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
+    | '/admin/settings/boards/$boardSlug/categories'
+    | '/admin/settings/boards/$boardSlug/create-form'
+    | '/admin/settings/boards/$boardSlug/delete'
+    | '/admin/settings/boards/$boardSlug/general'
+    | '/admin/settings/boards/$boardSlug/privacy'
+    | '/admin/settings/boards/$boardSlug/tags'
     | '/admin/feedback/$boardSlug/$feedbackSlug/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -501,6 +948,11 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin/feedback/$boardSlug'
+    | '/admin/settings/admins'
+    | '/admin/settings/boards'
+    | '/admin/settings/company'
+    | '/admin/settings/preferences'
+    | '/admin/settings/profile'
     | '/$boardSlug'
     | '/admin/changelog'
     | '/admin/roadmap'
@@ -509,19 +961,38 @@ export interface FileRouteTypes {
     | '/$boardSlug/$feedbackSlug/edit'
     | '/$boardSlug/$feedbackSlug/edit-history'
     | '/$boardSlug/$feedbackSlug/voters'
+    | '/admin/settings/admins/people'
+    | '/admin/settings/company/branding'
+    | '/admin/settings/company/delete'
+    | '/admin/settings/company/preferences'
+    | '/admin/settings/preferences/email'
+    | '/admin/settings/preferences/language'
     | '/$boardSlug/$feedbackSlug'
+    | '/admin/settings/custom-domains'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
     | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
+    | '/admin/settings/boards/$boardSlug/categories'
+    | '/admin/settings/boards/$boardSlug/create-form'
+    | '/admin/settings/boards/$boardSlug/delete'
+    | '/admin/settings/boards/$boardSlug/general'
+    | '/admin/settings/boards/$boardSlug/privacy'
+    | '/admin/settings/boards/$boardSlug/tags'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
   id:
     | '__root__'
     | '/_public'
     | '/admin'
     | '/admin/feedback'
+    | '/admin/settings'
     | '/_public/'
     | '/admin/'
     | '/admin/feedback/$boardSlug'
+    | '/admin/settings/admins'
+    | '/admin/settings/boards'
+    | '/admin/settings/company'
+    | '/admin/settings/preferences'
+    | '/admin/settings/profile'
     | '/_public/$boardSlug/'
     | '/admin/changelog/'
     | '/admin/roadmap/'
@@ -531,10 +1002,23 @@ export interface FileRouteTypes {
     | '/_public/$boardSlug/$feedbackSlug/edit-history'
     | '/_public/$boardSlug/$feedbackSlug/voters'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
+    | '/admin/settings/admins/people'
+    | '/admin/settings/company/branding'
+    | '/admin/settings/company/delete'
+    | '/admin/settings/company/preferences'
+    | '/admin/settings/preferences/email'
+    | '/admin/settings/preferences/language'
     | '/_public/$boardSlug/$feedbackSlug/'
+    | '/admin/settings/custom-domains/'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
     | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
+    | '/admin/settings/boards/$boardSlug/categories'
+    | '/admin/settings/boards/$boardSlug/create-form'
+    | '/admin/settings/boards/$boardSlug/delete'
+    | '/admin/settings/boards/$boardSlug/general'
+    | '/admin/settings/boards/$boardSlug/privacy'
+    | '/admin/settings/boards/$boardSlug/tags'
     | '/admin/feedback/$boardSlug/$feedbackSlug/'
   fileRoutesById: FileRoutesById
 }
@@ -578,10 +1062,10 @@ export const routeTree = rootRoute
       "filePath": "admin.tsx",
       "children": [
         "/admin/feedback",
+        "/admin/settings",
         "/admin/",
         "/admin/changelog/",
         "/admin/roadmap/",
-        "/admin/settings/",
         "/admin/users/"
       ]
     },
@@ -590,6 +1074,19 @@ export const routeTree = rootRoute
       "parent": "/admin",
       "children": [
         "/admin/feedback/$boardSlug"
+      ]
+    },
+    "/admin/settings": {
+      "filePath": "admin/settings.tsx",
+      "parent": "/admin",
+      "children": [
+        "/admin/settings/admins",
+        "/admin/settings/boards",
+        "/admin/settings/company",
+        "/admin/settings/preferences",
+        "/admin/settings/profile",
+        "/admin/settings/",
+        "/admin/settings/custom-domains/"
       ]
     },
     "/_public/": {
@@ -607,6 +1104,46 @@ export const routeTree = rootRoute
         "/admin/feedback/$boardSlug/$feedbackSlug"
       ]
     },
+    "/admin/settings/admins": {
+      "filePath": "admin/settings/admins.tsx",
+      "parent": "/admin/settings",
+      "children": [
+        "/admin/settings/admins/people"
+      ]
+    },
+    "/admin/settings/boards": {
+      "filePath": "admin/settings/boards.tsx",
+      "parent": "/admin/settings",
+      "children": [
+        "/admin/settings/boards/$boardSlug/categories",
+        "/admin/settings/boards/$boardSlug/create-form",
+        "/admin/settings/boards/$boardSlug/delete",
+        "/admin/settings/boards/$boardSlug/general",
+        "/admin/settings/boards/$boardSlug/privacy",
+        "/admin/settings/boards/$boardSlug/tags"
+      ]
+    },
+    "/admin/settings/company": {
+      "filePath": "admin/settings/company.tsx",
+      "parent": "/admin/settings",
+      "children": [
+        "/admin/settings/company/branding",
+        "/admin/settings/company/delete",
+        "/admin/settings/company/preferences"
+      ]
+    },
+    "/admin/settings/preferences": {
+      "filePath": "admin/settings/preferences.tsx",
+      "parent": "/admin/settings",
+      "children": [
+        "/admin/settings/preferences/email",
+        "/admin/settings/preferences/language"
+      ]
+    },
+    "/admin/settings/profile": {
+      "filePath": "admin/settings/profile.tsx",
+      "parent": "/admin/settings"
+    },
     "/_public/$boardSlug/": {
       "filePath": "_public/$boardSlug/index.tsx",
       "parent": "/_public"
@@ -621,7 +1158,7 @@ export const routeTree = rootRoute
     },
     "/admin/settings/": {
       "filePath": "admin/settings/index.tsx",
-      "parent": "/admin"
+      "parent": "/admin/settings"
     },
     "/admin/users/": {
       "filePath": "admin/users/index.tsx",
@@ -649,9 +1186,37 @@ export const routeTree = rootRoute
         "/admin/feedback/$boardSlug/$feedbackSlug/"
       ]
     },
+    "/admin/settings/admins/people": {
+      "filePath": "admin/settings/admins.people.tsx",
+      "parent": "/admin/settings/admins"
+    },
+    "/admin/settings/company/branding": {
+      "filePath": "admin/settings/company.branding.tsx",
+      "parent": "/admin/settings/company"
+    },
+    "/admin/settings/company/delete": {
+      "filePath": "admin/settings/company.delete.tsx",
+      "parent": "/admin/settings/company"
+    },
+    "/admin/settings/company/preferences": {
+      "filePath": "admin/settings/company.preferences.tsx",
+      "parent": "/admin/settings/company"
+    },
+    "/admin/settings/preferences/email": {
+      "filePath": "admin/settings/preferences.email.tsx",
+      "parent": "/admin/settings/preferences"
+    },
+    "/admin/settings/preferences/language": {
+      "filePath": "admin/settings/preferences.language.tsx",
+      "parent": "/admin/settings/preferences"
+    },
     "/_public/$boardSlug/$feedbackSlug/": {
       "filePath": "_public/$boardSlug/$feedbackSlug/index.tsx",
       "parent": "/_public"
+    },
+    "/admin/settings/custom-domains/": {
+      "filePath": "admin/settings/custom-domains.index.tsx",
+      "parent": "/admin/settings"
     },
     "/admin/feedback/$boardSlug/$feedbackSlug/edit": {
       "filePath": "admin/feedback/$boardSlug/$feedbackSlug/edit.tsx",
@@ -664,6 +1229,30 @@ export const routeTree = rootRoute
     "/admin/feedback/$boardSlug/$feedbackSlug/voters": {
       "filePath": "admin/feedback/$boardSlug/$feedbackSlug/voters.tsx",
       "parent": "/admin/feedback/$boardSlug/$feedbackSlug"
+    },
+    "/admin/settings/boards/$boardSlug/categories": {
+      "filePath": "admin/settings/boards.$boardSlug.categories.tsx",
+      "parent": "/admin/settings/boards"
+    },
+    "/admin/settings/boards/$boardSlug/create-form": {
+      "filePath": "admin/settings/boards.$boardSlug.create-form.tsx",
+      "parent": "/admin/settings/boards"
+    },
+    "/admin/settings/boards/$boardSlug/delete": {
+      "filePath": "admin/settings/boards.$boardSlug.delete.tsx",
+      "parent": "/admin/settings/boards"
+    },
+    "/admin/settings/boards/$boardSlug/general": {
+      "filePath": "admin/settings/boards.$boardSlug.general.tsx",
+      "parent": "/admin/settings/boards"
+    },
+    "/admin/settings/boards/$boardSlug/privacy": {
+      "filePath": "admin/settings/boards.$boardSlug.privacy.tsx",
+      "parent": "/admin/settings/boards"
+    },
+    "/admin/settings/boards/$boardSlug/tags": {
+      "filePath": "admin/settings/boards.$boardSlug.tags.tsx",
+      "parent": "/admin/settings/boards"
     },
     "/admin/feedback/$boardSlug/$feedbackSlug/": {
       "filePath": "admin/feedback/$boardSlug/$feedbackSlug/index.tsx",

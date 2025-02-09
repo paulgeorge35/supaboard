@@ -3,7 +3,7 @@ import { AdminAuthButtons, PublicButton } from '@/components/admin'
 import { meQuery } from '@/routes/__root'
 import { useAuthStore } from '@/stores/auth-store'
 import { QueryClient } from '@tanstack/react-query'
-import { createFileRoute, Link, Outlet } from '@tanstack/react-router'
+import { createFileRoute, Link, Outlet, useRouter } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { Toaster as Sonner } from 'sonner'
 
@@ -20,20 +20,35 @@ export const Route = createFileRoute('/admin')({
 
 function RouteComponent() {
   const { user, application } = useAuthStore()
+  const router = useRouter()
 
   useEffect(() => {
-    const theme = application?.preferredTheme.toLowerCase()
+    const theme = localStorage.getItem('adminCurrentTheme')
     if (theme === 'system') {
-      localStorage.removeItem('currentTheme')
+      localStorage.removeItem('adminCurrentTheme')
       document.documentElement.classList.toggle('dark', window.matchMedia('(prefers-color-scheme: dark)').matches)
     } else {
-      localStorage.currentTheme = theme
+      localStorage.adminCurrentTheme = theme
       document.documentElement.classList.toggle('dark', theme === 'dark')
     }
   }, [application?.preferredTheme])
 
+  useEffect(() => {
+    document.documentElement.style.setProperty('--user-color-primary', application?.color ?? '#a684ff')
+  }, [application?.color])
+
+  useEffect(() => {
+    document.title = `${application?.name} | Admin Dashboard`
+  }, [application?.name])
+
+  useEffect(() => {
+    if (application && !user) {
+      router.navigate({ to: '/', replace: true })
+    }
+  }, [user, application])
+
   return (
-    <span className='vertical h-[100dvh] max-h-[100dvh] overflow-y-hidden'>
+    <span className='vertical h-[100dvh]'>
       <nav className="flex items-center justify-between p-4 fixed top-0 left-0 right-0 z-20 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 h-18">
         <span className='horizontal gap-2 center-v'>
           <Link to="/admin" activeOptions={{ exact: true }} className='button button-navigation font-medium gap-0 text-base'>
@@ -47,11 +62,11 @@ function RouteComponent() {
         <span className='horizontal center-v gap-2'>
           <PublicButton />
           <ThemeToggle />
-          <AdminAuthButtons isAdmin={user?.id === application?.ownerId} user={user} />
+          <AdminAuthButtons user={user} />
         </span>
       </nav>
       <Outlet />
-      <Sonner richColors expand />
+      <Sonner richColors expand theme={localStorage.getItem('adminCurrentTheme') as 'light' | 'dark' | 'system'} />
     </span>
   )
 }

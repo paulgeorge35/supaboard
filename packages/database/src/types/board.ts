@@ -4,6 +4,11 @@ export const boardSummarySelect = Prisma.validator<Prisma.BoardSelect>()({
     id: true,
     name: true,
     slug: true,
+    title: true,
+    details: true,
+    detailsRequired: true,
+    callToAction: true,
+    buttonText: true,
     _count: {
         select: {
             feedbacks: true,

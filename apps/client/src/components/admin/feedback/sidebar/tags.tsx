@@ -5,12 +5,13 @@ import { Route } from "@/routes/admin/feedback";
 import { Route as AddminFeedbackSlugRoute } from "@/routes/admin/feedback/$boardSlug/$feedbackSlug";
 import { useDebounce, useFocus } from "@paulgeorge35/hooks";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useRouter, useSearch } from "@tanstack/react-router";
+import { Link, useParams, useRouter, useSearch } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 
 export function Tags() {
     const [search, setSearch] = useState<string | undefined>(undefined);
+    const { boardSlug } = useParams({ strict: false });
     const { value: debouncedSearch } = useDebounce(search);
     const [ref, isFocused] = useFocus();
 
@@ -34,7 +35,6 @@ export function Tags() {
     }
 
     const handleUntaggedChange = (checked: boolean) => {
-        console.log(checked);
         setSearch('');
         router.navigate({
             from: AddminFeedbackSlugRoute.fullPath,
@@ -44,7 +44,7 @@ export function Tags() {
     return (
         <div className="grid grid-cols-[auto_1fr_auto] gap-2">
             <h1 className="text-sm font-medium col-span-2">Tags</h1>
-            <Link to="/admin" className="text-sm font-light underline text-gray-500 dark:text-zinc-300 hover:text-gray-700 dark:hover:text-zinc-200">
+            <Link to="/admin/settings/boards/$boardSlug/tags" params={{ boardSlug: boardSlug ?? '' }} className="text-sm font-light underline text-gray-500 dark:text-zinc-300 hover:text-gray-700 dark:hover:text-zinc-200">
                 <Icons.Settings className="size-4 stroke-gray-500 dark:stroke-zinc-300 hover:stroke-gray-700 dark:hover:stroke-zinc-200" />
             </Link>
             <Checkbox

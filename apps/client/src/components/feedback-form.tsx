@@ -1,3 +1,5 @@
+import { BoardQueryData } from '@/routes/__root';
+import { useForm } from '@tanstack/react-form';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -6,31 +8,20 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { fetchClient } from '../lib/client';
 import { useAuthStore } from '../stores/auth-store';
-
-const feedbackSchema = z.object({
-    title: z.string().min(1, 'Title is required'),
-    description: z.string().min(1, 'Description is required'),
-});
-
-type FeedbackInput = z.infer<typeof feedbackSchema>;
+import { FieldInfo } from './field-info';
 
 interface FeedbackFormProps {
-    boardId?: string;
+    board: BoardQueryData
 }
 
-export function FeedbackForm({ boardId }: FeedbackFormProps) {
+export function FeedbackForm({ board }: FeedbackFormProps) {
     const { boardSlug } = useParams({ from: '/_public/$boardSlug/' })
     const { user } = useAuthStore()
     const navigate = useNavigate();
     const [isExpanded, setIsExpanded] = useState(true);
-    const [formData, setFormData] = useState<FeedbackInput>({
-        title: '',
-        description: '',
-    });
-    const [errors, setErrors] = useState<Partial<FeedbackInput>>({});
 
     const createFeedback = useMutation({
-        mutationFn: async (data: FeedbackInput) => await fetchClient(`/feedback/${boardId}/create`, {
+        mutationFn: async (data: z.infer<typeof schema>) => await fetchClient(`/feedback/${board.id}/create`, {
             method: 'POST',
             body: JSON.stringify(data),
         }),
@@ -46,28 +37,38 @@ export function FeedbackForm({ boardId }: FeedbackFormProps) {
         },
     });
 
-    const handleSubmit = async () => {
-        try {
-            const validatedData = feedbackSchema.parse(formData);
-            setErrors({});
-            await createFeedback.mutateAsync(validatedData);
-            setFormData({ title: '', description: '' });
+    const schema = z.object({
+        title: z.string({
+            required_error: 'Title is required'
+        }).min(1, 'Title is required'),
+        description: board.detailsRequired ? z.string({
+            required_error: 'Description is required'
+        }).min(1, 'Description is required') : z.string().optional(),
+    });
+
+    const form = useForm({
+        defaultValues: {
+            title: '',
+            description: '',
+        },
+        validators: {
+            onChange: schema,
+        },
+        onSubmit: async (data) => {
+            await createFeedback.mutateAsync(data.value);
+            form.reset();
             setIsExpanded(false);
-        } catch (err) {
-            if (err instanceof z.ZodError) {
-                const fieldErrors: Partial<FeedbackInput> = {};
-                err.errors.forEach((error) => {
-                    const field = error.path[0] as keyof FeedbackInput;
-                    fieldErrors[field] = error.message;
-                });
-                setErrors(fieldErrors);
-            }
-        }
-    };
+        },
+    });
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit()
+    }
 
     const handleCancel = () => {
-        setFormData({ title: '', description: '' });
-        setErrors({});
+        form.reset();
         setIsExpanded(false);
     };
 
@@ -80,23 +81,30 @@ export function FeedbackForm({ boardId }: FeedbackFormProps) {
     }
 
     return (
-        <motion.div
+        <motion.form
+            onSubmit={handleSubmit}
             className="border rounded-lg overflow-hidden"
             animate={{ height: isExpanded ? "auto" : "60px" }}
             transition={{ duration: 0.2 }}
         >
             <div className='p-4 vertical gap-2'>
-                <input
-                    type="text"
-                    placeholder='Short title for your feedback'
-                    className='w-full focus:outline-none'
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    onFocus={() => setIsExpanded(true)}
+                <form.Field
+                    name="title"
+                    children={(field) => (
+                        <>
+                            <input
+                                type="text"
+                                placeholder={board.title ?? 'Short title for your feedback'}
+                                className='w-full focus:outline-none'
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(e) => field.handleChange(e.target.value)}
+                                onFocus={() => setIsExpanded(true)}
+                            />
+                            <FieldInfo field={field} />
+                        </>
+                    )}
                 />
-                {errors.title && (
-                    <p className='text-red-500 text-xs'>{errors.title}</p>
-                )}
 
                 <AnimatePresence>
                     {isExpanded && (
@@ -107,15 +115,21 @@ export function FeedbackForm({ boardId }: FeedbackFormProps) {
                             transition={{ duration: 0.2 }}
                         >
                             <p className='text-sm font-medium'>Details</p>
-                            <textarea
-                                placeholder='Describe your feedback'
-                                className='w-full md:text-sm focus:outline-none'
-                                value={formData.description}
-                                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                            <form.Field
+                                name="description"
+                                children={(field) => (
+                                    <>
+                                        <textarea
+                                            placeholder={board.details ?? 'Describe your feedback'}
+                                            className='w-full md:text-sm focus:outline-none'
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                        />
+                                        <FieldInfo field={field} />
+                                    </>
+                                )}
                             />
-                            {errors.description && (
-                                <p className='text-red-500 text-xs'>{errors.description}</p>
-                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -131,22 +145,28 @@ export function FeedbackForm({ boardId }: FeedbackFormProps) {
                         className='border-t horizontal center-v justify-end gap-2 px-4 py-2 bg-gray-50 dark:bg-zinc-800/20'
                     >
                         <button
+                            type="button"
                             className='button button-secondary'
                             disabled={createFeedback.isPending}
                             onClick={handleCancel}
                         >
                             Cancel
                         </button>
-                        <button
-                            className='button button-primary'
-                            onClick={handleSubmit}
-                            disabled={createFeedback.isPending}
-                        >
-                            {createFeedback.isPending ? 'Submitting...' : 'Submit'}
-                        </button>
+                        <form.Subscribe
+                            selector={(state) => [state.canSubmit, state.isSubmitting]}
+                            children={([canSubmit, isSubmitting]) => (
+                                <button
+                                    type="submit"
+                                    className='button button-primary'
+                                    disabled={!canSubmit || isSubmitting || createFeedback.isPending}
+                                >
+                                    {createFeedback.isPending ? 'Submitting...' : board.buttonText ?? 'Submit'}
+                                </button>
+                            )}
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>
-        </motion.div>
+        </motion.form>
     );
 }

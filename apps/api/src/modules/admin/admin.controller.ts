@@ -1,15 +1,30 @@
 import { ActivityType, db, FeedbackStatus, userSummarySelect } from "@repo/database";
 import type { Response } from "express";
+import { DateTime } from "luxon";
 import { z } from "zod";
 import type { BareSessionRequest } from "../../types";
+
+const fileSchema = z.object({
+    key: z.string(),
+    name: z.string(),
+    extension: z.string(),
+    contentType: z.string(),
+    size: z.number(),
+});
 
 const updateFeedbackSchema = z.object({
     boardId: z.string().uuid().optional(),
     status: z.nativeEnum(FeedbackStatus).optional(),
     ownerId: z.string().uuid().nullish(),
-    estimatedTime: z.date().nullish(),
+    estimatedDelivery: z.coerce.date().nullish(),
+    publicEstimate: z.boolean().optional().default(true),
     tags: z.array(z.string()).optional(),
-    categoryId: z.string().uuid().nullish(),
+    categoryId: z.string().nullish(),
+    content: z.string().optional().transform((value) => {
+        if (!value) return undefined;
+        return value.trim() === '' ? undefined : value;
+    }),
+    files: z.array(fileSchema).optional(),
 });
 
 export async function updateFeedback(request: BareSessionRequest, res: Response) {
@@ -62,7 +77,7 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
         return;
     }
 
-    const { boardId, status, ownerId, estimatedTime, categoryId, tags } = updateFeedbackSchema.parse(request.body);
+    const { boardId, status, ownerId, estimatedDelivery, publicEstimate, categoryId, tags, content, files } = updateFeedbackSchema.parse(request.body);
 
     const updatedFeedback = await db.$transaction(async (tx) => {
         if (tags) {
@@ -121,7 +136,8 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
                 boardId,
                 status,
                 ownerId,
-                estimatedDelivery: estimatedTime,
+                estimatedDelivery,
+                publicEstimate,
                 categoryId,
             },
         });
@@ -132,7 +148,13 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
                     data: {
                         from: feedback.category?.name,
                         to: updatedFeedback.category?.name,
+                        content,
                     },
+                    files: files ? {
+                        createMany: {
+                            data: files,
+                        },
+                    } : undefined,
                     authorId: userId,
                     feedbackId: feedback.id,
                 },
@@ -145,7 +167,13 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
                     data: {
                         from: feedback.status,
                         to: updatedFeedback.status,
+                        content,
                     },
+                    files: files ? {
+                        createMany: {
+                            data: files,
+                        },
+                    } : undefined,
                     authorId: userId,
                     feedbackId: feedback.id,
                 },
@@ -158,7 +186,13 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
                     data: {
                         from: feedback.owner?.name,
                         to: updatedFeedback.owner?.name,
+                        content,
                     },
+                    files: files ? {
+                        createMany: {
+                            data: files,
+                        },
+                    } : undefined,
                     authorId: userId,
                     feedbackId: feedback.id,
                 },
@@ -171,7 +205,13 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
                     data: {
                         from: feedback.board?.name,
                         to: updatedFeedback.board?.name,
+                        content,
                     },
+                    files: files ? {
+                        createMany: {
+                            data: files,
+                        },
+                    } : undefined,
                     authorId: userId,
                     feedbackId: feedback.id,
                 },
@@ -184,7 +224,13 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
                     data: {
                         from: feedback.estimatedDelivery,
                         to: updatedFeedback.estimatedDelivery,
+                        content,
                     },
+                    files: files ? {
+                        createMany: {
+                            data: files,
+                        },
+                    } : undefined,
                     authorId: userId,
                     feedbackId: feedback.id,
                 },
@@ -292,4 +338,69 @@ export async function getTags(req: BareSessionRequest, res: Response) {
     const tags = await db.tag.findMany({ where: { applicationId, name: search } });
 
     res.json(tags);
+}
+
+const activityOverviewSchema = z.object({
+    start: z.string().optional().transform((value) => value && DateTime.fromFormat(value, 'yyyy-MM-dd').isValid ? DateTime.fromFormat(value, 'yyyy-MM-dd').toJSDate() : undefined),
+    end: z.string().optional().transform((value) => value && DateTime.fromFormat(value, 'yyyy-MM-dd').isValid ? DateTime.fromFormat(value, 'yyyy-MM-dd').toJSDate() : undefined),
+})
+
+export async function getActivityOverview(req: BareSessionRequest, res: Response) {
+    const applicationId = req.application?.id;
+
+    const range = activityOverviewSchema.parse(req.query);
+
+    if (!applicationId) {
+        res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
+        return;
+    }
+
+    const data = await db.$transaction(async (tx) => {
+
+        const feedbacks = await tx.feedback.count({
+            where: {
+                applicationId,
+                createdAt: { gte: range.start, lte: range.end },
+            },
+        });
+
+        const votes = await tx.vote.count({
+            where: {
+                feedback: {
+                    applicationId,
+                },
+                createdAt: { gte: range.start, lte: range.end },
+            },
+        });
+
+
+        const comments = await tx.activity.count({
+            where: {
+                type: 'FEEDBACK_COMMENT',
+                createdAt: { gte: range.start, lte: range.end },
+                feedback: {
+                    applicationId,
+                }
+            },
+        });
+
+        const statusChanges = await tx.activity.count({
+            where: {
+                type: 'FEEDBACK_STATUS_CHANGE',
+                createdAt: { gte: range.start, lte: range.end },
+                feedback: {
+                    applicationId,
+                }
+            },
+        });
+
+        return {
+            feedbacks,
+            votes,
+            comments,
+            statusChanges,
+        };
+    });
+
+    res.json(data);
 }

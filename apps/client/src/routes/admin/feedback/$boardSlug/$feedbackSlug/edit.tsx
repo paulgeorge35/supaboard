@@ -43,7 +43,7 @@ function RouteComponent() {
         queryKey: feedbackQuery(boardSlug, feedbackSlug).queryKey,
       })
       router.navigate({
-        to: '/$boardSlug/$feedbackSlug',
+        to: '/admin/feedback/$boardSlug/$feedbackSlug',
         params: { boardSlug, feedbackSlug },
       })
     },

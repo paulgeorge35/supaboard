@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { toast } from "sonner";
 import { cn } from "../lib/utils";
 import { useAuthStore } from "../stores/auth-store";
@@ -24,6 +25,13 @@ export const VoteButton = ({ votes, votedByMe, className, vote, isPending }: Vot
         vote()
     }
 
+    const numberFormatted = useMemo(() => {
+        if (votes > 1000) {
+            return `${(votes / 1000).toFixed(1)}k`;
+        }
+        return votes;
+    }, [votes]);
+
     return (
         <button
             type='button'
@@ -36,7 +44,7 @@ export const VoteButton = ({ votes, votedByMe, className, vote, isPending }: Vot
             onClick={handleVote}>
             <Icons.ChevronUp className="size-3 group-hover:-translate-y-[2px] transition-transform duration-200" />
             <span className="text-gray-500 text-xs">
-                {votes}
+                {numberFormatted}
             </span>
         </button>
     )

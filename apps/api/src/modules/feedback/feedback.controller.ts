@@ -1,5 +1,6 @@
 import { ActivityType, db, feedbackDetail, FeedbackStatus, feeedbackSummarySelect, Prisma } from "@repo/database";
 import type { Response } from "express";
+import { DateTime } from "luxon";
 import { z } from "zod";
 import type { BareSessionRequest } from "../../types";
 
@@ -39,7 +40,7 @@ export async function vote(req: BareSessionRequest, res: Response) {
 
 const feedbackSchema = z.object({
     title: z.string().min(1).trim(),
-    description: z.string().min(1).trim(),
+    description: z.string().optional(),
 });
 
 async function generateUniqueSlug(title: string, boardId: string): Promise<string> {
@@ -81,12 +82,24 @@ export async function createFeedback(req: BareSessionRequest<z.infer<typeof feed
         return;
     }
 
+    const board = await db.board.findUnique({ where: { id: boardId, applicationId } });
+
+    if (!board) {
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    if (board.detailsRequired && !data.description?.trim()) {
+        res.status(400).json({ error: 'Description is required' });
+        return;
+    }
+
     const slug = await generateUniqueSlug(data.title, boardId);
 
     const feedback = await db.feedback.create({
         data: {
             title: data.title,
-            description: data.description,
+            description: data.description ?? '',
             slug,
             board: { connect: { id: boardId } },
             application: { connect: { id: applicationId } },
@@ -132,6 +145,7 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
         edited: feedback.edited,
         status: feedback.status,
         estimatedDelivery: feedback.estimatedDelivery,
+        publicEstimate: feedback.publicEstimate,
         votes: feedback._count.votes,
         tags: feedback.tags,
         category: feedback.category,
@@ -191,15 +205,18 @@ export async function getVoters(req: BareSessionRequest, res: Response) {
 }
 
 const commentDataSchema = z.object({
+    type: z.literal(ActivityType.FEEDBACK_COMMENT),
     content: z.string().min(1),
 });
 
 const statusChangeDataSchema = z.object({
-    status: z.nativeEnum(FeedbackStatus),
+    type: z.literal(ActivityType.FEEDBACK_STATUS_CHANGE),
+    from: z.nativeEnum(FeedbackStatus),
+    to: z.nativeEnum(FeedbackStatus),
     content: z.string().optional(),
 });
 
-const activityDataSchema = z.union([commentDataSchema, statusChangeDataSchema]);
+const activityDataSchema = z.discriminatedUnion('type', [commentDataSchema, statusChangeDataSchema]);
 
 export async function getActivities(req: BareSessionRequest, res: Response) {
     const { boardSlug, feedbackSlug } = req.params;
@@ -241,6 +258,11 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
             type: { in: activityTypes }
         },
         include: {
+            files: {
+                select: {
+                    key: true,
+                },
+            },
             likes: {
                 select: {
                     id: true,
@@ -262,6 +284,7 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
         },
     });
 
+
     const activities = await db.activity.findMany({
         where: {
             feedbackId: feedback.id,
@@ -269,6 +292,11 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
             public: member ? undefined : true,
         },
         include: {
+            files: {
+                select: {
+                    key: true,
+                },
+            },
             likes: {
                 select: {
                     id: true,
@@ -296,9 +324,13 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
     const response = {
         pinned: pinned ? {
             ...pinned,
-            data: activityDataSchema.parse(pinned.data),
+            data: activityDataSchema.parse({
+                type: pinned.type,
+                ...pinned.data as Prisma.JsonObject,
+            }),
             likes: pinned._count.likes,
             likedByMe: pinned.likes.some((like) => like.authorId === userId),
+            files: pinned.files.map((file) => file.key),
             author: {
                 ...pinned.author,
                 isAdmin: pinned.author.id === application.ownerId,
@@ -306,9 +338,13 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
         } : undefined,
         activities: activities.map((activity) => ({
             ...activity,
-            data: activityDataSchema.parse(activity.data),
+            data: activity.data ? activityDataSchema.parse({
+                type: activity.type,
+                ...activity.data as Prisma.JsonObject,
+            }) : undefined,
             likes: activity._count.likes,
             likedByMe: activity.likes.some((like) => like.authorId === userId),
+            files: activity.files.map((file) => file.key),
             author: {
                 ...activity.author,
                 isAdmin: activity.author.id === application.ownerId,
@@ -318,8 +354,18 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
     res.status(200).json(response);
 }
 
+const fileSchema = z.object({
+    key: z.string(),
+    name: z.string(),
+    extension: z.string(),
+    contentType: z.string(),
+    size: z.number(),
+});
+
 const commentSchema = z.object({
     content: z.string().min(1),
+    public: z.boolean().optional().default(true),
+    files: z.array(fileSchema).optional(),
 });
 
 export async function comment(req: BareSessionRequest, res: Response) {
@@ -363,6 +409,12 @@ export async function comment(req: BareSessionRequest, res: Response) {
             data: activityJson,
             feedback: { connect: { id: feedback.id } },
             author: { connect: { id: userId } },
+            public: data.public,
+            files: data.files ? {
+                createMany: {
+                    data: data.files,
+                },
+            } : undefined,
         },
     });
 
@@ -440,6 +492,11 @@ export async function pin(req: BareSessionRequest, res: Response) {
 
     if (!activity) {
         res.status(404).json({ error: 'Activity not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    if (!activity.public) {
+        res.status(403).json({ error: 'You are not allowed to pin a private activity' });
         return;
     }
 
@@ -612,7 +669,7 @@ export async function editHistory(req: BareSessionRequest, res: Response) {
 
 const feedbacksSchema = z.object({
     cursor: z.string().optional(),
-    take: z.number().default(10),
+    take: z.coerce.number().default(10),
     order: z.enum(['newest', 'oldest']).default('newest'),
     boards: z.union([z.array(z.string()), z.string()]).optional(),
     status: z.union([z.array(z.nativeEnum(FeedbackStatus)), z.nativeEnum(FeedbackStatus)]).optional().default(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS']),
@@ -622,13 +679,15 @@ const feedbacksSchema = z.object({
     untagged: z.coerce.boolean().optional(),
     owner: z.string().optional(),
     unassigned: z.coerce.boolean().optional(),
+    start: z.string().optional().transform((value) => value && DateTime.fromFormat(value, 'yyyy-MM-dd').isValid ? DateTime.fromFormat(value, 'yyyy-MM-dd').toJSDate() : undefined),
+    end: z.string().optional().transform((value) => value && DateTime.fromFormat(value, 'yyyy-MM-dd').isValid ? DateTime.fromFormat(value, 'yyyy-MM-dd').toJSDate() : undefined),
     search: z.string().optional().transform(
         (value) => {
             if (!value) return undefined;
             return value.trim().replace(/ +(?= )/g, '')
                 .split(' ')
                 .filter((word) => word.length > 2)
-                .join(' ');
+                .join(' | ');
         }
     )
 });
@@ -643,12 +702,10 @@ export async function getFeedbacks(req: BareSessionRequest, res: Response) {
 
     if (!success) {
         res.status(400).json({ error: 'Invalid feedbacks data' });
-        console.log(req.query);
-        console.log(error);
         return;
     }
 
-    const { cursor, take, order, ...filters } = data;
+    const { cursor, take, order, start, end, ...filters } = data;
 
     const where: Prisma.FeedbackWhereInput = {};
 
@@ -711,6 +768,16 @@ export async function getFeedbacks(req: BareSessionRequest, res: Response) {
         where.description = { search: filters.search };
     }
 
+    if (start || end) {
+        if (start && end) {
+            where.createdAt = { gte: start, lte: end };
+        } else if (start) {
+            where.createdAt = { gte: start };
+        } else if (end) {
+            where.createdAt = { lte: end };
+        }
+    }
+
     const orderBy: Prisma.FeedbackOrderByWithRelationInput = order === 'newest' ? { createdAt: 'desc' } : { createdAt: 'asc' };
 
     const result = await db.feedback.findMany({
@@ -722,5 +789,8 @@ export async function getFeedbacks(req: BareSessionRequest, res: Response) {
         select: feeedbackSummarySelect,
     });
 
-    res.status(200).json(result);
+    res.status(200).json({
+        feedbacks: result,
+        nextCursor: result[result.length - 1]?.id,
+    });
 }

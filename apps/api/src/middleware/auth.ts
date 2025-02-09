@@ -17,6 +17,8 @@ export async function requireAuth(req: BareSessionRequest, res: Response, next: 
         const decoded = await decrypt(session);
 
         if (!decoded) {
+            console.log('Invalid session[20]:', session);
+            console.log('Decoded:', decoded);
             res.clearCookie(COOKIE_NAME);
             return;
         }
@@ -33,6 +35,7 @@ export async function requireAuth(req: BareSessionRequest, res: Response, next: 
 
         req.auth = decoded;
     } catch (error) {
+        console.error('Error in requireAuth middleware:', error);
         res.clearCookie(COOKIE_NAME);
         return;
     }

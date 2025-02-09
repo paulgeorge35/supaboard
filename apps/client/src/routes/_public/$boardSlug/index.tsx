@@ -10,7 +10,7 @@ import { fetchClient } from '@/lib/client'
 import { cn } from '@/lib/utils'
 import {
   applicationBoardsQuery,
-  boardQuery,
+  boardDetailedQuery,
   BoardQueryData,
 } from '@/routes/__root'
 import {
@@ -22,8 +22,7 @@ import {
 import {
   createFileRoute,
   Link,
-  notFound,
-  useParams,
+  useParams
 } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -31,25 +30,13 @@ import { toast } from 'sonner'
 export const Route = createFileRoute('/_public/$boardSlug/')({
   component: RouteComponent,
   notFoundComponent: () => <NotFoundPage />,
-  loader: async ({ params }) => {
-    const { boardSlug } = params
-    const board = await fetchClient(`board/${boardSlug}`)
-
-    if (!board) {
-      throw notFound()
-    }
-
-    return {
-      board,
-    }
-  },
 })
 
 function RouteComponent() {
   const [search, setSearch] = useState('')
   const { boardSlug } = useParams({ from: '/_public/$boardSlug/' })
   const { data: boards } = useSuspenseQuery(applicationBoardsQuery)
-  const { data: board } = useQuery(boardQuery(boardSlug, search))
+  const { data: board } = useQuery(boardDetailedQuery(boardSlug, search))
   const queryClient = useQueryClient()
 
   const toBoard = (slug: string) => `/${slug}`
@@ -79,12 +66,12 @@ function RouteComponent() {
           feedbacks: boardData.feedbacks.map((feedback) =>
             feedback.id === feedbackId
               ? {
-                  ...feedback,
-                  votes: feedback.votedByMe
-                    ? feedback.votes - 1
-                    : feedback.votes + 1,
-                  votedByMe: !feedback.votedByMe,
-                }
+                ...feedback,
+                votes: feedback.votedByMe
+                  ? feedback.votes - 1
+                  : feedback.votes + 1,
+                votedByMe: !feedback.votedByMe,
+              }
               : feedback,
           ),
         })
@@ -129,9 +116,9 @@ function RouteComponent() {
         </div>
       </div>
       <div className="vertical gap-2">
-        <h1 className="font-medium">{board?.name}</h1>
+        <h1 className="font-medium">{board?.callToAction}</h1>
         <div className="vertical">
-          <FeedbackForm boardId={board?.id} />
+          {board && <FeedbackForm board={board} />}
 
           <div className="border rounded-t-lg horizontal center-v justify-between gap-2 px-4 py-2 bg-gray-50 mt-4 dark:bg-zinc-800/20">
             <FiltersInput onChange={setSearch} />

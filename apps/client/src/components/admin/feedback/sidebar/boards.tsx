@@ -1,20 +1,23 @@
-import { Route } from "@/routes/admin/feedback"
-import { Route as AddminFeedbackSlugRoute } from "@/routes/admin/feedback/$boardSlug/$feedbackSlug"
-import { Link, useParams, useRouter, useSearch } from "@tanstack/react-router"
-import { useMemo } from "react"
-import { cn } from "../../../../lib/utils"
-import { useAuthStore } from "../../../../stores/auth-store"
-import { Checkbox } from "../../../checkbox"
-import { Icons } from "../../../icons"
+import { Checkbox, Icons } from "@/components";
+import { cn } from "@/lib/utils";
+import { Route } from "@/routes/admin/feedback";
+import { Route as AddminFeedbackSlugRoute } from "@/routes/admin/feedback/$boardSlug/$feedbackSlug";
+import { useAuthStore } from "@/stores/auth-store";
+import { Link, useParams, useRouter, useSearch } from "@tanstack/react-router";
+import { useCallback, useMemo } from "react";
 
 export function Boards() {
     const search = useSearch({ from: Route.fullPath });
     const router = useRouter();
     const { application } = useAuthStore();
 
+    const allBoardsIncluded = useCallback((newBoards: string[]) => {
+        return application?.boards.every(board => newBoards.includes(board.slug)) ?? true;
+    }, [application]);
+
     const boards = useMemo(() => {
         return search.boards ?? application?.boards.map(board => board.slug) ?? [];
-    }, [search]);
+    }, [search, application]);
 
     const handleChange = (boardSlug: string) => {
         const checked = boards.includes(boardSlug);
@@ -23,7 +26,10 @@ export function Boards() {
             from: AddminFeedbackSlugRoute.fullPath,
             search: {
                 ...search,
-                boards: newBoards.length > 0 ? newBoards : undefined
+                boards: newBoards.length > 0 && !allBoardsIncluded(newBoards) ? newBoards : undefined,
+                uncategorized: undefined,
+                categories: undefined,
+                tags: undefined
             }
         })
     }
@@ -41,16 +47,24 @@ export function Boards() {
     return (
         <div className="grid grid-cols-[auto_1fr_auto] gap-2">
             <h1 className="text-sm font-medium col-span-2">Boards</h1>
-            <button onClick={handleSelectAll} className="text-sm font-light underline text-gray-500 dark:text-zinc-300 hover:text-gray-700 dark:hover:text-zinc-200">
+            <button
+                onClick={handleSelectAll}
+                className="text-sm font-light underline text-gray-500 dark:text-zinc-300 hover:text-gray-700 dark:hover:text-zinc-200"
+            >
                 Select all
             </button>
+
             {application?.boards.map((board) => (
                 <div key={board.id} className="grid grid-cols-[1fr_auto] gap-2 col-span-full group">
-                    <Checkbox label={board.name}
+                    <Checkbox
+                        label={board.name}
                         checked={boards.includes(board.slug)}
                         onChange={() => handleChange(board.slug)}
                     />
-                    <BoardActions filter={board.slug} feedbackCount={board._count.feedbacks} />
+                    <BoardActions
+                        filter={board.slug}
+                        feedbackCount={board._count.feedbacks}
+                    />
                 </div>
             ))}
             <Link
@@ -92,7 +106,11 @@ function BoardActions({ filter, feedbackCount }: BoardActionsProps) {
                 <Icons.Settings className="size-4 stroke-gray-500 dark:stroke-zinc-300" />
             </button>
 
-            <button onClick={handleClick} className="cursor-pointer size-4 border rounded-sm absolute top-1/2 -left-6 -translate-y-1/2 text-xs font-light horizontal center hidden group-hover:flex text-gray-500 dark:text-zinc-300">1</button>
+            <button
+                onClick={handleClick}
+                className="cursor-pointer size-4 border rounded-sm absolute top-1/2 -left-6 -translate-y-1/2 text-xs font-light horizontal center hidden group-hover:flex text-gray-500 dark:text-zinc-300">
+                <Icons.Check size={10} />
+            </button>
         </span>
     )
 }

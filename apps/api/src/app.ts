@@ -9,6 +9,7 @@ import { applicationRouter } from './modules/application/application.router';
 import { authRouter } from './modules/auth/auth.router';
 import { boardRouter } from './modules/board/board.router';
 import { feedbackRouter } from './modules/feedback/feedback.router';
+import { storageRouter } from './modules/storage/storage.router';
 /**
  * Initializes CORS configuration by fetching allowed origins from the database
  */
@@ -73,6 +74,7 @@ async function createApp(): Promise<Application> {
     app.use('/board', boardRouter);
     app.use('/feedback', feedbackRouter);
     app.use('/admin', adminRouter);
+    app.use('/storage', storageRouter);
     return app;
 }
 

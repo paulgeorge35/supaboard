@@ -1,10 +1,11 @@
-import { db } from '@repo/database';
+import { AdminReportFrequency, db, Language } from '@repo/database';
 import { fetch } from 'bun';
 import { type Request, type Response } from 'express';
 import { z } from 'zod';
 import type { BareSessionRequest } from '../../types';
 import { cookieOptions, encrypt } from '../../util/jwt';
 import { googleClient } from '../../util/oauth';
+import { presignReadUrl } from '../../util/s3';
 
 const registerSchema = z.object({
     email: z.string().email(),
@@ -34,11 +35,45 @@ const CALLBACK_SIGN_UP_URL = process.env.GOOGLE_SIGN_UP_CALLBACK_URL as string;
 const APP_DOMAIN = process.env.APP_DOMAIN as string;
 
 export async function me(req: BareSessionRequest, res: Response) {
+    let user = req.auth;
+
+    if (user?.avatar?.startsWith('avatar')) {
+        user.avatar = presignReadUrl(user.avatar);
+    }
 
     res.json({
         user: req.auth,
         application: req.application,
     });
+}
+
+const updateSchema = z.object({
+    name: z.string().optional(),
+    email: z.string().email().optional(),
+    avatar: z.string().optional(),
+});
+
+export async function update(req: BareSessionRequest, res: Response) {
+    const userId = req.auth?.id;
+
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+
+    const { success, data, error } = updateSchema.safeParse(req.body);
+
+    if (!success) {
+        res.status(400).json({ error: 'Invalid input', details: error });
+        return;
+    }
+
+    const user = await db.user.update({
+        where: { id: userId },
+        data: data,
+    });
+
+    res.status(200).json({ message: 'User updated successfully' });
 }
 
 export async function register(req: Request, res: Response) {
@@ -217,4 +252,47 @@ export async function customCookie(req: Request, res: Response) {
         domain: `${new URL(state as string).hostname}`
     });
     res.redirect(redirect as string);
+}
+
+export async function preferences(req: BareSessionRequest, res: Response) {
+    const userId = req.auth?.id;
+
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+
+    const user = await db.user.findUnique({
+        where: { id: userId }, select: {
+            reportFrequency: true,
+            language: true,
+        }
+    });
+
+    res.status(200).json({ user });
+}
+
+const updatePreferencesSchema = z.object({
+    reportFrequency: z.nativeEnum(AdminReportFrequency).optional(),
+    language: z.nativeEnum(Language).optional(),
+});
+
+export async function updatePreferences(req: BareSessionRequest, res: Response) {
+    const userId = req.auth?.id;
+
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+
+    const { success, data, error } = updatePreferencesSchema.safeParse(req.body);
+
+    if (!success) {
+        res.status(400).json({ error: 'Invalid input', details: error });
+        return;
+    }
+
+    const user = await db.user.update({ where: { id: userId }, data, });
+
+    res.status(200).json({ user });
 }

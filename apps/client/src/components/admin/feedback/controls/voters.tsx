@@ -19,12 +19,11 @@ export function Voters() {
         throw notFound()
     }
 
+    if (data.length === 0) return null;
+
     return (
         <div className="grid grid-cols-[auto_1fr_auto] gap-2">
             <h1 className="text-sm font-medium col-span-2">{`${data.length} ${data.length === 1 ? 'Voter' : 'Voters'}`}</h1>
-            <button className="text-sm font-light underline text-gray-500 dark:text-zinc-300 hover:text-gray-700 dark:hover:text-zinc-200">
-                Add voter
-            </button>
             {data.length > 0 && <Link
                 to="/admin/feedback/$boardSlug/$feedbackSlug/voters"
                 params={{ boardSlug, feedbackSlug }}

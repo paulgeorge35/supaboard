@@ -154,7 +154,7 @@ function RouteComponent() {
     <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
       <div className="vertical gap-2 hidden md:block">
         <div className="grid grid-cols-[auto_1fr] gap-2 p-4 border rounded-lg">
-          {feedback.estimatedDelivery && (
+          {feedback.estimatedDelivery && feedback.publicEstimate && (
             <>
               <h1 className="text-xs font-bold uppercase text-gray-500 col-span-full">
                 Estimated
@@ -218,7 +218,7 @@ function RouteComponent() {
           />
           <span className="vertical justify-between">
             <h1 className="font-medium text-lg">{feedback.title}</h1>
-            <StatusBadge status={feedback.status} />
+            {feedback.status !== 'OPEN' && <StatusBadge status={feedback.status} />}
           </span>
         </span>
 
@@ -242,28 +242,31 @@ function RouteComponent() {
           <p className="text-sm hyphens-auto font-light col-start-2">
             {feedback.description}
           </p>
-          <span className="horizontal gap-2 col-start-2">
+          <span className="flex flex-col md:flex-row gap-2 col-start-2">
             <p className="text-xs text-gray-500">
-              {DateTime.fromJSDate(new Date(feedback.createdAt)).toFormat(
-                'MMMM dd, yyyy, HH:mm',
-              )}
+              {DateTime.fromJSDate(new Date(feedback.createdAt)).diffNow().as('hours') > -24 
+                ? DateTime.fromJSDate(new Date(feedback.createdAt)).toRelative()
+                : DateTime.fromJSDate(new Date(feedback.createdAt)).toFormat('MMMM dd, yyyy, HH:mm')
+              }
             </p>
-            <EditFeedbackButton
-              isEditable={feedback.isEditable}
-              boardSlug={boardSlug}
-              feedbackSlug={feedbackSlug}
-            />
-            {feedback.isDeletable && (
-              <DeleteFeedbackButton
+            <span className="horizontal center-v gap-2">
+              <EditFeedbackButton
+                isEditable={feedback.isEditable}
                 boardSlug={boardSlug}
                 feedbackSlug={feedbackSlug}
               />
-            )}
-            <EditHistory
-              boardSlug={boardSlug}
-              feedbackSlug={feedbackSlug}
-              edited={feedback.edited}
-            />
+              {feedback.isDeletable && (
+                <DeleteFeedbackButton
+                  boardSlug={boardSlug}
+                  feedbackSlug={feedbackSlug}
+                />
+              )}
+              <EditHistory
+                boardSlug={boardSlug}
+                feedbackSlug={feedbackSlug}
+                edited={feedback.edited}
+              />
+            </span>
           </span>
         </span>
 

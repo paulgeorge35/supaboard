@@ -1,6 +1,7 @@
 import { applicationSummarySelect, boardSummarySelect, db } from "@repo/database";
 import type { NextFunction, Response } from "express";
 import type { BareSessionRequest } from "../types";
+import { publicUrl } from "../util/s3";
 
 export async function applicationMiddleware(req: BareSessionRequest, res: Response, next: NextFunction) {
     const origin = req.headers.origin ?? req.headers.host;
@@ -44,6 +45,11 @@ export async function applicationMiddleware(req: BareSessionRequest, res: Respon
         select: boardSummarySelect
     });
 
-    req.application = { ...application, boards };
+    req.application = {
+        ...application,
+        icon: application.icon ? publicUrl(application.icon) : undefined,
+        logo: application.logo ? publicUrl(application.logo) : undefined,
+        boards
+    };
     next();
 }
