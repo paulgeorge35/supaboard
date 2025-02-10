@@ -18,7 +18,8 @@ export const Route = createFileRoute(
 
 export const boardQuery = (slug?: string) => queryOptions<Board>({
     queryKey: ['board', slug],
-    queryFn: () => fetchClient(`board/${slug}`)
+    queryFn: () => fetchClient(`board/${slug}`),
+    retry: false,
 })
 
 function RouteComponent() {

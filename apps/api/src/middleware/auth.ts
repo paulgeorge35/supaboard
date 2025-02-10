@@ -33,7 +33,12 @@ export async function requireAuth(req: BareSessionRequest, res: Response, next: 
             return;
         }
 
-        req.auth = decoded;
+        req.auth = {
+            id: decoded.id,
+            email: decoded.email,
+            name: decoded.name,
+            avatar: decoded.avatar,
+        };
     } catch (error) {
         console.error('Error in requireAuth middleware:', error);
         res.clearCookie(COOKIE_NAME);

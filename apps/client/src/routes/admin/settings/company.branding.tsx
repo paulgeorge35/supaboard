@@ -6,9 +6,10 @@ import { fetchClient } from '@/lib/client';
 import { cn } from '@/lib/utils';
 import { Application } from '@repo/database';
 import { useForm } from '@tanstack/react-form';
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createFileRoute, useLocation, useRouter } from '@tanstack/react-router';
 import { useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 
@@ -37,6 +38,9 @@ const themes = [
 ]
 
 function RouteComponent() {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const location = useLocation();
   const logoInputRef = useRef<HTMLInputElement>(null);
   const iconInputRef = useRef<HTMLInputElement>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -59,12 +63,46 @@ function RouteComponent() {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
+    onMutate: (data) => {
+      queryClient.cancelQueries({ queryKey: applicationQuery.queryKey });
+
+      const previousApplication = queryClient.getQueryData<Application>(applicationQuery.queryKey);
+
+      if (data.subdomain === application?.subdomain) {
+        queryClient.setQueryData(applicationQuery.queryKey, (old: Application | undefined) => {
+          if (!old) return undefined;
+          return {
+            ...old,
+            ...data
+          }
+        })
+      }
+
+      return { previousApplication };
+    },
+    onError: (_, __, context) => {
+      queryClient.setQueryData(applicationQuery.queryKey, context?.previousApplication);
+    },
+    onSettled: (data) => {
+      if (data.subdomain === application?.subdomain) {
+        queryClient.invalidateQueries({ queryKey: applicationQuery.queryKey });
+      }
+    },
+    onSuccess: (data) => {
+      toast.success('Application updated successfully');
+      const hostname = application?.customDomain && application?.domainStatus === 'VERIFIED' ? application.customDomain : `${data.subdomain}.${import.meta.env.VITE_APP_DOMAIN}`;
+      const url = new URL(location.href, `https://${hostname}`);
+      
+      if (application?.subdomain !== data.subdomain) {
+        window.location.replace(url.toString());
+      }
+    },
   });
 
   const { mutate: deleteFile } = useMutation({
     mutationFn: (fileKey: string) => fetchClient(`storage/${fileKey}/delete`, {
       method: 'DELETE',
-    }),
+    })
   });
 
   const form = useForm({
@@ -82,6 +120,7 @@ function RouteComponent() {
     },
     onSubmit: async (data) => {
       updateApplication(data.value);
+      form.reset();
     },
   });
 

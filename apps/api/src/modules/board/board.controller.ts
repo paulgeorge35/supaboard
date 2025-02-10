@@ -87,6 +87,30 @@ export async function getBoardBySlugDetailed(req: BareSessionRequest, res: Respo
     });
 }
 
+const createBoardSchema = z.object({
+    name: z.string(),
+    description: z.string(),
+    slug: z.string(),
+});
+
+export async function createBoard(req: BareSessionRequest, res: Response) {
+    const applicationId = req.application?.id;
+    const { name, description, slug } = createBoardSchema.parse(req.body);
+
+    const existingBoard = await db.board.findFirst({ where: { slug, applicationId } });
+
+    if (existingBoard) {
+        res.status(400).json({ error: 'Board with this URL already exists', code: 'BOARD_SLUG_ALREADY_EXISTS' });
+        return;
+    }
+
+    const board = await db.board.create({
+        data: { name, description, slug, application: { connect: { id: applicationId } } },
+    });
+
+    res.status(200).json(board);
+}
+
 const updateBoardSchema = z.object({
     name: z.string().optional(),
     slug: z.string().optional(),
@@ -136,6 +160,21 @@ export async function updateBoard(req: BareSessionRequest, res: Response) {
     });
 
     res.status(200).json(updatedBoard);
+}
+
+export async function deleteBoard(req: BareSessionRequest, res: Response) {
+    const { slug: boardSlug } = req.params;
+
+    const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId: req.application?.id } });
+
+    if (!board) {
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    await db.board.delete({ where: { id: board.id } });
+
+    res.status(200).json({ message: 'Board deleted' });
 }
 
 const getCategoriesSchema = z.object({

@@ -2,12 +2,14 @@ import { Router } from 'express';
 import { adminMiddleware } from '../../middleware/admin.middleware';
 import { applicationMiddleware } from '../../middleware/application';
 import { requireAuth } from '../../middleware/auth';
-import { categorySubscription, createCategory, deleteCategory, getBoardBySlug, getBoardBySlugDetailed, getCategories, updateBoard, updateCategory } from './board.controller';
+import { categorySubscription, createBoard, createCategory, deleteBoard, deleteCategory, getBoardBySlug, getBoardBySlugDetailed, getCategories, updateBoard, updateCategory } from './board.controller';
 const router = Router();
 
 router.get('/:slug', requireAuth, applicationMiddleware, getBoardBySlug);
 router.get('/:slug/detailed', requireAuth, applicationMiddleware, getBoardBySlugDetailed);
+router.post('/', requireAuth, applicationMiddleware, adminMiddleware, createBoard);
 router.put('/:slug', requireAuth, applicationMiddleware, adminMiddleware, updateBoard);
+router.delete('/:slug', requireAuth, applicationMiddleware, adminMiddleware, deleteBoard);
 router.get('/:slug/categories', requireAuth, applicationMiddleware, getCategories);
 router.post('/:slug/categories', requireAuth, applicationMiddleware, adminMiddleware, createCategory);
 router.put('/:slug/categories/:categorySlug', requireAuth, applicationMiddleware, adminMiddleware, updateCategory);

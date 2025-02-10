@@ -35,6 +35,7 @@ import { Route as AdminSettingsPreferencesEmailImport } from './routes/admin/set
 import { Route as AdminSettingsCompanyPreferencesImport } from './routes/admin/settings/company.preferences'
 import { Route as AdminSettingsCompanyDeleteImport } from './routes/admin/settings/company.delete'
 import { Route as AdminSettingsCompanyBrandingImport } from './routes/admin/settings/company.branding'
+import { Route as AdminSettingsBoardsCreateNewImport } from './routes/admin/settings/boards.create-new'
 import { Route as AdminSettingsAdminsPeopleImport } from './routes/admin/settings/admins.people'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug'
 import { Route as PublicBoardSlugFeedbackSlugVotersImport } from './routes/_public/$boardSlug/$feedbackSlug/voters'
@@ -202,6 +203,13 @@ const AdminSettingsCompanyBrandingRoute =
     id: '/branding',
     path: '/branding',
     getParentRoute: () => AdminSettingsCompanyRoute,
+  } as any)
+
+const AdminSettingsBoardsCreateNewRoute =
+  AdminSettingsBoardsCreateNewImport.update({
+    id: '/create-new',
+    path: '/create-new',
+    getParentRoute: () => AdminSettingsBoardsRoute,
   } as any)
 
 const AdminSettingsAdminsPeopleRoute = AdminSettingsAdminsPeopleImport.update({
@@ -466,6 +474,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsAdminsPeopleImport
       parentRoute: typeof AdminSettingsAdminsImport
     }
+    '/admin/settings/boards/create-new': {
+      id: '/admin/settings/boards/create-new'
+      path: '/create-new'
+      fullPath: '/admin/settings/boards/create-new'
+      preLoaderRoute: typeof AdminSettingsBoardsCreateNewImport
+      parentRoute: typeof AdminSettingsBoardsImport
+    }
     '/admin/settings/company/branding': {
       id: '/admin/settings/company/branding'
       path: '/branding'
@@ -676,6 +691,7 @@ const AdminSettingsAdminsRouteWithChildren =
   AdminSettingsAdminsRoute._addFileChildren(AdminSettingsAdminsRouteChildren)
 
 interface AdminSettingsBoardsRouteChildren {
+  AdminSettingsBoardsCreateNewRoute: typeof AdminSettingsBoardsCreateNewRoute
   AdminSettingsBoardsBoardSlugCategoriesRoute: typeof AdminSettingsBoardsBoardSlugCategoriesRoute
   AdminSettingsBoardsBoardSlugCreateFormRoute: typeof AdminSettingsBoardsBoardSlugCreateFormRoute
   AdminSettingsBoardsBoardSlugDeleteRoute: typeof AdminSettingsBoardsBoardSlugDeleteRoute
@@ -685,6 +701,7 @@ interface AdminSettingsBoardsRouteChildren {
 }
 
 const AdminSettingsBoardsRouteChildren: AdminSettingsBoardsRouteChildren = {
+  AdminSettingsBoardsCreateNewRoute: AdminSettingsBoardsCreateNewRoute,
   AdminSettingsBoardsBoardSlugCategoriesRoute:
     AdminSettingsBoardsBoardSlugCategoriesRoute,
   AdminSettingsBoardsBoardSlugCreateFormRoute:
@@ -800,6 +817,7 @@ export interface FileRoutesByFullPath {
   '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
   '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
+  '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
   '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
   '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
   '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
@@ -838,6 +856,7 @@ export interface FileRoutesByTo {
   '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
   '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
   '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
+  '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
   '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
   '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
   '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
@@ -881,6 +900,7 @@ export interface FileRoutesById {
   '/_public/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
   '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
+  '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
   '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
   '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
   '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
@@ -925,6 +945,7 @@ export interface FileRouteTypes {
     | '/$boardSlug/$feedbackSlug/voters'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
     | '/admin/settings/admins/people'
+    | '/admin/settings/boards/create-new'
     | '/admin/settings/company/branding'
     | '/admin/settings/company/delete'
     | '/admin/settings/company/preferences'
@@ -962,6 +983,7 @@ export interface FileRouteTypes {
     | '/$boardSlug/$feedbackSlug/edit-history'
     | '/$boardSlug/$feedbackSlug/voters'
     | '/admin/settings/admins/people'
+    | '/admin/settings/boards/create-new'
     | '/admin/settings/company/branding'
     | '/admin/settings/company/delete'
     | '/admin/settings/company/preferences'
@@ -1003,6 +1025,7 @@ export interface FileRouteTypes {
     | '/_public/$boardSlug/$feedbackSlug/voters'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
     | '/admin/settings/admins/people'
+    | '/admin/settings/boards/create-new'
     | '/admin/settings/company/branding'
     | '/admin/settings/company/delete'
     | '/admin/settings/company/preferences'
@@ -1115,6 +1138,7 @@ export const routeTree = rootRoute
       "filePath": "admin/settings/boards.tsx",
       "parent": "/admin/settings",
       "children": [
+        "/admin/settings/boards/create-new",
         "/admin/settings/boards/$boardSlug/categories",
         "/admin/settings/boards/$boardSlug/create-form",
         "/admin/settings/boards/$boardSlug/delete",
@@ -1189,6 +1213,10 @@ export const routeTree = rootRoute
     "/admin/settings/admins/people": {
       "filePath": "admin/settings/admins.people.tsx",
       "parent": "/admin/settings/admins"
+    },
+    "/admin/settings/boards/create-new": {
+      "filePath": "admin/settings/boards.create-new.tsx",
+      "parent": "/admin/settings/boards"
     },
     "/admin/settings/company/branding": {
       "filePath": "admin/settings/company.branding.tsx",
