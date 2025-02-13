@@ -1,6 +1,8 @@
 import type { BareSessionRequest } from "@/types";
-import { boardFeedbackSummarySelect, db } from "@repo/database";
+import { boardFeedbackSummarySelect, db, DomainStatus } from "@repo/database";
 import { type Response } from "express";
+import dns from 'node:dns/promises';
+import path from 'node:path';
 import { z } from "zod";
 
 export async function getApplication(req: BareSessionRequest, res: Response) {
@@ -113,10 +115,69 @@ export async function getBoards(req: BareSessionRequest, res: Response) {
     })));
 }
 
+const CNAME_VALUE = 'cname.supaboard.io';
+
+const addDomain = (domain: string) => {
+    const scriptPath = path.join(import.meta.dir, 'add_domain.sh');
+    return Bun.spawn(['sh', scriptPath, domain], {
+        cwd: import.meta.dir,
+    });
+};
+
+export async function verifyDomain(req: BareSessionRequest, res: Response) {
+    const userId = req.auth?.id;
+    const applicationId = req.application?.id;
+
+    if (!userId || !applicationId) {
+        res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
+        return;
+    }
+
+    try {
+        const cnameRecords = await dns.resolveCname(req.body.domain);
+        console.log('CNAME records:', cnameRecords);
+        if (!cnameRecords.includes(CNAME_VALUE)) {
+            res.status(400).json({
+                error: 'Invalid CNAME record',
+                code: 'INVALID_CNAME',
+                details: `Domain must have a CNAME record pointing to ${CNAME_VALUE}`
+            });
+            return;
+        }
+    } catch (error) {
+        res.status(400).json({
+            error: 'DNS verification failed',
+            code: 'DNS_VERIFICATION_FAILED',
+            details: 'Could not verify domain. Please ensure the domain exists and has proper DNS records.'
+        });
+        return;
+    }
+
+    try {
+        addDomain(req.body.domain);
+    } catch (error) {
+        console.error('Domain addition failed:', error);
+        res.status(400).json({
+            error: 'Failed to add domain',
+            code: 'FAILED_TO_ADD_DOMAIN',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        });
+        return;
+    }
+
+    await db.application.update({
+        where: { id: applicationId },
+        data: { domainStatus: DomainStatus.VERIFIED, customDomain: req.body.domain },
+    });
+
+    res.status(200).json({ message: 'Domain verified' });
+}
+
 export const controller = {
     application: {
         get: getApplication,
         update: updateApplication,
         boards: getBoards,
+        verifyDomain,
     },
 };
