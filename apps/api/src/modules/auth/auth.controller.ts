@@ -1,11 +1,9 @@
+import type { BareSessionRequest } from '@/types';
+import { cookieOptions, encrypt, googleClient, presignReadUrl } from '@/util';
 import { AdminReportFrequency, db, Language } from '@repo/database';
 import { fetch } from 'bun';
 import { type Request, type Response } from 'express';
 import { z } from 'zod';
-import type { BareSessionRequest } from '../../types';
-import { cookieOptions, encrypt } from '../../util/jwt';
-import { googleClient } from '../../util/oauth';
-import { presignReadUrl } from '../../util/s3';
 
 const registerSchema = z.object({
     email: z.string().email(),
@@ -43,6 +41,7 @@ export async function me(req: BareSessionRequest, res: Response) {
 
     res.json({
         user: req.auth,
+        workspaces: req.workspaces,
         application: req.application,
     });
 }
@@ -68,7 +67,7 @@ export async function update(req: BareSessionRequest, res: Response) {
         return;
     }
 
-    const user = await db.user.update({
+    await db.user.update({
         where: { id: userId },
         data: data,
     });
@@ -295,4 +294,27 @@ export async function updatePreferences(req: BareSessionRequest, res: Response) 
     const user = await db.user.update({ where: { id: userId }, data, });
 
     res.status(200).json({ user });
+}
+
+export const controller = {
+    auth: {
+        me,
+        register,
+        login,
+        logout,
+        customCookie,
+    },
+    profile: {
+        update,
+    },
+    preferences: {
+        get: preferences,
+        update: updatePreferences,
+    },
+    oauth: {
+        googleSignUp,
+        googleSignIn,
+        googleSignUpCallback,
+        googleSignInCallback,
+    }
 }

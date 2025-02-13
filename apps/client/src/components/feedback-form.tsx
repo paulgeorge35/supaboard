@@ -1,14 +1,16 @@
-import { BoardQueryData } from '@/routes/__root';
+import { fetchClient } from '@/lib/client';
+import { BoardQueryData } from '@/lib/query';
+import { categoriesQuery } from '@/routes/admin/settings/boards.$boardSlug.categories';
+import { useAuthStore } from '@/stores/auth-store';
 import { useForm } from '@tanstack/react-form';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { fetchClient } from '../lib/client';
-import { useAuthStore } from '../stores/auth-store';
 import { FieldInfo } from './field-info';
+import { SelectComponent } from './select';
 
 interface FeedbackFormProps {
     board: BoardQueryData
@@ -19,6 +21,8 @@ export function FeedbackForm({ board }: FeedbackFormProps) {
     const { user } = useAuthStore()
     const navigate = useNavigate();
     const [isExpanded, setIsExpanded] = useState(true);
+
+    const { data: categories } = useQuery(categoriesQuery(boardSlug))
 
     const createFeedback = useMutation({
         mutationFn: async (data: z.infer<typeof schema>) => await fetchClient(`/feedback/${board.id}/create`, {
@@ -44,15 +48,12 @@ export function FeedbackForm({ board }: FeedbackFormProps) {
         description: board.detailsRequired ? z.string({
             required_error: 'Description is required'
         }).min(1, 'Description is required') : z.string().optional(),
+        categoryId: z.string().optional(),
     });
 
     const form = useForm({
-        defaultValues: {
-            title: '',
-            description: '',
-        },
         validators: {
-            onChange: schema,
+            onSubmit: schema,
         },
         onSubmit: async (data) => {
             await createFeedback.mutateAsync(data.value);
@@ -96,7 +97,7 @@ export function FeedbackForm({ board }: FeedbackFormProps) {
                                 type="text"
                                 placeholder={board.title ?? 'Short title for your feedback'}
                                 className='w-full focus:outline-none'
-                                value={field.state.value}
+                                value={field.state.value ?? ''}
                                 onBlur={field.handleBlur}
                                 onChange={(e) => field.handleChange(e.target.value)}
                                 onFocus={() => setIsExpanded(true)}
@@ -120,9 +121,19 @@ export function FeedbackForm({ board }: FeedbackFormProps) {
                                 children={(field) => (
                                     <>
                                         <textarea
+                                            onInput={(e) => {
+                                                e.currentTarget.style.height = 'auto';
+                                                e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && !e.shiftKey) {
+                                                    e.preventDefault();
+                                                    form.handleSubmit();
+                                                }
+                                            }}
                                             placeholder={board.details ?? 'Describe your feedback'}
-                                            className='w-full md:text-sm focus:outline-none'
-                                            value={field.state.value}
+                                            className='w-full md:text-sm focus:outline-none resize-none'
+                                            value={field.state.value ?? ''}
                                             onBlur={field.handleBlur}
                                             onChange={(e) => field.handleChange(e.target.value)}
                                         />
@@ -130,6 +141,26 @@ export function FeedbackForm({ board }: FeedbackFormProps) {
                                     </>
                                 )}
                             />
+                            {categories && categories?.length > 1 && (
+                                <>
+                                    <p className='text-sm font-medium'>Category</p>
+                                    <form.Field
+                                        name="categoryId"
+                                        children={(field) => (
+                                            <SelectComponent
+                                                className='h-8 justify-start mt-1 w-1/2'
+                                                value={field.state.value}
+                                                placeholder='Select a category'
+                                                onChange={(value) => field.handleChange(value)}
+                                                options={categories.map((category) => ({
+                                                    label: category.name,
+                                                    value: category.id,
+                                                }))}
+                                            />
+                                        )}
+                                    />
+                                </>
+                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>

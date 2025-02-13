@@ -1,12 +1,12 @@
 import { Boards, Categories, Owner, Status, Tags } from '@/components/admin';
 import { DateRange } from '@/components/admin/feedback/sidebar/date';
+import { feedbacksQuery } from '@/lib/query';
 import { useAuthStore } from '@/stores/auth-store';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, notFound, Outlet, useParams, useRouter, useSearch } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { useEffect, useMemo } from 'react';
 import { z } from 'zod';
-import { feedbacksQuery } from '../__root';
 
 const feedbackSearchSchema = z.object({
   search: z.string().optional(),
@@ -49,14 +49,22 @@ function RouteComponent() {
   const { data, error } = useQuery(feedbacksQuery({ ...search, take: 1 }))
 
   useEffect(() => {
+    console.log(boardSlug)
     if (boardSlug) return;
 
     if (error || (data && data.feedbacks.length === 0)) {
-      throw notFound();
+      if (application?.boards.length === 0) {
+        router.navigate({ to: '/admin/settings/boards/create-new', replace: true })
+        return;
+      } else {
+        router.navigate({ to: '/admin/feedback/$boardSlug', params: { boardSlug: application?.boards[0].slug! }, replace: true })
+        return;
+      }
     }
 
     if (data && data.feedbacks.length > 0) {
       router.navigate({ to: `/admin/feedback/${data.feedbacks[0].board.slug}/${data.feedbacks[0].slug}`, search, replace: true })
+      return;
     }
   }, [defaultBoardSlug, data])
 

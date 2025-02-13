@@ -1,10 +1,11 @@
 import { Button, Checkbox, Input } from '@/components';
 import { fetchClient } from '@/lib/client';
+import { boardQuery } from '@/lib/query';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, useParams, useRouter } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { boardQuery } from './boards.$boardSlug.general';
+
 
 export const Route = createFileRoute(
   '/admin/settings/boards/$boardSlug/delete',

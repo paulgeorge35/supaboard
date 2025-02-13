@@ -1,6 +1,6 @@
+import type { BareSessionRequest } from "@/types";
+import { presignReadUrl, presignWriteUrl, remove } from "@/util/s3";
 import type { Response } from "express";
-import type { BareSessionRequest } from "../../types";
-import { presignReadUrl, presignWriteUrl, remove } from "../../util/s3";
 
 export function getReadPresignedUrl(req: BareSessionRequest, res: Response) {
     const { key } = req.params;

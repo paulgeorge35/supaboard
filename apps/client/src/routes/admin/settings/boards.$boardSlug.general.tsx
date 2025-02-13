@@ -1,10 +1,10 @@
 import { FieldInfo, Input } from '@/components'
 import { Button } from '@/components/button'
 import { fetchClient } from '@/lib/client'
+import { boardQuery } from '@/lib/query'
 import { useAuthStore } from '@/stores/auth-store'
-import type { Board } from '@repo/database'
 import { useForm } from '@tanstack/react-form'
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute, useParams, useRouter } from '@tanstack/react-router'
 import { useMemo } from 'react'
 import { toast } from 'sonner'
@@ -14,12 +14,6 @@ export const Route = createFileRoute(
     '/admin/settings/boards/$boardSlug/general',
 )({
     component: RouteComponent,
-})
-
-export const boardQuery = (slug?: string) => queryOptions<Board>({
-    queryKey: ['board', slug],
-    queryFn: () => fetchClient(`board/${slug}`),
-    retry: false,
 })
 
 function RouteComponent() {

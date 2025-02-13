@@ -1,0 +1,93 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    style.
+      body {
+        background-color: white;
+        font-family: system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 16px;
+      }
+      .container {
+        border: 1px solid #eaeaea;
+        border-radius: 4px;
+        margin: 40px auto;
+        padding: 20px;
+        max-width: 465px;
+      }
+      .heading {
+        color: black;
+        font-size: 24px;
+        font-weight: normal;
+        text-align: center;
+        padding: 0;
+        margin: 30px 0;
+      }
+      .text {
+        color: black;
+        font-size: 14px;
+        line-height: 24px;
+      }
+      .button-container {
+        text-align: center;
+        margin: 32px 0;
+      }
+      .button {
+        background-color: #000000;
+        border-radius: 4px;
+        color: white !important;
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 12px 20px;
+        text-decoration: none;
+      }
+      .link {
+        color: #2563eb;
+        text-decoration: none;
+      }
+      .divider {
+        border: 0;
+        border-top: 1px solid #eaeaea;
+        margin: 26px 0;
+        width: 100%;
+      }
+      .footer {
+        color: #666666;
+        font-size: 12px;
+        line-height: 24px;
+      }
+
+  body
+    div.container
+      h1.heading
+        | Join 
+        strong #{teamName}
+        |  on 
+        strong Supaboard
+
+      p.text
+        strong #{invitedByUsername}
+        |  (
+        a.link(href=`mailto:${invitedByEmail}`) #{invitedByEmail}
+        | ) has invited you to the 
+        strong #{teamName}
+        |  team on 
+        strong Supaboard
+        | .
+
+      div.button-container
+        a.button(href=inviteLink) Join the team
+
+      p.text
+        | or copy and paste this URL into your browser: 
+        a.link(href=inviteLink) #{inviteLink}
+
+      hr.divider
+
+      p.footer
+        | This invitation was intended for 
+        span(style="color: black") #{email}
+        | . If you were not expecting this invitation, you can ignore this email. If you are concerned about your account's safety, please reply to this email to get in touch with us. 

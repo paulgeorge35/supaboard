@@ -1,11 +1,12 @@
-import { db } from '@repo/database';
+import { db, DomainStatus } from '@repo/database';
 import { type NextFunction, type Response } from 'express';
 import type { BareSessionRequest } from '../types';
 import { decrypt } from '../util/jwt';
 
 const COOKIE_NAME = process.env.COOKIE_NAME as string;
+const APP_DOMAIN = process.env.APP_DOMAIN as string;
 
-export async function requireAuth(req: BareSessionRequest, res: Response, next: NextFunction) {
+export async function session(req: BareSessionRequest, res: Response, next: NextFunction) {
     const session = req.cookies[COOKIE_NAME];
 
     if (!session) {
@@ -28,6 +29,22 @@ export async function requireAuth(req: BareSessionRequest, res: Response, next: 
             select: { id: true, email: true },
         });
 
+        const applications = await db.application.findMany({
+            where: {
+                members: {
+                    some: {
+                        userId: decoded.id,
+                    }
+                }
+            }
+        })
+
+        const workspaces = applications.map((application) => ({
+            id: application.id,
+            name: application.name,
+            url: application.customDomain && application.domainStatus === DomainStatus.VERIFIED ? `https://${application.customDomain}` : `https://${application.subdomain}.${APP_DOMAIN}`,
+        }));
+
         if (!user) {
             res.clearCookie(COOKIE_NAME);
             return;
@@ -39,8 +56,9 @@ export async function requireAuth(req: BareSessionRequest, res: Response, next: 
             name: decoded.name,
             avatar: decoded.avatar,
         };
+        req.workspaces = workspaces;
     } catch (error) {
-        console.error('Error in requireAuth middleware:', error);
+        console.error('Error in session middleware:', error);
         res.clearCookie(COOKIE_NAME);
         return;
     }

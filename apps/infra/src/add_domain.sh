@@ -98,6 +98,10 @@ server {
     ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
     
+    location = /favicon.ico {
+        alias /var/www/supaboard/favicon.ico;
+    }
+    
     # Proxy API requests to your backend on port 8000
     location /api/ {
         proxy_pass http://127.0.0.1:8000/;

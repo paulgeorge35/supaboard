@@ -2,11 +2,18 @@ import { DomainStatus, Language, Theme } from '@repo/database';
 import type { Request } from 'express';
 import { z } from 'zod';
 
-export type CustomRequest<A = undefined, T = undefined, B = undefined> = Request & {
+export type CustomRequest<A = undefined, W = undefined, T = undefined, B = undefined> = Request & {
     auth?: A;
+    workspaces?: W;
     body?: T;
     application?: B;
 };
+
+export const workspaceSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    url: z.string().url(),
+});
 
 export const bareSessionSchema = z.object({
     id: z.string(),
@@ -32,10 +39,15 @@ export const applicationSchema = z.object({
         name: z.string(),
         slug: z.string(),
     })),
+    url: z.string(),
 });
+
+export const workspacesSchema = z.array(workspaceSchema);
 
 export type ApplicationSession = z.infer<typeof applicationSchema>;
 
 export type BareSession = z.infer<typeof bareSessionSchema>;
 
-export type BareSessionRequest<T = undefined> = CustomRequest<BareSession, T, ApplicationSession>;
+export type WorkspacesSession = z.infer<typeof workspacesSchema>;
+
+export type BareSessionRequest<T = undefined> = CustomRequest<BareSession, WorkspacesSession, T, ApplicationSession>;

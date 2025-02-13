@@ -10,6 +10,11 @@ export const SORT_OPTIONS = [
   { label: 'Oldest first', value: 'oldest' },
 ]
 
+export const ROLE_OPTIONS = [
+  { label: 'Owner', value: 'ADMIN' },
+  { label: 'Contributor', value: 'DEVELOPER' },
+]
+
 export const buildQueryString = (search: Record<string, any>): string => {
   const params = new URLSearchParams();
 

@@ -7,12 +7,8 @@ import {
   VoteButton,
 } from '@/components'
 import { fetchClient } from '@/lib/client'
+import { applicationBoardsQuery, boardDetailedQuery, BoardQueryData } from '@/lib/query'
 import { cn } from '@/lib/utils'
-import {
-  applicationBoardsQuery,
-  boardDetailedQuery,
-  BoardQueryData,
-} from '@/routes/__root'
 import {
   useMutation,
   useQuery,

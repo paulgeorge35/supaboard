@@ -78,8 +78,6 @@ function RouteComponent() {
             <p className='text-sm font-light text-gray-500 dark:text-zinc-400'>
                 Set the language for your workspace.
             </p>
-
-            <p className='text-sm mt-4'>Receive admin reports:</p>
             <form onSubmit={handleSubmit} className='w-full items-start vertical gap-4'>
                 <form.Field
                     name='language'

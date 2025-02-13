@@ -1,6 +1,6 @@
 import { Avatar, Skeleton } from '@/components'
+import { feedbackVotersQuery } from '@/lib/query/feedback'
 import { cn } from '@/lib/utils'
-import { feedbackVotersQuery } from '@/routes/__root'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, notFound, useParams } from '@tanstack/react-router'
 

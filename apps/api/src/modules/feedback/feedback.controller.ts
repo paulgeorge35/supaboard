@@ -1,4 +1,4 @@
-import { ActivityType, db, feedbackDetail, FeedbackStatus, feeedbackSummarySelect, Prisma } from "@repo/database";
+import { ActivityType, db, feedbackAcivityInclude, feedbackDetail, FeedbackStatus, feeedbackSummarySelect, Prisma } from "@repo/database";
 import type { Response } from "express";
 import { DateTime } from "luxon";
 import { z } from "zod";
@@ -41,6 +41,7 @@ export async function vote(req: BareSessionRequest, res: Response) {
 const feedbackSchema = z.object({
     title: z.string().min(1).trim(),
     description: z.string().optional(),
+    categoryId: z.string().optional(),
 });
 
 async function generateUniqueSlug(title: string, boardId: string): Promise<string> {
@@ -101,6 +102,7 @@ export async function createFeedback(req: BareSessionRequest<z.infer<typeof feed
             title: data.title,
             description: data.description ?? '',
             slug,
+            category: data.categoryId && data.categoryId !== 'uncategorized' ? { connect: { id: data.categoryId } } : undefined,
             board: { connect: { id: boardId } },
             application: { connect: { id: applicationId } },
             author: { connect: { id: userId } },
@@ -127,7 +129,7 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
 
     const feedback = await db.feedback.findFirst({
         where: { slug: feedbackSlug, boardId: board.id },
-        include: feedbackDetail
+        include: feedbackDetail(userId!)
     });
 
     if (!feedback) {
@@ -257,31 +259,7 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
             pinned: true,
             type: { in: activityTypes }
         },
-        include: {
-            files: {
-                select: {
-                    key: true,
-                },
-            },
-            likes: {
-                select: {
-                    id: true,
-                    authorId: true,
-                },
-            },
-            _count: {
-                select: {
-                    likes: true,
-                },
-            },
-            author: {
-                select: {
-                    id: true,
-                    name: true,
-                    avatar: true,
-                },
-            },
-        },
+        include: feedbackAcivityInclude
     });
 
 
@@ -291,31 +269,7 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
             type: { in: activityTypes },
             public: member ? undefined : true,
         },
-        include: {
-            files: {
-                select: {
-                    key: true,
-                },
-            },
-            likes: {
-                select: {
-                    id: true,
-                    authorId: true,
-                },
-            },
-            _count: {
-                select: {
-                    likes: true,
-                },
-            },
-            author: {
-                select: {
-                    id: true,
-                    name: true,
-                    avatar: true,
-                },
-            },
-        },
+        include: feedbackAcivityInclude,
         orderBy: {
             createdAt: sort === 'newest' ? 'desc' : 'asc',
         },
@@ -698,7 +652,7 @@ export async function getFeedbacks(req: BareSessionRequest, res: Response) {
 
     const member = userId ? await db.member.findFirst({ where: { userId, applicationId } }) : null;
 
-    const { success, data, error } = feedbacksSchema.safeParse(req.query);
+    const { success, data } = feedbacksSchema.safeParse(req.query);
 
     if (!success) {
         res.status(400).json({ error: 'Invalid feedbacks data' });
@@ -793,4 +747,21 @@ export async function getFeedbacks(req: BareSessionRequest, res: Response) {
         feedbacks: result,
         nextCursor: result[result.length - 1]?.id,
     });
+}
+
+export const controller = {
+    feedback: {
+        create: createFeedback,
+        getAll: getFeedbacks,
+        getBySlug: getFeedbackBySlug,
+        getVoters: getVoters,
+        getActivities: getActivities,
+        update: updateFeedback,
+        delete: deleteFeedback,
+        editHistory: editHistory,
+        vote: vote,
+        comment: comment,
+        like: like,
+        pin: pin,
+    }
 }

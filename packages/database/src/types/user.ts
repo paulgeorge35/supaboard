@@ -10,3 +10,14 @@ export const userSummarySelect = Prisma.validator<Prisma.UserSelect>()({
 export type UserSummary = Prisma.UserGetPayload<{
     select: typeof userSummarySelect;
 }>;
+
+export const memberSummarySelect = Prisma.validator<Prisma.MemberSelect>()({
+    role: true,
+    user: {
+        select: userSummarySelect,
+    },
+});
+
+export type MemberSummary = Prisma.MemberGetPayload<{
+    select: typeof memberSummarySelect;
+}>;

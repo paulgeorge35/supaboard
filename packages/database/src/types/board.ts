@@ -19,3 +19,53 @@ export const boardSummarySelect = Prisma.validator<Prisma.BoardSelect>()({
 export type BoardSummary = Prisma.BoardGetPayload<{
     select: typeof boardSummarySelect;
 }>;
+
+export const boardFeedbackSummarySelect = Prisma.validator<Prisma.BoardSelect>()({
+    name: true,
+    slug: true,
+    showOnHome: true,
+    feedbacks: {
+        where: {
+            status: {
+                in: ['PLANNED', 'IN_PROGRESS', 'RESOLVED']
+            }
+        },
+        select: {
+            id: true,
+            title: true,
+            status: true,
+            slug: true,
+            votes: {
+                select: {
+                    authorId: true,
+                }
+            },
+            board: {
+                select: {
+                    slug: true,
+                    name: true,
+                }
+            },
+            _count: {
+                select: {
+                    votes: true,
+                },
+            },
+        },
+    },
+    _count: {
+        select: {
+            feedbacks: {
+                where: {
+                    status: {
+                        notIn: ['CLOSED', 'RESOLVED']
+                    }
+                },
+            },
+        },
+    },
+});
+
+export type BoardFeedbackSummary = Prisma.BoardGetPayload<{
+    select: typeof boardFeedbackSummarySelect;
+}>;

@@ -1,7 +1,7 @@
 import { Icons, LoadingSpinner } from '@/components'
 import { FeedbackCard } from '@/components/admin'
 import { Skeleton } from '@/components/skeleton'
-import { feedbacksInfiniteQuery } from '@/routes/__root'
+import { feedbacksInfiniteQuery } from '@/lib/query/feedback'
 import { useDebounce } from '@paulgeorge35/hooks'
 import { UseVisibility, useVisibility } from '@paulgeorge35/hooks/lib/esm/useVisibility'
 import { FeedbackSummary } from '@repo/database'
@@ -36,7 +36,7 @@ function RouteComponent() {
           </div>
         </div>
       </div>
-      <div className="col-span-1 p-8 relative border-l max-h-[calc(100dvh-64px)] bg-white dark:bg-zinc-900">
+      <div className="col-span-1 p-8 relative border-l max-h-[calc(100dvh-72px)] bg-white dark:bg-zinc-900">
         <Outlet />
       </div>
     </>

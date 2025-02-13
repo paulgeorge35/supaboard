@@ -1,17 +1,11 @@
 import { ThemeToggle } from '@/components'
 import { AdminAuthButtons, PublicButton } from '@/components/admin'
-import { meQuery } from '@/routes/__root'
 import { useAuthStore } from '@/stores/auth-store'
-import { QueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, Outlet, useRouter } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { Toaster as Sonner } from 'sonner'
 
 export const Route = createFileRoute('/admin')({
-  beforeLoad: async () => {
-    const queryClient = new QueryClient();
-    queryClient.ensureQueryData(meQuery);
-  },
   component: RouteComponent,
   loader: () => {
     document.documentElement.style.setProperty('--color-primary', '#a684ff')
@@ -19,7 +13,7 @@ export const Route = createFileRoute('/admin')({
 })
 
 function RouteComponent() {
-  const { user, application } = useAuthStore()
+  const { user, application, workspaces } = useAuthStore()
   const router = useRouter()
 
   useEffect(() => {
@@ -62,7 +56,7 @@ function RouteComponent() {
         <span className='horizontal center-v gap-2'>
           <PublicButton />
           <ThemeToggle />
-          <AdminAuthButtons user={user} />
+          <AdminAuthButtons user={user} workspaces={workspaces} currentWorkspace={application?.id} />
         </span>
       </nav>
       <Outlet />

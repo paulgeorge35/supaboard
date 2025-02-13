@@ -10,7 +10,7 @@ import {
     FeedbackQueryData,
     feedbackVotersQuery,
     FeedbackVotersQueryData,
-} from '@/routes/__root'
+} from '@/lib/query/feedback'
 import { useAuthStore } from '@/stores/auth-store'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {

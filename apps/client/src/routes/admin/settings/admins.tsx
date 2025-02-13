@@ -13,7 +13,9 @@ function RouteComponent() {
           Manage who can access Supaboard's admin view and permissions
         </p>
       </div>
-      <Outlet />
+      <div className='p-8 md:max-w-2xl'>
+        <Outlet />
+      </div>
     </div>
   )
 }

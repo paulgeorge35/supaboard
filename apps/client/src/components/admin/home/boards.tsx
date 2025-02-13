@@ -1,6 +1,6 @@
 import { Icons } from "@/components/icons";
 import { StatusBoard } from "@/components/status-board";
-import { applicationBoardsQuery } from "@/routes/__root";
+import { applicationBoardsQuery } from "@/lib/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export function Boards() {

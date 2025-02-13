@@ -1,5 +1,5 @@
 import { fetchClient } from '@/lib/client';
-import { FeedbackActivitiesQueryData } from '@/routes/__root';
+import { FeedbackActivitiesQueryData } from '@/lib/query';
 import { useAuthStore } from '@/stores/auth-store';
 import { useBoolean } from '@paulgeorge35/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

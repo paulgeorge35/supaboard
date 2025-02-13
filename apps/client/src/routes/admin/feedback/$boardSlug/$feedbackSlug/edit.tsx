@@ -1,5 +1,5 @@
 import { fetchClient } from '@/lib/client'
-import { feedbackQuery } from '@/routes/__root'
+import { feedbackQuery } from '@/lib/query/feedback'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useParams, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'

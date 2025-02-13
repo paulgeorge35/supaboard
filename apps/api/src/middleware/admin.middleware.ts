@@ -1,8 +1,9 @@
 import { db } from "@repo/database";
 import type { NextFunction, Response } from "express";
 import type { BareSessionRequest } from "../types";
+import { application } from "./application.middleware";
 
-export async function adminMiddleware(request: BareSessionRequest, response: Response, next: NextFunction) {
+async function adminPart(request: BareSessionRequest, response: Response, next: NextFunction) {
     const userId = request.auth?.id;
     const applicationId = request.application?.id;
 
@@ -27,4 +28,15 @@ export async function adminMiddleware(request: BareSessionRequest, response: Res
     }
 
     next();
+}
+
+export async function admin(request: BareSessionRequest, response: Response, next: NextFunction) {
+    application(request, response, (err) => {
+        if (err) {
+            next(err);
+            return;
+        }
+
+        adminPart(request, response, next);
+    });
 }

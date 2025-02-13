@@ -90,7 +90,7 @@ function RouteComponent() {
                 name={field.name}
                 value={field.state.value}
                 onBlur={() => {
-                  if (!form.getFieldValue('slug')) {
+                  if (!form.getFieldValue('slug') && field.state.value.trim().length > 0) {
                     form.setFieldValue('slug', nameToSlug(field.state.value));
                     form.validateField('slug', 'change')
                   }

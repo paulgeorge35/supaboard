@@ -45,6 +45,9 @@
 		@media (prefers-color-scheme: dark) {
 			scrollbar-color: var(--color-zinc-800) transparent;
 		}
+		&:focus {
+			@apply outline-none;
+		}
 
 	}
 

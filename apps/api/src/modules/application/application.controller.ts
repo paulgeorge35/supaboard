@@ -1,7 +1,7 @@
-import { db } from "@repo/database";
+import type { BareSessionRequest } from "@/types";
+import { boardFeedbackSummarySelect, db } from "@repo/database";
 import { type Response } from "express";
 import { z } from "zod";
-import type { BareSessionRequest } from "../../types";
 
 export async function getApplication(req: BareSessionRequest, res: Response) {
     const application = await db.application.findUnique({
@@ -45,7 +45,7 @@ export async function getApplication(req: BareSessionRequest, res: Response) {
             votes,
             comments,
             users,
-        };  
+        };
     });
 
     res.status(200).json({
@@ -55,8 +55,8 @@ export async function getApplication(req: BareSessionRequest, res: Response) {
 }
 
 const updateApplicationSchema = z.object({
-    logo: z.string().optional(),
-    icon: z.string().optional(),
+    logo: z.string().nullish(),
+    icon: z.string().nullish(),
     name: z.string().min(3).optional(),
     subdomain: z.string().min(3).optional(),
     color: z.string().min(1).optional(),
@@ -90,51 +90,7 @@ export async function getBoards(req: BareSessionRequest, res: Response) {
 
     const boards = await db.board.findMany({
         where: { applicationId: req.application?.id, public: member ? undefined : true },
-        select: {
-            name: true,
-            slug: true,
-            showOnHome: true,
-            feedbacks: {
-                where: {
-                    status: {
-                        in: ['PLANNED', 'IN_PROGRESS', 'RESOLVED']
-                    }
-                },
-                select: {
-                    id: true,
-                    title: true,
-                    status: true,
-                    slug: true,
-                    votes: {
-                        select: {
-                            authorId: true,
-                        }
-                    },
-                    board: {
-                        select: {
-                            slug: true,
-                            name: true,
-                        }
-                    },
-                    _count: {
-                        select: {
-                            votes: true,
-                        },
-                    },
-                },
-            },
-            _count: {
-                select: {
-                    feedbacks: {
-                        where: {
-                            status: {
-                                notIn: ['CLOSED', 'RESOLVED']
-                            }
-                        },
-                    },
-                },
-            },
-        },
+        select: boardFeedbackSummarySelect,
     });
 
     res.status(200).json(boards.map(board => ({
@@ -156,3 +112,11 @@ export async function getBoards(req: BareSessionRequest, res: Response) {
         })),
     })));
 }
+
+export const controller = {
+    application: {
+        get: getApplication,
+        update: updateApplication,
+        boards: getBoards,
+    },
+};

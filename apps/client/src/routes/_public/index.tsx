@@ -1,5 +1,5 @@
 import { Board as BoardComponent, Icons, StatusBoard } from '@/components'
-import { applicationBoardsQuery } from '@/routes/__root'
+import { applicationBoardsQuery } from '@/lib/query'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 

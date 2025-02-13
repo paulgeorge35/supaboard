@@ -1,6 +1,6 @@
 import { Avatar, Button, FieldInfo, Input } from '@/components';
 import { fetchClient } from '@/lib/client';
-import { meQuery, MeQueryData } from '@/routes/__root';
+import { meQuery, MeQueryData } from '@/lib/query/auth';
 import { useAuthStore } from '@/stores/auth-store';
 import { User } from '@repo/database';
 import { useForm } from '@tanstack/react-form';

@@ -68,7 +68,7 @@ export function Boards() {
                 </div>
             ))}
             <Link
-                to="/admin"
+                to="/admin/settings/boards/create-new"
                 className={cn("horizontal center-v gap-1 text-sm font-light col-span-full",
                     "text-gray-500 dark:text-zinc-300 hover:text-gray-700 dark:hover:text-zinc-200",
                     "[&_svg]:size-5 [&_svg]:stroke-gray-500 dark:[&_svg]:stroke-zinc-300 hover:[&_svg]:stroke-gray-700 dark:hover:[&_svg]:stroke-zinc-200 [&_svg]:-translate-x-[2px]"

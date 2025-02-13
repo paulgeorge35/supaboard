@@ -1,6 +1,6 @@
 import { Avatar } from "@/components/avatar";
 import { Skeleton } from "@/components/skeleton";
-import { feedbackVotersQuery } from "@/routes/__root";
+import { feedbackVotersQuery } from "@/lib/query/feedback";
 import { useQuery } from "@tanstack/react-query";
 import { Link, notFound, useParams } from "@tanstack/react-router";
 

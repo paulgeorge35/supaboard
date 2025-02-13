@@ -40,7 +40,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({ className, labe
                     ref={inputRef}
                     required={required}
                     {...props}
-                    className={cn('md:text-sm font-light w-full focus:outline-none disabled:opacity-50', className)}
+                    className={cn('md:text-sm font-light w-full focus:outline-none disabled:opacity-50 placeholder:text-gray-500 dark:placeholder:text-zinc-500', className)}
                 />
                 <span
                     className={cn('text-sm font-light text-gray-400 dark:text-zinc-600', {

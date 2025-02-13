@@ -1,8 +1,9 @@
-import { Avatar, DeleteFeedbackButton, Dropdown, EditFeedbackButton, EditHistory, Icons, NotFoundPage } from '@/components'
+import { Avatar, DeleteFeedbackButton, EditFeedbackButton, EditHistory, NotFoundPage } from '@/components'
 import { ActivityCard } from '@/components/activity-card'
+import { SelectComponent } from '@/components/select'
 import { Skeleton } from '@/components/skeleton'
+import { feedbackActivitiesQuery, feedbackQuery } from '@/lib/query/feedback'
 import { cn, SORT_OPTIONS } from '@/lib/utils'
-import { feedbackActivitiesQuery, feedbackQuery } from '@/routes/__root'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, notFound, useParams } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
@@ -85,14 +86,15 @@ function RouteComponent() {
         {activities?.activities && activities.activities.length > 0 && <span className='horizontal center-v gap-4 grid col-span-full grid-cols-subgrid'>
           <span className='horizontal center-v justify-between col-start-2'>
             <p className='text-sm text-gray-500'>Activity Feed</p>
-            <Dropdown trigger={
-              <button className='text-sm text-gray-500 horizontal center-v justify-between border rounded-md px-2 py-1 w-32'>
-                {SORT_OPTIONS.find(o => o.value === sort)?.label} <Icons.ChevronDown size={16} />
-              </button>
-            } items={SORT_OPTIONS.map(o => ({
-              label: o.label,
-              onClick: () => setSort(o.value as 'newest' | 'oldest'),
-            }))} />
+            <SelectComponent
+              className='w-32 h-9'
+              options={SORT_OPTIONS.map(o => ({
+                label: o.label,
+                value: o.value,
+              }))}
+              value={sort}
+              onChange={(value) => setSort(value as 'newest' | 'oldest')}
+            />
           </span>
         </span>}
 

@@ -1,6 +1,6 @@
 import { Avatar } from '@/components'
+import { feedbackVotersQuery } from '@/lib/query/feedback'
 import { cn } from '@/lib/utils'
-import { feedbackVotersQuery } from '@/routes/__root'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 

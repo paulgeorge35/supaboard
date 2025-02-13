@@ -1,4 +1,4 @@
-import { feedbackEditHistoryQuery, feedbackQuery } from '@/routes/__root'
+import { feedbackEditHistoryQuery, feedbackQuery } from '@/lib/query/feedback'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { DateTime } from 'luxon'

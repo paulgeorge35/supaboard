@@ -1,6 +1,6 @@
 import { fetchClient } from "@/lib/client";
+import { FeedbackActivitiesQueryData, FeedbackActivitySummary } from "@/lib/query";
 import { cn } from "@/lib/utils";
-import { FeedbackActivitiesQueryData, FeedbackActivitySummary } from "@/routes/__root";
 import { FeedbackStatus } from "@repo/database";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";

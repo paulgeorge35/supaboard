@@ -10,7 +10,7 @@
     "db:push": "prisma db push",
     "db:seed": "bun run src/seed.ts",
     "format": "prisma format",
-    "generate": "prisma generate",
+    "generate": "prisma generate --sql",
     "lint": "eslint . --max-warnings 0",
     "prebuild": "bun run generate",
     "predev": "bun run generate",

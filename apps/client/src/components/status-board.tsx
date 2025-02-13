@@ -1,17 +1,17 @@
+import { fetchClient } from "@/lib/client";
+import { applicationBoardsQuery, ApplicationBoardsQueryData, FeedbackDetailed } from "@/lib/query/application";
+import { FeedbackStatusConfig } from "@/lib/utils";
 import type { FeedbackStatus } from "@repo/database";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { fetchClient } from "../lib/client";
-import { FeedbackStatusConfig } from "../lib/utils";
-import { applicationBoardsQuery, ApplicationBoardsQueryData, BoardFeedbackSummary } from "../routes/__root";
 import { Dot } from "./dot";
 import { Icons } from "./icons";
 import { VoteButton } from "./vote-button";
 
 interface StatusBoardProps {
     status: FeedbackStatus;
-    items: BoardFeedbackSummary[]
+    items: FeedbackDetailed[]
     admin?: boolean
 }
 export const StatusBoard = ({ status, items, admin }: StatusBoardProps) => {
@@ -19,8 +19,8 @@ export const StatusBoard = ({ status, items, admin }: StatusBoardProps) => {
     const queryClient = useQueryClient();
 
     const { mutate: vote, isPending } = useMutation({
-        mutationFn: (index: number) => fetchClient(`feedback/${items[index].id}/vote`, { method: "POST" }),
-        onMutate: async (index: number) => {
+        mutationFn: (id: string) => fetchClient(`feedback/${id}/vote`, { method: "POST" }),
+        onMutate: async (id: string) => {
             // Cancel any outgoing refetches
             queryClient.cancelQueries({ queryKey: applicationBoardsQuery.queryKey });
 
@@ -34,7 +34,7 @@ export const StatusBoard = ({ status, items, admin }: StatusBoardProps) => {
                 return old.map(board => ({
                     ...board,
                     feedbacks: board.feedbacks.map(feedback =>
-                        feedback.id === items[index].id
+                        feedback.id === id
                             ? {
                                 ...feedback,
                                 votes: feedback.votedByMe ? feedback.votes - 1 : feedback.votes + 1,
@@ -79,7 +79,7 @@ export const StatusBoard = ({ status, items, admin }: StatusBoardProps) => {
                     const to = admin ? `/admin/feedback/${item.board.slug}/${item.slug}` : `/${item.board.slug}/${item.slug}`
                     return (
                         <div key={`${item.board.slug}-${item.slug}`} className='w-full grid grid-cols-[auto_1fr] gap-4 text-sm horizontal items-start'>
-                            <VoteButton votes={item.votes} votedByMe={item.votedByMe} vote={() => vote(index)} isPending={isPending} />
+                            <VoteButton votes={item.votes} votedByMe={item.votedByMe} vote={() => vote(item.id)} isPending={isPending} />
                             <Link to={to} className="vertical gap-1 group cursor-pointer">
                                 <p className='font-medium group-hover:text-[var(--color-primary)] transition-colors duration-200'>{item.title}</p>
                                 <p className='text-xs font-medium uppercase text-gray-500'>{item.board.name}</p>

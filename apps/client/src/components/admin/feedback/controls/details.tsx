@@ -3,8 +3,10 @@ import { Icons } from "@/components/icons";
 import { ImageFile } from "@/components/image-file";
 import { Popover } from "@/components/popover";
 import { fetchClient } from "@/lib/client";
+import { membersQuery } from "@/lib/query/application";
+import { meQuery, MeQueryData } from "@/lib/query/auth";
+import { feedbackActivitiesQuery, FeedbackActivitiesQueryData, FeedbackPage, feedbackQuery, FeedbackQueryData, feedbacksInfiniteQuery } from "@/lib/query/feedback";
 import { cn, FeedbackStatusConfig } from "@/lib/utils";
-import { feedbackActivitiesQuery, FeedbackActivitiesQueryData, FeedbackPage, feedbackQuery, FeedbackQueryData, feedbacksInfiniteQuery, membersQuery, meQuery, MeQueryData } from "@/routes/__root";
 import { Route as FeedbackRoute } from "@/routes/admin/feedback";
 import { Route } from "@/routes/admin/feedback/$boardSlug/$feedbackSlug";
 import { categoriesQuery } from "@/routes/admin/settings/boards.$boardSlug.categories";
@@ -440,7 +442,7 @@ export const CommentForm = ({ className, statusChange, updateData, isPending }: 
 }
 
 const OwnerComponent = ({ isPending, updateData }: { isPending: boolean, updateData: (data: FeedbackUpdateData) => void }) => {
-    const { data: users } = useQuery(membersQuery);
+    const { data: members } = useQuery(membersQuery);
 
     const { boardSlug, feedbackSlug } = useParams({
         from: Route.fullPath,
@@ -479,17 +481,17 @@ const OwnerComponent = ({ isPending, updateData }: { isPending: boolean, updateD
             }
             content={
                 <div className="flex flex-col gap-1">
-                    {users?.map(user => (
+                    {members?.map(member => (
                         <button
-                            key={user.id}
+                            key={member.user.id}
                             data-popover-close
-                            disabled={isPending || user.id === feedback?.owner?.id}
+                            disabled={isPending || member.user.id === feedback?.owner?.id}
                             className={cn('block text-nowrap w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/20 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50', {
-                                'bg-gray-100 dark:bg-zinc-800/20': user.id === feedback?.owner?.id
+                                'bg-gray-100 dark:bg-zinc-800/20': member.user.id === feedback?.owner?.id
                             })}
-                            onClick={() => updateData({ ownerId: user.id })}
+                            onClick={() => updateData({ ownerId: member.user.id })}
                         >
-                            {user.name}
+                            {member.user.name}
                         </button>
                     ))}
                 </div>

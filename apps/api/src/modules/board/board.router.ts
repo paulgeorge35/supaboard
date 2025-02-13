@@ -1,19 +1,27 @@
+import { admin, application, session } from '@/middleware';
 import { Router } from 'express';
-import { adminMiddleware } from '../../middleware/admin.middleware';
-import { applicationMiddleware } from '../../middleware/application';
-import { requireAuth } from '../../middleware/auth';
-import { categorySubscription, createBoard, createCategory, deleteBoard, deleteCategory, getBoardBySlug, getBoardBySlugDetailed, getCategories, updateBoard, updateCategory } from './board.controller';
+import { controller } from './board.controller';
+
 const router = Router();
 
-router.get('/:slug', requireAuth, applicationMiddleware, getBoardBySlug);
-router.get('/:slug/detailed', requireAuth, applicationMiddleware, getBoardBySlugDetailed);
-router.post('/', requireAuth, applicationMiddleware, adminMiddleware, createBoard);
-router.put('/:slug', requireAuth, applicationMiddleware, adminMiddleware, updateBoard);
-router.delete('/:slug', requireAuth, applicationMiddleware, adminMiddleware, deleteBoard);
-router.get('/:slug/categories', requireAuth, applicationMiddleware, getCategories);
-router.post('/:slug/categories', requireAuth, applicationMiddleware, adminMiddleware, createCategory);
-router.put('/:slug/categories/:categorySlug', requireAuth, applicationMiddleware, adminMiddleware, updateCategory);
-router.delete('/:slug/categories/:categorySlug', requireAuth, applicationMiddleware, adminMiddleware, deleteCategory);
-router.post('/:slug/categories/:categorySlug/subscription', requireAuth, applicationMiddleware, categorySubscription);
+// Board
+router.get('/:slug', session, application, controller.board.get);
+router.get('/:slug/detailed', session, application, controller.board.getDetailed);
+router.post('/', session, application, admin, controller.board.create);
+router.put('/:slug', session, application, admin, controller.board.update);
+router.delete('/:slug', session, application, admin, controller.board.delete);
+
+// Category
+router.get('/:slug/categories', session, application, controller.category.get);
+router.post('/:slug/categories', session, application, admin, controller.category.create);
+router.put('/:slug/categories/:categorySlug', session, application, admin, controller.category.update);
+router.delete('/:slug/categories/:categorySlug', session, application, admin, controller.category.delete);
+router.post('/:slug/categories/:categorySlug/subscription', session, application, controller.category.subscribe);
+
+// Tag
+router.get('/:slug/tags', session, application, controller.tag.get);
+router.post('/:slug/tags', session, application, admin, controller.tag.create);
+router.put('/:slug/tags/:tagId', session, application, admin, controller.tag.update);
+router.delete('/:slug/tags/:tagId', session, application, admin, controller.tag.delete);
 
 export { router as boardRouter };

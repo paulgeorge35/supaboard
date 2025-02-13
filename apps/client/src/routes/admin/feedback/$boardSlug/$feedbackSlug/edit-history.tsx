@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components'
-import { feedbackEditHistoryQuery, feedbackQuery } from '@/routes/__root'
+import { feedbackEditHistoryQuery, feedbackQuery } from '@/lib/query/feedback'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, notFound, useParams } from '@tanstack/react-router'
 import { DateTime } from 'luxon'

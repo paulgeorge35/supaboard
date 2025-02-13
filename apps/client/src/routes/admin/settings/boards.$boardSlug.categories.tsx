@@ -21,10 +21,11 @@ type CategorySummary = {
 }
 
 export const categoriesQuery = (boardSlug: string, search?: string, all = false) => queryOptions<CategorySummary[]>({
-  queryKey: ['board', boardSlug, 'categories'],
+  queryKey: ['board', boardSlug, 'categories', search, all],
   queryFn: () => fetchClient(`/board/${boardSlug}/categories`, {
     queryParams: { search, all }
   }),
+  enabled: !!boardSlug
 })
 
 export const Route = createFileRoute(

@@ -8,10 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useParams, useRouter, useSearch } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
-type CategoriesProps = {
-}
-
-export function Categories({ }: CategoriesProps) {
+export function Categories() {
     const [search, setSearch] = useState<string>('');
     const { boardSlug } = useParams({ strict: false });
     const { value: debouncedSearch } = useDebounce(search);
@@ -21,7 +18,7 @@ export function Categories({ }: CategoriesProps) {
     const searchParams = useSearch({ from: Route.fullPath });
     const router = useRouter();
 
-    const { data: categories } = useQuery(categoriesQuery(boardSlug ?? '', debouncedSearch, true))
+    const { data: categories } = useQuery(categoriesQuery(boardSlug!, debouncedSearch, true))
 
     const filteredBoards = useMemo(() => {
         if (searchParams.boards) {

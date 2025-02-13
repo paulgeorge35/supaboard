@@ -1,6 +1,6 @@
 import { AdminButton, AuthButtons, Icons, NotFoundPage } from '@/components'
 import { PoweredBy } from '@/components/powered-by'
-import { applicationBoardsQuery } from '@/routes/__root'
+import { applicationBoardsQuery } from '@/lib/query/application'
 import { useAuthStore } from '@/stores/auth-store'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, Outlet, useParams } from '@tanstack/react-router'
@@ -18,7 +18,7 @@ function RouteComponent() {
   })
 
   const { data: boards } = useSuspenseQuery(applicationBoardsQuery)
-  const { application, user } = useAuthStore();
+  const { application, user, workspaces } = useAuthStore();
 
   useEffect(() => {
     const theme = application?.preferredTheme.toLowerCase()
@@ -53,7 +53,7 @@ function RouteComponent() {
           </span>
           <span className='horizontal gap-2 center-v'>
             <AdminButton isAdmin={user?.id === application?.ownerId} />
-            <AuthButtons user={user} isAdmin={user?.id === application?.ownerId} />
+            <AuthButtons user={user} isAdmin={user?.id === application?.ownerId} workspaces={workspaces} currentWorkspace={application?.id} />
           </span>
         </div>
         <div className="horizontal items-end gap-2 text-lg max-w-4xl mx-auto w-full">
@@ -83,7 +83,7 @@ function RouteComponent() {
           </Link>
         </div>
       </div>
-      <hr  className='z-[0]'/>
+      <hr className='z-[0]' />
       <div className="vertical gap-4 max-w-4xl mx-auto w-full py-8 px-4 md:px-0">
         <Outlet />
       </div>

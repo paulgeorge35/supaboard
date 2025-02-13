@@ -23,7 +23,7 @@ export type FeedbackSummary = Prisma.FeedbackGetPayload<{
     select: typeof feeedbackSummarySelect;
 }>;
 
-export const feedbackDetail = Prisma.validator<Prisma.FeedbackInclude>()({
+export const feedbackDetail = (userId: string) => Prisma.validator<Prisma.FeedbackInclude>()({
     category: {
         select: {
             name: true,
@@ -32,8 +32,8 @@ export const feedbackDetail = Prisma.validator<Prisma.FeedbackInclude>()({
     },
     tags: {
         select: {
+            id: true,
             name: true,
-            color: true,
         },
     },
     votes: {
@@ -41,7 +41,10 @@ export const feedbackDetail = Prisma.validator<Prisma.FeedbackInclude>()({
             id: true,
             authorId: true,
         },
-        take: 5,
+        where: {
+            authorId: userId,
+        },
+        take: 1,
     },
     author: {
         select: {
@@ -65,5 +68,35 @@ export const feedbackDetail = Prisma.validator<Prisma.FeedbackInclude>()({
 })
 
 export type FeedbackDetail = Prisma.FeedbackGetPayload<{
-    include: typeof feedbackDetail;
+    include: ReturnType<typeof feedbackDetail>;
+}>;
+
+export const feedbackAcivityInclude = Prisma.validator<Prisma.ActivityInclude>()({
+    files: {
+        select: {
+            key: true,
+        },
+    },
+    likes: {
+        select: {
+            id: true,
+            authorId: true,
+        },
+    },
+    _count: {
+        select: {
+            likes: true,
+        },
+    },
+    author: {
+        select: {
+            id: true,
+            name: true,
+            avatar: true,
+        },
+    },
+})
+
+export type FeedbackActivity = Prisma.ActivityGetPayload<{
+    include: typeof feedbackAcivityInclude;
 }>;

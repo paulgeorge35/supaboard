@@ -1,7 +1,7 @@
+import type { BareSessionRequest } from "@/types";
 import { db, Prisma } from "@repo/database";
 import type { Response } from "express";
 import { z } from "zod";
-import type { BareSessionRequest } from "../../types";
 
 export async function getBoardBySlug(req: BareSessionRequest, res: Response) {
     const userId = req.auth?.id;
@@ -187,7 +187,13 @@ const getCategoriesSchema = z.object({
                 .join(' | ');
         }
     ),
-    all: z.coerce.boolean().optional()
+    all: z.preprocess((val) => {
+        if (val === undefined) return false;
+        if (typeof val === "string") {
+            return val.toLowerCase() === "true";
+        }
+        return val;
+    }, z.boolean()),
 });
 
 export async function getCategories(req: BareSessionRequest, res: Response) {
@@ -276,6 +282,7 @@ export async function getCategories(req: BareSessionRequest, res: Response) {
 
 const categorySubscriptionSchema = z.object({
     subscribed: z.preprocess((val) => {
+        if (val === undefined) return false;
         if (typeof val === "string") {
             return val.toLowerCase() === "true";
         }
@@ -469,4 +476,187 @@ export async function deleteCategory(req: BareSessionRequest, res: Response) {
     await db.feedbackCategory.delete({ where: { id: category.id } });
 
     res.status(200).json({ message: 'Category deleted' });
+}
+
+const createTagSchema = z.object({
+    name: z.string().transform((val) => val.trim().replace(/ +(?= )/g, '')),
+    feedbackId: z.string().uuid().optional(),
+    throwError: z.boolean().optional().default(false),
+});
+
+export async function createTag(req: BareSessionRequest, res: Response) {
+    const { slug: boardSlug } = req.params;
+    const { name, throwError, feedbackId } = createTagSchema.parse(req.body);
+
+    const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId: req.application?.id } });
+
+    if (!board) {
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    const tag = await db.$transaction(async (tx) => {
+        const existingTag = await db.tag.findFirst({ where: { name, boardId: board.id } });
+
+        if (existingTag) {
+            if (throwError) {
+                res.status(400).json({ error: 'Tag with this name already exists', code: 'TAG_ALREADY_EXISTS' });
+                return;
+            }
+
+            if (feedbackId) {
+                await tx.tag.update({
+                    where: { id: existingTag.id },
+                    data: { feedbacks: { connect: { id: feedbackId } } },
+                });
+            }
+
+            res.status(200).json(existingTag);
+            return;
+        }
+
+        return await db.tag.create({
+            data: {
+                name,
+                board: { connect: { id: board.id } },
+                feedbacks: feedbackId ? { connect: { id: feedbackId } } : undefined,
+            },
+        });
+    });
+
+    res.status(200).json(tag);
+}
+
+const updateTagSchema = z.object({
+    name: z.string().optional().transform((val) => val ? val.trim().replace(/ +(?= )/g, '') : undefined),
+});
+
+export async function updateTag(req: BareSessionRequest, res: Response) {
+    const { slug: boardSlug, tagId } = req.params;
+    const { name } = updateTagSchema.parse(req.body);
+
+    const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId: req.application?.id } });
+
+    if (!board) {
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    const tag = await db.tag.findFirst({ where: { id: tagId, boardId: board.id } });
+
+    if (!tag) {
+        res.status(404).json({ error: 'Tag not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    const updatedTag = await db.tag.update({
+        where: { id: tag.id },
+        data: { name },
+    });
+
+    res.status(200).json(updatedTag);
+}
+
+export async function deleteTag(req: BareSessionRequest, res: Response) {
+    const { slug: boardSlug, tagId } = req.params;
+
+    const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId: req.application?.id } });
+
+    if (!board) {
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    const tag = await db.tag.findFirst({ where: { id: tagId, boardId: board.id } });
+
+    if (!tag) {
+        res.status(404).json({ error: 'Tag not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    await db.tag.delete({ where: { id: tag.id } });
+
+    res.status(200).json({ message: 'Tag deleted' });
+}
+
+const getTagsSchema = z.object({
+    search: z.string().optional().transform((val) => val ? val.trim().replace(/ +(?= )/g, '') : undefined),
+    all: z.preprocess((val) => {
+        if (val === undefined) return false;
+        if (typeof val === "string") {
+            return val.toLowerCase() === "true";
+        }
+        return val;
+    }, z.boolean()),
+});
+
+export async function getTags(req: BareSessionRequest, res: Response) {
+    const { slug: boardSlug } = req.params;
+    const { search, all } = getTagsSchema.parse(req.query);
+
+    const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId: req.application?.id } });
+
+    if (!board) {
+        res.status(404).json({ error: 'Board not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    let where: Prisma.TagWhereInput = {};
+
+    if (all) {
+        where = { name: { search } };
+    } else {
+        where = { boardId: board.id, name: { search } };
+    }
+
+    const tags = await db.tag.findMany({
+        where,
+        select: {
+            id: true,
+            name: true,
+            board: {
+                select: {
+                    slug: true,
+                },
+            },
+            _count: {
+                select: {
+                    feedbacks: true,
+                },
+            },
+        },
+    });
+
+    const result = tags.map(tag => ({
+        id: tag.id,
+        name: tag.name,
+        board: tag.board,
+        count: tag._count.feedbacks,
+    }));
+    
+
+    res.status(200).json(result);
+}
+
+export const controller = {
+    tag: {
+        create: createTag,
+        update: updateTag,
+        delete: deleteTag,
+        get: getTags,
+    },
+    category: {
+        create: createCategory,
+        update: updateCategory,
+        delete: deleteCategory,
+        get: getCategories,
+        subscribe: categorySubscription,
+    },
+    board: {
+        create: createBoard,
+        update: updateBoard,
+        delete: deleteBoard,
+        get: getBoardBySlug,
+        getDetailed: getBoardBySlugDetailed,
+    },
 }

@@ -4,12 +4,12 @@ import { FeedbackFormDemo } from '@/components/feedback-form-demo'
 import { Input } from '@/components/input'
 import { Switch } from '@/components/switch'
 import { fetchClient } from '@/lib/client'
+import { boardQuery } from '@/lib/query'
 import { useForm } from '@tanstack/react-form'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { boardQuery } from './boards.$boardSlug.general'
 
 export const Route = createFileRoute(
     '/admin/settings/boards/$boardSlug/create-form',

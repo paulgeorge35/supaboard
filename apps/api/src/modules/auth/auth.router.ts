@@ -1,20 +1,22 @@
+import { application, session } from '@/middleware';
 import { Router } from 'express';
-import { applicationMiddleware } from '../../middleware/application';
-import { requireAuth } from '../../middleware/auth';
-import { customCookie, googleSignIn, googleSignInCallback, googleSignUpCallback, login, logout, me, preferences, register, update, updatePreferences } from './auth.controller';
+import { controller, } from './auth.controller';
 const router = Router();
 
-router.get('/me', requireAuth, applicationMiddleware, me);
-router.put('/update', requireAuth, applicationMiddleware, update);
-router.post('/register', register);
-router.post('/login', login);
-router.post('/logout', logout);
-router.get('/google/sign-in', googleSignIn);
-router.get('/google/sign-in/callback', googleSignInCallback);
-router.get('/google/sign-up/callback', googleSignUpCallback);
-router.get('/custom-cookie', customCookie);
+router.get('/me', application, controller.auth.me);
+router.post('/register', controller.auth.register);
+router.post('/login', controller.auth.login);
+router.post('/logout', controller.auth.logout);
 
-router.get('/preferences', requireAuth, preferences);
-router.put('/preferences', requireAuth, updatePreferences);
+router.put('/update', application, controller.profile.update);
+
+router.get('/custom-cookie', controller.auth.customCookie);
+
+router.get('/google/sign-in', controller.oauth.googleSignIn);
+router.get('/google/sign-in/callback', controller.oauth.googleSignInCallback);
+router.get('/google/sign-up/callback', controller.oauth.googleSignUpCallback);
+
+router.get('/preferences', session, controller.preferences.get);
+router.put('/preferences', session, controller.preferences.update);
 
 export { router as authRouter };

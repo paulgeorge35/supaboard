@@ -8,45 +8,34 @@ import {
   StatusBadge,
   VoteButton,
 } from '@/components'
+import { FeedbackSkeleton } from '@/components/feedback-skeleton'
 import { fetchClient } from '@/lib/client'
-import { cn } from '@/lib/utils'
 import {
   feedbackActivitiesQuery,
   feedbackQuery,
   FeedbackQueryData,
   feedbackVotersQuery,
   FeedbackVotersQueryData,
-} from '@/routes/__root'
+} from '@/lib/query/feedback'
+import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import {
   useMutation,
   useQuery,
-  useQueryClient,
-  useSuspenseQuery,
+  useQueryClient
 } from '@tanstack/react-query'
 import {
   createFileRoute,
   Link,
-  notFound,
-  useParams,
+  useParams
 } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/_public/$boardSlug/$feedbackSlug/')({
-  component: RouteComponent,
   notFoundComponent: () => <NotFoundPage />,
-  loader: async ({ params }) => {
-    const { boardSlug, feedbackSlug } = params
-    const feedback = await fetchClient(`feedback/${boardSlug}/${feedbackSlug}`)
-
-    if (!feedback) {
-      throw notFound()
-    }
-
-    return { feedback }
-  },
+  component: RouteComponent,
 })
 
 function RouteComponent() {
@@ -57,19 +46,19 @@ function RouteComponent() {
     from: '/_public/$boardSlug/$feedbackSlug/',
   })
 
-  const { data: feedbackVoters } = useSuspenseQuery(
+  const { data: feedbackVoters, isLoading: isFeedbackVotersLoading } = useQuery(
     feedbackVotersQuery(boardSlug, feedbackSlug),
   )
-  const { data: feedback } = useSuspenseQuery(
+  const { data: feedback, isLoading: isFeedbackLoading } = useQuery(
     feedbackQuery(boardSlug, feedbackSlug),
   )
-  const { data } = useQuery(
+  const { data, isLoading: isActivitiesLoading } = useQuery(
     feedbackActivitiesQuery(boardSlug, feedbackSlug, sort),
   )
 
   const { mutate: vote, isPending } = useMutation({
     mutationFn: () =>
-      fetchClient(`feedback/${feedback.id}/vote`, { method: 'POST' }),
+      fetchClient(`feedback/${feedback?.id}/vote`, { method: 'POST' }),
     onMutate: async () => {
       await queryClient.cancelQueries({
         queryKey: feedbackQuery(boardSlug, feedbackSlug).queryKey,
@@ -149,6 +138,14 @@ function RouteComponent() {
       })
     },
   })
+
+  if (isFeedbackLoading || isFeedbackVotersLoading || isActivitiesLoading) {
+    return <FeedbackSkeleton />
+  }
+
+  if (!feedback || !feedbackVoters || !data) {
+    return <NotFoundPage />
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">

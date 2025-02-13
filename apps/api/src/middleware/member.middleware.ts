@@ -1,8 +1,9 @@
 import { db } from "@repo/database";
 import type { NextFunction, Response } from "express";
 import type { BareSessionRequest } from "../types";
+import { application } from "./application.middleware";
 
-export async function memberMiddleware(request: BareSessionRequest, response: Response, next: NextFunction) {
+async function memberPart(request: BareSessionRequest, response: Response, next: NextFunction) {
     const user = request.auth?.id;
     const applicationId = request.application?.id;
 
@@ -26,4 +27,15 @@ export async function memberMiddleware(request: BareSessionRequest, response: Re
     }
 
     next();
+}
+
+export async function member(request: BareSessionRequest, response: Response, next: NextFunction) {
+    application(request, response, (err) => {
+        if (err) {
+            next(err);
+            return;
+        }
+
+        memberPart(request, response, next);
+    });
 }

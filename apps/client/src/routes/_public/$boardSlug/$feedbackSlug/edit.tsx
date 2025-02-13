@@ -1,5 +1,5 @@
 import { fetchClient } from '@/lib/client'
-import { feedbackQuery } from '@/routes/__root'
+import { feedbackQuery } from '@/lib/query/feedback'
 import {
   useMutation,
   useQueryClient,

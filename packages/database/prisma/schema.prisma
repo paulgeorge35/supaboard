@@ -8,7 +8,7 @@ datasource db {
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearchPostgres"]
+  previewFeatures = ["fullTextSearchPostgres", "typedSql"]
   output          = "../generated/client"
 }
 
@@ -79,6 +79,11 @@ enum OAuthProvider {
   GOOGLE
 }
 
+enum ApplicationInviteStatus {
+  PENDING
+  ACCEPTED
+}
+
 model User {
   id       String  @id @default(uuid())
   name     String
@@ -88,15 +93,17 @@ model User {
 
   reportFrequency AdminReportFrequency @default(WEEKLY)
   language        Language             @default(EN)
+  invitation      ApplicationInvite?   @relation("ApplicationInviteUser")
 
-  applications   Application[]  @relation("ApplicationOwner")
+  applications   Application[]       @relation("ApplicationOwner")
   members        Member[]
-  feedbacks      Feedback[]     @relation("FeedbackAuthor")
-  feedbacksOwned Feedback[]     @relation("FeedbackOwner")
+  feedbacks      Feedback[]          @relation("FeedbackAuthor")
+  feedbacksOwned Feedback[]          @relation("FeedbackOwner")
   votes          Vote[]
   activities     Activity[]
   likes          ActivityLike[]
   oauthAccounts  OAuthAccount[]
+  invitesSent    ApplicationInvite[] @relation("ApplicationInviteInvitedBy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -160,15 +167,37 @@ model Application {
   ownerId String
   owner   User   @relation("ApplicationOwner", fields: [ownerId], references: [id])
 
-  tags     Tag[]
   members  Member[]
   feedback Feedback[]
   boards   Board[]
+  invites  ApplicationInvite[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([subdomain])
+}
+
+model ApplicationInvite {
+  id        String                  @id @default(uuid())
+  email     String
+  role      Role
+  status    ApplicationInviteStatus @default(PENDING)
+  token     String
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id])
+  userId        String?     @unique
+  user          User?       @relation("ApplicationInviteUser", fields: [userId], references: [id])
+  invitedById   String
+  invitedBy     User        @relation("ApplicationInviteInvitedBy", fields: [invitedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email, applicationId])
 }
 
 model Feedback {
@@ -231,11 +260,11 @@ model FeedbackCategory {
   name String
   slug String
 
-  boardId     String
-  board       Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  subscribers Member[] @relation("FeedbackCategorySubscriptions")
+  boardId String
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
-  feedbacks Feedback[]
+  subscribers Member[]   @relation("FeedbackCategorySubscriptions")
+  feedbacks   Feedback[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -263,6 +292,7 @@ model Board {
 
   feedbacks  Feedback[]
   categories FeedbackCategory[]
+  tags       Tag[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -271,12 +301,11 @@ model Board {
 }
 
 model Tag {
-  id    String @id @default(uuid())
-  name  String
-  color String
+  id   String @id @default(uuid())
+  name String
 
-  applicationId String
-  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  boardId String
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
   feedbacks Feedback[]
 

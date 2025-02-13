@@ -3,20 +3,16 @@ import { ImageFile } from '@/components/image-file';
 import { Input } from '@/components/input';
 import { Popover } from '@/components/popover';
 import { fetchClient } from '@/lib/client';
+import { applicationQuery } from '@/lib/query';
 import { cn } from '@/lib/utils';
 import { Application } from '@repo/database';
 import { useForm } from '@tanstack/react-form';
-import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, useLocation, useRouter } from '@tanstack/react-router';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createFileRoute, useLocation } from '@tanstack/react-router';
 import { useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
-
-const applicationQuery = queryOptions<Application>({
-  queryKey: ['application'],
-  queryFn: () => fetchClient('application'),
-})
 
 export const Route = createFileRoute('/admin/settings/company/branding')({
   component: RouteComponent,
@@ -39,7 +35,6 @@ const themes = [
 
 function RouteComponent() {
   const queryClient = useQueryClient();
-  const router = useRouter();
   const location = useLocation();
   const logoInputRef = useRef<HTMLInputElement>(null);
   const iconInputRef = useRef<HTMLInputElement>(null);
@@ -55,7 +50,6 @@ function RouteComponent() {
     name: z.string().min(3, { message: 'Name is required' }),
     subdomain: z.string().min(3, { message: 'Subdomain is required' }),
     preferredTheme: z.enum(['LIGHT', 'DARK', 'SYSTEM']).optional(),
-    preferredLanguage: z.enum(['EN', 'RO']).optional(),
   });
 
   const { mutate: updateApplication, isPending } = useMutation({
@@ -92,7 +86,7 @@ function RouteComponent() {
       toast.success('Application updated successfully');
       const hostname = application?.customDomain && application?.domainStatus === 'VERIFIED' ? application.customDomain : `${data.subdomain}.${import.meta.env.VITE_APP_DOMAIN}`;
       const url = new URL(location.href, `https://${hostname}`);
-      
+
       if (application?.subdomain !== data.subdomain) {
         window.location.replace(url.toString());
       }
@@ -111,7 +105,6 @@ function RouteComponent() {
       name: application?.name ?? '',
       subdomain: application?.subdomain ?? '',
       preferredTheme: application?.preferredTheme ?? 'SYSTEM',
-      preferredLanguage: application?.preferredLanguage ?? 'EN',
       logo: application?.logo ?? null,
       icon: application?.icon ?? null,
     },

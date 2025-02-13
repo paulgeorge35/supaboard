@@ -1,10 +1,9 @@
-import { SORT_OPTIONS } from "../lib/utils"
-import { FeedbackActivitySummary } from "../routes/__root"
-import { useAuthStore } from "../stores/auth-store"
+import { FeedbackActivitySummary } from "@/lib/query"
+import { SORT_OPTIONS } from "@/lib/utils"
+import { useAuthStore } from "@/stores/auth-store"
 import { ActivityCard } from "./activity-card"
 import { CommentForm } from "./comment-form"
-import { Dropdown } from "./dropdown"
-import { Icons } from "./icons"
+import { SelectComponent } from "./select"
 
 type ActivitiesProps = {
     pinned?: FeedbackActivitySummary
@@ -33,14 +32,15 @@ export function Activities({ pinned, activities, sort, setSort, feedbackSlug, bo
             {activities.length > 0 && <span className='horizontal center-v gap-4 grid col-span-full grid-cols-subgrid'>
                 <span className='horizontal center-v justify-between col-start-2'>
                     <p className='text-sm text-gray-500'>Activity Feed</p>
-                    <Dropdown trigger={
-                        <button className='text-sm text-gray-500 horizontal center-v justify-between border rounded-md px-2 py-1 w-32'>
-                            {SORT_OPTIONS.find(o => o.value === sort)?.label} <Icons.ChevronDown size={16} />
-                        </button>
-                    } items={SORT_OPTIONS.map(o => ({
-                        label: o.label,
-                        onClick: () => setSort(o.value as 'newest' | 'oldest'),
-                    }))} />
+                    <SelectComponent
+                        className='w-32 h-9'
+                        options={SORT_OPTIONS.map(o => ({
+                            label: o.label,
+                            value: o.value,
+                        }))}
+                        value={sort}
+                        onChange={(value) => setSort(value as 'newest' | 'oldest')}
+                    />
                 </span>
             </span>}
 
