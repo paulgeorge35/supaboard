@@ -1,5 +1,5 @@
 import { sendInvitationEmail } from "@/util";
-import { ActivityType, ApplicationInviteStatus, applicationInviteSummarySelect, db, FeedbackStatus, getLatestPosts, postOverviewAllBoards, postOverviewCategories, postOverviewTags, Role, userSummarySelect } from "@repo/database";
+import { activityOverview, ActivityType, ApplicationInviteStatus, applicationInviteSummarySelect, db, FeedbackStatus, getLatestPosts, postOverviewAllBoards, postOverviewCategories, postOverviewTags, Role, userSummarySelect } from "@repo/database";
 import type { Response } from "express";
 import { DateTime } from "luxon";
 import { v4 as uuidv4 } from 'uuid';
@@ -488,54 +488,74 @@ export async function getActivityOverview(req: BareSessionRequest, res: Response
         return;
     }
 
-    const data = await db.$transaction(async (tx) => {
+    const data = await db.$queryRawTyped(activityOverview(applicationId, range.start ?? DateTime.fromFormat('2000-01-01', 'yyyy-MM-dd').toJSDate(), range.end ?? DateTime.fromFormat('2100-01-01', 'yyyy-MM-dd').toJSDate()));
 
-        const feedbacks = await tx.feedback.count({
-            where: {
-                applicationId,
-                createdAt: { gte: range.start, lte: range.end },
-            },
-        });
+    const dataBefore = range.start && range.end ? await db.$queryRawTyped(activityOverview(applicationId,
+        DateTime.fromJSDate(range.start).minus({ days: DateTime.fromJSDate(range.end).diff(DateTime.fromJSDate(range.start), 'days').days }).toJSDate(),
+        DateTime.fromJSDate(range.start).toJSDate())) : [];
 
-        const votes = await tx.vote.count({
-            where: {
-                feedback: {
-                    applicationId,
-                },
-                createdAt: { gte: range.start, lte: range.end },
-            },
-        });
+    const comments = data.map((row, index) => ({
+        date: index,
+        count: row.comment_count ?? 0,
+    }));
+    const commentsTotal = comments.reduce((acc, curr) => acc + curr.count, 0);
+    const commentsBefore = dataBefore.map((row) => row.comment_count ?? 0).reduce((acc, curr) => acc + curr, 0);
+    const commentsPercentageIncrease = ((commentsTotal - commentsBefore) / commentsBefore) * 100;
+    const commentsTrend = commentsPercentageIncrease > 0 ? 'increase' : commentsPercentageIncrease < 0 ? 'decrease' : 'no change';
 
+    const votes = data.map((row, index) => ({
+        date: index,
+        count: row.vote_count ?? 0,
+    }));
+    const votesTotal = votes.reduce((acc, curr) => acc + curr.count, 0);
+    const votesBefore = dataBefore.map((row) => row.vote_count ?? 0).reduce((acc, curr) => acc + curr, 0);
+    const votesPercentageIncrease = ((votesTotal - votesBefore) / votesBefore) * 100;
+    const votesTrend = votesPercentageIncrease > 0 ? 'increase' : votesPercentageIncrease < 0 ? 'decrease' : 'no change';
 
-        const comments = await tx.activity.count({
-            where: {
-                type: 'FEEDBACK_COMMENT',
-                createdAt: { gte: range.start, lte: range.end },
-                feedback: {
-                    applicationId,
-                }
-            },
-        });
+    const statusChanges = data.map((row, index) => ({
+        date: index,
+        count: row.status_change_count ?? 0,
+    }));
+    const statusChangesTotal = statusChanges.reduce((acc, curr) => acc + curr.count, 0);
+    const statusChangesBefore = dataBefore.map((row) => row.status_change_count ?? 0).reduce((acc, curr) => acc + curr, 0);
+    const statusChangesPercentageIncrease = ((statusChangesTotal - statusChangesBefore) / statusChangesBefore) * 100;
+    const statusChangesTrend = statusChangesPercentageIncrease > 0 ? 'increase' : statusChangesPercentageIncrease < 0 ? 'decrease' : 'no change';
 
-        const statusChanges = await tx.activity.count({
-            where: {
-                type: 'FEEDBACK_STATUS_CHANGE',
-                createdAt: { gte: range.start, lte: range.end },
-                feedback: {
-                    applicationId,
-                }
-            },
-        });
+    const feedbacks = data.map((row, index) => ({
+        date: index,
+        count: row.feedback_count ?? 0,
+    }));
+    const feedbacksTotal = feedbacks.reduce((acc, curr) => acc + curr.count, 0);
+    const feedbacksBefore = dataBefore.map((row) => row.feedback_count ?? 0).reduce((acc, curr) => acc + curr, 0);
+    const feedbacksPercentageIncrease = ((feedbacksTotal - feedbacksBefore) / feedbacksBefore) * 100;
+    const feedbacksTrend = feedbacksPercentageIncrease > 0 ? 'increase' : feedbacksPercentageIncrease < 0 ? 'decrease' : 'no change';
 
-        return {
-            feedbacks,
-            votes,
-            comments,
-            statusChanges,
-        };
+    res.json({
+        comments: {
+            data: comments,
+            total: commentsTotal,
+            trend: range.start && range.end ? commentsTrend : undefined,
+            percentageIncrease: range.start && range.end ? commentsPercentageIncrease : undefined,
+        },
+        votes: {
+            data: votes,
+            total: votesTotal,
+            trend: range.start && range.end ? votesTrend : undefined,
+            percentageIncrease: range.start && range.end ? votesPercentageIncrease : undefined,
+        },
+        statusChanges: {
+            data: statusChanges,
+            total: statusChangesTotal,
+            trend: range.start && range.end ? statusChangesTrend : undefined,
+            percentageIncrease: range.start && range.end ? statusChangesPercentageIncrease : undefined,
+        },
+        feedbacks: {
+            data: feedbacks,
+            total: feedbacksTotal,
+            trend: range.start && range.end ? feedbacksTrend : undefined,
+            percentageIncrease: range.start && range.end ? feedbacksPercentageIncrease : undefined,
+        },
     });
-
-    res.json(data);
 }
 
 const newPostsSchema = z.object({
@@ -709,11 +729,6 @@ export async function postsOverview(req: BareSessionRequest, res: Response) {
             end ?? DateTime.fromFormat('2100-01-01', 'yyyy-MM-dd').toJSDate()
         ));
 
-        // const result = data.reduce((acc, row) => {
-        //     acc[row.name] = row.total ?? 0;
-        //     return acc;
-        // }, {} as Record<string, number>);
-
         res.status(200).json(data.map((row) => ({
             name: row.name,
             total: row.total ?? 0,
@@ -725,11 +740,6 @@ export async function postsOverview(req: BareSessionRequest, res: Response) {
             end ?? DateTime.fromFormat('2100-01-01', 'yyyy-MM-dd').toJSDate()
         ));
 
-        // const result = data.reduce((acc, row) => {
-        //     acc[row.name] = row.total ?? 0;
-        //     return acc;
-        // }, {} as Record<string, number>);
-
         res.status(200).json(data);
     }
     if (groupBy === 'category' && boardSlug) {
@@ -737,12 +747,6 @@ export async function postsOverview(req: BareSessionRequest, res: Response) {
             start ?? DateTime.fromFormat('2000-01-01', 'yyyy-MM-dd').toJSDate(),
             end ?? DateTime.fromFormat('2100-01-01', 'yyyy-MM-dd').toJSDate()
         ));
-
-        // const result = data.reduce((acc, row) => {
-        //     acc[row.name] = row.total ?? 0;
-        //     return acc;
-        // }, {} as Record<string, number>);
-
         res.status(200).json(data);
     }
 }

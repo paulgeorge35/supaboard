@@ -156,7 +156,7 @@ export function UserActivity() {
                     <DateRangeSelector
                         range={range}
                         onChange={(range) => setRange(range)}
-                        triggerClassName="w-full hover:bg-gray-300/20 dark:hover:bg-zinc-800/20 transition-colors duration-200 cursor-pointer"
+                        triggerClassName="w-full hover:bg-gray-300/20 dark:hover:bg-zinc-800/20 transition-colors duration-200 cursor-pointer h-9"
                         className="w-fit"
                         align="end"
                     />
@@ -173,7 +173,7 @@ export function UserActivity() {
                 <DateRangeSelector
                     range={range}
                     onChange={(range) => setRange(range)}
-                    triggerClassName="w-full hover:bg-gray-300/20 dark:hover:bg-zinc-800/20 transition-colors duration-200 cursor-pointer"
+                    triggerClassName="w-full hover:bg-gray-300/20 dark:hover:bg-zinc-800/20 transition-colors duration-200 cursor-pointer h-9"
                     className="w-fit"
                     align="end"
                 />

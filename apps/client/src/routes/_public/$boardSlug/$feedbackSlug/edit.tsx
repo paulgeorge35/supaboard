@@ -47,6 +47,7 @@ function RouteComponent() {
       router.navigate({
         to: '/$boardSlug/$feedbackSlug',
         params: { boardSlug, feedbackSlug },
+        replace: true,
       })
     },
   })
@@ -55,6 +56,7 @@ function RouteComponent() {
     router.navigate({
       to: '/$boardSlug/$feedbackSlug',
       params: { boardSlug, feedbackSlug },
+      replace: true,
     })
   }
 
