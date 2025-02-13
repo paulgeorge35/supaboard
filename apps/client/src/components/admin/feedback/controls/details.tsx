@@ -17,6 +17,7 @@ import { useParams, useRouter, useSearch } from "@tanstack/react-router";
 import { DateTime } from "luxon";
 import { ChangeEvent, RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
+import { DetailsSkeleton } from './skeletons';
 
 enum FeedbackStatus {
     OPEN = 'OPEN',
@@ -50,13 +51,15 @@ export function Details() {
     const queryClient = useQueryClient();
     const { user, application } = useAuthStore();
     const search = useSearch({ from: FeedbackRoute.fullPath });
-    const router = useRouter()
+    const router = useRouter();
+    const { boardSlug, feedbackSlug } = useParams({
+        from: Route.fullPath,
+    });
     const [statusChange, setStatusChange] = useState<FeedbackStatus | undefined>(undefined);
     const estimateRef = useRef<HTMLDivElement>(null);
     const estimateOpen = useBoolean(false);
-    const { boardSlug, feedbackSlug } = useParams({
-        from: Route.fullPath,
-    })
+    
+    const { data: feedback, isLoading } = useQuery(feedbackQuery(boardSlug, feedbackSlug));
 
     const { mutate, isPending } = useMutation({
         mutationFn: async (data: FeedbackUpdateData) => fetchClient(`admin/feedback/${boardSlug}/${feedbackSlug}`, {
@@ -208,6 +211,11 @@ export function Details() {
             estimateOpen.setFalse();
         }
     })
+
+    if (isLoading) {
+        return <DetailsSkeleton />
+    }
+
     return (
         <div className="grid grid-cols-[auto_1fr] gap-1 max-w-full">
             <h1 className="text-sm font-medium col-span-full">Details</h1>

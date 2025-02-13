@@ -7,8 +7,9 @@ import {
   NotFoundPage,
   StatusBadge,
   VoteButton,
+  VoteButtonSkeleton,
 } from '@/components'
-import { FeedbackSkeleton } from '@/components/feedback-skeleton'
+import { Skeleton } from '@/components/skeleton'
 import { fetchClient } from '@/lib/client'
 import {
   feedbackActivitiesQuery,
@@ -37,6 +38,45 @@ export const Route = createFileRoute('/_public/$boardSlug/$feedbackSlug/')({
   notFoundComponent: () => <NotFoundPage />,
   component: RouteComponent,
 })
+
+function FeedbackSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
+      <div className="vertical gap-2 hidden md:block">
+        <div className="grid grid-cols-[auto_1fr] gap-2 p-4 border rounded-lg">
+          <h1 className="text-xs font-bold uppercase text-gray-500 col-span-full">
+            Voters
+          </h1>
+          <div className="col-span-full vertical gap-2">
+            {[1, 2, 3].map((i) => (
+              <span key={i} className="horizontal gap-2 center-v">
+                <Skeleton className="size-6 rounded-full" />
+                <Skeleton className="h-4 w-24" />
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="vertical grid grid-cols-[auto_1fr] gap-8">
+        <span className="horizontal center-v gap-4 grid col-span-full grid-cols-subgrid">
+          <VoteButtonSkeleton />
+          <span className="vertical justify-between gap-2">
+            <Skeleton className="h-7 w-48" />
+            <Skeleton className="h-6 w-24" />
+          </span>
+        </span>
+        <span className="horizontal center-v gap-4 grid col-span-full grid-cols-subgrid">
+          <Skeleton className="size-6 rounded-full" />
+          <div className="vertical gap-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+        </span>
+      </div>
+    </div>
+  )
+}
 
 function RouteComponent() {
   const [sort, setSort] = useState<'newest' | 'oldest'>('newest')

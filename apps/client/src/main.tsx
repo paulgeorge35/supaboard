@@ -8,6 +8,7 @@ import { initializePopovers } from './utils/popover'
 const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
+  scrollRestoration: true
 })
 
 // Register things for typesafety

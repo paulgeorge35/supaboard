@@ -9,13 +9,15 @@ import { Tag } from "@repo/database";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { TagsSkeleton } from './skeletons';
 
 type TagsProps = {
     feedbackId: string;
     tags: Pick<Tag, 'id' | 'name'>[];
+    isLoading: boolean;
 }
 
-export function Tags({ feedbackId, tags: initialTags }: TagsProps) {
+export function Tags({ feedbackId, tags: initialTags, isLoading }: TagsProps) {
     const queryClient = useQueryClient();
     const input = useBoolean(false);
     const { boardSlug, feedbackSlug } = useParams({ from: Route.fullPath });
@@ -35,7 +37,7 @@ export function Tags({ feedbackId, tags: initialTags }: TagsProps) {
         }
     });
 
-    const { data } = useQuery(tagsQuery(boardSlug, debouncedSearch));
+    const { data, isLoading: isTagsLoading } = useQuery(tagsQuery(boardSlug, debouncedSearch));
 
     const { mutate: create, isPending: isCreating } = useMutation({
         mutationFn: (name: string) => fetchClient(`board/${boardSlug}/tags`, {
@@ -135,6 +137,10 @@ export function Tags({ feedbackId, tags: initialTags }: TagsProps) {
         }
         setSearch(undefined);
     }, [input.value]);
+
+    if (isLoading || isTagsLoading) {
+        return <TagsSkeleton />
+    }
 
     return (
         <div className="grid grid-cols-[auto_1fr_auto] gap-2">

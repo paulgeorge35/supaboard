@@ -1,8 +1,8 @@
 import { Avatar } from "@/components/avatar";
-import { Skeleton } from "@/components/skeleton";
 import { feedbackVotersQuery } from "@/lib/query/feedback";
 import { useQuery } from "@tanstack/react-query";
 import { Link, notFound, useParams } from "@tanstack/react-router";
+import { VotersSkeleton } from './skeletons';
 
 export function Voters() {
     const { boardSlug, feedbackSlug } = useParams({
@@ -12,7 +12,7 @@ export function Voters() {
     const { data, isLoading } = useQuery(feedbackVotersQuery(boardSlug, feedbackSlug));
 
     if (isLoading) {
-        return <Skeleton className="col-span-full h-10" />
+        return <VotersSkeleton />
     }
 
     if (!data) {

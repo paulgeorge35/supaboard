@@ -121,13 +121,7 @@ function RouteComponent() {
         },
     })
 
-    if (isLoading) {
-        return (
-            <Skeleton className="border-4 border-zinc-300 w-full h-full rounded-2xl" />
-        )
-    }
-
-    if (!feedback) {
+    if (!feedback && !isLoading) {
         throw notFound()
     }
 
@@ -135,12 +129,17 @@ function RouteComponent() {
         <div className="border-4 border-zinc-300 dark:border-zinc-800 rounded-2xl max-h-full h-full min-w-[100dvw] lg:min-w-0">
             <span className="horizontal gap-2 center-v p-4 border-b h-20">
                 <VoteButton
-                    votes={feedback.votes}
-                    votedByMe={feedback.votedByMe}
+                    votes={feedback?.votes ?? 0}
+                    votedByMe={feedback?.votedByMe ?? false}
                     vote={vote}
                     isPending={isPending}
+                    isLoading={isLoading}
                 />
-                <h1 className="text-lg font-medium">{feedback.title}</h1>
+                {isLoading ? (
+                    <Skeleton className="h-7 w-48" />
+                ) : (
+                    <h1 className="text-lg font-medium">{feedback?.title}</h1>
+                )}
             </span>
             <div className="grid grid-cols-[minmax(400px,1fr)_minmax(250px,310px)] h-[calc(100%-80px)] overflow-x-scroll">
                 <div className="vertical grow relative overflow-hidden">
@@ -151,7 +150,7 @@ function RouteComponent() {
                 </div>
                 <div className="p-4 border-l h-full w-full vertical gap-8 overflow-y-auto">
                     <Details />
-                    <Tags feedbackId={feedback.id} tags={feedback.tags} />
+                    <Tags feedbackId={feedback?.id ?? ''} tags={feedback?.tags ?? []} isLoading={isLoading} />
                     <Voters />
                 </div>
             </div>

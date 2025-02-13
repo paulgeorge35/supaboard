@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { cn } from "../lib/utils";
 import { useAuthStore } from "../stores/auth-store";
 import { Icons } from "./icons";
+import { Skeleton } from "./skeleton";
 
 interface VoteButtonProps {
     votes: number;
@@ -10,10 +11,31 @@ interface VoteButtonProps {
     className?: string;
     vote: () => void;
     isPending: boolean;
+    isLoading?: boolean;
 }
 
-export const VoteButton = ({ votes, votedByMe, className, vote, isPending }: VoteButtonProps) => {
+export const VoteButtonSkeleton = () => {
+    return (
+        <div className="border rounded-md px-2 py-1 w-9 vertical center gap-1">
+            <Skeleton className="size-3" />
+            <Skeleton className="h-3 w-4" />
+        </div>
+    )
+}
+
+export const VoteButton = ({ votes, votedByMe, className, vote, isPending, isLoading }: VoteButtonProps) => {
     const { user } = useAuthStore();
+    
+    const numberFormatted = useMemo(() => {
+        if (votes > 1000) {
+            return `${(votes / 1000).toFixed(1)}k`;
+        }
+        return votes;
+    }, [votes]);
+
+    if (isLoading) {
+        return <VoteButtonSkeleton />
+    }
 
     const handleVote = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -24,13 +46,6 @@ export const VoteButton = ({ votes, votedByMe, className, vote, isPending }: Vot
         }
         vote()
     }
-
-    const numberFormatted = useMemo(() => {
-        if (votes > 1000) {
-            return `${(votes / 1000).toFixed(1)}k`;
-        }
-        return votes;
-    }, [votes]);
 
     return (
         <button
