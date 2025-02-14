@@ -49,7 +49,6 @@ function RouteComponent() {
   const { data, error } = useQuery(feedbacksQuery({ ...search, take: 1 }))
 
   useEffect(() => {
-    console.log(boardSlug)
     if (boardSlug) return;
 
     if (error || (data && data.feedbacks.length === 0)) {

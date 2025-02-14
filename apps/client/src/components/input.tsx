@@ -2,13 +2,14 @@ import { cn } from "@/lib/utils"
 import { forwardRef, useRef } from "react"
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+    inputClassName?: string
     label?: string
     prefix?: string
     suffix?: string
     addornmentRight?: React.ReactNode
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(({ className, label, prefix, suffix, addornmentRight, required, ...props }, ref) => {
+export const Input = forwardRef<HTMLInputElement, InputProps>(({ className, label, prefix, suffix, addornmentRight, required, inputClassName, ...props }, ref) => {
     const internalRef = useRef<HTMLInputElement>(null)
     const inputRef = (ref as React.RefObject<HTMLInputElement>) || internalRef
 
@@ -40,7 +41,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({ className, labe
                     ref={inputRef}
                     required={required}
                     {...props}
-                    className={cn('md:text-sm font-light w-full focus:outline-none disabled:opacity-50 placeholder:text-gray-500 dark:placeholder:text-zinc-500', className)}
+                    className={cn('md:text-sm font-light w-full focus:outline-none disabled:opacity-50 placeholder:text-gray-500 dark:placeholder:text-zinc-500', inputClassName)}
                 />
                 <span
                     className={cn('text-sm font-light text-gray-400 dark:text-zinc-600', {

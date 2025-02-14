@@ -26,7 +26,7 @@ function RouteComponent() {
       <div id="feedback-list" className="col-span-1 overflow-y-auto border-l bg-white dark:bg-zinc-900 z-10">
         <div className="vertical gap-2 h-full">
           <div className="w-full h-full bg-white dark:bg-zinc-900">
-            <div className='p-4 border-b'>
+            <div className='p-4 border-b sticky top-0 bg-white dark:bg-zinc-900'>
               <span className='pl-2 py-1 horizontal center-v gap-2 bg-gray-100 dark:bg-zinc-800 rounded-md'>
                 <Icons.Search className='size-4 stroke-gray-500 dark:stroke-zinc-400' />
                 <input type="text" placeholder='Search...' className='w-full focus:outline-none pr-2 py-1 pl-0 md:text-sm font-light' value={searchQuery} onChange={handleChange} />

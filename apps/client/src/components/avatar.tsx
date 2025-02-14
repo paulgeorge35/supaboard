@@ -60,7 +60,7 @@ export function Avatar({ src, name, className, isAdmin, ...props }: AvatarProps)
     return (
         <div className={cn("size-8 rounded-full relative", className)}
         >
-            {isAdmin && <Icons.Star className="absolute z-10 right-[-5px] bottom-[-2px] size-[12px] p-[1px] bg-[var(--color-primary)] stroke-[var(--color-primary)] rounded-full fill-white border-white" />}
+            {isAdmin && <Icons.Star className="absolute z-10 -right-[5%] -bottom-[5%] size-[35%] p-[1px] bg-[var(--color-primary)] stroke-[var(--color-primary)] rounded-full fill-white border-white" />}
             {!shouldShowPlaceholder ? (
                 <img 
                     src={uploadedFile?.url ?? src} 
@@ -68,7 +68,7 @@ export function Avatar({ src, name, className, isAdmin, ...props }: AvatarProps)
                     className="size-full rounded-full"
                     onError={handleImageError}
                     // style={{
-                    //     mask: isAdmin ? "radial-gradient(circle 8px at 23px 82%, transparent 99%, #fff 100%)" : undefined
+                    //     mask: isAdmin ? "radial-gradient(circle 10px at 23px 82%, transparent 99%, #fff 100%)" : undefined
                     // }}
                 />
             ) : (

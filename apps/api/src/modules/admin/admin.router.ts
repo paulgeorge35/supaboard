@@ -14,6 +14,9 @@ router.get("/posts-overview", member, controller.activityOverview.postsOverview)
 router.get("/users", member, controller.users.get);
 router.put("/users/:memberId/role", owner, controller.users.updateRole);
 router.delete("/users/:memberId", owner, controller.users.deleteMember);
+router.get("/users/detailed", member, controller.users.getDetailed);
+router.get("/users/activity", member, controller.users.activity);
+router.get("/users/details/:userId", member, controller.users.getMember);
 
 router.get("/users/invites", member, controller.users.invites.get);
 router.post("/users/invites", member, controller.users.invites.invite);

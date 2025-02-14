@@ -20,6 +20,11 @@ export const membersQuery = queryOptions<MemberSummary[]>({
     queryFn: () => fetchClient("admin/users")
 })
 
+export const memberQuery = (userId: string) => queryOptions<MemberSummary>({
+    queryKey: ['admin', 'users', 'details', userId],
+    queryFn: () => fetchClient(`admin/users/details/${userId}`)
+})
+
 export const applicationQuery = queryOptions<Application>({
     queryKey: ['application'],
     queryFn: () => fetchClient('application'),

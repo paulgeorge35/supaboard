@@ -1,5 +1,5 @@
 import { sendInvitationEmail } from "@/util";
-import { activityOverview, ActivityType, ApplicationInviteStatus, applicationInviteSummarySelect, db, FeedbackStatus, getLatestPosts, postOverviewAllBoards, postOverviewCategories, postOverviewTags, Prisma, Role, userSummarySelect } from "@repo/database";
+import { activityOverview, ActivityType, ApplicationInviteStatus, applicationInviteSummarySelect, db, FeedbackStatus, getLatestPosts, memberActivity, membersDetail, memberSummarySelect, postOverviewAllBoards, postOverviewCategories, postOverviewTags, Role, userSummarySelect } from "@repo/database";
 import type { Response } from "express";
 import { DateTime } from "luxon";
 import { v4 as uuidv4 } from 'uuid';
@@ -267,11 +267,42 @@ export async function getUsers(request: BareSessionRequest, res: Response) {
     res.json(members);
 }
 
+export async function getMember(request: BareSessionRequest, res: Response) {
+    const applicationId = request.application?.id;
+    const userId = request.params.userId;
+
+    if (!applicationId) {
+        res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
+        return;
+    }
+
+    const member = await db.member.findFirst({
+        where: { userId, applicationId },
+        select: memberSummarySelect,
+    });
+
+    const lastActivity = await db.activity.aggregate({
+        where: {
+            authorId: userId,
+            feedback: { applicationId },
+        },
+        _max: {
+            createdAt: true,
+        },
+    });
+
+    res.status(200).json({
+        ...member,
+        lastActivity: lastActivity._max.createdAt,
+    });
+}
+
+
 const userSearchSchema = z.object({
     cursor: z.string().optional(),
     take: z.number().default(10),
     order: z.enum(['last-activity', 'top-posters', 'top-voters']).default('last-activity'),
-    filter: z.array(z.enum(['posts', 'votes', 'comments'])).optional(),
+    filter: z.union([z.array(z.enum(['posts', 'votes', 'comments'])), z.enum(['posts', 'votes', 'comments'])]).optional().default(['posts', 'votes', 'comments']).transform((value) => Array.isArray(value) ? value : [value]),
     start: z.string().optional().transform((value) => value && DateTime.fromFormat(value, 'yyyy-MM-dd').isValid ? DateTime.fromFormat(value, 'yyyy-MM-dd').toJSDate() : undefined),
     end: z.string().optional().transform((value) => value && DateTime.fromFormat(value, 'yyyy-MM-dd').isValid ? DateTime.fromFormat(value, 'yyyy-MM-dd').toJSDate() : undefined),
     search: z.string().optional().transform(
@@ -295,37 +326,84 @@ export async function getDetailedUsers(request: BareSessionRequest, res: Respons
 
     const { cursor, take, order, start, end, search, filter } = userSearchSchema.parse(request.query);
 
-    const types: ActivityType[] | undefined = filter ? filter.map((filter) => {
-        switch (filter) {
-            case 'posts':
-                return ActivityType.FEEDBACK_CREATE;
-            case 'votes':
-                return ActivityType.FEEDBACK_VOTE;
-            case 'comments':
-                return ActivityType.FEEDBACK_COMMENT;
-            default:
-                return ActivityType.FEEDBACK_CREATE;
-        }
-    }) : undefined; 
+    const old = cursor ? await db.$queryRawTyped(membersDetail(
+        applicationId,
+        start ?? DateTime.fromFormat('2000-01-01', 'yyyy-MM-dd').toJSDate(),
+        end ?? DateTime.fromFormat('2100-01-01', 'yyyy-MM-dd').toJSDate(),
+        order,
+        take,
+        0,
+        '',
+        filter?.includes('comments') ? 1 : 0,
+        filter?.includes('votes') ? 1 : 0,
+        filter?.includes('posts') ? 1 : 0,
+    )) : [];
 
-    const where: Prisma.FeedbackWhereInput = {};
+    const members = await db.$queryRawTyped(membersDetail(
+        applicationId,
+        start ?? DateTime.fromFormat('2000-01-01', 'yyyy-MM-dd').toJSDate(),
+        end ?? DateTime.fromFormat('2100-01-01', 'yyyy-MM-dd').toJSDate(),
+        order,
+        take,
+        cursor ? (old.findIndex((member) => member.id === cursor) ?? 0) + 1 : 0,
+        search ?? '',
+        filter?.includes('comments') ? 1 : 0,
+        filter?.includes('votes') ? 1 : 0,
+        filter?.includes('posts') ? 1 : 0,
+    ));
 
-    if (types) {
-        where.AND = types.map((type) => ({
-            activities: {
-                some: {
-                    type,
-                },
-            },
-        }));
+    res.json({
+        data: members,
+        nextCursor: members.length === take ? members[members.length - 1].id : undefined,
+    });
+}
+
+const memberActivitySchema = z.object({
+    cursor: z.string().optional(),
+    take: z.number().default(10),
+    filter: z.union([z.array(z.enum(['posts', 'votes', 'comments'])), z.enum(['posts', 'votes', 'comments'])]).optional().default(['posts', 'votes', 'comments']).transform((value) => Array.isArray(value) ? value : [value]),
+    start: z.string().optional().transform((value) => value && DateTime.fromFormat(value, 'yyyy-MM-dd').isValid ? DateTime.fromFormat(value, 'yyyy-MM-dd').toJSDate() : undefined),
+    end: z.string().optional().transform((value) => value && DateTime.fromFormat(value, 'yyyy-MM-dd').isValid ? DateTime.fromFormat(value, 'yyyy-MM-dd').toJSDate() : undefined),
+    userId: z.string(),
+});
+
+export async function getMemberActivity(request: BareSessionRequest, res: Response) {
+    const applicationId = request.application?.id;
+
+    if (!applicationId) {
+        res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
+        return;
     }
 
-    const activities = await db.feedback.findMany({
-        where,
-        orderBy: {
-            createdAt: 'desc',
-        },
-        
+    const { cursor, take, filter, start, end, userId } = memberActivitySchema.parse(request.query);
+
+    const old = cursor ? await db.$queryRawTyped(memberActivity(
+        applicationId,
+        start ?? DateTime.fromFormat('2000-01-01', 'yyyy-MM-dd').toJSDate(),
+        end ?? DateTime.fromFormat('2100-01-01', 'yyyy-MM-dd').toJSDate(),
+        userId,
+        filter?.includes('comments') ? 1 : 0,
+        filter?.includes('votes') ? 1 : 0,
+        filter?.includes('posts') ? 1 : 0,
+        take,
+        0,
+    )) : [];
+
+    const members = await db.$queryRawTyped(memberActivity(
+        applicationId,
+        start ?? DateTime.fromFormat('2000-01-01', 'yyyy-MM-dd').toJSDate(),
+        end ?? DateTime.fromFormat('2100-01-01', 'yyyy-MM-dd').toJSDate(),
+        userId,
+        filter?.includes('comments') ? 1 : 0,
+        filter?.includes('votes') ? 1 : 0,
+        filter?.includes('posts') ? 1 : 0,
+        take,
+        cursor ? (old.findIndex((member) => member.id === cursor) ?? 0) + 1 : 0,
+    ));
+
+    res.json({
+        data: members,
+        nextCursor: members.length === take ? members[members.length - 1].id : undefined,
     });
 }
 
@@ -819,6 +897,9 @@ export const controller = {
     },
     users: {
         get: getUsers,
+        getDetailed: getDetailedUsers,
+        getMember: getMember,
+        activity: getMemberActivity,
         updateRole: updateRole,
         deleteMember: deleteMember,
         invites: {

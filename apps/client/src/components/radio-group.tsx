@@ -25,6 +25,8 @@ export interface RadioGroupProps {
   error?: string;
   /** Additional className for the wrapper */
   className?: string;
+  /** Additional className for the group */
+  groupClassName?: string;
   /** Whether the entire group is disabled */
   disabled?: boolean;
   /** Layout direction - vertical or horizontal */
@@ -40,6 +42,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
     label, 
     error, 
     className,
+    groupClassName,
     disabled = false,
     direction = 'vertical'
   }, ref) => {
@@ -74,7 +77,8 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
         <div 
           className={cn(
             'flex gap-2',
-            direction === 'vertical' ? 'flex-col' : 'flex-row flex-wrap'
+            direction === 'vertical' ? 'flex-col' : 'flex-row flex-wrap',
+            groupClassName
           )}
         >
           {options.map((option) => {

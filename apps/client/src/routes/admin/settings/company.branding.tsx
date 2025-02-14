@@ -159,15 +159,17 @@ function RouteComponent() {
                   }}
                 />
               }
-              <Button type='button' variant='outline' color='secondary' size='md' onClick={(e) => {
-                e.preventDefault();
-                logoInputRef.current?.click();
-              }}>
-                Upload logo
-              </Button>
-              <span className='vertical gap-1'>
-                <p className='text-xs font-light text-gray-500 dark:text-zinc-400'>Recommended size: 128x128px</p>
-                <p className='text-xs font-light text-gray-500 dark:text-zinc-400'>Ratio: 1:1</p>
+              <span className='flex flex-col md:flex-row gap-2 center-v'>
+                <Button type='button' variant='outline' color='secondary' size='md' onClick={(e) => {
+                  e.preventDefault();
+                  logoInputRef.current?.click();
+                }}>
+                  Upload logo
+                </Button>
+                <span className='vertical gap-1'>
+                  <p className='text-xs font-light text-gray-500 dark:text-zinc-400'>Recommended size: 128x128px</p>
+                  <p className='text-xs font-light text-gray-500 dark:text-zinc-400'>Ratio: 1:1</p>
+                </span>
               </span>
             </span>
           )}
@@ -205,15 +207,17 @@ function RouteComponent() {
                   }}
                 />
               }
-              <Button type='button' variant='outline' color='secondary' size='md' onClick={(e) => {
-                e.preventDefault();
-                iconInputRef.current?.click();
-              }}>
-                Upload icon
-              </Button>
-              <span className='vertical gap-1'>
-                <p className='text-xs font-light text-gray-500 dark:text-zinc-400'>Recommended size: 48x48px</p>
-                <p className='text-xs font-light text-gray-500 dark:text-zinc-400'>Ratio: 1:1</p>
+              <span className='flex flex-col md:flex-row gap-2 center-v'>
+                <Button type='button' variant='outline' color='secondary' size='md' onClick={(e) => {
+                  e.preventDefault();
+                  iconInputRef.current?.click();
+                }}>
+                  Upload icon
+                </Button>
+                <span className='vertical gap-1'>
+                  <p className='text-xs font-light text-gray-500 dark:text-zinc-400'>Recommended size: 48x48px</p>
+                  <p className='text-xs font-light text-gray-500 dark:text-zinc-400'>Ratio: 1:1</p>
+                </span>
               </span>
             </span>
           )}
@@ -315,6 +319,7 @@ function RouteComponent() {
                   type='text'
                   name={field.name}
                   value={field.state.value}
+                  className='min-w-30'
                   onChange={(e) => {
                     const value = e.target.value;
                     field.handleChange(value.startsWith('#') ? value : `#${value}`);

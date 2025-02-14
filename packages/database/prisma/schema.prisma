@@ -91,6 +91,10 @@ model User {
   avatar   String?
   password String?
 
+  os      String?
+  browser String?
+  device  String?
+
   reportFrequency AdminReportFrequency @default(WEEKLY)
   language        Language             @default(EN)
   invitation      ApplicationInvite?   @relation("ApplicationInviteUser")

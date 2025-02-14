@@ -13,11 +13,22 @@ export type UserSummary = Prisma.UserGetPayload<{
 
 export const memberSummarySelect = Prisma.validator<Prisma.MemberSelect>()({
     role: true,
+    createdAt: true,
     user: {
-        select: userSummarySelect,
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+            os: true,
+            browser: true,
+            device: true,
+        },
     },
 });
 
 export type MemberSummary = Prisma.MemberGetPayload<{
     select: typeof memberSummarySelect;
-}>;
+}> & {
+    lastActivity: Date | null;
+};
