@@ -27,13 +27,17 @@ export async function vote(req: BareSessionRequest, res: Response) {
         return;
     }
 
-    const existingVote = await db.vote.findFirst({ where: { feedbackId: feedback.id, authorId: userId } });
+    await db.$transaction(async (tx) => {
+        const existingVote = await tx.vote.findFirst({ where: { feedbackId: feedback.id, authorId: userId } });
 
-    if (existingVote) {
-        await db.vote.delete({ where: { id: existingVote.id } });
-    } else {
-        await db.vote.create({ data: { feedbackId: feedback.id, authorId: userId } });
-    }
+        if (existingVote) {
+            await tx.vote.delete({ where: { id: existingVote.id } });
+            await tx.activity.deleteMany({ where: { feedbackId: feedback.id, authorId: userId, type: ActivityType.FEEDBACK_VOTE } });
+        } else {
+            await tx.vote.create({ data: { feedbackId: feedback.id, authorId: userId } });
+            await tx.activity.create({ data: { feedbackId: feedback.id, data: {}, authorId: userId, type: ActivityType.FEEDBACK_VOTE } });
+        }
+    });
 
     res.status(200).json({ success: true });
 }
@@ -106,6 +110,17 @@ export async function createFeedback(req: BareSessionRequest<z.infer<typeof feed
             board: { connect: { id: boardId } },
             application: { connect: { id: applicationId } },
             author: { connect: { id: userId } },
+            activities: {
+                create: {
+                    type: ActivityType.FEEDBACK_CREATE,
+                    data: {
+                        title: data.title,
+                        description: data.description ?? '',
+                        slug,
+                    },
+                    authorId: userId,
+                },
+            },
         },
     });
 

@@ -30,14 +30,14 @@ function RouteComponent() {
   }, [router])
 
   return (
-    <div>
-      <div className='p-8 gap-2 vertical border-b'>
+    <div className='relative h-[calc(100dvh-72px)] vertical items-start'>
+      <div className='p-8 gap-2 vertical border-b sticky left-0 max-w-screen bg-white dark:bg-zinc-900 z-10 w-full'>
         <h1 className='text-2xl'>General</h1>
         <p className='text-sm text-gray-500 dark:text-zinc-400'>
           Manage your workspace's settings
         </p>
       </div>
-      <div className='grid grid-cols-[auto_1fr]'>
+      <div className='grid grid-cols-[auto_1fr] overflow-y-auto grow'>
         <div className='vertical gap-2 p-8'>
           {CompanyLinks.map((link) => (
             <Link
@@ -50,7 +50,7 @@ function RouteComponent() {
             </Link>
           ))}
         </div>
-        <div className='p-8 max-w-2xl'>
+        <div className='p-8 max-w-2xl min-w-screen md:min-w-full'>
           <Outlet />
         </div>
       </div>

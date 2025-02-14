@@ -179,7 +179,7 @@ export function UserActivity() {
                 />
             </div>
 
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-zinc-800">
                     <thead className="">
                         {table.getHeaderGroups().map(headerGroup => (

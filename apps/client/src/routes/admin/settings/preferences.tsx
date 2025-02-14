@@ -20,8 +20,8 @@ function RouteComponent() {
   }, [router])
 
   return (
-    <div>
-      <div className='p-8 gap-2 vertical border-b'>
+    <div className='relative'>
+      <div className='p-8 gap-2 vertical border-b sticky left-0 top-0 max-w-screen bg-white dark:bg-zinc-900 z-10'>
         <h1 className='text-2xl'>Preferences</h1>
         <p className='text-sm text-gray-500 dark:text-zinc-400'>
           Manage your preferences
@@ -40,7 +40,7 @@ function RouteComponent() {
             </Link>
           ))}
         </div>
-        <div className='p-8 md:max-w-2xl'>
+        <div className='p-8 md:max-w-2xl min-w-screen md:min-w-full'>
           <Outlet />
         </div>
       </div>

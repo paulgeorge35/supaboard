@@ -39,7 +39,7 @@ function RouteComponent() {
   const { application } = useAuthStore();
 
   return (
-    <div className="grid grid-cols-[minmax(200px,250px)_1fr] w-full h-full max-h-full pt-18">
+    <div className="grid grid-cols-[minmax(200px,250px)_1fr] w-full h-full max-h-[full] pt-18">
       <div className="col-span-1 vertical gap-2 overflow-y-auto h-full border-r">
         <div className="vertical gap-8 p-4">
           <span className='vertical gap-2'>

@@ -33,9 +33,9 @@ remove_existing_config() {
 
 validate_environment() {
   # Expected CNAME target (tenant's subdomain)
-  local EXPECTED_CNAME="tenant.supaboard.io"
+  local EXPECTED_CNAME="cname.supaboard.io"
   
-  # 1. Verify CNAME exists and points to tenant.supaboard.io
+  # 1. Verify CNAME exists and points to cname.supaboard.io
   local CNAME_RECORD=$(dig +short CNAME "${DOMAIN}" | sed 's/\.$//')
   
   if [ "$CNAME_RECORD" != "$EXPECTED_CNAME" ]; then
@@ -120,10 +120,10 @@ server {
     # Proxy API requests to your backend on port 8000
     location /api/ {
         proxy_pass http://127.0.0.1:8000/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 
     # Serve static files for your React app
@@ -131,7 +131,7 @@ server {
         root /var/www/supaboard;
         index index.html;
         # Try to serve the requested file, if not found fallback to index.html
-        try_files $uri $uri/ /index.html;
+        try_files \$uri \$uri/ /index.html;
     }
 }
 EOL

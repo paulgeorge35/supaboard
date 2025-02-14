@@ -3,6 +3,7 @@ import { boardFeedbackSummarySelect, db, DomainStatus } from "@repo/database";
 import { type Response } from "express";
 import dns from 'node:dns/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { z } from "zod";
 
 export async function getApplication(req: BareSessionRequest, res: Response) {
@@ -117,11 +118,47 @@ export async function getBoards(req: BareSessionRequest, res: Response) {
 
 const CNAME_VALUE = 'cname.supaboard.io';
 
-const addDomain = (domain: string) => {
-    const scriptPath = path.join(import.meta.dir, 'add_domain.sh');
-    return Bun.spawn(['sh', scriptPath, domain], {
-        cwd: import.meta.dir,
+const getScriptPath = (scriptName: string) => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    return path.join(currentDir, '../..', scriptName);
+};
+
+const addDomain = async (domain: string) => {
+    const scriptPath = getScriptPath('add_domain.sh');
+    console.log('Executing script:', scriptPath);
+    
+    const proc = Bun.spawn(['bash', scriptPath, domain], {
+        cwd: path.dirname(scriptPath),
     });
+    
+    const output = await new Response(proc.stdout).text();
+    const error = await new Response(proc.stderr).text();
+    
+    if (error) {
+        console.error('Script error:', error);
+        throw new Error(error);
+    }
+    
+    return output;
+};
+
+const deleteDomain = async (domain: string) => {
+    const scriptPath = getScriptPath('remove_domain.sh');
+    console.log('Executing script:', scriptPath);
+    
+    const proc = Bun.spawn(['bash', scriptPath, domain], {
+        cwd: path.dirname(scriptPath),
+    });
+    
+    const output = await new Response(proc.stdout).text();
+    const error = await new Response(proc.stderr).text();
+    
+    if (error) {
+        console.error('Script error:', error);
+        throw new Error(error);
+    }
+    
+    return output;
 };
 
 export async function verifyDomain(req: BareSessionRequest, res: Response) {
@@ -130,6 +167,20 @@ export async function verifyDomain(req: BareSessionRequest, res: Response) {
 
     if (!userId || !applicationId) {
         res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
+        return;
+    }
+
+    const applications = await db.application.findMany({
+        where: {
+            customDomain: req.body.domain,
+        }
+    })
+
+    if (applications.length > 0) {
+        res.status(400).json({
+            error: 'Domain already in use',
+            code: 'DOMAIN_ALREADY_IN_USE',
+        });
         return;
     }
 
@@ -154,7 +205,7 @@ export async function verifyDomain(req: BareSessionRequest, res: Response) {
     }
 
     try {
-        addDomain(req.body.domain);
+        await addDomain(req.body.domain);
     } catch (error) {
         console.error('Domain addition failed:', error);
         res.status(400).json({
@@ -173,11 +224,41 @@ export async function verifyDomain(req: BareSessionRequest, res: Response) {
     res.status(200).json({ message: 'Domain verified' });
 }
 
+export async function removeDomain(req: BareSessionRequest, res: Response) {
+    const userId = req.auth?.id;
+    const applicationId = req.application?.id;
+
+    if (!userId || !applicationId) {
+        res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
+        return;
+    }
+
+    try {
+        await deleteDomain(req.body.domain);
+    } catch (error) {
+        console.error('Domain deletion failed:', error);
+        res.status(400).json({
+            error: 'Failed to remove domain',
+            code: 'FAILED_TO_REMOVE_DOMAIN',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        });
+        return;
+    }
+
+    await db.application.update({
+        where: { id: applicationId },
+        data: { domainStatus: DomainStatus.PENDING, customDomain: null },
+    });
+
+    res.status(200).json({ message: 'Domain removed' });
+}
+
 export const controller = {
     application: {
         get: getApplication,
         update: updateApplication,
         boards: getBoards,
         verifyDomain,
+        removeDomain,
     },
 };

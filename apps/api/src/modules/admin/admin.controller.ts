@@ -1,5 +1,5 @@
 import { sendInvitationEmail } from "@/util";
-import { activityOverview, ActivityType, ApplicationInviteStatus, applicationInviteSummarySelect, db, FeedbackStatus, getLatestPosts, postOverviewAllBoards, postOverviewCategories, postOverviewTags, Role, userSummarySelect } from "@repo/database";
+import { activityOverview, ActivityType, ApplicationInviteStatus, applicationInviteSummarySelect, db, FeedbackStatus, getLatestPosts, postOverviewAllBoards, postOverviewCategories, postOverviewTags, Prisma, Role, userSummarySelect } from "@repo/database";
 import type { Response } from "express";
 import { DateTime } from "luxon";
 import { v4 as uuidv4 } from 'uuid';
@@ -265,6 +265,68 @@ export async function getUsers(request: BareSessionRequest, res: Response) {
     });
 
     res.json(members);
+}
+
+const userSearchSchema = z.object({
+    cursor: z.string().optional(),
+    take: z.number().default(10),
+    order: z.enum(['last-activity', 'top-posters', 'top-voters']).default('last-activity'),
+    filter: z.array(z.enum(['posts', 'votes', 'comments'])).optional(),
+    start: z.string().optional().transform((value) => value && DateTime.fromFormat(value, 'yyyy-MM-dd').isValid ? DateTime.fromFormat(value, 'yyyy-MM-dd').toJSDate() : undefined),
+    end: z.string().optional().transform((value) => value && DateTime.fromFormat(value, 'yyyy-MM-dd').isValid ? DateTime.fromFormat(value, 'yyyy-MM-dd').toJSDate() : undefined),
+    search: z.string().optional().transform(
+        (value) => {
+            if (!value) return undefined;
+            return value.trim().replace(/ +(?= )/g, '')
+                .split(' ')
+                .filter((word) => word.length > 2)
+                .join(' | ');
+        }
+    )
+});
+
+export async function getDetailedUsers(request: BareSessionRequest, res: Response) {
+    const applicationId = request.application?.id;
+
+    if (!applicationId) {
+        res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
+        return;
+    }
+
+    const { cursor, take, order, start, end, search, filter } = userSearchSchema.parse(request.query);
+
+    const types: ActivityType[] | undefined = filter ? filter.map((filter) => {
+        switch (filter) {
+            case 'posts':
+                return ActivityType.FEEDBACK_CREATE;
+            case 'votes':
+                return ActivityType.FEEDBACK_VOTE;
+            case 'comments':
+                return ActivityType.FEEDBACK_COMMENT;
+            default:
+                return ActivityType.FEEDBACK_CREATE;
+        }
+    }) : undefined; 
+
+    const where: Prisma.FeedbackWhereInput = {};
+
+    if (types) {
+        where.AND = types.map((type) => ({
+            activities: {
+                some: {
+                    type,
+                },
+            },
+        }));
+    }
+
+    const activities = await db.feedback.findMany({
+        where,
+        orderBy: {
+            createdAt: 'desc',
+        },
+        
+    });
 }
 
 export async function getInvites(request: BareSessionRequest, res: Response) {

@@ -61,15 +61,15 @@ function RouteComponent() {
   }, [boardSlug, boards, router, createNew])
 
   return (
-    <div>
-      <div className='p-8 gap-2 vertical border-b'>
+    <div className='relative h-[calc(100dvh-72px)] vertical items-start'>
+      <div className='p-8 gap-2 vertical border-b sticky left-0 max-w-screen bg-white dark:bg-zinc-900 z-10 w-full'>
         {createNew ? (
           <span className='horizontal center-v space-between'>
             <h1 className='text-2xl'>Create New Board</h1>
           </span>
         ) : (
           <span className='horizontal center-v space-between'>
-            <span className='horizontal gap-8'>
+            <span className='flex flex-col md:flex-row gap-2 md:gap-8'>
               <h1 className='text-2xl'>Board Settings</h1>
               <Popover
                 id='board-selector'
@@ -110,7 +110,7 @@ function RouteComponent() {
           Manage and organize your feedback boards
         </p>
       </div>
-      <div className='grid grid-cols-[auto_1fr]'>
+      <div className='grid grid-cols-[auto_1fr] overflow-y-auto grow'>
         {!createNew && (
           <div className='vertical gap-2 p-8'>
             {BoardLinks.map((link) => (
@@ -125,7 +125,7 @@ function RouteComponent() {
             ))}
           </div>
         )}
-        <div className={cn('p-8 md:max-w-2xl', {
+        <div className={cn('p-8 md:max-w-2xl min-w-screen md:min-w-full', {
           "col-span-full": createNew
         })}>
           <Outlet />

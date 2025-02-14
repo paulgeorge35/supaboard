@@ -169,7 +169,7 @@ export const PostsOverview = () => {
 
     return (
         <div className="border rounded-lg p-4">
-            <span className="horizontal center-v space-between">
+            <span className="flex flex-col md:flex-row center-v md:justify-between">
                 <h1 className="text-lg font-bold pb-4">Posts Overview</h1>
                 <span className="horizontal gap-2">
                     <SelectComponent
@@ -203,7 +203,7 @@ export const PostsOverview = () => {
                         range={range}
                         onChange={(range) => setRange(range)}
                         triggerClassName="w-full hover:bg-gray-300/20 dark:hover:bg-zinc-800/20 transition-colors duration-200 cursor-pointer h-9"
-                        className="w-fit"
+                        className="w-fit hidden md:block"
                         align="end"
                     />
                 </span>

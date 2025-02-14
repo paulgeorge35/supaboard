@@ -56,9 +56,14 @@ function RouteComponent() {
           {feedback.description}
         </p>
         <span className="horizontal gap-2 col-start-2">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 hidden md:block">
             {DateTime.fromJSDate(new Date(feedback.createdAt)).toFormat(
               'MMMM dd, yyyy, HH:mm',
+            )}
+          </p>
+          <p className="text-xs text-gray-500 block md:hidden">
+            {DateTime.fromJSDate(new Date(feedback.createdAt)).toFormat(
+              'dd/MM/yyyy',
             )}
           </p>
           <EditFeedbackButton

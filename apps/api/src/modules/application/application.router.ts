@@ -8,5 +8,6 @@ router.get('/', application, controller.application.get);
 router.put('/', admin, controller.application.update);
 router.get('/boards', application, controller.application.boards);
 router.post('/verify-domain', admin, controller.application.verifyDomain);
+router.post('/remove-domain', admin, controller.application.removeDomain);
 
 export { router as applicationRouter };

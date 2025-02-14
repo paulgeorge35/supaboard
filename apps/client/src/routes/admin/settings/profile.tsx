@@ -131,7 +131,7 @@ function RouteComponent() {
   }
 
   return (
-    <div>
+    <div className='min-w-screen md:min-w-full'>
       <div className='p-8 gap-2 vertical border-b'>
         <h1 className='text-2xl'>Profile</h1>
         <p className='text-sm text-gray-500 dark:text-zinc-400'>

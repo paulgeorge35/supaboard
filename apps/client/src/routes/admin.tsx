@@ -43,7 +43,7 @@ function RouteComponent() {
 
   return (
     <span className='vertical h-[100dvh]'>
-      <nav className="flex items-center justify-between p-4 fixed top-0 left-0 right-0 z-20 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 h-18">
+      <nav className="flex items-center justify-between p-4 fixed top-0 left-0 right-0 z-20 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 h-18 overflow-x-auto overflow-y-hidden">
         <span className='horizontal gap-2 center-v'>
           <Link to="/admin" activeOptions={{ exact: true }} className='button button-navigation font-medium gap-0 text-base'>
             supa<span className='text-violet-400 font-bold underline'>board</span>
