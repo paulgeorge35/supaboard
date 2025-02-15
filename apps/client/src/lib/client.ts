@@ -7,7 +7,7 @@ type FetchClientOptions = RequestInit & {
 }
 
 export const fetchClient = async (path: string | URL | globalThis.Request, options?: FetchClientOptions) => {
-    const apiURL = window.location.hostname.endsWith('supaboard.io') ? 'https://api.supaboard.io' : `https://${window.location.hostname}/api/`
+    const apiURL = window.location.hostname.endsWith('supaboard.io') ? 'https://api.supaboard.io' : `https://${window.location.hostname}/api`
     const searchParams = options?.queryParams ? buildQueryString(options.queryParams) : undefined;
     try {
         const res = await fetch(`${apiURL}/${path}${searchParams ? `?${searchParams}` : ''}`, {

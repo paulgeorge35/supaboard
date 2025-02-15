@@ -60,7 +60,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                     isLoading={isLoading}
                 />
                 <DetailItem 
-                    label="Operating System"
+                    label="OS"
                     value={data?.user.os}
                     isLoading={isLoading}
                 />

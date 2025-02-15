@@ -3,6 +3,7 @@ import { cookieOptions, encrypt, googleClient, presignReadUrl } from '@/util';
 import { AdminReportFrequency, db, Language } from '@repo/database';
 import { fetch } from 'bun';
 import { type Request, type Response } from 'express';
+import { UAParser } from 'ua-parser-js';
 import { z } from 'zod';
 
 const registerSchema = z.object({
@@ -171,6 +172,8 @@ export async function googleSignUpCallback(req: Request, res: Response) {
 
 export async function googleSignInCallback(req: Request, res: Response) {
     try {
+        const parser = UAParser(req.headers['user-agent']);
+
         const url = new URL(req.url, `https://api.supaboard.io`);
         const code = url.searchParams.get('code');
         const state = url.searchParams.get('state');
@@ -210,6 +213,15 @@ export async function googleSignInCallback(req: Request, res: Response) {
             res.redirect(state ?? '/');
             return;
         }
+
+        await db.user.update({
+            where: { id: existingUser.id },
+            data: {
+                os: `${parser.os.name} ${parser.os.version}`,
+                browser: parser.browser.name,
+                device: `${parser.device.vendor} ${parser.device.model}`,
+            }
+        });
 
         const token = await encrypt({
             id: existingUser.id,
