@@ -58,7 +58,7 @@ function RouteComponent() {
   }, [userSlug, users, router])
 
   return (
-    <div className="grid grid-cols-[minmax(200px,250px)_minmax(300px,360px)_minmax(40%,1fr)_minmax(380px,400px)] w-full h-full max-h-full pt-18">
+    <div className="grid grid-cols-[minmax(200px,250px)_minmax(300px,360px)_minmax(300px,1fr)_minmax(380px,400px)] w-full h-full max-h-full pt-18">
       <div className="col-span-1 vertical gap-2 overflow-y-auto h-full sticky left-0">
         <div className="vertical gap-8 p-4">
           <DateRange />
