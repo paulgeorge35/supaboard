@@ -1,6 +1,6 @@
 import { Board, Feedback, FeedbackCategory, RoadmapSummary, User } from "@repo/database";
 import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
+import { useRouter, useSearch } from "@tanstack/react-router";
 import { v4 as uuidv4 } from 'uuid';
 import { fetchClient } from "../client";
 import { feedbackQuery, FeedbackQueryData } from "../query";
@@ -8,6 +8,7 @@ import { RoadmapDetailResponse, roadmapQuery, roadmapsQuery } from "../query/roa
 
 export const useCreateRoadmapMutation = () => {
     const queryClient = useQueryClient();
+    const search = useSearch({ from: '/admin/roadmap' });
     const router = useRouter();
 
     return useMutation({
@@ -31,13 +32,14 @@ export const useCreateRoadmapMutation = () => {
             queryClient.invalidateQueries({ queryKey: roadmapsQuery.queryKey });
         },
         onSuccess: (data) => {
-            router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: data.slug } });
+            router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: data.slug }, search });
         },
     })
 }
 
 export const useRenameRoadmapMutation = (roadmapSlug: string, remoteQueryClient?: QueryClient) => {
     const queryClient = useQueryClient();
+    const search = useSearch({ from: '/admin/roadmap' });
     const router = useRouter();
     return useMutation({
         mutationFn: (name: string) => fetchClient(`/roadmap/${roadmapSlug}/rename`, {
@@ -59,7 +61,8 @@ export const useRenameRoadmapMutation = (roadmapSlug: string, remoteQueryClient?
 
             return { previousRoadmaps, previousRoadmap };
         },
-        onError: (_, __, context) => {
+        onError: (error, __, context) => {
+            console.log(error);
             remoteQueryClient?.setQueryData(roadmapQuery(roadmapSlug).queryKey, context?.previousRoadmap);
 
             queryClient.setQueryData(roadmapsQuery.queryKey, context?.previousRoadmaps);
@@ -72,13 +75,14 @@ export const useRenameRoadmapMutation = (roadmapSlug: string, remoteQueryClient?
             queryClient.invalidateQueries({ queryKey: roadmapQuery(roadmapSlug).queryKey });
         },
         onSuccess: () => {
-            router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: roadmapSlug }, replace: true });
+            router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: roadmapSlug }, replace: true, search });
         },
     })
 }
 
 export const useDeleteRoadmapMutation = (roadmapSlug?: string) => {
     const router = useRouter();
+    const search = useSearch({ from: '/admin/roadmap' });
 
     const queryClient = useQueryClient();
 
@@ -100,7 +104,7 @@ export const useDeleteRoadmapMutation = (roadmapSlug?: string) => {
             queryClient.invalidateQueries({ queryKey: roadmapsQuery.queryKey });
         },
         onSuccess: () => {
-            router.navigate({ to: '/admin/roadmap', replace: true });
+            router.navigate({ to: '/admin/roadmap', replace: true, search });
         },
     })
 }
@@ -108,6 +112,7 @@ export const useDeleteRoadmapMutation = (roadmapSlug?: string) => {
 export const useDuplicateRoadmapMutation = (roadmapSlug?: string) => {
     const router = useRouter();
     const queryClient = useQueryClient();
+    const search = useSearch({ from: '/admin/roadmap' });
 
     return useMutation({
         mutationFn: () => fetchClient(`/roadmap/${roadmapSlug}/duplicate`, { method: 'POST' }),
@@ -131,7 +136,7 @@ export const useDuplicateRoadmapMutation = (roadmapSlug?: string) => {
             queryClient.invalidateQueries({ queryKey: roadmapsQuery.queryKey });
         },
         onSuccess: (data) => {
-            router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: data.slug } });
+            router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: data.slug }, search });
         },
     })
 }
@@ -164,7 +169,7 @@ export const useAddToRoadmapMutation = (roadmapSlug: string) => {
 
                 return {
                     ...old,
-                    items: [...old.items, { ...feedback, impact: 0, effort: 0 }],
+                    items: [...old.items, { ...feedback, impact: 0, effort: 1 }],
                 };
             });
 
@@ -172,7 +177,7 @@ export const useAddToRoadmapMutation = (roadmapSlug: string) => {
                 if (!old) return undefined;
 
                 if (previousRoadmap) {
-                    return { ...old, roadmaps: [...old.roadmaps, { ...previousRoadmap, items: [...previousRoadmap.items, { ...feedback, impact: 0, effort: 0 }] }] };
+                    return { ...old, roadmaps: [...old.roadmaps, { ...previousRoadmap, items: [...previousRoadmap.items, { ...feedback, impact: 0, effort: 1 }] }] };
                 }
 
                 return old;
@@ -259,7 +264,7 @@ export const useAddNewRoadmapItemMutation = (roadmapSlug: string) => {
                             category: null,
                             board: { id: uuidv4(), name: board.name, slug: board.slug },
                             impact: 0,
-                            effort: 0
+                            effort: 1
                         }
                     ],
                 };
@@ -305,6 +310,51 @@ export const useUpdateRoadmapItemMutation = (roadmapSlug: string) => {
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: roadmapQuery(roadmapSlug).queryKey });
+        },
+    })
+}
+
+type CreateFeedbackValues = {
+    title: string;
+    description?: string;
+    board: string;
+    categoryId?: string;
+}
+
+export const useCreateFeedbackMutation = (roadmapSlug: string) => {
+    const queryClient = useQueryClient();
+    const search = useSearch({ from: '/admin/roadmap' });
+    const router = useRouter();
+
+    return useMutation({
+        mutationFn: (values: CreateFeedbackValues) => fetchClient(`/feedback/${values.board}/create`, {
+            method: 'POST',
+            body: JSON.stringify({ ...values, roadmapSlug }),
+        }),
+        onMutate: (values) => {
+            queryClient.cancelQueries({ queryKey: roadmapQuery(roadmapSlug).queryKey });
+
+            const previousRoadmap = queryClient.getQueryData<RoadmapDetailResponse>(roadmapQuery(roadmapSlug).queryKey);
+
+            queryClient.setQueryData(roadmapQuery(roadmapSlug).queryKey, (old: RoadmapDetailResponse | undefined) => {
+                if (!old) return undefined;
+
+                return {
+                    ...old,
+                    items: [...old.items, { ...values, id: uuidv4(), board: { name: "", slug: values.board }, slug: 'new', status: 'OPEN' as const, estimatedDelivery: null, votes: 0, tags: [], owner: null, category: null, impact: 0, effort: 1 }],
+                };
+            });
+
+            return { previousRoadmap };
+        },
+        onError: (_, __, context) => {
+            queryClient.setQueryData(roadmapQuery(roadmapSlug).queryKey, context?.previousRoadmap);
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: roadmapQuery(roadmapSlug).queryKey });
+        },
+        onSuccess: () => {
+            router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: roadmapSlug }, search });
         },
     })
 }

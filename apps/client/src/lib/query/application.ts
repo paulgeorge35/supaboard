@@ -2,7 +2,7 @@ import { Application, ApplicationInviteSummary, BoardFeedbackSummary, FeedbackDe
 import { queryOptions } from "@tanstack/react-query";
 import { fetchClient } from "../client";
 
-export type ApplicationBoardsQueryData = (Pick<BoardFeedbackSummary, 'name' | 'slug' | 'showOnHome'> & {
+export type ApplicationBoardsQueryData = (Pick<BoardFeedbackSummary, 'id' | 'name' | 'slug' | 'showOnHome'> & {
     count: number;
     feedbacks: FeedbackDetailed[];
 })[]

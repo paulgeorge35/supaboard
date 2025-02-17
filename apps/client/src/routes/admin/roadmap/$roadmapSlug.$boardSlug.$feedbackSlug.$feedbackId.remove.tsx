@@ -1,6 +1,6 @@
 import { ModalComponent } from '@/components/modal-component'
 import { useRemoveFromRoadmapMutation } from '@/lib/mutation/roadmap'
-import { createFileRoute, useParams, useRouter } from '@tanstack/react-router'
+import { createFileRoute, useParams, useRouter, useSearch } from '@tanstack/react-router'
 import { Button } from 'react-aria-components'
 
 export const Route = createFileRoute('/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove')(
@@ -12,6 +12,7 @@ export const Route = createFileRoute('/admin/roadmap/$roadmapSlug/$boardSlug/$fe
 function RouteComponent() {
   const router = useRouter()
   const { roadmapSlug, boardSlug, feedbackSlug, feedbackId } = useParams({ from: Route.fullPath })
+  const search = useSearch({ from: Route.fullPath })
   const { mutate: removeFromRoadmap, isPending: isRemovingFromRoadmap } =
     useRemoveFromRoadmapMutation(roadmapSlug)
 
@@ -19,6 +20,7 @@ function RouteComponent() {
     router.navigate({
       to: '/admin/roadmap/$roadmapSlug',
       params: { roadmapSlug },
+      search
     })
   }
 

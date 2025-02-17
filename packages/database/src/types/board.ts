@@ -21,6 +21,7 @@ export type BoardSummary = Prisma.BoardGetPayload<{
 }>;
 
 export const boardFeedbackSummarySelect = Prisma.validator<Prisma.BoardSelect>()({
+    id: true,
     name: true,
     slug: true,
     showOnHome: true,

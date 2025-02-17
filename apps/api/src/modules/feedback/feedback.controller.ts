@@ -46,6 +46,7 @@ const feedbackSchema = z.object({
     title: z.string().min(1).trim(),
     description: z.string().optional(),
     categoryId: z.string().optional(),
+    roadmapSlug: z.string().optional(),
 });
 
 async function generateUniqueSlug(title: string, boardId: string): Promise<string> {
@@ -121,6 +122,11 @@ export async function createFeedback(req: BareSessionRequest<z.infer<typeof feed
                     authorId: userId,
                 },
             },
+            roadmapItems: data.roadmapSlug ? {
+                create: {
+                    roadmap: { connect: { slug: data.roadmapSlug } },
+                },
+            } : undefined,
         },
     });
 

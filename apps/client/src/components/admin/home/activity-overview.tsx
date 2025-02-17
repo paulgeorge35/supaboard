@@ -116,10 +116,10 @@ export function ActivityOverview() {
                         <h2 className="font-light text-sm">
                             {config.title}
                         </h2>
-                        <p className="text-2xl font-bold mb-4 horizontal center-v gap-1">
+                        <div className="text-2xl font-bold mb-4 horizontal center-v gap-1">
                             {config.total ?? '-'}
                             <Trend trend={config.trend} percentageIncrease={config.percentageIncrease} />
-                        </p>
+                        </div>
                         <div className="h-[100px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={config.data}>

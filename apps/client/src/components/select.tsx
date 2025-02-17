@@ -10,6 +10,7 @@ export interface SelectOption {
 }
 
 interface SelectProps {
+    required?: boolean
     label?: string
     options: SelectOption[]
     value?: string
@@ -23,6 +24,7 @@ interface SelectProps {
 }
 
 export function SelectComponent({
+    required = false,
     label,
     options,
     value,
@@ -40,17 +42,19 @@ export function SelectComponent({
     return (
         <Select
             ref={ref}
-            className={cn('horizontal center relative', className)}
+            className={cn('vertical items-start gap-2 relative', className)}
             selectedKey={value}
             onSelectionChange={(key) => onChange?.(key as string)}
             isDisabled={disabled}
         >
-            {label && <Label>{label}</Label>}
+            {label && <Label className='horizontal center-v gap-1 text-xs uppercase font-medium text-gray-500 dark:text-zinc-500'>{label}
+                {required && <span className='text-red-500'>*</span>}
+            </Label>}
             <Button className={cn('w-full horizontal center-v space-between px-2 border rounded-md h-full text-sm hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 transition-colors duration-100', {
                 'opacity-50 pointer-events-none': disabled
             }, triggerClassName)}>
                 <SelectValue className={cn('truncate', {
-                    'text-gray-500 dark:text-zinc-500 w-full': !value,
+                    '[&>*]:!text-gray-500 dark:[&>*]:!text-zinc-500 w-full': !value,
                 })}>
                     {({ selectedText }) => (
                         <span className='horizontal center-v gap-2 w-full'>

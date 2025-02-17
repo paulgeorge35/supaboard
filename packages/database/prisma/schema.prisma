@@ -368,7 +368,7 @@ model Vote {
 model RoadmapItem {
   id     String @id @default(uuid())
   impact Int    @default(0)
-  effort Int    @default(0)
+  effort Int    @default(1)
 
   feedbackId String
   feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)

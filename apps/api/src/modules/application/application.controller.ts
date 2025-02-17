@@ -97,6 +97,7 @@ export async function getBoards(req: BareSessionRequest, res: Response) {
     });
 
     res.status(200).json(boards.map(board => ({
+        id: board.id,
         name: board.name,
         slug: board.slug,
         showOnHome: board.showOnHome,

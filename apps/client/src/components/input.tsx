@@ -41,7 +41,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({ className, labe
                 </span>
                 <input
                     ref={inputRef}
-                    required={required}
                     {...props}
                     className={cn('md:text-sm font-light w-full focus:outline-none disabled:opacity-50 placeholder:text-gray-500 dark:placeholder:text-zinc-500', inputClassName)}
                 />

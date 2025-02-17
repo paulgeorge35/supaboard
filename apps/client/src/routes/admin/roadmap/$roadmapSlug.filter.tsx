@@ -1,4 +1,4 @@
-import { createFileRoute, useParams, useRouter } from '@tanstack/react-router';
+import { createFileRoute, useParams, useRouter, useSearch } from '@tanstack/react-router';
 import { useEffect, useRef } from 'react';
 
 export const Route = createFileRoute('/admin/roadmap/$roadmapSlug/filter')({
@@ -9,10 +9,11 @@ function RouteComponent() {
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { roadmapSlug } = useParams({ from: Route.fullPath });
+  const search = useSearch({ from: Route.fullPath });
   const filterButton = document.getElementById('filter-button');
   const handleClickOutside = (e: MouseEvent) => {
     if (ref.current && !ref.current.contains(e.target as Node) && !filterButton?.contains(e.target as Node)) {
-      router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug } });
+      router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug }, search });
     }
   }
 

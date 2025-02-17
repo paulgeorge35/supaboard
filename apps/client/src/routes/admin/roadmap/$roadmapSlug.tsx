@@ -27,15 +27,15 @@ function RouteComponent() {
         <AnimatedOutlet key={nextMatch?.id}
           transitionProps={nextMatch?.routeId === '/admin/roadmap/$roadmapSlug/filter' ? {
             transition: {
-              duration: 0.3,
+              duration: 0.1,
               ease: 'easeInOut',
             },
             initial: { top: 0, right: '-100%', bottom: 0, position: 'absolute', zIndex: 100 },
-            animate: { right: 0,zIndex: 100 },
+            animate: { right: 0, zIndex: 100 },
             exit: { right: '-100%', transition: { duration: 0.3, ease: 'easeInOut' } },
           } : {
             transition: {
-              duration: 0.3,
+              duration: 0.1,
               ease: 'easeInOut',
             },
           }} />

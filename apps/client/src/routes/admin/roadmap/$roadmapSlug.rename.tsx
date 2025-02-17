@@ -4,7 +4,7 @@ import { useRenameRoadmapMutation } from '@/lib/mutation';
 import { roadmapQuery } from '@/lib/query';
 import { useForm } from '@tanstack/react-form';
 import { QueryClient } from '@tanstack/react-query';
-import { createFileRoute, getRouteApi, useParams, useRouter } from '@tanstack/react-router';
+import { createFileRoute, getRouteApi, useParams, useRouter, useSearch } from '@tanstack/react-router';
 import { Button } from 'react-aria-components';
 import { z } from 'zod';
 
@@ -24,7 +24,8 @@ function RouteComponent() {
     const data = routeApi.useLoaderData();
     const router = useRouter();
     const { roadmapSlug } = useParams({ from: Route.fullPath })
-    const { mutate: renameRoadmap, isPending: isRenamingRoadmap } = useRenameRoadmapMutation(roadmapSlug, routeApi.useRouteContext().queryClient);
+    const search = useSearch({ from: Route.fullPath })
+    const { mutate: renameRoadmap, isPending: isRenamingRoadmap } = useRenameRoadmapMutation(roadmapSlug);
 
     const schema = z.object({
         name: z.string({
@@ -45,7 +46,7 @@ function RouteComponent() {
     });
 
     const onClose = () => {
-        router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug } });
+        router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug }, search });
     }
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

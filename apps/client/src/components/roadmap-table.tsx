@@ -2,11 +2,11 @@ import { Skeleton } from '@/components/skeleton';
 import { useAddNewRoadmapItemMutation, useUpdateRoadmapItemMutation } from '@/lib/mutation/roadmap';
 import { applicationBoardsQuery } from '@/lib/query';
 import type { RoadmapDetailResponse } from '@/lib/query/roadmap';
-import { cn } from '@/lib/utils';
+import { cn, FeedbackStatusConfig } from '@/lib/utils';
 import { Route } from '@/routes/admin/roadmap/$roadmapSlug';
-import { useFocus, useNumber } from '@paulgeorge35/hooks';
+import { useFocus, useMediaQuery, useNumber } from '@paulgeorge35/hooks';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useParams, useRouter } from '@tanstack/react-router';
+import { Link, useParams, useRouter, useSearch } from '@tanstack/react-router';
 import {
   createColumnHelper,
   flexRender,
@@ -16,8 +16,9 @@ import {
   Table,
   useReactTable
 } from '@tanstack/react-table';
+import { AnimatePresence, motion } from 'framer-motion';
 import { DateTime } from 'luxon';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Avatar } from './avatar';
 import { Checkbox } from './checkbox';
 import { Icons } from './icons';
@@ -30,8 +31,8 @@ type RoadmapItem = RoadmapDetailResponse['items'][0];
 const columnHelper = createColumnHelper<RoadmapItem>();
 
 const formatNumber = (number: number) => {
-  if (number > 1000) {
-    return `${(number / 1000).toFixed(number > 10000 ? 0 : 1)}k`;
+  if (number >= 1000) {
+    return `${(number / 1000).toFixed(number >= 10000 ? 0 : 1)}k`;
   }
   return number;
 }
@@ -48,12 +49,12 @@ const getTotalScore = (table: Table<RoadmapItem>) => {
 
   const scores = allItems.map(item => {
     const voteScore = maxVotes ? (item.votes / maxVotes) * 100 : 0;
-    return Math.round(
+    return item.effort > 0 ? Math.round(
       1000 * (
         (Math.pow(item.impact, 2) * weights.impact) +
         (voteScore * weights.votes)
       ) / (item.effort * weights.effort)
-    );
+    ) : 0;
   });
   return scores.reduce((a, b) => a + b, 0);
 }
@@ -61,13 +62,16 @@ const getTotalScore = (table: Table<RoadmapItem>) => {
 type ColumnProps = {
   checkedItems: string[];
   setCheckedItems: (items: string[]) => void;
+  isMobile: boolean;
+  maxVotes: number;
 }
 
-const columns = ({ checkedItems, setCheckedItems }: ColumnProps) => [
+const columns = ({ checkedItems, setCheckedItems, isMobile, maxVotes }: ColumnProps) => [
   columnHelper.accessor('title', {
     header: (info) => <div className='horizontal gap-4 center-v'>
       <Checkbox
-        checked={checkedItems.length === info.table.getRowModel().rows.length}
+        disabled={info.table.getRowModel().rows.length === 0}
+        checked={checkedItems.length >= info.table.getRowModel().rows.length && info.table.getRowModel().rows.length > 0}
         onChange={(value) => setCheckedItems(value.target.checked ? info.table.getRowModel().rows.map(row => row.original.id) : [])}
       />
       <p className='text-gray-500 dark:text-zinc-400'>Posts ({info.table.getRowModel().rows.length})</p>
@@ -117,9 +121,9 @@ const columns = ({ checkedItems, setCheckedItems }: ColumnProps) => [
     },
     enablePinning: true,
     enableResizing: true,
-    minSize: 250,
-    maxSize: 600,
-    size: 400,
+    minSize: isMobile ? 100 : 250,
+    maxSize: isMobile ? 400 : 600,
+    size: isMobile ? 100 : 600,
   }),
   columnHelper.accessor('estimatedDelivery', {
     header: 'ETA',
@@ -130,9 +134,9 @@ const columns = ({ checkedItems, setCheckedItems }: ColumnProps) => [
       return DateTime.fromJSDate(date).toFormat('MMM yyyy')
     },
     enableResizing: true,
-    minSize: 130,
-    maxSize: 600,
-    size: 150,
+    minSize: isMobile ? 100 : 130,
+    maxSize: isMobile ? 150 : 600,
+    size: isMobile ? 100 : 130,
   }),
   columnHelper.accessor('owner', {
     header: 'Owner',
@@ -146,41 +150,41 @@ const columns = ({ checkedItems, setCheckedItems }: ColumnProps) => [
       ) : null;
     },
     enableResizing: true,
-    minSize: 100,
-    maxSize: 600,
-    size: 100,
+    minSize: isMobile ? 100 : 130,
+    maxSize: isMobile ? 150 : 600,
+    size: isMobile ? 100 : 130,
   }),
   columnHelper.accessor('category', {
     header: 'Category',
     cell: (info) => info.getValue()?.name ?? '-',
     enableResizing: true,
-    minSize: 130,
-    maxSize: 600,
-    size: 130,
+    minSize: isMobile ? 100 : 130,
+    maxSize: isMobile ? 150 : 600,
+    size: isMobile ? 100 : 130,
   }),
   columnHelper.accessor('status', {
     header: 'Status',
     cell: (info) => <StatusBadge status={info.getValue()} variant='text' />,
     enableResizing: true,
-    minSize: 130,
-    maxSize: 600,
-    size: 250,
+    minSize: isMobile ? 100 : 130,
+    maxSize: isMobile ? 150 : 600,
+    size: isMobile ? 100 : 130,
   }),
   columnHelper.accessor('tags', {
     header: 'Tags',
     cell: (info) => info.getValue().join(', ') || '-',
     enableResizing: true,
-    minSize: 130,
-    maxSize: 600,
-    size: 250,
+    minSize: isMobile ? 100 : 130,
+    maxSize: isMobile ? 150 : 600,
+    size: isMobile ? 100 : 130,
   }),
   columnHelper.accessor('board', {
     header: 'Board',
     cell: (info) => info.getValue().name,
     enableResizing: true,
-    minSize: 130,
-    maxSize: 600,
-    size: 250,
+    minSize: isMobile ? 100 : 130,
+    maxSize: isMobile ? 150 : 600,
+    size: isMobile ? 100 : 130,
   }),
   columnHelper.accessor('impact', {
     header: 'Impact',
@@ -205,7 +209,7 @@ const columns = ({ checkedItems, setCheckedItems }: ColumnProps) => [
             ref={inputRef}
             value={impact.value}
             type='number'
-            className='w-fit border-none'
+            className='w-fit border-none px-0'
             onChange={(e) => impact.setValue(parseFloat(e.target.value === '' ? '0' : e.target.value))}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -217,9 +221,9 @@ const columns = ({ checkedItems, setCheckedItems }: ColumnProps) => [
       )
     },
     enableResizing: true,
-    minSize: 130,
-    maxSize: 600,
-    size: 150,
+    minSize: isMobile ? 100 : 130,
+    maxSize: isMobile ? 150 : 600,
+    size: isMobile ? 100 : 130,
     meta: {
       alwaysShowLeftBorder: true,
     }
@@ -228,14 +232,14 @@ const columns = ({ checkedItems, setCheckedItems }: ColumnProps) => [
     header: 'Votes',
     cell: (info) => info.getValue(),
     enableResizing: true,
-    minSize: 130,
-    maxSize: 600,
-    size: 150,
+    minSize: isMobile ? 100 : 130,
+    maxSize: isMobile ? 150 : 600,
+    size: isMobile ? 100 : 130,
   }),
   columnHelper.accessor('effort', {
     header: 'Effort',
     cell: (info) => {
-      const effort = useNumber(info.getValue(), { min: 0, max: 100, step: 1 });
+      const effort = useNumber(info.getValue(), { min: 1, max: 100, step: 1 });
       const [inputRef, isFocused] = useFocus<HTMLInputElement>({
         onBlur: () => {
           if (effort.value !== info.getValue()) {
@@ -255,7 +259,7 @@ const columns = ({ checkedItems, setCheckedItems }: ColumnProps) => [
             ref={inputRef}
             value={effort.value}
             type='number'
-            className='w-fit border-none'
+            className='w-fit border-none px-0'
             onChange={(e) => effort.setValue(parseFloat(e.target.value === '' ? '0' : e.target.value))}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -267,49 +271,35 @@ const columns = ({ checkedItems, setCheckedItems }: ColumnProps) => [
       )
     },
     enableResizing: true,
-    minSize: 130,
-    maxSize: 600,
-    size: 150,
+    minSize: isMobile ? 100 : 130,
+    maxSize: isMobile ? 150 : 600,
+    size: isMobile ? 100 : 130,
     meta: {
       alwaysShowLeftBorder: true,
     }
   }),
   columnHelper.accessor((row) => {
-    return {
-      votes: row.votes,
-      impact: row.impact,
-      effort: row.effort
-    }
+    return row.effort > 0 ? Math.round(
+      1000 * (
+        (Math.pow(row.impact, 2) * weights.impact) +
+        (maxVotes ? (row.votes / maxVotes) * 100 : 0 * weights.votes)
+      ) / (row.effort * weights.effort)
+    ) : 0;
   }, {
     id: 'score',
     header: 'Score',
     cell: (info) => {
-      const votes = info.getValue()?.votes ?? 0;
-      const impact = info.getValue()?.impact ?? 0;
-      const effort = info.getValue()?.effort ?? 0;
-      const allItems = info.table.getRowModel().rows.map(row => row.original);
-      const maxVotes = Math.max(...allItems.map(item => item.votes));
-
-      const voteScore = maxVotes ? (votes / maxVotes) * 100 : 0;
-
-      const score = Math.round(
-        1000 * (
-          (Math.pow(impact, 2) * weights.impact) +
-          (voteScore * weights.votes)
-        ) / (effort * weights.effort)
-      );
-
       return (
-        <span className='text-[var(--color-primary)] text-xs font-bold bg-[var(--color-primary)]/10 rounded-full size-9 horizontal center'>
-          {formatNumber(score)}
+        <span className='text-[var(--color-primary)] text-xs font-bold bg-[var(--color-primary)]/10 rounded-full size-10 horizontal center'>
+          {formatNumber(info.getValue())}
         </span>
       )
     },
     enablePinning: true,
     enableResizing: true,
-    minSize: 130,
-    maxSize: 600,
-    size: 150,
+    minSize: isMobile ? 130 : 150,
+    maxSize: isMobile ? 150 : 600,
+    size: isMobile ? 130 : 150,
   }),
 ];
 
@@ -397,8 +387,13 @@ function EmptyPlaceholder() {
   );
 }
 
+type GroupedItems = Record<string, { expanded: boolean, items: RoadmapItem[] }>;
+
 export function RoadmapTable({ items }: RoadmapTableProps) {
+  const { search, groupBy } = useSearch({ from: Route.fullPath });
+  const [groupedItems, setGroupedItems] = useState<GroupedItems>({});
   const [checkedItems, setCheckedItems] = useState<string[]>([]);
+  const isMobile = useMediaQuery('(max-width: 768px)').matches;
   const { roadmapSlug } = useParams({ from: Route.fullPath });
   const [inputRef, isFocused] = useFocus<HTMLInputElement>({
     onBlur: () => {
@@ -422,9 +417,41 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
     }
   }, [boards]);
 
+  useEffect(() => {
+    if (groupBy && items) {
+      const groupedItems: GroupedItems = {};
+      for (let item of items) {
+        let group = 'Unkown';
+        if (groupBy === 'board') {
+          group = item.board.name;
+        } else if (groupBy === 'category') {
+          group = item.category?.name ?? 'Unknown';
+        } else if (groupBy === 'owner') {
+          group = item.owner?.name ?? 'Unknown';
+        } else if (groupBy === 'status') {
+          group = FeedbackStatusConfig[item.status].label;
+        }
+        groupedItems[group] = { expanded: true, items: [...(groupedItems[group]?.items ?? []), item] };
+      }
+      setGroupedItems(groupedItems);
+    }
+    else {
+      setGroupedItems({});
+    }
+  }, [items, groupBy]);
+
+  const toggleGroup = (group: string) => {
+    setGroupedItems(prev => ({ ...prev, [group]: { ...prev[group], expanded: !prev[group].expanded } }));
+  }
+
+  const filteredItems = useMemo(() => {
+    if (!items) return [];
+    return items.filter((item) => item.title.toLowerCase().includes(search?.toLowerCase() ?? ''));
+  }, [items, search]);
+
   const table = useReactTable({
-    data: items ?? [],
-    columns: columns({ checkedItems, setCheckedItems }),
+    data: filteredItems ?? [],
+    columns: columns({ checkedItems, setCheckedItems, isMobile, maxVotes: items?.reduce((max, item) => Math.max(max, item.votes), 0) ?? 0 }),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     enableColumnResizing: true,
@@ -468,7 +495,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="border-b">
                 {headerGroup.headers.map((header) => {
-                  const isPinned = header.column.getIsPinned();
+                  const isPinned = isMobile ? false : header.column.getIsPinned();
                   const alwaysShowLeftBorder = header.column.columnDef.meta && 'alwaysShowLeftBorder' in header.column.columnDef.meta ? true : false;
                   return (
                     <th
@@ -535,13 +562,13 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
+            {Object.entries(groupedItems).length === 0 ? table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
                 className="border-b last:border-b-0 text-sm transition-colors group"
               >
                 {row.getVisibleCells().map((cell) => {
-                  const isPinned = cell.column.getIsPinned();
+                  const isPinned = isMobile ? false : cell.column.getIsPinned();
                   const isResizing = cell.column.getIsResizing();
                   const alwaysShowLeftBorder = cell.column.columnDef.meta && 'alwaysShowLeftBorder' in cell.column.columnDef.meta ? true : false;
                   return (
@@ -581,11 +608,127 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                   );
                 })}
               </tr>
-            ))}
+            ))
+              :
+              Object.entries(groupedItems).map(([group, { expanded, items }]) => {
+                const rows = table.getRowModel().rows.filter(row => items.some(item => item.id === row.original.id));
+
+                if (rows.length === 0) {
+                  return null;
+                }
+
+                return (
+                  <React.Fragment key={group}>
+                    <tr key={group} className='border-b'>
+                      <td
+                        role='button'
+                        onClick={() => toggleGroup(group)}
+                        style={{
+                          position: 'sticky',
+                        }}
+                        className='cursor-pointer left-0 z-20 gap-2 p-4 bg-gray-50 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 font-light border-b'
+                      >
+                        <div className='horizontal center-v gap-2 text-xs font-bold'>
+                          <Icons.ChevronDown className={cn('size-4 shrink-0 transition-transform', !expanded && '-rotate-180')} />
+                          {group}
+                          <span className='text-gray-400 dark:text-zinc-500 border rounded-sm px-1'>
+                            {items.length}
+                          </span>
+                        </div>
+                        <div className='absolute inset-0 pointer-events-none bg-gray-50/20 dark:bg-zinc-800/20 transition-colors' />
+                      </td>
+                      <td role='button'
+                        onClick={() => toggleGroup(group)}
+                        colSpan={table.getAllColumns().length - 1}
+                        className='cursor-pointer bg-gray-50 dark:bg-zinc-800/20'
+                      />
+                    </tr>
+                    <AnimatePresence initial={false}>
+                      {expanded && (
+                        <motion.tr
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <td colSpan={table.getAllColumns().length}>
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <table className="w-full">
+                                <tbody>
+                                  {rows.map((row, index) => (
+                                    <motion.tr
+                                      key={row.id}
+                                      initial={{ x: -20, opacity: 0 }}
+                                      animate={{ x: 0, opacity: 1 }}
+                                      transition={{
+                                        duration: 0.2,
+                                        delay: index * 0.05,
+                                        ease: 'easeOut'
+                                      }}
+                                      className="border-b last:border-b-0 text-sm transition-colors group"
+                                    >
+                                      {row.getVisibleCells().map((cell) => {
+                                        const isPinned = isMobile ? false : cell.column.getIsPinned();
+                                        const isResizing = cell.column.getIsResizing();
+                                        const alwaysShowLeftBorder = cell.column.columnDef.meta && 'alwaysShowLeftBorder' in cell.column.columnDef.meta ? true : false;
+                                        return (
+                                          <td
+                                            key={cell.id}
+                                            style={{
+                                              width: cell.column.getSize(),
+                                              position: isPinned ? 'sticky' : undefined,
+                                            }}
+                                            className={cn(
+                                              'px-4 py-2 text-zinc-800 border-b dark:text-zinc-200 font-light relative',
+                                              'transition-colors',
+                                              cell.column.id === 'title' && 'cursor-pointer py-0 group/title',
+                                              !isPinned && 'group-hover:bg-[var(--color-primary)]/5',
+                                              isPinned && 'z-20',
+                                              isPinned === 'left' && [
+                                                'left-0',
+                                                'after:absolute after:right-0 after:top-0 after:h-full after:w-[1px] after:bg-gray-200 dark:after:bg-zinc-800',
+                                                'bg-white dark:bg-zinc-900'
+                                              ],
+                                              isPinned === 'right' && [
+                                                'right-0',
+                                                'after:absolute after:left-0 after:top-0 after:h-full after:w-[3px] after:bg-gray-200 dark:after:bg-zinc-800',
+                                                'bg-white dark:bg-zinc-900'
+                                              ],
+                                              isResizing && 'cursor-col-resize'
+                                            )}
+                                          >
+                                            <div className={cn("absolute inset-y-0 left-[-1px] w-[1px]", alwaysShowLeftBorder && 'bg-gray-200 dark:bg-zinc-800')} />
+                                            {isPinned && <div className='absolute inset-0 pointer-events-none group-hover:bg-[var(--color-primary)]/5 transition-colors' />}
+                                            <span className={cn({
+                                              'relative': isPinned
+                                            })}>
+                                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            </span>
+                                          </td>
+                                        );
+                                      })}
+                                    </motion.tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </motion.div>
+                          </td>
+                        </motion.tr>
+                      )}
+                    </AnimatePresence>
+                  </React.Fragment>
+                )
+              })
+            }
             <tr className='text-sm'>
               <td className={cn('px-4 py-0 relative group cursor-pointer',
-                'z-20 left-0 bg-white dark:bg-zinc-900 sticky',
-                'after:absolute after:right-0 after:top-0 after:h-full after:w-[1px] after:bg-gray-200 dark:after:bg-zinc-800'
+                !isMobile && 'z-20 left-0 bg-white dark:bg-zinc-900 sticky',
+                !isMobile && 'after:absolute after:right-0 after:top-0 after:h-full after:w-[1px] after:bg-gray-200 dark:after:bg-zinc-800'
               )}
                 role='button'
                 onClick={() => newRoadmapItemTitle === undefined ? setNewRoadmapItemTitle('') : undefined}
@@ -654,11 +797,11 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                 </div>
               </td>
               <td className={cn('px-4 py-2 relative',
-                'z-20 right-0 bg-white dark:bg-zinc-900 sticky',
-                'after:absolute after:left-0 after:top-0 after:h-full after:w-[3px] after:bg-gray-200 dark:after:bg-zinc-800'
+                !isMobile && 'z-20 right-0 bg-white dark:bg-zinc-900 sticky',
+                !isMobile && 'after:absolute after:left-0 after:top-0 after:h-full after:w-[3px] after:bg-gray-200 dark:after:bg-zinc-800'
               )}>
                 <div className='horizontal gap-4'>
-                  <span className='text-[var(--color-primary)] text-xs font-bold bg-[var(--color-primary)]/10 rounded-full size-9 horizontal center'>
+                  <span className='text-[var(--color-primary)] text-xs font-bold bg-[var(--color-primary)]/10 rounded-full size-10 horizontal center'>
                     {formatNumber(
                       getTotalScore(table)
                     )}

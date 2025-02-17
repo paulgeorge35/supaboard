@@ -15,7 +15,7 @@ export function RoadmapMenu({ disabled, onRename, onDuplicate, onDelete }: Roadm
         <MenuTrigger>
             <Button
                 aria-label="Menu"
-                className={cn('horizontal center rounded-md h-full p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-100', {
+                className={cn('horizontal center rounded-md h-full p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-100 hidden md:flex', {
                     'opacity-50 pointer-events-none': disabled
                 })}
             >
