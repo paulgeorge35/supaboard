@@ -176,6 +176,10 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
             avatar: feedback.author?.avatar ?? undefined,
             isAdmin: feedback.author?.id === ownerId,
         },
+        roadmaps: feedback.roadmapItems.map((item) => ({
+            name: item.roadmap?.name,
+            slug: item.roadmap?.slug,
+        })),
         owner: feedback.owner,
     });
 }
@@ -764,6 +768,46 @@ export async function getFeedbacks(req: BareSessionRequest, res: Response) {
     });
 }
 
+const addNewRoadmapItemSchema = z.object({
+    title: z.string().min(1).max(100),
+    boardSlug: z.string().min(1).max(100),
+});
+
+const addNewRoadmapItem = async (req: BareSessionRequest, res: Response) => {
+    const applicationId = req.application?.id!
+    const { roadmapSlug } = req.params;
+    const { title, boardSlug } = addNewRoadmapItemSchema.parse(req.body);
+
+    const roadmap = await db.roadmap.findUnique({ where: { applicationId_slug: { applicationId, slug: roadmapSlug } } })
+
+    if (!roadmap) {
+        res.status(404).json({ error: "Roadmap not found" })
+        return;
+    }
+
+    const board = await db.board.findUnique({ where: { applicationId_slug: { applicationId, slug: boardSlug } } })
+
+    if (!board) {
+        res.status(404).json({ error: "Board not found" })
+        return;
+    }
+
+    const slug = await generateUniqueSlug(title, board.id)
+
+    await db.feedback.create({
+        data: {
+            title, boardId: board.id, applicationId, slug, roadmapItems: {
+                create: {
+                    roadmapId: roadmap.id,
+                    effort: 1,
+                }
+            }
+        }
+    })
+
+    res.status(200).json({ success: true })
+}
+
 export const controller = {
     feedback: {
         create: createFeedback,
@@ -778,5 +822,6 @@ export const controller = {
         comment: comment,
         like: like,
         pin: pin,
+        addNewRoadmapItem: addNewRoadmapItem,
     }
 }

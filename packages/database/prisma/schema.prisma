@@ -175,6 +175,7 @@ model Application {
   feedback Feedback[]
   boards   Board[]
   invites  ApplicationInvite[]
+  roadmaps Roadmap[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -207,7 +208,7 @@ model ApplicationInvite {
 model Feedback {
   id                String         @id @default(uuid())
   title             String
-  description       String
+  description       String?
   slug              String
   status            FeedbackStatus @default(OPEN)
   priority          Priority?
@@ -216,6 +217,7 @@ model Feedback {
   estimatedDelivery DateTime?
   publicEstimate    Boolean        @default(true)
   edited            Boolean        @default(false)
+  roadmapItems      RoadmapItem[]
 
   boardId       String
   board         Board             @relation(fields: [boardId], references: [id], onDelete: Cascade)
@@ -361,4 +363,37 @@ model Vote {
   updatedAt DateTime @updatedAt
 
   @@unique([feedbackId, authorId])
+}
+
+model RoadmapItem {
+  id     String @id @default(uuid())
+  impact Int    @default(0)
+  effort Int    @default(0)
+
+  feedbackId String
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  roadmapId  String
+  roadmap    Roadmap  @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([feedbackId, roadmapId])
+}
+
+model Roadmap {
+  id   String @id @default(uuid())
+  name String
+  slug String @unique
+
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  items RoadmapItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([applicationId, slug])
+  @@index([applicationId, slug])
 }

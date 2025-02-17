@@ -1,4 +1,4 @@
-import { application } from '@/middleware';
+import { admin, application } from '@/middleware';
 import { Router } from 'express';
 import { controller } from './feedback.controller';
 
@@ -18,5 +18,7 @@ router.post('/:boardSlug/:feedbackSlug/comment', application, controller.feedbac
 router.post('/:boardSlug/:feedbackSlug/like/:activityId', application, controller.feedback.like);
 router.post('/:boardSlug/:feedbackSlug/pin/:activityId', application, controller.feedback.pin);
 router.post('/:feedbackId/vote', application, controller.feedback.vote);
+
+router.post('/:roadmapSlug/add', admin, controller.feedback.addNewRoadmapItem);
 
 export { router as feedbackRouter };

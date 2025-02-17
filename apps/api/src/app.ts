@@ -9,7 +9,9 @@ import { applicationRouter } from './modules/application/application.router';
 import { authRouter } from './modules/auth/auth.router';
 import { boardRouter } from './modules/board/board.router';
 import { feedbackRouter } from './modules/feedback/feedback.router';
+import { roadmapRouter } from './modules/roadmap/roadmap.router';
 import { storageRouter } from './modules/storage/storage.router';
+
 /**
  * Initializes CORS configuration by fetching allowed origins from the database
  */
@@ -75,6 +77,7 @@ async function createApp(): Promise<Application> {
     app.use('/feedback', feedbackRouter);
     app.use('/admin', adminRouter);
     app.use('/storage', storageRouter);
+    app.use('/roadmap', roadmapRouter);
     return app;
 }
 

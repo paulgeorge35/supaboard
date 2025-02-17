@@ -1,6 +1,6 @@
 import { fetchClient } from "@/lib/client";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "../lib/utils";
 import { Icons } from "./icons";
 
@@ -55,7 +55,7 @@ export function Avatar({ src, name, className, isAdmin, ...props }: AvatarProps)
         setImgError(true);
     };
 
-    const shouldShowPlaceholder = !uploadedFile?.url && !src || imgError;
+    const shouldShowPlaceholder = useMemo(() => !uploadedFile?.url && !src || imgError, [uploadedFile, src, imgError]);
 
     return (
         <div className={cn("size-8 rounded-full relative", className)}

@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUp, Calendar1, Check, ChevronDown, ChevronsUpDown, ChevronUp, Clock, Copy, Eye, Filter, Heart, Info, LayoutGrid, Lightbulb, MapIcon, MessageSquare, Minus, Monitor, Moon, Paperclip, Pencil, Pin, Plus, Search, Settings, Star, Sun, Tag, TicketX, Trash2, Triangle, X } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, ArrowUpDown, Calendar1, Check, ChevronDown, ChevronsUpDown, ChevronUp, Clock, Copy, Eye, Filter, Heart, Info, LayoutGrid, Lightbulb, MapIcon, MessageSquare, Minus, Monitor, Moon, MoreHorizontal, PackageOpen, Paperclip, Pencil, Pin, Plus, Search, Settings, Star, Sun, Tag, TicketX, Trash2, Triangle, X } from 'lucide-react';
 import type { RefAttributes, SVGProps } from "react";
 
 type SVGAttributes = Partial<SVGProps<SVGSVGElement>>;
@@ -17,6 +17,8 @@ export const Icons = {
     ChevronsUpDown,
     ArrowRight,
     ArrowUp,
+    ArrowDown,
+    ArrowUpDown,
     Minus,
     MessageSquare,
     Star,
@@ -41,6 +43,8 @@ export const Icons = {
     Clock,
     Tag,
     LayoutGrid,
+    MoreHorizontal,
+    PackageOpen,
     Info,
     Google: ({ ...props }: IconProps) => (
         <svg

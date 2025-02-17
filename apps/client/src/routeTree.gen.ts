@@ -17,9 +17,9 @@ import { Route as AdminIndexImport } from './routes/admin/index'
 import { Route as PublicIndexImport } from './routes/_public/index'
 import { Route as AdminUsersImport } from './routes/admin/users'
 import { Route as AdminSettingsImport } from './routes/admin/settings'
+import { Route as AdminRoadmapImport } from './routes/admin/roadmap'
 import { Route as AdminFeedbackImport } from './routes/admin/feedback'
 import { Route as AdminSettingsIndexImport } from './routes/admin/settings/index'
-import { Route as AdminRoadmapIndexImport } from './routes/admin/roadmap/index'
 import { Route as AdminChangelogIndexImport } from './routes/admin/changelog/index'
 import { Route as PublicBoardSlugIndexImport } from './routes/_public/$boardSlug/index'
 import { Route as AdminUsersUserSlugImport } from './routes/admin/users/$userSlug'
@@ -28,6 +28,7 @@ import { Route as AdminSettingsPreferencesImport } from './routes/admin/settings
 import { Route as AdminSettingsCompanyImport } from './routes/admin/settings/company'
 import { Route as AdminSettingsBoardsImport } from './routes/admin/settings/boards'
 import { Route as AdminSettingsAdminsImport } from './routes/admin/settings/admins'
+import { Route as AdminRoadmapRoadmapSlugImport } from './routes/admin/roadmap/$roadmapSlug'
 import { Route as AdminFeedbackBoardSlugImport } from './routes/admin/feedback/$boardSlug'
 import { Route as AdminSettingsCustomDomainsIndexImport } from './routes/admin/settings/custom-domains.index'
 import { Route as PublicBoardSlugFeedbackSlugIndexImport } from './routes/_public/$boardSlug/$feedbackSlug/index'
@@ -38,6 +39,10 @@ import { Route as AdminSettingsCompanyDeleteImport } from './routes/admin/settin
 import { Route as AdminSettingsCompanyBrandingImport } from './routes/admin/settings/company.branding'
 import { Route as AdminSettingsBoardsCreateNewImport } from './routes/admin/settings/boards.create-new'
 import { Route as AdminSettingsAdminsPeopleImport } from './routes/admin/settings/admins.people'
+import { Route as AdminRoadmapRoadmapSlugRenameImport } from './routes/admin/roadmap/$roadmapSlug.rename'
+import { Route as AdminRoadmapRoadmapSlugNewImport } from './routes/admin/roadmap/$roadmapSlug.new'
+import { Route as AdminRoadmapRoadmapSlugFilterImport } from './routes/admin/roadmap/$roadmapSlug.filter'
+import { Route as AdminRoadmapRoadmapSlugDeleteImport } from './routes/admin/roadmap/$roadmapSlug.delete'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug'
 import { Route as PublicBoardSlugFeedbackSlugVotersImport } from './routes/_public/$boardSlug/$feedbackSlug/voters'
 import { Route as PublicBoardSlugFeedbackSlugEditHistoryImport } from './routes/_public/$boardSlug/$feedbackSlug/edit-history'
@@ -52,6 +57,7 @@ import { Route as AdminSettingsBoardsBoardSlugCategoriesImport } from './routes/
 import { Route as AdminFeedbackBoardSlugFeedbackSlugVotersImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/voters'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugEditHistoryImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugEditImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/edit'
+import { Route as AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveImport } from './routes/admin/roadmap/$roadmapSlug.$boardSlug.$feedbackSlug.$feedbackId.remove'
 
 // Create/Update Routes
 
@@ -90,6 +96,12 @@ const AdminSettingsRoute = AdminSettingsImport.update({
   getParentRoute: () => AdminRoute,
 } as any)
 
+const AdminRoadmapRoute = AdminRoadmapImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => AdminRoute,
+} as any)
+
 const AdminFeedbackRoute = AdminFeedbackImport.update({
   id: '/feedback',
   path: '/feedback',
@@ -100,12 +112,6 @@ const AdminSettingsIndexRoute = AdminSettingsIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminSettingsRoute,
-} as any)
-
-const AdminRoadmapIndexRoute = AdminRoadmapIndexImport.update({
-  id: '/roadmap/',
-  path: '/roadmap/',
-  getParentRoute: () => AdminRoute,
 } as any)
 
 const AdminChangelogIndexRoute = AdminChangelogIndexImport.update({
@@ -154,6 +160,12 @@ const AdminSettingsAdminsRoute = AdminSettingsAdminsImport.update({
   id: '/admins',
   path: '/admins',
   getParentRoute: () => AdminSettingsRoute,
+} as any)
+
+const AdminRoadmapRoadmapSlugRoute = AdminRoadmapRoadmapSlugImport.update({
+  id: '/$roadmapSlug',
+  path: '/$roadmapSlug',
+  getParentRoute: () => AdminRoadmapRoute,
 } as any)
 
 const AdminFeedbackBoardSlugRoute = AdminFeedbackBoardSlugImport.update({
@@ -224,6 +236,35 @@ const AdminSettingsAdminsPeopleRoute = AdminSettingsAdminsPeopleImport.update({
   path: '/people',
   getParentRoute: () => AdminSettingsAdminsRoute,
 } as any)
+
+const AdminRoadmapRoadmapSlugRenameRoute =
+  AdminRoadmapRoadmapSlugRenameImport.update({
+    id: '/rename',
+    path: '/rename',
+    getParentRoute: () => AdminRoadmapRoadmapSlugRoute,
+  } as any)
+
+const AdminRoadmapRoadmapSlugNewRoute = AdminRoadmapRoadmapSlugNewImport.update(
+  {
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AdminRoadmapRoadmapSlugRoute,
+  } as any,
+)
+
+const AdminRoadmapRoadmapSlugFilterRoute =
+  AdminRoadmapRoadmapSlugFilterImport.update({
+    id: '/filter',
+    path: '/filter',
+    getParentRoute: () => AdminRoadmapRoadmapSlugRoute,
+  } as any)
+
+const AdminRoadmapRoadmapSlugDeleteRoute =
+  AdminRoadmapRoadmapSlugDeleteImport.update({
+    id: '/delete',
+    path: '/delete',
+    getParentRoute: () => AdminRoadmapRoadmapSlugRoute,
+  } as any)
 
 const AdminFeedbackBoardSlugFeedbackSlugRoute =
   AdminFeedbackBoardSlugFeedbackSlugImport.update({
@@ -323,6 +364,13 @@ const AdminFeedbackBoardSlugFeedbackSlugEditRoute =
     getParentRoute: () => AdminFeedbackBoardSlugFeedbackSlugRoute,
   } as any)
 
+const AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute =
+  AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveImport.update({
+    id: '/$boardSlug/$feedbackSlug/$feedbackId/remove',
+    path: '/$boardSlug/$feedbackSlug/$feedbackId/remove',
+    getParentRoute: () => AdminRoadmapRoadmapSlugRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -346,6 +394,13 @@ declare module '@tanstack/react-router' {
       path: '/feedback'
       fullPath: '/admin/feedback'
       preLoaderRoute: typeof AdminFeedbackImport
+      parentRoute: typeof AdminImport
+    }
+    '/admin/roadmap': {
+      id: '/admin/roadmap'
+      path: '/roadmap'
+      fullPath: '/admin/roadmap'
+      preLoaderRoute: typeof AdminRoadmapImport
       parentRoute: typeof AdminImport
     }
     '/admin/settings': {
@@ -382,6 +437,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/feedback/$boardSlug'
       preLoaderRoute: typeof AdminFeedbackBoardSlugImport
       parentRoute: typeof AdminFeedbackImport
+    }
+    '/admin/roadmap/$roadmapSlug': {
+      id: '/admin/roadmap/$roadmapSlug'
+      path: '/$roadmapSlug'
+      fullPath: '/admin/roadmap/$roadmapSlug'
+      preLoaderRoute: typeof AdminRoadmapRoadmapSlugImport
+      parentRoute: typeof AdminRoadmapImport
     }
     '/admin/settings/admins': {
       id: '/admin/settings/admins'
@@ -439,13 +501,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminChangelogIndexImport
       parentRoute: typeof AdminImport
     }
-    '/admin/roadmap/': {
-      id: '/admin/roadmap/'
-      path: '/roadmap'
-      fullPath: '/admin/roadmap'
-      preLoaderRoute: typeof AdminRoadmapIndexImport
-      parentRoute: typeof AdminImport
-    }
     '/admin/settings/': {
       id: '/admin/settings/'
       path: '/'
@@ -480,6 +535,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/feedback/$boardSlug/$feedbackSlug'
       preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugImport
       parentRoute: typeof AdminFeedbackBoardSlugImport
+    }
+    '/admin/roadmap/$roadmapSlug/delete': {
+      id: '/admin/roadmap/$roadmapSlug/delete'
+      path: '/delete'
+      fullPath: '/admin/roadmap/$roadmapSlug/delete'
+      preLoaderRoute: typeof AdminRoadmapRoadmapSlugDeleteImport
+      parentRoute: typeof AdminRoadmapRoadmapSlugImport
+    }
+    '/admin/roadmap/$roadmapSlug/filter': {
+      id: '/admin/roadmap/$roadmapSlug/filter'
+      path: '/filter'
+      fullPath: '/admin/roadmap/$roadmapSlug/filter'
+      preLoaderRoute: typeof AdminRoadmapRoadmapSlugFilterImport
+      parentRoute: typeof AdminRoadmapRoadmapSlugImport
+    }
+    '/admin/roadmap/$roadmapSlug/new': {
+      id: '/admin/roadmap/$roadmapSlug/new'
+      path: '/new'
+      fullPath: '/admin/roadmap/$roadmapSlug/new'
+      preLoaderRoute: typeof AdminRoadmapRoadmapSlugNewImport
+      parentRoute: typeof AdminRoadmapRoadmapSlugImport
+    }
+    '/admin/roadmap/$roadmapSlug/rename': {
+      id: '/admin/roadmap/$roadmapSlug/rename'
+      path: '/rename'
+      fullPath: '/admin/roadmap/$roadmapSlug/rename'
+      preLoaderRoute: typeof AdminRoadmapRoadmapSlugRenameImport
+      parentRoute: typeof AdminRoadmapRoadmapSlugImport
     }
     '/admin/settings/admins/people': {
       id: '/admin/settings/admins/people'
@@ -614,6 +697,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugIndexImport
       parentRoute: typeof AdminFeedbackBoardSlugFeedbackSlugImport
     }
+    '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove': {
+      id: '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
+      path: '/$boardSlug/$feedbackSlug/$feedbackId/remove'
+      fullPath: '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
+      preLoaderRoute: typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveImport
+      parentRoute: typeof AdminRoadmapRoadmapSlugImport
+    }
   }
 }
 
@@ -691,6 +781,41 @@ const AdminFeedbackRouteChildren: AdminFeedbackRouteChildren = {
 
 const AdminFeedbackRouteWithChildren = AdminFeedbackRoute._addFileChildren(
   AdminFeedbackRouteChildren,
+)
+
+interface AdminRoadmapRoadmapSlugRouteChildren {
+  AdminRoadmapRoadmapSlugDeleteRoute: typeof AdminRoadmapRoadmapSlugDeleteRoute
+  AdminRoadmapRoadmapSlugFilterRoute: typeof AdminRoadmapRoadmapSlugFilterRoute
+  AdminRoadmapRoadmapSlugNewRoute: typeof AdminRoadmapRoadmapSlugNewRoute
+  AdminRoadmapRoadmapSlugRenameRoute: typeof AdminRoadmapRoadmapSlugRenameRoute
+  AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute: typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute
+}
+
+const AdminRoadmapRoadmapSlugRouteChildren: AdminRoadmapRoadmapSlugRouteChildren =
+  {
+    AdminRoadmapRoadmapSlugDeleteRoute: AdminRoadmapRoadmapSlugDeleteRoute,
+    AdminRoadmapRoadmapSlugFilterRoute: AdminRoadmapRoadmapSlugFilterRoute,
+    AdminRoadmapRoadmapSlugNewRoute: AdminRoadmapRoadmapSlugNewRoute,
+    AdminRoadmapRoadmapSlugRenameRoute: AdminRoadmapRoadmapSlugRenameRoute,
+    AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute:
+      AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute,
+  }
+
+const AdminRoadmapRoadmapSlugRouteWithChildren =
+  AdminRoadmapRoadmapSlugRoute._addFileChildren(
+    AdminRoadmapRoadmapSlugRouteChildren,
+  )
+
+interface AdminRoadmapRouteChildren {
+  AdminRoadmapRoadmapSlugRoute: typeof AdminRoadmapRoadmapSlugRouteWithChildren
+}
+
+const AdminRoadmapRouteChildren: AdminRoadmapRouteChildren = {
+  AdminRoadmapRoadmapSlugRoute: AdminRoadmapRoadmapSlugRouteWithChildren,
+}
+
+const AdminRoadmapRouteWithChildren = AdminRoadmapRoute._addFileChildren(
+  AdminRoadmapRouteChildren,
 )
 
 interface AdminSettingsAdminsRouteChildren {
@@ -802,20 +927,20 @@ const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
 
 interface AdminRouteChildren {
   AdminFeedbackRoute: typeof AdminFeedbackRouteWithChildren
+  AdminRoadmapRoute: typeof AdminRoadmapRouteWithChildren
   AdminSettingsRoute: typeof AdminSettingsRouteWithChildren
   AdminUsersRoute: typeof AdminUsersRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
   AdminChangelogIndexRoute: typeof AdminChangelogIndexRoute
-  AdminRoadmapIndexRoute: typeof AdminRoadmapIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminFeedbackRoute: AdminFeedbackRouteWithChildren,
+  AdminRoadmapRoute: AdminRoadmapRouteWithChildren,
   AdminSettingsRoute: AdminSettingsRouteWithChildren,
   AdminUsersRoute: AdminUsersRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
   AdminChangelogIndexRoute: AdminChangelogIndexRoute,
-  AdminRoadmapIndexRoute: AdminRoadmapIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -824,11 +949,13 @@ export interface FileRoutesByFullPath {
   '': typeof PublicRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/admin/feedback': typeof AdminFeedbackRouteWithChildren
+  '/admin/roadmap': typeof AdminRoadmapRouteWithChildren
   '/admin/settings': typeof AdminSettingsRouteWithChildren
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
+  '/admin/roadmap/$roadmapSlug': typeof AdminRoadmapRoadmapSlugRouteWithChildren
   '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
   '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
   '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
@@ -837,12 +964,15 @@ export interface FileRoutesByFullPath {
   '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
   '/$boardSlug': typeof PublicBoardSlugIndexRoute
   '/admin/changelog': typeof AdminChangelogIndexRoute
-  '/admin/roadmap': typeof AdminRoadmapIndexRoute
   '/admin/settings/': typeof AdminSettingsIndexRoute
   '/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
   '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
   '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
+  '/admin/roadmap/$roadmapSlug/delete': typeof AdminRoadmapRoadmapSlugDeleteRoute
+  '/admin/roadmap/$roadmapSlug/filter': typeof AdminRoadmapRoadmapSlugFilterRoute
+  '/admin/roadmap/$roadmapSlug/new': typeof AdminRoadmapRoadmapSlugNewRoute
+  '/admin/roadmap/$roadmapSlug/rename': typeof AdminRoadmapRoadmapSlugRenameRoute
   '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
   '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
   '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
@@ -862,14 +992,17 @@ export interface FileRoutesByFullPath {
   '/admin/settings/boards/$boardSlug/privacy': typeof AdminSettingsBoardsBoardSlugPrivacyRoute
   '/admin/settings/boards/$boardSlug/tags': typeof AdminSettingsBoardsBoardSlugTagsRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
+  '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove': typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute
 }
 
 export interface FileRoutesByTo {
   '/admin/feedback': typeof AdminFeedbackRouteWithChildren
+  '/admin/roadmap': typeof AdminRoadmapRouteWithChildren
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/': typeof PublicIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
+  '/admin/roadmap/$roadmapSlug': typeof AdminRoadmapRoadmapSlugRouteWithChildren
   '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
   '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
   '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
@@ -878,11 +1011,14 @@ export interface FileRoutesByTo {
   '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
   '/$boardSlug': typeof PublicBoardSlugIndexRoute
   '/admin/changelog': typeof AdminChangelogIndexRoute
-  '/admin/roadmap': typeof AdminRoadmapIndexRoute
   '/admin/settings': typeof AdminSettingsIndexRoute
   '/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
   '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
   '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
+  '/admin/roadmap/$roadmapSlug/delete': typeof AdminRoadmapRoadmapSlugDeleteRoute
+  '/admin/roadmap/$roadmapSlug/filter': typeof AdminRoadmapRoadmapSlugFilterRoute
+  '/admin/roadmap/$roadmapSlug/new': typeof AdminRoadmapRoadmapSlugNewRoute
+  '/admin/roadmap/$roadmapSlug/rename': typeof AdminRoadmapRoadmapSlugRenameRoute
   '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
   '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
   '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
@@ -902,6 +1038,7 @@ export interface FileRoutesByTo {
   '/admin/settings/boards/$boardSlug/privacy': typeof AdminSettingsBoardsBoardSlugPrivacyRoute
   '/admin/settings/boards/$boardSlug/tags': typeof AdminSettingsBoardsBoardSlugTagsRoute
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
+  '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove': typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute
 }
 
 export interface FileRoutesById {
@@ -909,11 +1046,13 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/admin/feedback': typeof AdminFeedbackRouteWithChildren
+  '/admin/roadmap': typeof AdminRoadmapRouteWithChildren
   '/admin/settings': typeof AdminSettingsRouteWithChildren
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/_public/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
+  '/admin/roadmap/$roadmapSlug': typeof AdminRoadmapRoadmapSlugRouteWithChildren
   '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
   '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
   '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
@@ -922,12 +1061,15 @@ export interface FileRoutesById {
   '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
   '/_public/$boardSlug/': typeof PublicBoardSlugIndexRoute
   '/admin/changelog/': typeof AdminChangelogIndexRoute
-  '/admin/roadmap/': typeof AdminRoadmapIndexRoute
   '/admin/settings/': typeof AdminSettingsIndexRoute
   '/_public/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
   '/_public/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
   '/_public/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
+  '/admin/roadmap/$roadmapSlug/delete': typeof AdminRoadmapRoadmapSlugDeleteRoute
+  '/admin/roadmap/$roadmapSlug/filter': typeof AdminRoadmapRoadmapSlugFilterRoute
+  '/admin/roadmap/$roadmapSlug/new': typeof AdminRoadmapRoadmapSlugNewRoute
+  '/admin/roadmap/$roadmapSlug/rename': typeof AdminRoadmapRoadmapSlugRenameRoute
   '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
   '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
   '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
@@ -947,6 +1089,7 @@ export interface FileRoutesById {
   '/admin/settings/boards/$boardSlug/privacy': typeof AdminSettingsBoardsBoardSlugPrivacyRoute
   '/admin/settings/boards/$boardSlug/tags': typeof AdminSettingsBoardsBoardSlugTagsRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
+  '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove': typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute
 }
 
 export interface FileRouteTypes {
@@ -955,11 +1098,13 @@ export interface FileRouteTypes {
     | ''
     | '/admin'
     | '/admin/feedback'
+    | '/admin/roadmap'
     | '/admin/settings'
     | '/admin/users'
     | '/'
     | '/admin/'
     | '/admin/feedback/$boardSlug'
+    | '/admin/roadmap/$roadmapSlug'
     | '/admin/settings/admins'
     | '/admin/settings/boards'
     | '/admin/settings/company'
@@ -968,12 +1113,15 @@ export interface FileRouteTypes {
     | '/admin/users/$userSlug'
     | '/$boardSlug'
     | '/admin/changelog'
-    | '/admin/roadmap'
     | '/admin/settings/'
     | '/$boardSlug/$feedbackSlug/edit'
     | '/$boardSlug/$feedbackSlug/edit-history'
     | '/$boardSlug/$feedbackSlug/voters'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
+    | '/admin/roadmap/$roadmapSlug/delete'
+    | '/admin/roadmap/$roadmapSlug/filter'
+    | '/admin/roadmap/$roadmapSlug/new'
+    | '/admin/roadmap/$roadmapSlug/rename'
     | '/admin/settings/admins/people'
     | '/admin/settings/boards/create-new'
     | '/admin/settings/company/branding'
@@ -993,13 +1141,16 @@ export interface FileRouteTypes {
     | '/admin/settings/boards/$boardSlug/privacy'
     | '/admin/settings/boards/$boardSlug/tags'
     | '/admin/feedback/$boardSlug/$feedbackSlug/'
+    | '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/admin/feedback'
+    | '/admin/roadmap'
     | '/admin/users'
     | '/'
     | '/admin'
     | '/admin/feedback/$boardSlug'
+    | '/admin/roadmap/$roadmapSlug'
     | '/admin/settings/admins'
     | '/admin/settings/boards'
     | '/admin/settings/company'
@@ -1008,11 +1159,14 @@ export interface FileRouteTypes {
     | '/admin/users/$userSlug'
     | '/$boardSlug'
     | '/admin/changelog'
-    | '/admin/roadmap'
     | '/admin/settings'
     | '/$boardSlug/$feedbackSlug/edit'
     | '/$boardSlug/$feedbackSlug/edit-history'
     | '/$boardSlug/$feedbackSlug/voters'
+    | '/admin/roadmap/$roadmapSlug/delete'
+    | '/admin/roadmap/$roadmapSlug/filter'
+    | '/admin/roadmap/$roadmapSlug/new'
+    | '/admin/roadmap/$roadmapSlug/rename'
     | '/admin/settings/admins/people'
     | '/admin/settings/boards/create-new'
     | '/admin/settings/company/branding'
@@ -1032,16 +1186,19 @@ export interface FileRouteTypes {
     | '/admin/settings/boards/$boardSlug/privacy'
     | '/admin/settings/boards/$boardSlug/tags'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
+    | '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
   id:
     | '__root__'
     | '/_public'
     | '/admin'
     | '/admin/feedback'
+    | '/admin/roadmap'
     | '/admin/settings'
     | '/admin/users'
     | '/_public/'
     | '/admin/'
     | '/admin/feedback/$boardSlug'
+    | '/admin/roadmap/$roadmapSlug'
     | '/admin/settings/admins'
     | '/admin/settings/boards'
     | '/admin/settings/company'
@@ -1050,12 +1207,15 @@ export interface FileRouteTypes {
     | '/admin/users/$userSlug'
     | '/_public/$boardSlug/'
     | '/admin/changelog/'
-    | '/admin/roadmap/'
     | '/admin/settings/'
     | '/_public/$boardSlug/$feedbackSlug/edit'
     | '/_public/$boardSlug/$feedbackSlug/edit-history'
     | '/_public/$boardSlug/$feedbackSlug/voters'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
+    | '/admin/roadmap/$roadmapSlug/delete'
+    | '/admin/roadmap/$roadmapSlug/filter'
+    | '/admin/roadmap/$roadmapSlug/new'
+    | '/admin/roadmap/$roadmapSlug/rename'
     | '/admin/settings/admins/people'
     | '/admin/settings/boards/create-new'
     | '/admin/settings/company/branding'
@@ -1075,6 +1235,7 @@ export interface FileRouteTypes {
     | '/admin/settings/boards/$boardSlug/privacy'
     | '/admin/settings/boards/$boardSlug/tags'
     | '/admin/feedback/$boardSlug/$feedbackSlug/'
+    | '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
   fileRoutesById: FileRoutesById
 }
 
@@ -1117,11 +1278,11 @@ export const routeTree = rootRoute
       "filePath": "admin.tsx",
       "children": [
         "/admin/feedback",
+        "/admin/roadmap",
         "/admin/settings",
         "/admin/users",
         "/admin/",
-        "/admin/changelog/",
-        "/admin/roadmap/"
+        "/admin/changelog/"
       ]
     },
     "/admin/feedback": {
@@ -1129,6 +1290,13 @@ export const routeTree = rootRoute
       "parent": "/admin",
       "children": [
         "/admin/feedback/$boardSlug"
+      ]
+    },
+    "/admin/roadmap": {
+      "filePath": "admin/roadmap.tsx",
+      "parent": "/admin",
+      "children": [
+        "/admin/roadmap/$roadmapSlug"
       ]
     },
     "/admin/settings": {
@@ -1164,6 +1332,17 @@ export const routeTree = rootRoute
       "parent": "/admin/feedback",
       "children": [
         "/admin/feedback/$boardSlug/$feedbackSlug"
+      ]
+    },
+    "/admin/roadmap/$roadmapSlug": {
+      "filePath": "admin/roadmap/$roadmapSlug.tsx",
+      "parent": "/admin/roadmap",
+      "children": [
+        "/admin/roadmap/$roadmapSlug/delete",
+        "/admin/roadmap/$roadmapSlug/filter",
+        "/admin/roadmap/$roadmapSlug/new",
+        "/admin/roadmap/$roadmapSlug/rename",
+        "/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove"
       ]
     },
     "/admin/settings/admins": {
@@ -1219,10 +1398,6 @@ export const routeTree = rootRoute
       "filePath": "admin/changelog/index.tsx",
       "parent": "/admin"
     },
-    "/admin/roadmap/": {
-      "filePath": "admin/roadmap/index.tsx",
-      "parent": "/admin"
-    },
     "/admin/settings/": {
       "filePath": "admin/settings/index.tsx",
       "parent": "/admin/settings"
@@ -1248,6 +1423,22 @@ export const routeTree = rootRoute
         "/admin/feedback/$boardSlug/$feedbackSlug/voters",
         "/admin/feedback/$boardSlug/$feedbackSlug/"
       ]
+    },
+    "/admin/roadmap/$roadmapSlug/delete": {
+      "filePath": "admin/roadmap/$roadmapSlug.delete.tsx",
+      "parent": "/admin/roadmap/$roadmapSlug"
+    },
+    "/admin/roadmap/$roadmapSlug/filter": {
+      "filePath": "admin/roadmap/$roadmapSlug.filter.tsx",
+      "parent": "/admin/roadmap/$roadmapSlug"
+    },
+    "/admin/roadmap/$roadmapSlug/new": {
+      "filePath": "admin/roadmap/$roadmapSlug.new.tsx",
+      "parent": "/admin/roadmap/$roadmapSlug"
+    },
+    "/admin/roadmap/$roadmapSlug/rename": {
+      "filePath": "admin/roadmap/$roadmapSlug.rename.tsx",
+      "parent": "/admin/roadmap/$roadmapSlug"
     },
     "/admin/settings/admins/people": {
       "filePath": "admin/settings/admins.people.tsx",
@@ -1324,6 +1515,10 @@ export const routeTree = rootRoute
     "/admin/feedback/$boardSlug/$feedbackSlug/": {
       "filePath": "admin/feedback/$boardSlug/$feedbackSlug/index.tsx",
       "parent": "/admin/feedback/$boardSlug/$feedbackSlug"
+    },
+    "/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove": {
+      "filePath": "admin/roadmap/$roadmapSlug.$boardSlug.$feedbackSlug.$feedbackId.remove.tsx",
+      "parent": "/admin/roadmap/$roadmapSlug"
     }
   }
 }

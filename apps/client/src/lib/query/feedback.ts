@@ -1,4 +1,4 @@
-import { Activity, FeedbackActivity, FeedbackDetail, FeedbackStatus, FeedbackSummary, User } from "@repo/database";
+import { Activity, FeedbackActivity, FeedbackDetail, FeedbackStatus, FeedbackSummary, RoadmapSummary, User } from "@repo/database";
 import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import { fetchClient } from "../client";
@@ -57,6 +57,7 @@ export type FeedbackQueryData = Omit<FeedbackDetail, '_count' | 'votes'> & {
     author: FeedbackDetail['author'] & {
         isAdmin: boolean;
     };
+    roadmaps: Omit<RoadmapSummary, 'id'>[];
 }
 
 export const feedbackQuery = (boardSlug: string, feedbackSlug: string) => queryOptions<FeedbackQueryData>({

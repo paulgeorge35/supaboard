@@ -2,7 +2,7 @@ import { type ReactNode } from 'react'
 import { Icons } from './icons'
 
 interface ModalProps {
-    trigger: ReactNode
+    trigger?: ReactNode
     title?: string
     children?: ReactNode
     footer?: ReactNode
@@ -25,7 +25,7 @@ export function Modal({
     return (
         <>
             {/* Trigger Button */}
-            <button
+            {trigger && <button
                 type="button"
                 data-modal-trigger
                 aria-expanded="false"
@@ -33,7 +33,7 @@ export function Modal({
                 className={triggerClassName}
             >
                 {trigger}
-            </button>
+            </button>}
 
             {/* Modal Backdrop */}
             <div

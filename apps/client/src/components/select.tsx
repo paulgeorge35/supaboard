@@ -13,10 +13,13 @@ interface SelectProps {
     label?: string
     options: SelectOption[]
     value?: string
-    onChange?: (value: string) => void
+    onChange?: (value?: string) => void
     placeholder?: string
     className?: string
     disabled?: boolean
+    checkMarks?: boolean
+    triggerClassName?: string
+    clearable?: boolean
 }
 
 export function SelectComponent({
@@ -26,7 +29,10 @@ export function SelectComponent({
     onChange,
     placeholder,
     className,
-    disabled
+    disabled,
+    checkMarks = false,
+    clearable = false,
+    triggerClassName
 }: SelectProps) {
     const { ref, dimensions } = useResizeObserver<HTMLDivElement>({
         immediate: true,
@@ -36,27 +42,34 @@ export function SelectComponent({
             ref={ref}
             className={cn('horizontal center relative', className)}
             selectedKey={value}
-            onSelectionChange={(key) => {
-                console.log(key);
-                onChange?.(key as string)
-            }}
+            onSelectionChange={(key) => onChange?.(key as string)}
             isDisabled={disabled}
         >
             {label && <Label>{label}</Label>}
             <Button className={cn('w-full horizontal center-v space-between px-2 border rounded-md h-full text-sm hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 transition-colors duration-100', {
                 'opacity-50 pointer-events-none': disabled
-            })}>
-                <SelectValue className={cn({
-                    'text-gray-500 dark:text-zinc-500': !value,
+            }, triggerClassName)}>
+                <SelectValue className={cn('truncate', {
+                    'text-gray-500 dark:text-zinc-500 w-full': !value,
                 })}>
                     {({ selectedText }) => (
-                        <span className='horizontal center-v gap-2'>
-                            {options.find((option) => option.value === value)?.icon}
+                        <span className='horizontal center-v gap-2 w-full'>
                             {selectedText || placeholder}
                         </span>
                     )}
                 </SelectValue>
-                <Icons.ChevronDown className='size-4' />
+                {clearable && value &&
+                    <>
+                        <Icons.X role='button' className='size-4 shrink-0 ml-auto cursor-pointer'
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onChange?.(undefined);
+                            }} />
+                        <div className='h-1/2 border-l mx-1.5' />
+                    </>
+                }
+                <Icons.ChevronDown className='size-4 shrink-0' />
             </Button>
             <Popover className='bg-white border text-zinc-900 rounded-md shadow-md dark:bg-zinc-900 dark:text-white' style={{ width: dimensions?.width }}>
                 <ListBox
@@ -68,10 +81,16 @@ export function SelectComponent({
                         <ListBoxItem
                             id={item.value}
                             textValue={item.label}
-                            className='text-sm horizontal gap-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 px-4 py-2 transition-colors duration-100 w-full disabled:opacity-50 disabled:cursor-not-allowed'
+                            isDisabled={value === item.value}
+                            className={cn('truncate text-sm horizontal center-v gap-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 px-4 py-2 transition-colors duration-100 w-full disabled:opacity-50 disabled:cursor-not-allowed', {
+                                'bg-zinc-100 dark:bg-zinc-800 hover:pointer-events-none': value === item.value
+                            })}
                         >
                             {item.icon}
-                            {item.label}
+                            <span className='truncate'>{item.label}</span>
+                            {checkMarks && <Icons.Check className={cn('ml-auto size-4 shrink-0 opacity-0 stroke-[var(--color-primary)]', {
+                                'opacity-100': value === item.value
+                            })} />}
                         </ListBoxItem>
                     )}
                 </ListBox>

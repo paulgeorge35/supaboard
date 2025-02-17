@@ -7,9 +7,10 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
     prefix?: string
     suffix?: string
     addornmentRight?: React.ReactNode
+    addornmentLeft?: React.ReactNode
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(({ className, label, prefix, suffix, addornmentRight, required, inputClassName, ...props }, ref) => {
+export const Input = forwardRef<HTMLInputElement, InputProps>(({ className, label, prefix, suffix, addornmentRight, addornmentLeft, required, inputClassName, ...props }, ref) => {
     const internalRef = useRef<HTMLInputElement>(null)
     const inputRef = (ref as React.RefObject<HTMLInputElement>) || internalRef
 
@@ -30,7 +31,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({ className, labe
                 {label}
                 {required && <span className='text-red-500'>*</span>}
             </label>
-            <div className='horizontal w-full'>
+            <div className='horizontal center-v w-full'>
+                {addornmentLeft}
                 <span
                     className={cn('text-sm font-light text-gray-400 dark:text-zinc-600', {
                         'hidden': !prefix

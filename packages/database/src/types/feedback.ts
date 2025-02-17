@@ -60,6 +60,17 @@ export const feedbackDetail = (userId: string) => Prisma.validator<Prisma.Feedba
             avatar: true,
         },
     },
+    roadmapItems: {
+        select: {
+            id: true,
+            roadmap: {
+                select: {
+                    name: true,
+                    slug: true,
+                },
+            },
+        },
+    },
     _count: {
         select: {
             votes: true,

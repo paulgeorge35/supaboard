@@ -51,6 +51,14 @@
 
 	}
 
+	input[type="number"] {
+		@apply appearance-none;
+		&::-webkit-inner-spin-button,
+		&::-webkit-outer-spin-button {
+			@apply appearance-none;
+		}
+	}
+
 	html {
 		@apply scroll-smooth bg-white dark:bg-zinc-900;
 	}
