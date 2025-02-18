@@ -183,6 +183,7 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
             isAdmin: feedback.author?.id === ownerId,
         },
         roadmaps: feedback.roadmapItems.map((item) => ({
+            id: item.roadmap?.id,
             name: item.roadmap?.name,
             slug: item.roadmap?.slug,
         })),
@@ -781,6 +782,8 @@ const addNewRoadmapItemSchema = z.object({
 
 const addNewRoadmapItem = async (req: BareSessionRequest, res: Response) => {
     const applicationId = req.application?.id!
+    const userId = req.auth?.id!
+
     const { roadmapSlug } = req.params;
     const { title, boardSlug } = addNewRoadmapItemSchema.parse(req.body);
 
@@ -802,7 +805,12 @@ const addNewRoadmapItem = async (req: BareSessionRequest, res: Response) => {
 
     await db.feedback.create({
         data: {
-            title, boardId: board.id, applicationId, slug, roadmapItems: {
+            title,
+            boardId: board.id,
+            applicationId,
+            slug,
+            authorId: userId,
+            roadmapItems: {
                 create: {
                     roadmapId: roadmap.id,
                     effort: 1,

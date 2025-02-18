@@ -43,4 +43,18 @@ export function VotersSkeleton() {
             </div>
         </div>
     )
+}
+
+export function RoadmapsSkeleton() {
+    return (
+        <div className="grid grid-cols-[auto_1fr_auto] gap-2">
+            <h1 className="text-sm font-medium col-span-2">Roadmaps</h1>
+            <Skeleton className="h-4 w-24" />
+            <div className="col-span-full flex flex-wrap gap-2">
+                <Skeleton className="h-8 w-32 rounded-md" />
+                <Skeleton className="h-8 w-40 rounded-md" />
+                <Skeleton className="h-8 w-28 rounded-md" />
+            </div>
+        </div>
+    )
 } 

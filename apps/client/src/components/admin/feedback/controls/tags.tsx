@@ -151,7 +151,6 @@ export function Tags({ feedbackId, tags: initialTags, isLoading }: TagsProps) {
             <span className="relative col-span-full">
                 {search !== undefined &&
                     <input
-                        autoFocus
                         ref={ref}
                         disabled={isCreating}
                         value={search}

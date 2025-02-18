@@ -57,7 +57,7 @@ export type FeedbackQueryData = Omit<FeedbackDetail, '_count' | 'votes'> & {
     author: FeedbackDetail['author'] & {
         isAdmin: boolean;
     };
-    roadmaps: Omit<RoadmapSummary, 'id'>[];
+    roadmaps: RoadmapSummary[];
 }
 
 export const feedbackQuery = (boardSlug: string, feedbackSlug: string) => queryOptions<FeedbackQueryData>({

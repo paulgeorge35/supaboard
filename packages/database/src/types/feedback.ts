@@ -65,6 +65,7 @@ export const feedbackDetail = (userId: string) => Prisma.validator<Prisma.Feedba
             id: true,
             roadmap: {
                 select: {
+                    id: true,
                     name: true,
                     slug: true,
                 },

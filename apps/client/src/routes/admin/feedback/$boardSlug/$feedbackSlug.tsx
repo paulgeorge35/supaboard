@@ -1,6 +1,7 @@
 import { NotFoundPage, VoteButton } from '@/components'
 import { AdminComment } from '@/components/admin/admin-comment'
 import { Details } from '@/components/admin/feedback/controls/details'
+import { Roadmaps } from '@/components/admin/feedback/controls/roadmaps'
 import { Tags } from '@/components/admin/feedback/controls/tags'
 import { Voters } from '@/components/admin/feedback/controls/voters'
 import { Skeleton } from '@/components/skeleton'
@@ -152,6 +153,7 @@ function RouteComponent() {
                     <Details />
                     <Tags feedbackId={feedback?.id ?? ''} tags={feedback?.tags ?? []} isLoading={isLoading} />
                     <Voters />
+                    <Roadmaps feedbackId={feedback?.id ?? ''} roadmaps={feedback?.roadmaps ?? []} isLoading={isLoading} />
                 </div>
             </div>
         </div>

@@ -153,9 +153,8 @@ export const useAddToRoadmapMutation = (roadmapSlug: string) => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ feedbackId, feedback: _ }: { feedbackId: string, feedback: FeedbackPlaceholder }) => fetchClient(`/roadmap/${roadmapSlug}/add`, {
+        mutationFn: ({ feedbackId, feedback: _ }: { feedbackId: string, feedback: FeedbackPlaceholder }) => fetchClient(`/roadmap/${roadmapSlug}/${feedbackId}/add`, {
             method: 'POST',
-            body: JSON.stringify({ feedbackId }),
         }),
         onMutate: ({ feedback }) => {
             queryClient.cancelQueries({ queryKey: roadmapQuery(roadmapSlug).queryKey });
