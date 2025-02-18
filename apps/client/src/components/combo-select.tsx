@@ -1,69 +1,60 @@
-import { cn } from '@/lib/utils'
-import { useResizeObserver } from '@paulgeorge35/hooks'
-import { useEffect, useRef, useState } from 'react'
-import { Label } from 'react-aria-components'
-import { Icons } from './icons'
+import { Icons } from "@/components/icons";
+import { cn } from "@/lib/utils";
+import { useBoolean } from "@paulgeorge35/hooks";
+import { useEffect, useRef, useState } from "react";
 
-export interface SelectOption {
-    label: string
-    value: string
-    icon?: React.ReactNode
+type Option = {
+    label: string;
+    value: string;
 }
 
-interface SelectProps {
-    name?: string
-    required?: boolean
-    label?: string
-    options: SelectOption[]
-    value?: string | string[]
-    onChange?: (value: string | string[]) => void
-    placeholder?: string
-    className?: string
-    disabled?: boolean
-    checkMarks?: boolean
-    triggerClassName?: string
-    selectionMode?: 'single' | 'multiple'
-    clearable?: boolean
+type ComboSelectProps = {
+    options: Option[];
+    value?: string | string[];
+    onChange: (value: string | string[]) => void;
+    placeholder?: string;
+    className?: string;
+    name?: string;
+    disabled?: boolean;
+    selectionMode?: 'single' | 'multiple';
 }
 
-export function SelectComponent({
-    name,
-    required = false,
-    label,
+export function ComboSelect({
     options,
     value,
     onChange,
     placeholder = 'Select...',
     className,
-    disabled,
-    checkMarks = false,
-    triggerClassName,
-    selectionMode = 'single',
-    clearable = false
-}: SelectProps) {
+    name,
+    disabled = false,
+    selectionMode = 'single'
+}: ComboSelectProps) {
     const ref = useRef<HTMLDivElement>(null);
-    const [isOpen, setIsOpen] = useState(false);
+    const expanded = useBoolean(false);
     const [search, setSearch] = useState('');
-    const { ref: resizeRef, dimensions } = useResizeObserver<HTMLDivElement>({
-        immediate: true,
-    });
-
-    const selectedValues = Array.isArray(value) ? value : value ? [value] : [];
 
     const filteredOptions = options.filter(option =>
         option.label.toLowerCase().includes(search.toLowerCase())
     );
+
+    const selectedValues = Array.isArray(value) ? value : value ? [value] : [];
 
     const handleSelect = (optionValue: string) => {
         if (selectionMode === 'multiple') {
             const newValue = selectedValues.includes(optionValue)
                 ? selectedValues.filter(v => v !== optionValue)
                 : [...selectedValues, optionValue];
-            onChange?.(newValue);
+            onChange(newValue);
         } else {
-            onChange?.(optionValue);
-            setIsOpen(false);
+            onChange(optionValue);
+            expanded.setFalse();
         }
+        setSearch('');
+    };
+
+    const handleClear = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onChange(selectionMode === 'multiple' ? [] : '');
         setSearch('');
     };
 
@@ -71,22 +62,16 @@ export function SelectComponent({
         e.stopPropagation();
         if (selectionMode === 'multiple') {
             const newValue = selectedValues.filter(v => v !== valueToRemove);
-            onChange?.(newValue);
+            onChange(newValue);
         } else {
-            onChange?.('');
+            onChange('');
         }
-    };
-
-    const handleClear = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onChange?.(selectionMode === 'multiple' ? [] : '');
-        setSearch('');
     };
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (ref.current && !ref.current.contains(e.target as Node)) {
-                setIsOpen(false);
+                expanded.setFalse();
                 setSearch('');
             }
         };
@@ -96,50 +81,36 @@ export function SelectComponent({
     }, []);
 
     return (
-        <div ref={ref} className={cn('relative', className)}>
+        <div ref={ref} className="relative">
             <div
-                ref={resizeRef}
-                onClick={() => !disabled && setIsOpen(!isOpen)}
+                onClick={() => !disabled && expanded.toggle()}
                 className={cn(
                     "relative w-full cursor-pointer border rounded-md bg-white dark:bg-zinc-900",
                     "hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors duration-200",
                     {
                         "opacity-50 cursor-not-allowed": disabled,
-                        "border-[var(--color-primary)]": isOpen,
+                        "border-[var(--color-primary)]": expanded.value,
                     },
-                    triggerClassName
+                    className
                 )}
             >
-                <div className="horizontal center-v min-h-9 px-2 pl-3 py-1 gap-2">
+                <div className="horizontal center-v min-h-9 px-2 py-1 gap-2">
                     {selectedValues.length > 0 ? (
-                        <div className={cn("flex gap-1 grow", {
-                            "flex-wrap": selectionMode === 'multiple',
-                            "truncate": selectionMode === 'single'
-                        })}>
+                        <div className="flex flex-wrap gap-1 grow">
                             {selectedValues.map(val => {
                                 const option = options.find(o => o.value === val);
                                 return (
                                     <span
                                         key={val}
-                                        className={cn(
-                                            "text-sm horizontal center-v gap-1",
-                                            {
-                                                "bg-gray-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md": selectionMode === 'multiple'
-                                            }
-                                        )}
+                                        className="bg-gray-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md text-sm horizontal center-v gap-1 group"
                                     >
-                                        {option?.icon}
-                                        <span className={cn({
-                                            "truncate": selectionMode === 'single'
-                                        })}>{option?.label}</span>
-                                        {selectionMode === 'multiple' && (
-                                            <button
-                                                onClick={(e) => handleRemoveValue(e, val)}
-                                                className="hover:bg-gray-200 dark:hover:bg-zinc-700 rounded-full p-0.5 opacity-50 hover:opacity-100"
-                                            >
-                                                <Icons.X className="size-3" />
-                                            </button>
-                                        )}
+                                        {option?.label}
+                                        <button
+                                            onClick={(e) => handleRemoveValue(e, val)}
+                                            className="hover:bg-gray-200 dark:hover:bg-zinc-700 rounded-full p-0.5 opacity-50 hover:opacity-100"
+                                        >
+                                            <Icons.X className="size-3" />
+                                        </button>
                                     </span>
                                 );
                             })}
@@ -150,7 +121,7 @@ export function SelectComponent({
                         </span>
                     )}
                     <span className="horizontal center-v gap-1 shrink-0">
-                        {clearable && selectedValues.length > 0 && (
+                        {selectedValues.length > 0 && (
                             <>
                                 <button
                                     onClick={handleClear}
@@ -163,12 +134,12 @@ export function SelectComponent({
                         )}
                         <Icons.ChevronDown
                             className={cn("size-4 transition-transform duration-200", {
-                                "rotate-180": isOpen,
+                                "rotate-180": expanded.value,
                             })}
                         />
                     </span>
                 </div>
-                {isOpen && (
+                {expanded.value && (
                     <div className="absolute top-full left-0 w-full mt-1 border rounded-md bg-white dark:bg-zinc-900 shadow-lg z-50">
                         <input
                             name={name}
@@ -191,21 +162,17 @@ export function SelectComponent({
                                         key={option.value}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handleSelect(option.value);
+                                            handleSelect(option.value)
                                         }}
                                         className={cn(
-                                            "px-3 py-2 text-sm cursor-pointer horizontal center-v gap-2",
+                                            "px-3 py-2 text-sm cursor-pointer",
                                             "hover:bg-gray-100 dark:hover:bg-zinc-800",
                                             {
                                                 "bg-gray-50 dark:bg-zinc-800": selectedValues.includes(option.value),
                                             }
                                         )}
                                     >
-                                        {option.icon}
-                                        <span className="truncate">{option.label}</span>
-                                        {checkMarks && selectedValues.includes(option.value) && (
-                                            <Icons.Check className="ml-auto size-4 shrink-0 stroke-[var(--color-primary)]" />
-                                        )}
+                                        {option.label}
                                     </div>
                                 ))
                             )}
@@ -213,12 +180,6 @@ export function SelectComponent({
                     </div>
                 )}
             </div>
-            {label && (
-                <Label className='horizontal center-v gap-1 text-xs uppercase font-medium text-gray-500 dark:text-zinc-500'>
-                    {label}
-                    {required && <span className='text-red-500'>*</span>}
-                </Label>
-            )}
         </div>
     );
-}
+} 

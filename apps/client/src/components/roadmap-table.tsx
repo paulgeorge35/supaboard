@@ -4,6 +4,7 @@ import { applicationBoardsQuery } from '@/lib/query';
 import type { RoadmapDetailResponse } from '@/lib/query/roadmap';
 import { cn, FeedbackStatusConfig } from '@/lib/utils';
 import { Route } from '@/routes/admin/roadmap/$roadmapSlug';
+import { RoadmapField, useRoadmapStore } from '@/stores/roadmap-store';
 import { useFocus, useMediaQuery, useNumber } from '@paulgeorge35/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams, useRouter, useSearch } from '@tanstack/react-router';
@@ -121,6 +122,7 @@ const columns = ({ checkedItems, setCheckedItems, isMobile, maxVotes }: ColumnPr
     },
     enablePinning: true,
     enableResizing: true,
+    enableHiding: false,
     minSize: isMobile ? 100 : 250,
     maxSize: isMobile ? 400 : 600,
     size: isMobile ? 100 : 600,
@@ -296,6 +298,7 @@ const columns = ({ checkedItems, setCheckedItems, isMobile, maxVotes }: ColumnPr
       )
     },
     enablePinning: true,
+    enableHiding: false,
     enableResizing: true,
     minSize: isMobile ? 130 : 150,
     maxSize: isMobile ? 150 : 600,
@@ -390,7 +393,8 @@ function EmptyPlaceholder() {
 type GroupedItems = Record<string, { expanded: boolean, items: RoadmapItem[] }>;
 
 export function RoadmapTable({ items }: RoadmapTableProps) {
-  const { search, groupBy } = useSearch({ from: Route.fullPath });
+  const visibleFields = useRoadmapStore((state) => state.visibleFields);
+  const { search, groupBy, impact, votes, effort, ...searchParams } = useSearch({ from: Route.fullPath });
   const [groupedItems, setGroupedItems] = useState<GroupedItems>({});
   const [checkedItems, setCheckedItems] = useState<string[]>([]);
   const isMobile = useMediaQuery('(max-width: 768px)').matches;
@@ -444,10 +448,65 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
     setGroupedItems(prev => ({ ...prev, [group]: { ...prev[group], expanded: !prev[group].expanded } }));
   }
 
+  const numberFilter = (value: number, operator?: string, filterValue?: number) => {
+    if (!operator || !filterValue) return true;
+    if (operator === 'gt') return value > filterValue;
+    if (operator === 'lt') return value < filterValue;
+    if (operator === 'equals') return value === filterValue;
+    if (operator === 'not_equals') return value !== filterValue;
+    return true;
+  }
+
+  const statusFilter = (value: string, filterValue: string[]) => {
+    if (!filterValue) return true;
+    return filterValue.includes(value);
+  }
+
+  const boardFilter = (value: string, filterValue: string[]) => {
+    if (!filterValue) return true;
+    return filterValue.includes(value);
+  }
+
+  const categoryFilter = (value: string, filterValue: string[]) => {
+    if (!filterValue) return true;
+    return filterValue.includes(value);
+  }
+
+  const ownerFilter = (value: string, filterValue: string[]) => {
+    if (!filterValue) return true;
+    return filterValue.includes(value);
+  }
+
+  const tagFilter = (value: string[], filterValue: string[]) => {
+    if (!filterValue) return true;
+    return filterValue.some(tag => value.includes(tag));
+  }
+
+  const dateFilter = (value: Date | null, filterValue: string, operator?: 'gte' | 'lte') => {
+    if (!filterValue) return true;
+    if (!value) return false;
+    if (operator === 'gte') return new Date(value) >= new Date(filterValue);
+    if (operator === 'lte') return new Date(value) <= new Date(filterValue);
+    return false;
+  }
+
+  const { status, board, category, owner, tags, eta_start, eta_end } = searchParams;
+
   const filteredItems = useMemo(() => {
     if (!items) return [];
-    return items.filter((item) => item.title.toLowerCase().includes(search?.toLowerCase() ?? ''));
-  }, [items, search]);
+    return items.filter((item) => item.title.toLowerCase().includes(search?.toLowerCase() ?? '') &&
+      numberFilter(item.impact, impact?.operator, impact?.value) &&
+      numberFilter(item.votes, votes?.operator, votes?.value) &&
+      numberFilter(item.effort, effort?.operator, effort?.value) &&
+      statusFilter(item.status, status as string[]) &&
+      boardFilter(item.board.slug, board as string[]) &&
+      categoryFilter(item.category?.slug ?? '', category as string[]) &&
+      ownerFilter(item.owner?.id ?? '', owner as string[]) &&
+      tagFilter(item.tags, tags as string[]) &&
+      dateFilter(item.estimatedDelivery, eta_start as string, 'gte') &&
+      dateFilter(item.estimatedDelivery, eta_end as string, 'lte')
+      )
+  }, [items, search, impact, votes, effort, status, board, category, owner, tags, eta_start, eta_end]);
 
   const table = useReactTable({
     data: filteredItems ?? [],
@@ -465,6 +524,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
       minSize: 80,
       maxSize: 1000,
     },
+    enableHiding: true,
     columnResizeDirection: 'ltr',
     initialState: {
       columnPinning: {
@@ -497,6 +557,12 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                 {headerGroup.headers.map((header) => {
                   const isPinned = isMobile ? false : header.column.getIsPinned();
                   const alwaysShowLeftBorder = header.column.columnDef.meta && 'alwaysShowLeftBorder' in header.column.columnDef.meta ? true : false;
+                  const isVisible = visibleFields.includes(header.column.id as RoadmapField);
+
+                  if (!isVisible) {
+                    return null;
+                  }
+
                   return (
                     <th
                       key={header.id}
@@ -571,6 +637,12 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                   const isPinned = isMobile ? false : cell.column.getIsPinned();
                   const isResizing = cell.column.getIsResizing();
                   const alwaysShowLeftBorder = cell.column.columnDef.meta && 'alwaysShowLeftBorder' in cell.column.columnDef.meta ? true : false;
+                  const isVisible = visibleFields.includes(cell.column.id as RoadmapField);
+
+                  if (!isVisible) {
+                    return null;
+                  }
+
                   return (
                     <td
                       key={cell.id}
@@ -676,6 +748,12 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                                         const isPinned = isMobile ? false : cell.column.getIsPinned();
                                         const isResizing = cell.column.getIsResizing();
                                         const alwaysShowLeftBorder = cell.column.columnDef.meta && 'alwaysShowLeftBorder' in cell.column.columnDef.meta ? true : false;
+                                        const isVisible = visibleFields.includes(cell.column.id as RoadmapField);
+
+                                        if (!isVisible) {
+                                          return null;
+                                        }
+
                                         return (
                                           <td
                                             key={cell.id}
@@ -760,7 +838,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                           value: board.slug
                         })) ?? []}
                         value={newRoadmapItemBoard}
-                        onChange={(value) => setNewRoadmapItemBoard(value)}
+                        onChange={(value) => setNewRoadmapItemBoard(value as string)}
                         className='h-9 hover:bg-transparent'
                         triggerClassName='border-none hover:bg-transparent dark:hover:bg-transparent'
                       />
@@ -774,28 +852,26 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                   }
                 </div>
               </td>
-              <td colSpan={6}>
-                <div className='horizontal gap-4'>
-
-                </div>
-              </td>
-              <td className='relative'>
+              {visibleFields.filter((item => !['title', 'score', 'impact', 'effort', 'votes'].includes(item))).length > 0 && <td colSpan={visibleFields.filter((item => !['title', 'score', 'impact', 'effort', 'votes'].includes(item))).length}>
+                <div className='horizontal gap-4' />
+              </td>}
+              {visibleFields.includes('impact') && <td className='relative'>
                 <div className='absolute inset-y-0 left-[-1px] w-[1px] bg-gray-200 dark:bg-zinc-800' />
                 <div className='horizontal gap-4'>
                 </div>
-              </td>
-              <td className='relative'>
+              </td>}
+              {visibleFields.includes('votes') && <td className='relative'>
                 <div className='horizontal gap-4'>
                 </div>
-              </td>
-              <td className='px-4 py-2 relative text-zinc-800 dark:text-zinc-200 font-light'>
+              </td>}
+              {visibleFields.includes('effort') && <td className='px-4 py-2 relative text-zinc-800 dark:text-zinc-200 font-light'>
                 <div className='absolute inset-y-0 left-[-1px] w-[1px] bg-gray-200 dark:bg-zinc-800' />
                 <div className='horizontal gap-4'>
                   {table.getRowModel().rows.reduce((acc, row) => {
                     return acc + row.original.effort;
                   }, 0)}
                 </div>
-              </td>
+              </td>}
               <td className={cn('px-4 py-2 relative',
                 !isMobile && 'z-20 right-0 bg-white dark:bg-zinc-900 sticky',
                 !isMobile && 'after:absolute after:left-0 after:top-0 after:h-full after:w-[3px] after:bg-gray-200 dark:after:bg-zinc-800'

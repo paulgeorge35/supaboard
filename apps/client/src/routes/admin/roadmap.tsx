@@ -17,13 +17,14 @@ const numberFilterSchema = z.object({
 
 const filterRoadmapItemsSchema = z.object({
   groupBy: z.enum(['board', 'category', 'owner', 'status']).optional(),
-  boards: z.union([z.array(z.string()), z.string()]).optional(),
-  categories: z.union([z.array(z.string()), z.string()]).optional(),
+  board: z.union([z.array(z.string()), z.string()]).optional(),
+  category: z.union([z.array(z.string()), z.string()]).optional(),
   tags: z.union([z.array(z.string()), z.string()]).optional(),
   impact: numberFilterSchema.optional(),
   effort: numberFilterSchema.optional(),
   votes: numberFilterSchema.optional(),
-  statuses: z.union([z.array(z.enum(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'])), z.enum(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'])]).optional(),
+  status: z.union([z.array(z.enum(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'])), z.enum(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'])]).optional(),
+  owner: z.union([z.array(z.string()), z.string()]).optional(),
   eta_start: z.string().optional(),
   eta_end: z.string().optional(),
   search: z.string().optional()
@@ -72,6 +73,7 @@ function RouteComponent() {
           return;
         }
       }
+      console.log("NAVIGATE 2#")
       router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: roadmaps[0].slug }, search });
     }
   }, [roadmaps, router, roadmapSlug]);
@@ -79,6 +81,7 @@ function RouteComponent() {
   useEffect(() => {
     if (debouncedSearch.value !== undefined) {
       if (roadmapSlug && search.search !== debouncedSearch.value) {
+        console.log("NAVIGATE 1#")
         router.navigate({
           to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug }, search: {
             ...search, search: debouncedSearch.value.length > 0 ? debouncedSearch.value : undefined,
@@ -90,6 +93,10 @@ function RouteComponent() {
       }
     }
   }, [debouncedSearch, router, search]);
+
+  const filtersApplied: number = useMemo(() => {
+    return Object.keys(search).filter(key => !['groupBy', 'search'].includes(key)).filter((key) => search[key as keyof typeof search] !== undefined).length;
+  }, [search]);
 
   if (roadmaps.length === 0) {
     return (
@@ -107,13 +114,14 @@ function RouteComponent() {
     <div className='pt-18 w-full h-full vertical'>
       <div className='horizontal center-v gap-2 p-4 border-b'>
         <SelectComponent
+          name='roadmap-select'
           className='w-50 h-9'
           checkMarks
           value={roadmapSlug}
           options={roadmaps?.map((roadmap) => ({ label: roadmap.name, value: roadmap.slug })) ?? []}
           onChange={(value) => {
             if (value)
-              router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: value }, search });
+              router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: value as string }, search });
           }}
           disabled={isDuplicatingRoadmap || isCreatingRoadmap}
         />
@@ -134,6 +142,7 @@ function RouteComponent() {
         />
         <div className='h-5 border-l hidden md:block' />
         <Input
+          name='roadmap-search'
           className='w-70 h-9 hidden md:flex'
           placeholder='Search...'
           value={searchQuery ?? ''}
@@ -145,6 +154,11 @@ function RouteComponent() {
           <Button role='button' id='filter-button' className='h-9 px-4 gap-4 hidden md:flex' variant='outline' size='sm' color='secondary'>
             <Icons.Filter />
             Filters
+            {filtersApplied > 0 && (
+              <span className='text-xs text-gray-400 dark:text-zinc-500 border rounded-sm px-1'>
+                {filtersApplied}
+              </span>
+            )}
           </Button>
         </Link>}
         {roadmapSlug && <SelectComponent
@@ -159,19 +173,8 @@ function RouteComponent() {
               }
             });
           }}
+          clearable
         />}
-        {roadmapSlug && search.groupBy && (
-          <Icons.X role='button' className='size-4 shrink-0 cursor-pointer'
-            onClick={() => {
-              router.navigate({
-                to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug },
-                search: {
-                  ...search, groupBy: undefined,
-                }
-              });
-            }}
-          />
-        )}
         <div className='h-5 border-l hidden md:block' />
         {roadmapSlug && <Link to="/admin/roadmap/$roadmapSlug/new" params={{ roadmapSlug }} search={search}>
           <Button className='h-8 hidden md:flex' size='sm'>

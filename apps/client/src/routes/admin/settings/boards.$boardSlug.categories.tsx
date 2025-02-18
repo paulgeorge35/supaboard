@@ -9,7 +9,7 @@ import { createFileRoute, useParams } from '@tanstack/react-router';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-type CategorySummary = {
+export type CategorySummary = {
   id: string;
   name: string;
   slug: string;

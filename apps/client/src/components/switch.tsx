@@ -1,7 +1,7 @@
 import { ComponentPropsWithoutRef, forwardRef } from 'react';
 import { cn } from '../lib/utils';
 
-export interface SwitchProps extends Omit<ComponentPropsWithoutRef<'input'>, 'type'> {
+export interface SwitchProps extends Omit<ComponentPropsWithoutRef<'input'>, 'type' | 'size'> {
   /** Label text to display next to switch */
   label?: string;
   /** Additional className for the wrapper element */
@@ -10,6 +10,8 @@ export interface SwitchProps extends Omit<ComponentPropsWithoutRef<'input'>, 'ty
   error?: string;
   /** Position of the label relative to the switch: 'left' | 'right' */
   labelPosition?: 'left' | 'right';
+  /** Size of the switch: 'small' | 'default' */
+  size?: 'small' | 'default';
 }
 
 export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
@@ -23,6 +25,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
     checked,
     disabled,
     onChange,
+    size = 'default',
     ...props 
   }, ref) => {
     // Generate a unique ID if none provided
@@ -59,7 +62,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
             labelPosition === 'left' && 'flex-row-reverse justify-end'
           )}
         >
-          <div className="relative inline-flex h-6 w-11">
+          <div className={cn("relative inline-flex h-6 w-11", size === 'small' && 'h-5 w-9')}>
             <input
               type="checkbox"
               id={switchId}
@@ -83,6 +86,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
                 'peer-checked:after:translate-x-full',
                 checked && 'peer-checked:bg-[var(--color-primary)]',
                 error && 'border-2 border-red-500',
+                size === 'small' && 'after:h-4 after:w-4 after:top-[2px]',
                 className
               )}
             />
