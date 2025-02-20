@@ -73,7 +73,6 @@ function RouteComponent() {
           return;
         }
       }
-      console.log("NAVIGATE 2#")
       router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: roadmaps[0].slug }, search });
     }
   }, [roadmaps, router, roadmapSlug]);
@@ -81,7 +80,6 @@ function RouteComponent() {
   useEffect(() => {
     if (debouncedSearch.value !== undefined) {
       if (roadmapSlug && search.search !== debouncedSearch.value) {
-        console.log("NAVIGATE 1#")
         router.navigate({
           to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug }, search: {
             ...search, search: debouncedSearch.value.length > 0 ? debouncedSearch.value : undefined,
@@ -150,7 +148,7 @@ function RouteComponent() {
           disabled={!roadmapSlug}
           addornmentLeft={<Icons.Search className='size-4 shrink-0 mr-2' />}
         />
-        {roadmapSlug && <Link to="/admin/roadmap/$roadmapSlug/filter" params={{ roadmapSlug }} search={search} className='ml-auto'>
+        {roadmapSlug && <Link to="/admin/roadmap/$roadmapSlug/filter" params={{ roadmapSlug }} replace={true} search={search} className='ml-auto'>
           <Button role='button' id='filter-button' className='h-9 px-4 gap-4 hidden md:flex' variant='outline' size='sm' color='secondary'>
             <Icons.Filter />
             Filters

@@ -43,8 +43,7 @@ function RouteComponent() {
 
   const handleClickOutside = (e: MouseEvent) => {
     if (ref.current && !ref.current.contains(e.target as Node) && !filterButton?.contains(e.target as Node)) {
-      console.log("NAVIGATE #3")
-      router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug }, search });
+      router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug }, search, replace: true });
     }
   }
 
@@ -110,10 +109,10 @@ type FieldVisibility = {
 
 const resetFilter = (value: FieldVisibility['value'], roadmapSlug: string, search: ReturnType<typeof useSearch>, router: ReturnType<typeof useRouter>) => {
   if (value === 'estimatedDelivery') {
-    router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, eta_start: undefined, eta_end: undefined } });
+    router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, eta_start: undefined, eta_end: undefined }, replace: true });
     return;
   }
-  router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, [value]: undefined } });
+  router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, [value]: undefined }, replace: true });
 }
 
 const FieldVisibility = ({ label, value, Icon }: FieldVisibility) => {
@@ -162,11 +161,11 @@ const NumberField = ({ label, value, Icon }: NumberFieldProps) => {
 
   const operator = useMemo(() => search[value]?.operator, [search, value]);
   const onChangeOperator = useCallback((filterOperator: string) => {
-    router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, [value]: { operator: filterOperator, value: search[value]?.value } } });
+    router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, [value]: { operator: filterOperator, value: search[value]?.value } }, replace: true });
   }, [router, search, value]);
 
   const onChangeValue = useCallback((filterValue: string) => {
-    router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, [value]: { operator: operator, value: filterValue } } });
+    router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, [value]: { operator: operator, value: filterValue } }, replace: true });
   }, [router, search, value, operator]);
   const { visibleFields, isField } = useRoadmapStore((state) => state);
 
@@ -234,7 +233,7 @@ const BoardField = ({ boards }: BoardFieldProps) => {
         className='min-h-9'
         value={selectedBoards}
         onChange={(value) => {
-          router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, board: value.length > 0 ? value : undefined } });
+          router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, board: value.length > 0 ? value : undefined }, replace: true });
         }}
       />}
     </div>
@@ -266,7 +265,7 @@ const CategoryField = ({ categories }: CategoryFieldProps) => {
         className='min-h-9'
         value={selectedCategories}
         onChange={(value) => {
-          router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, category: value.length > 0 ? value : undefined } });
+          router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, category: value.length > 0 ? value : undefined }, replace: true });
         }}
       />}
     </div>
@@ -296,7 +295,7 @@ const StatusField = () => {
         className='min-h-9'
         value={selectedStatuses}
         onChange={(value) => {
-          router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, status: value.length > 0 ? value as StatusType[] : undefined } });
+          router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, status: value.length > 0 ? value as StatusType[] : undefined }, replace: true });
         }}
       />}
     </div>
@@ -328,7 +327,7 @@ const TagField = ({ tags }: TagFieldProps) => {
         className='min-h-9'
         value={selectedTags}
         onChange={(value) => {
-          router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, tags: value.length > 0 ? value : undefined } });
+          router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, tags: value.length > 0 ? value : undefined }, replace: true });
         }}
       />}
     </div>
@@ -360,7 +359,7 @@ const OwnerField = ({ members }: OwnerFieldProps) => {
         className='min-h-9'
         value={selectedOwners}
         onChange={(value) => {
-          router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, owner: value.length > 0 ? value : undefined } });
+          router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, owner: value.length > 0 ? value : undefined }, replace: true });
         }}
       />}
     </div>
@@ -376,7 +375,7 @@ const DateField = () => {
   const isVisible = useMemo(() => visibleFields.includes('estimatedDelivery' as RoadmapField), [visibleFields]);
 
   const handleChange = (range: { start?: Date, end?: Date }) => {
-    router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, eta_start: range.start ? DateTime.fromJSDate(range.start).toFormat('yyyy-MM-dd') : undefined, eta_end: range.end ? DateTime.fromJSDate(range.end).toFormat('yyyy-MM-dd') : undefined } });
+    router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, eta_start: range.start ? DateTime.fromJSDate(range.start).toFormat('yyyy-MM-dd') : undefined, eta_end: range.end ? DateTime.fromJSDate(range.end).toFormat('yyyy-MM-dd') : undefined }, replace: true });
   }
 
   return (

@@ -1,0 +1,4 @@
+/* Add this to handle select popover width */
+[data-trigger] {
+  width: var(--trigger-width);
+} 

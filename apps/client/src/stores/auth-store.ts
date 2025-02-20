@@ -5,6 +5,7 @@ interface AuthState {
     user?: Pick<User, 'id' | 'email' | 'name' | 'avatar'>
     application?: ApplicationSummary & {
         boards: BoardSummary[]
+        hasChangelog: boolean
     }
     workspaces?: Workspace[]
     setUser: (user?: AuthState['user']) => void

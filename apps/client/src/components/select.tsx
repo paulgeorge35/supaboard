@@ -8,6 +8,7 @@ export interface SelectOption {
     label: string
     value: string
     icon?: React.ReactNode
+    content?: React.ReactNode
 }
 
 interface SelectProps {
@@ -128,10 +129,16 @@ export function SelectComponent({
                                             }
                                         )}
                                     >
-                                        {option?.icon}
-                                        <span className={cn({
-                                            "truncate": selectionMode === 'single'
-                                        })}>{option?.label}</span>
+                                        {option?.content ? (
+                                            option.content
+                                        ) : (
+                                            <>
+                                                {option?.icon}
+                                                <span className={cn({
+                                                    "truncate": selectionMode === 'single'
+                                                })}>{option?.label}</span>
+                                            </>
+                                        )}
                                         {selectionMode === 'multiple' && (
                                             <button
                                                 onClick={(e) => handleRemoveValue(e, val)}
@@ -201,8 +208,14 @@ export function SelectComponent({
                                             }
                                         )}
                                     >
-                                        {option.icon}
-                                        <span className="truncate">{option.label}</span>
+                                        {option.content ? (
+                                            option.content
+                                        ) : (
+                                            <>
+                                                {option.icon}
+                                                <span className="truncate">{option.label}</span>
+                                            </>
+                                        )}
                                         {checkMarks && selectedValues.includes(option.value) && (
                                             <Icons.Check className="ml-auto size-4 shrink-0 stroke-[var(--color-primary)]" />
                                         )}

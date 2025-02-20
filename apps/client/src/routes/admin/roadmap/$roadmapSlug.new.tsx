@@ -79,14 +79,13 @@ function RouteComponent() {
             <>
               <SelectComponent
                 required
-                label='Board'
                 placeholder='Select board...'
                 className='w-full'
                 triggerClassName='w-full h-9'
                 value={field.state.value}
                 onChange={(value) => {
                   if (value) {
-                    field.handleChange(value);
+                    field.handleChange(value as string);
                     setBoard(boards?.find((board) => board.id === value)?.slug);
                   }
                 }}
@@ -96,7 +95,7 @@ function RouteComponent() {
             </>
           )}
         />
-        {categories && categories.length > 0 && <form.Field
+        {categories && categories.filter((category) => category.name !== 'Uncategorized').length > 0 && <form.Field
           name='categoryId'
           children={(field) => (
             <>
@@ -107,8 +106,8 @@ function RouteComponent() {
                 triggerClassName='w-full h-9'
                 value={field.state.value}
                 disabled={!form.state.values.board}
-                onChange={(value) => value ? field.handleChange(value) : undefined}
-                options={categories?.map((category) => ({ label: category.name, value: category.id })) ?? []}
+                onChange={(value) => value ? field.handleChange(value as string) : undefined}
+                options={categories?.filter((category) => category.name !== 'Uncategorized').map((category) => ({ label: category.name, value: category.id })) ?? []}
               />
               <FieldInfo field={field} />
             </>

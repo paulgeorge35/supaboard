@@ -30,6 +30,10 @@ const CompanyLinks = [
     to: '/admin/settings/boards',
   },
   {
+    label: 'Changelog',
+    to: '/admin/settings/changelog',
+  },
+  {
     label: 'Custom Domains',
     to: '/admin/settings/custom-domains',
   },

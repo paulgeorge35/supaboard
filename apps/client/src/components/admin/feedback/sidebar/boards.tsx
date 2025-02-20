@@ -102,9 +102,11 @@ function BoardActions({ filter, feedbackCount }: BoardActionsProps) {
             <p className="h-5 min-w-5 px-1 ml-auto border rounded-md horizontal center text-xs font-light group-hover:hidden text-gray-500 dark:text-zinc-300">
                 {feedbackCount}
             </p>
-            <button className="cursor-pointer size-5 p-0 hidden group-hover:flex items-center justify-center">
-                <Icons.Settings className="size-4 stroke-gray-500 dark:stroke-zinc-300" />
-            </button>
+            <Link to='/admin/settings/boards/$boardSlug/general' params={{ boardSlug: filter }}>
+                <button className="cursor-pointer size-5 p-0 hidden group-hover:flex items-center justify-center">
+                    <Icons.Settings className="size-4 stroke-gray-500 dark:stroke-zinc-300" />
+                </button>
+            </Link>
 
             <button
                 onClick={handleClick}

@@ -21,15 +21,19 @@ import { Route as AdminRoadmapImport } from './routes/admin/roadmap'
 import { Route as AdminFeedbackImport } from './routes/admin/feedback'
 import { Route as AdminSettingsIndexImport } from './routes/admin/settings/index'
 import { Route as AdminChangelogIndexImport } from './routes/admin/changelog/index'
+import { Route as PublicChangelogIndexImport } from './routes/_public/changelog/index'
 import { Route as PublicBoardSlugIndexImport } from './routes/_public/$boardSlug/index'
 import { Route as AdminUsersUserSlugImport } from './routes/admin/users/$userSlug'
 import { Route as AdminSettingsProfileImport } from './routes/admin/settings/profile'
 import { Route as AdminSettingsPreferencesImport } from './routes/admin/settings/preferences'
 import { Route as AdminSettingsCompanyImport } from './routes/admin/settings/company'
+import { Route as AdminSettingsChangelogImport } from './routes/admin/settings/changelog'
 import { Route as AdminSettingsBoardsImport } from './routes/admin/settings/boards'
 import { Route as AdminSettingsAdminsImport } from './routes/admin/settings/admins'
 import { Route as AdminRoadmapRoadmapSlugImport } from './routes/admin/roadmap/$roadmapSlug'
 import { Route as AdminFeedbackBoardSlugImport } from './routes/admin/feedback/$boardSlug'
+import { Route as AdminChangelogCreateImport } from './routes/admin/changelog/create'
+import { Route as PublicChangelogChangelogSlugImport } from './routes/_public/changelog/$changelogSlug'
 import { Route as AdminSettingsCustomDomainsIndexImport } from './routes/admin/settings/custom-domains.index'
 import { Route as PublicBoardSlugFeedbackSlugIndexImport } from './routes/_public/$boardSlug/$feedbackSlug/index'
 import { Route as AdminSettingsPreferencesLanguageImport } from './routes/admin/settings/preferences.language'
@@ -37,6 +41,8 @@ import { Route as AdminSettingsPreferencesEmailImport } from './routes/admin/set
 import { Route as AdminSettingsCompanyPreferencesImport } from './routes/admin/settings/company.preferences'
 import { Route as AdminSettingsCompanyDeleteImport } from './routes/admin/settings/company.delete'
 import { Route as AdminSettingsCompanyBrandingImport } from './routes/admin/settings/company.branding'
+import { Route as AdminSettingsChangelogPrivacyImport } from './routes/admin/settings/changelog.privacy'
+import { Route as AdminSettingsChangelogLabelsImport } from './routes/admin/settings/changelog.labels'
 import { Route as AdminSettingsBoardsCreateNewImport } from './routes/admin/settings/boards.create-new'
 import { Route as AdminSettingsAdminsPeopleImport } from './routes/admin/settings/admins.people'
 import { Route as AdminRoadmapRoadmapSlugRenameImport } from './routes/admin/roadmap/$roadmapSlug.rename'
@@ -44,6 +50,7 @@ import { Route as AdminRoadmapRoadmapSlugNewImport } from './routes/admin/roadma
 import { Route as AdminRoadmapRoadmapSlugFilterImport } from './routes/admin/roadmap/$roadmapSlug.filter'
 import { Route as AdminRoadmapRoadmapSlugDeleteImport } from './routes/admin/roadmap/$roadmapSlug.delete'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug'
+import { Route as AdminChangelogChangelogSlugEditImport } from './routes/admin/changelog/$changelogSlug.edit'
 import { Route as PublicBoardSlugFeedbackSlugVotersImport } from './routes/_public/$boardSlug/$feedbackSlug/voters'
 import { Route as PublicBoardSlugFeedbackSlugEditHistoryImport } from './routes/_public/$boardSlug/$feedbackSlug/edit-history'
 import { Route as PublicBoardSlugFeedbackSlugEditImport } from './routes/_public/$boardSlug/$feedbackSlug/edit'
@@ -57,6 +64,8 @@ import { Route as AdminSettingsBoardsBoardSlugCategoriesImport } from './routes/
 import { Route as AdminFeedbackBoardSlugFeedbackSlugVotersImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/voters'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugEditHistoryImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
 import { Route as AdminFeedbackBoardSlugFeedbackSlugEditImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/edit'
+import { Route as AdminChangelogChangelogSlugEditPublishImport } from './routes/admin/changelog/$changelogSlug.edit.publish'
+import { Route as AdminChangelogChangelogSlugEditDeleteImport } from './routes/admin/changelog/$changelogSlug.edit.delete'
 import { Route as AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveImport } from './routes/admin/roadmap/$roadmapSlug.$boardSlug.$feedbackSlug.$feedbackId.remove'
 
 // Create/Update Routes
@@ -120,6 +129,12 @@ const AdminChangelogIndexRoute = AdminChangelogIndexImport.update({
   getParentRoute: () => AdminRoute,
 } as any)
 
+const PublicChangelogIndexRoute = PublicChangelogIndexImport.update({
+  id: '/changelog/',
+  path: '/changelog/',
+  getParentRoute: () => PublicRoute,
+} as any)
+
 const PublicBoardSlugIndexRoute = PublicBoardSlugIndexImport.update({
   id: '/$boardSlug/',
   path: '/$boardSlug/',
@@ -150,6 +165,12 @@ const AdminSettingsCompanyRoute = AdminSettingsCompanyImport.update({
   getParentRoute: () => AdminSettingsRoute,
 } as any)
 
+const AdminSettingsChangelogRoute = AdminSettingsChangelogImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => AdminSettingsRoute,
+} as any)
+
 const AdminSettingsBoardsRoute = AdminSettingsBoardsImport.update({
   id: '/boards',
   path: '/boards',
@@ -173,6 +194,19 @@ const AdminFeedbackBoardSlugRoute = AdminFeedbackBoardSlugImport.update({
   path: '/$boardSlug',
   getParentRoute: () => AdminFeedbackRoute,
 } as any)
+
+const AdminChangelogCreateRoute = AdminChangelogCreateImport.update({
+  id: '/changelog/create',
+  path: '/changelog/create',
+  getParentRoute: () => AdminRoute,
+} as any)
+
+const PublicChangelogChangelogSlugRoute =
+  PublicChangelogChangelogSlugImport.update({
+    id: '/changelog/$changelogSlug',
+    path: '/changelog/$changelogSlug',
+    getParentRoute: () => PublicRoute,
+  } as any)
 
 const AdminSettingsCustomDomainsIndexRoute =
   AdminSettingsCustomDomainsIndexImport.update({
@@ -224,6 +258,20 @@ const AdminSettingsCompanyBrandingRoute =
     getParentRoute: () => AdminSettingsCompanyRoute,
   } as any)
 
+const AdminSettingsChangelogPrivacyRoute =
+  AdminSettingsChangelogPrivacyImport.update({
+    id: '/privacy',
+    path: '/privacy',
+    getParentRoute: () => AdminSettingsChangelogRoute,
+  } as any)
+
+const AdminSettingsChangelogLabelsRoute =
+  AdminSettingsChangelogLabelsImport.update({
+    id: '/labels',
+    path: '/labels',
+    getParentRoute: () => AdminSettingsChangelogRoute,
+  } as any)
+
 const AdminSettingsBoardsCreateNewRoute =
   AdminSettingsBoardsCreateNewImport.update({
     id: '/create-new',
@@ -271,6 +319,13 @@ const AdminFeedbackBoardSlugFeedbackSlugRoute =
     id: '/$feedbackSlug',
     path: '/$feedbackSlug',
     getParentRoute: () => AdminFeedbackBoardSlugRoute,
+  } as any)
+
+const AdminChangelogChangelogSlugEditRoute =
+  AdminChangelogChangelogSlugEditImport.update({
+    id: '/changelog/$changelogSlug/edit',
+    path: '/changelog/$changelogSlug/edit',
+    getParentRoute: () => AdminRoute,
   } as any)
 
 const PublicBoardSlugFeedbackSlugVotersRoute =
@@ -364,6 +419,20 @@ const AdminFeedbackBoardSlugFeedbackSlugEditRoute =
     getParentRoute: () => AdminFeedbackBoardSlugFeedbackSlugRoute,
   } as any)
 
+const AdminChangelogChangelogSlugEditPublishRoute =
+  AdminChangelogChangelogSlugEditPublishImport.update({
+    id: '/publish',
+    path: '/publish',
+    getParentRoute: () => AdminChangelogChangelogSlugEditRoute,
+  } as any)
+
+const AdminChangelogChangelogSlugEditDeleteRoute =
+  AdminChangelogChangelogSlugEditDeleteImport.update({
+    id: '/delete',
+    path: '/delete',
+    getParentRoute: () => AdminChangelogChangelogSlugEditRoute,
+  } as any)
+
 const AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute =
   AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveImport.update({
     id: '/$boardSlug/$feedbackSlug/$feedbackId/remove',
@@ -431,6 +500,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexImport
       parentRoute: typeof AdminImport
     }
+    '/_public/changelog/$changelogSlug': {
+      id: '/_public/changelog/$changelogSlug'
+      path: '/changelog/$changelogSlug'
+      fullPath: '/changelog/$changelogSlug'
+      preLoaderRoute: typeof PublicChangelogChangelogSlugImport
+      parentRoute: typeof PublicImport
+    }
+    '/admin/changelog/create': {
+      id: '/admin/changelog/create'
+      path: '/changelog/create'
+      fullPath: '/admin/changelog/create'
+      preLoaderRoute: typeof AdminChangelogCreateImport
+      parentRoute: typeof AdminImport
+    }
     '/admin/feedback/$boardSlug': {
       id: '/admin/feedback/$boardSlug'
       path: '/$boardSlug'
@@ -457,6 +540,13 @@ declare module '@tanstack/react-router' {
       path: '/boards'
       fullPath: '/admin/settings/boards'
       preLoaderRoute: typeof AdminSettingsBoardsImport
+      parentRoute: typeof AdminSettingsImport
+    }
+    '/admin/settings/changelog': {
+      id: '/admin/settings/changelog'
+      path: '/changelog'
+      fullPath: '/admin/settings/changelog'
+      preLoaderRoute: typeof AdminSettingsChangelogImport
       parentRoute: typeof AdminSettingsImport
     }
     '/admin/settings/company': {
@@ -494,6 +584,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicBoardSlugIndexImport
       parentRoute: typeof PublicImport
     }
+    '/_public/changelog/': {
+      id: '/_public/changelog/'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof PublicChangelogIndexImport
+      parentRoute: typeof PublicImport
+    }
     '/admin/changelog/': {
       id: '/admin/changelog/'
       path: '/changelog'
@@ -528,6 +625,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$boardSlug/$feedbackSlug/voters'
       preLoaderRoute: typeof PublicBoardSlugFeedbackSlugVotersImport
       parentRoute: typeof PublicImport
+    }
+    '/admin/changelog/$changelogSlug/edit': {
+      id: '/admin/changelog/$changelogSlug/edit'
+      path: '/changelog/$changelogSlug/edit'
+      fullPath: '/admin/changelog/$changelogSlug/edit'
+      preLoaderRoute: typeof AdminChangelogChangelogSlugEditImport
+      parentRoute: typeof AdminImport
     }
     '/admin/feedback/$boardSlug/$feedbackSlug': {
       id: '/admin/feedback/$boardSlug/$feedbackSlug'
@@ -578,6 +682,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsBoardsCreateNewImport
       parentRoute: typeof AdminSettingsBoardsImport
     }
+    '/admin/settings/changelog/labels': {
+      id: '/admin/settings/changelog/labels'
+      path: '/labels'
+      fullPath: '/admin/settings/changelog/labels'
+      preLoaderRoute: typeof AdminSettingsChangelogLabelsImport
+      parentRoute: typeof AdminSettingsChangelogImport
+    }
+    '/admin/settings/changelog/privacy': {
+      id: '/admin/settings/changelog/privacy'
+      path: '/privacy'
+      fullPath: '/admin/settings/changelog/privacy'
+      preLoaderRoute: typeof AdminSettingsChangelogPrivacyImport
+      parentRoute: typeof AdminSettingsChangelogImport
+    }
     '/admin/settings/company/branding': {
       id: '/admin/settings/company/branding'
       path: '/branding'
@@ -626,6 +744,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/settings/custom-domains'
       preLoaderRoute: typeof AdminSettingsCustomDomainsIndexImport
       parentRoute: typeof AdminSettingsImport
+    }
+    '/admin/changelog/$changelogSlug/edit/delete': {
+      id: '/admin/changelog/$changelogSlug/edit/delete'
+      path: '/delete'
+      fullPath: '/admin/changelog/$changelogSlug/edit/delete'
+      preLoaderRoute: typeof AdminChangelogChangelogSlugEditDeleteImport
+      parentRoute: typeof AdminChangelogChangelogSlugEditImport
+    }
+    '/admin/changelog/$changelogSlug/edit/publish': {
+      id: '/admin/changelog/$changelogSlug/edit/publish'
+      path: '/publish'
+      fullPath: '/admin/changelog/$changelogSlug/edit/publish'
+      preLoaderRoute: typeof AdminChangelogChangelogSlugEditPublishImport
+      parentRoute: typeof AdminChangelogChangelogSlugEditImport
     }
     '/admin/feedback/$boardSlug/$feedbackSlug/edit': {
       id: '/admin/feedback/$boardSlug/$feedbackSlug/edit'
@@ -711,7 +843,9 @@ declare module '@tanstack/react-router' {
 
 interface PublicRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
+  PublicChangelogChangelogSlugRoute: typeof PublicChangelogChangelogSlugRoute
   PublicBoardSlugIndexRoute: typeof PublicBoardSlugIndexRoute
+  PublicChangelogIndexRoute: typeof PublicChangelogIndexRoute
   PublicBoardSlugFeedbackSlugEditRoute: typeof PublicBoardSlugFeedbackSlugEditRoute
   PublicBoardSlugFeedbackSlugEditHistoryRoute: typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
   PublicBoardSlugFeedbackSlugVotersRoute: typeof PublicBoardSlugFeedbackSlugVotersRoute
@@ -720,7 +854,9 @@ interface PublicRouteChildren {
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
+  PublicChangelogChangelogSlugRoute: PublicChangelogChangelogSlugRoute,
   PublicBoardSlugIndexRoute: PublicBoardSlugIndexRoute,
+  PublicChangelogIndexRoute: PublicChangelogIndexRoute,
   PublicBoardSlugFeedbackSlugEditRoute: PublicBoardSlugFeedbackSlugEditRoute,
   PublicBoardSlugFeedbackSlugEditHistoryRoute:
     PublicBoardSlugFeedbackSlugEditHistoryRoute,
@@ -857,6 +993,22 @@ const AdminSettingsBoardsRouteChildren: AdminSettingsBoardsRouteChildren = {
 const AdminSettingsBoardsRouteWithChildren =
   AdminSettingsBoardsRoute._addFileChildren(AdminSettingsBoardsRouteChildren)
 
+interface AdminSettingsChangelogRouteChildren {
+  AdminSettingsChangelogLabelsRoute: typeof AdminSettingsChangelogLabelsRoute
+  AdminSettingsChangelogPrivacyRoute: typeof AdminSettingsChangelogPrivacyRoute
+}
+
+const AdminSettingsChangelogRouteChildren: AdminSettingsChangelogRouteChildren =
+  {
+    AdminSettingsChangelogLabelsRoute: AdminSettingsChangelogLabelsRoute,
+    AdminSettingsChangelogPrivacyRoute: AdminSettingsChangelogPrivacyRoute,
+  }
+
+const AdminSettingsChangelogRouteWithChildren =
+  AdminSettingsChangelogRoute._addFileChildren(
+    AdminSettingsChangelogRouteChildren,
+  )
+
 interface AdminSettingsCompanyRouteChildren {
   AdminSettingsCompanyBrandingRoute: typeof AdminSettingsCompanyBrandingRoute
   AdminSettingsCompanyDeleteRoute: typeof AdminSettingsCompanyDeleteRoute
@@ -892,6 +1044,7 @@ const AdminSettingsPreferencesRouteWithChildren =
 interface AdminSettingsRouteChildren {
   AdminSettingsAdminsRoute: typeof AdminSettingsAdminsRouteWithChildren
   AdminSettingsBoardsRoute: typeof AdminSettingsBoardsRouteWithChildren
+  AdminSettingsChangelogRoute: typeof AdminSettingsChangelogRouteWithChildren
   AdminSettingsCompanyRoute: typeof AdminSettingsCompanyRouteWithChildren
   AdminSettingsPreferencesRoute: typeof AdminSettingsPreferencesRouteWithChildren
   AdminSettingsProfileRoute: typeof AdminSettingsProfileRoute
@@ -902,6 +1055,7 @@ interface AdminSettingsRouteChildren {
 const AdminSettingsRouteChildren: AdminSettingsRouteChildren = {
   AdminSettingsAdminsRoute: AdminSettingsAdminsRouteWithChildren,
   AdminSettingsBoardsRoute: AdminSettingsBoardsRouteWithChildren,
+  AdminSettingsChangelogRoute: AdminSettingsChangelogRouteWithChildren,
   AdminSettingsCompanyRoute: AdminSettingsCompanyRouteWithChildren,
   AdminSettingsPreferencesRoute: AdminSettingsPreferencesRouteWithChildren,
   AdminSettingsProfileRoute: AdminSettingsProfileRoute,
@@ -925,13 +1079,33 @@ const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
   AdminUsersRouteChildren,
 )
 
+interface AdminChangelogChangelogSlugEditRouteChildren {
+  AdminChangelogChangelogSlugEditDeleteRoute: typeof AdminChangelogChangelogSlugEditDeleteRoute
+  AdminChangelogChangelogSlugEditPublishRoute: typeof AdminChangelogChangelogSlugEditPublishRoute
+}
+
+const AdminChangelogChangelogSlugEditRouteChildren: AdminChangelogChangelogSlugEditRouteChildren =
+  {
+    AdminChangelogChangelogSlugEditDeleteRoute:
+      AdminChangelogChangelogSlugEditDeleteRoute,
+    AdminChangelogChangelogSlugEditPublishRoute:
+      AdminChangelogChangelogSlugEditPublishRoute,
+  }
+
+const AdminChangelogChangelogSlugEditRouteWithChildren =
+  AdminChangelogChangelogSlugEditRoute._addFileChildren(
+    AdminChangelogChangelogSlugEditRouteChildren,
+  )
+
 interface AdminRouteChildren {
   AdminFeedbackRoute: typeof AdminFeedbackRouteWithChildren
   AdminRoadmapRoute: typeof AdminRoadmapRouteWithChildren
   AdminSettingsRoute: typeof AdminSettingsRouteWithChildren
   AdminUsersRoute: typeof AdminUsersRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminChangelogCreateRoute: typeof AdminChangelogCreateRoute
   AdminChangelogIndexRoute: typeof AdminChangelogIndexRoute
+  AdminChangelogChangelogSlugEditRoute: typeof AdminChangelogChangelogSlugEditRouteWithChildren
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -940,7 +1114,10 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSettingsRoute: AdminSettingsRouteWithChildren,
   AdminUsersRoute: AdminUsersRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
+  AdminChangelogCreateRoute: AdminChangelogCreateRoute,
   AdminChangelogIndexRoute: AdminChangelogIndexRoute,
+  AdminChangelogChangelogSlugEditRoute:
+    AdminChangelogChangelogSlugEditRouteWithChildren,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -954,20 +1131,25 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/changelog/$changelogSlug': typeof PublicChangelogChangelogSlugRoute
+  '/admin/changelog/create': typeof AdminChangelogCreateRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
   '/admin/roadmap/$roadmapSlug': typeof AdminRoadmapRoadmapSlugRouteWithChildren
   '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
   '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
+  '/admin/settings/changelog': typeof AdminSettingsChangelogRouteWithChildren
   '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
   '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
   '/admin/settings/profile': typeof AdminSettingsProfileRoute
   '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
   '/$boardSlug': typeof PublicBoardSlugIndexRoute
+  '/changelog': typeof PublicChangelogIndexRoute
   '/admin/changelog': typeof AdminChangelogIndexRoute
   '/admin/settings/': typeof AdminSettingsIndexRoute
   '/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
   '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
   '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
+  '/admin/changelog/$changelogSlug/edit': typeof AdminChangelogChangelogSlugEditRouteWithChildren
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
   '/admin/roadmap/$roadmapSlug/delete': typeof AdminRoadmapRoadmapSlugDeleteRoute
   '/admin/roadmap/$roadmapSlug/filter': typeof AdminRoadmapRoadmapSlugFilterRoute
@@ -975,6 +1157,8 @@ export interface FileRoutesByFullPath {
   '/admin/roadmap/$roadmapSlug/rename': typeof AdminRoadmapRoadmapSlugRenameRoute
   '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
   '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
+  '/admin/settings/changelog/labels': typeof AdminSettingsChangelogLabelsRoute
+  '/admin/settings/changelog/privacy': typeof AdminSettingsChangelogPrivacyRoute
   '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
   '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
   '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
@@ -982,6 +1166,8 @@ export interface FileRoutesByFullPath {
   '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
   '/$boardSlug/$feedbackSlug': typeof PublicBoardSlugFeedbackSlugIndexRoute
   '/admin/settings/custom-domains': typeof AdminSettingsCustomDomainsIndexRoute
+  '/admin/changelog/$changelogSlug/edit/delete': typeof AdminChangelogChangelogSlugEditDeleteRoute
+  '/admin/changelog/$changelogSlug/edit/publish': typeof AdminChangelogChangelogSlugEditPublishRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
@@ -1001,26 +1187,33 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/': typeof PublicIndexRoute
   '/admin': typeof AdminIndexRoute
+  '/changelog/$changelogSlug': typeof PublicChangelogChangelogSlugRoute
+  '/admin/changelog/create': typeof AdminChangelogCreateRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
   '/admin/roadmap/$roadmapSlug': typeof AdminRoadmapRoadmapSlugRouteWithChildren
   '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
   '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
+  '/admin/settings/changelog': typeof AdminSettingsChangelogRouteWithChildren
   '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
   '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
   '/admin/settings/profile': typeof AdminSettingsProfileRoute
   '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
   '/$boardSlug': typeof PublicBoardSlugIndexRoute
+  '/changelog': typeof PublicChangelogIndexRoute
   '/admin/changelog': typeof AdminChangelogIndexRoute
   '/admin/settings': typeof AdminSettingsIndexRoute
   '/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
   '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
   '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
+  '/admin/changelog/$changelogSlug/edit': typeof AdminChangelogChangelogSlugEditRouteWithChildren
   '/admin/roadmap/$roadmapSlug/delete': typeof AdminRoadmapRoadmapSlugDeleteRoute
   '/admin/roadmap/$roadmapSlug/filter': typeof AdminRoadmapRoadmapSlugFilterRoute
   '/admin/roadmap/$roadmapSlug/new': typeof AdminRoadmapRoadmapSlugNewRoute
   '/admin/roadmap/$roadmapSlug/rename': typeof AdminRoadmapRoadmapSlugRenameRoute
   '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
   '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
+  '/admin/settings/changelog/labels': typeof AdminSettingsChangelogLabelsRoute
+  '/admin/settings/changelog/privacy': typeof AdminSettingsChangelogPrivacyRoute
   '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
   '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
   '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
@@ -1028,6 +1221,8 @@ export interface FileRoutesByTo {
   '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
   '/$boardSlug/$feedbackSlug': typeof PublicBoardSlugFeedbackSlugIndexRoute
   '/admin/settings/custom-domains': typeof AdminSettingsCustomDomainsIndexRoute
+  '/admin/changelog/$changelogSlug/edit/delete': typeof AdminChangelogChangelogSlugEditDeleteRoute
+  '/admin/changelog/$changelogSlug/edit/publish': typeof AdminChangelogChangelogSlugEditPublishRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
@@ -1051,20 +1246,25 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/_public/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/_public/changelog/$changelogSlug': typeof PublicChangelogChangelogSlugRoute
+  '/admin/changelog/create': typeof AdminChangelogCreateRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
   '/admin/roadmap/$roadmapSlug': typeof AdminRoadmapRoadmapSlugRouteWithChildren
   '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
   '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
+  '/admin/settings/changelog': typeof AdminSettingsChangelogRouteWithChildren
   '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
   '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
   '/admin/settings/profile': typeof AdminSettingsProfileRoute
   '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
   '/_public/$boardSlug/': typeof PublicBoardSlugIndexRoute
+  '/_public/changelog/': typeof PublicChangelogIndexRoute
   '/admin/changelog/': typeof AdminChangelogIndexRoute
   '/admin/settings/': typeof AdminSettingsIndexRoute
   '/_public/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
   '/_public/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
   '/_public/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
+  '/admin/changelog/$changelogSlug/edit': typeof AdminChangelogChangelogSlugEditRouteWithChildren
   '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
   '/admin/roadmap/$roadmapSlug/delete': typeof AdminRoadmapRoadmapSlugDeleteRoute
   '/admin/roadmap/$roadmapSlug/filter': typeof AdminRoadmapRoadmapSlugFilterRoute
@@ -1072,6 +1272,8 @@ export interface FileRoutesById {
   '/admin/roadmap/$roadmapSlug/rename': typeof AdminRoadmapRoadmapSlugRenameRoute
   '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
   '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
+  '/admin/settings/changelog/labels': typeof AdminSettingsChangelogLabelsRoute
+  '/admin/settings/changelog/privacy': typeof AdminSettingsChangelogPrivacyRoute
   '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
   '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
   '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
@@ -1079,6 +1281,8 @@ export interface FileRoutesById {
   '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
   '/_public/$boardSlug/$feedbackSlug/': typeof PublicBoardSlugFeedbackSlugIndexRoute
   '/admin/settings/custom-domains/': typeof AdminSettingsCustomDomainsIndexRoute
+  '/admin/changelog/$changelogSlug/edit/delete': typeof AdminChangelogChangelogSlugEditDeleteRoute
+  '/admin/changelog/$changelogSlug/edit/publish': typeof AdminChangelogChangelogSlugEditPublishRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
   '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
@@ -1103,20 +1307,25 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/'
     | '/admin/'
+    | '/changelog/$changelogSlug'
+    | '/admin/changelog/create'
     | '/admin/feedback/$boardSlug'
     | '/admin/roadmap/$roadmapSlug'
     | '/admin/settings/admins'
     | '/admin/settings/boards'
+    | '/admin/settings/changelog'
     | '/admin/settings/company'
     | '/admin/settings/preferences'
     | '/admin/settings/profile'
     | '/admin/users/$userSlug'
     | '/$boardSlug'
+    | '/changelog'
     | '/admin/changelog'
     | '/admin/settings/'
     | '/$boardSlug/$feedbackSlug/edit'
     | '/$boardSlug/$feedbackSlug/edit-history'
     | '/$boardSlug/$feedbackSlug/voters'
+    | '/admin/changelog/$changelogSlug/edit'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
     | '/admin/roadmap/$roadmapSlug/delete'
     | '/admin/roadmap/$roadmapSlug/filter'
@@ -1124,6 +1333,8 @@ export interface FileRouteTypes {
     | '/admin/roadmap/$roadmapSlug/rename'
     | '/admin/settings/admins/people'
     | '/admin/settings/boards/create-new'
+    | '/admin/settings/changelog/labels'
+    | '/admin/settings/changelog/privacy'
     | '/admin/settings/company/branding'
     | '/admin/settings/company/delete'
     | '/admin/settings/company/preferences'
@@ -1131,6 +1342,8 @@ export interface FileRouteTypes {
     | '/admin/settings/preferences/language'
     | '/$boardSlug/$feedbackSlug'
     | '/admin/settings/custom-domains'
+    | '/admin/changelog/$changelogSlug/edit/delete'
+    | '/admin/changelog/$changelogSlug/edit/publish'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
     | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
@@ -1149,26 +1362,33 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/'
     | '/admin'
+    | '/changelog/$changelogSlug'
+    | '/admin/changelog/create'
     | '/admin/feedback/$boardSlug'
     | '/admin/roadmap/$roadmapSlug'
     | '/admin/settings/admins'
     | '/admin/settings/boards'
+    | '/admin/settings/changelog'
     | '/admin/settings/company'
     | '/admin/settings/preferences'
     | '/admin/settings/profile'
     | '/admin/users/$userSlug'
     | '/$boardSlug'
+    | '/changelog'
     | '/admin/changelog'
     | '/admin/settings'
     | '/$boardSlug/$feedbackSlug/edit'
     | '/$boardSlug/$feedbackSlug/edit-history'
     | '/$boardSlug/$feedbackSlug/voters'
+    | '/admin/changelog/$changelogSlug/edit'
     | '/admin/roadmap/$roadmapSlug/delete'
     | '/admin/roadmap/$roadmapSlug/filter'
     | '/admin/roadmap/$roadmapSlug/new'
     | '/admin/roadmap/$roadmapSlug/rename'
     | '/admin/settings/admins/people'
     | '/admin/settings/boards/create-new'
+    | '/admin/settings/changelog/labels'
+    | '/admin/settings/changelog/privacy'
     | '/admin/settings/company/branding'
     | '/admin/settings/company/delete'
     | '/admin/settings/company/preferences'
@@ -1176,6 +1396,8 @@ export interface FileRouteTypes {
     | '/admin/settings/preferences/language'
     | '/$boardSlug/$feedbackSlug'
     | '/admin/settings/custom-domains'
+    | '/admin/changelog/$changelogSlug/edit/delete'
+    | '/admin/changelog/$changelogSlug/edit/publish'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
     | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
@@ -1197,20 +1419,25 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/_public/'
     | '/admin/'
+    | '/_public/changelog/$changelogSlug'
+    | '/admin/changelog/create'
     | '/admin/feedback/$boardSlug'
     | '/admin/roadmap/$roadmapSlug'
     | '/admin/settings/admins'
     | '/admin/settings/boards'
+    | '/admin/settings/changelog'
     | '/admin/settings/company'
     | '/admin/settings/preferences'
     | '/admin/settings/profile'
     | '/admin/users/$userSlug'
     | '/_public/$boardSlug/'
+    | '/_public/changelog/'
     | '/admin/changelog/'
     | '/admin/settings/'
     | '/_public/$boardSlug/$feedbackSlug/edit'
     | '/_public/$boardSlug/$feedbackSlug/edit-history'
     | '/_public/$boardSlug/$feedbackSlug/voters'
+    | '/admin/changelog/$changelogSlug/edit'
     | '/admin/feedback/$boardSlug/$feedbackSlug'
     | '/admin/roadmap/$roadmapSlug/delete'
     | '/admin/roadmap/$roadmapSlug/filter'
@@ -1218,6 +1445,8 @@ export interface FileRouteTypes {
     | '/admin/roadmap/$roadmapSlug/rename'
     | '/admin/settings/admins/people'
     | '/admin/settings/boards/create-new'
+    | '/admin/settings/changelog/labels'
+    | '/admin/settings/changelog/privacy'
     | '/admin/settings/company/branding'
     | '/admin/settings/company/delete'
     | '/admin/settings/company/preferences'
@@ -1225,6 +1454,8 @@ export interface FileRouteTypes {
     | '/admin/settings/preferences/language'
     | '/_public/$boardSlug/$feedbackSlug/'
     | '/admin/settings/custom-domains/'
+    | '/admin/changelog/$changelogSlug/edit/delete'
+    | '/admin/changelog/$changelogSlug/edit/publish'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
     | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
     | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
@@ -1267,7 +1498,9 @@ export const routeTree = rootRoute
       "filePath": "_public.tsx",
       "children": [
         "/_public/",
+        "/_public/changelog/$changelogSlug",
         "/_public/$boardSlug/",
+        "/_public/changelog/",
         "/_public/$boardSlug/$feedbackSlug/edit",
         "/_public/$boardSlug/$feedbackSlug/edit-history",
         "/_public/$boardSlug/$feedbackSlug/voters",
@@ -1282,7 +1515,9 @@ export const routeTree = rootRoute
         "/admin/settings",
         "/admin/users",
         "/admin/",
-        "/admin/changelog/"
+        "/admin/changelog/create",
+        "/admin/changelog/",
+        "/admin/changelog/$changelogSlug/edit"
       ]
     },
     "/admin/feedback": {
@@ -1305,6 +1540,7 @@ export const routeTree = rootRoute
       "children": [
         "/admin/settings/admins",
         "/admin/settings/boards",
+        "/admin/settings/changelog",
         "/admin/settings/company",
         "/admin/settings/preferences",
         "/admin/settings/profile",
@@ -1325,6 +1561,14 @@ export const routeTree = rootRoute
     },
     "/admin/": {
       "filePath": "admin/index.tsx",
+      "parent": "/admin"
+    },
+    "/_public/changelog/$changelogSlug": {
+      "filePath": "_public/changelog/$changelogSlug.tsx",
+      "parent": "/_public"
+    },
+    "/admin/changelog/create": {
+      "filePath": "admin/changelog/create.tsx",
       "parent": "/admin"
     },
     "/admin/feedback/$boardSlug": {
@@ -1365,6 +1609,14 @@ export const routeTree = rootRoute
         "/admin/settings/boards/$boardSlug/tags"
       ]
     },
+    "/admin/settings/changelog": {
+      "filePath": "admin/settings/changelog.tsx",
+      "parent": "/admin/settings",
+      "children": [
+        "/admin/settings/changelog/labels",
+        "/admin/settings/changelog/privacy"
+      ]
+    },
     "/admin/settings/company": {
       "filePath": "admin/settings/company.tsx",
       "parent": "/admin/settings",
@@ -1394,6 +1646,10 @@ export const routeTree = rootRoute
       "filePath": "_public/$boardSlug/index.tsx",
       "parent": "/_public"
     },
+    "/_public/changelog/": {
+      "filePath": "_public/changelog/index.tsx",
+      "parent": "/_public"
+    },
     "/admin/changelog/": {
       "filePath": "admin/changelog/index.tsx",
       "parent": "/admin"
@@ -1413,6 +1669,14 @@ export const routeTree = rootRoute
     "/_public/$boardSlug/$feedbackSlug/voters": {
       "filePath": "_public/$boardSlug/$feedbackSlug/voters.tsx",
       "parent": "/_public"
+    },
+    "/admin/changelog/$changelogSlug/edit": {
+      "filePath": "admin/changelog/$changelogSlug.edit.tsx",
+      "parent": "/admin",
+      "children": [
+        "/admin/changelog/$changelogSlug/edit/delete",
+        "/admin/changelog/$changelogSlug/edit/publish"
+      ]
     },
     "/admin/feedback/$boardSlug/$feedbackSlug": {
       "filePath": "admin/feedback/$boardSlug/$feedbackSlug.tsx",
@@ -1448,6 +1712,14 @@ export const routeTree = rootRoute
       "filePath": "admin/settings/boards.create-new.tsx",
       "parent": "/admin/settings/boards"
     },
+    "/admin/settings/changelog/labels": {
+      "filePath": "admin/settings/changelog.labels.tsx",
+      "parent": "/admin/settings/changelog"
+    },
+    "/admin/settings/changelog/privacy": {
+      "filePath": "admin/settings/changelog.privacy.tsx",
+      "parent": "/admin/settings/changelog"
+    },
     "/admin/settings/company/branding": {
       "filePath": "admin/settings/company.branding.tsx",
       "parent": "/admin/settings/company"
@@ -1475,6 +1747,14 @@ export const routeTree = rootRoute
     "/admin/settings/custom-domains/": {
       "filePath": "admin/settings/custom-domains.index.tsx",
       "parent": "/admin/settings"
+    },
+    "/admin/changelog/$changelogSlug/edit/delete": {
+      "filePath": "admin/changelog/$changelogSlug.edit.delete.tsx",
+      "parent": "/admin/changelog/$changelogSlug/edit"
+    },
+    "/admin/changelog/$changelogSlug/edit/publish": {
+      "filePath": "admin/changelog/$changelogSlug.edit.publish.tsx",
+      "parent": "/admin/changelog/$changelogSlug/edit"
     },
     "/admin/feedback/$boardSlug/$feedbackSlug/edit": {
       "filePath": "admin/feedback/$boardSlug/$feedbackSlug/edit.tsx",

@@ -126,7 +126,6 @@ const getScriptPath = (scriptName: string) => {
 
 const addDomain = async (domain: string) => {
     const scriptPath = getScriptPath('add_domain.sh');
-    console.log('Executing script:', scriptPath);
     
     const proc = Bun.spawn(['bash', scriptPath, domain], {
         cwd: path.dirname(scriptPath),
@@ -145,7 +144,6 @@ const addDomain = async (domain: string) => {
 
 const deleteDomain = async (domain: string) => {
     const scriptPath = getScriptPath('remove_domain.sh');
-    console.log('Executing script:', scriptPath);
     
     const proc = Bun.spawn(['bash', scriptPath, domain], {
         cwd: path.dirname(scriptPath),
@@ -187,7 +185,6 @@ export async function verifyDomain(req: BareSessionRequest, res: Response) {
 
     try {
         const cnameRecords = await dns.resolveCname(req.body.domain);
-        console.log('CNAME records:', cnameRecords);
         if (!cnameRecords.includes(CNAME_VALUE)) {
             res.status(400).json({
                 error: 'Invalid CNAME record',

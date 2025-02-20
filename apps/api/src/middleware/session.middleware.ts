@@ -18,8 +18,6 @@ export async function session(req: BareSessionRequest, res: Response, next: Next
         const decoded = await decrypt(session);
 
         if (!decoded) {
-            console.log('Invalid session[20]:', session);
-            console.log('Decoded:', decoded);
             res.clearCookie(COOKIE_NAME);
             return;
         }

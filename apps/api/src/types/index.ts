@@ -40,6 +40,7 @@ export const applicationSchema = z.object({
         slug: z.string(),
     })),
     url: z.string(),
+    hasChangelog: z.boolean().default(false),
 });
 
 export const workspacesSchema = z.array(workspaceSchema);

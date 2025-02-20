@@ -81,6 +81,18 @@ function RouteComponent() {
             <Icons.Lightbulb className='size-4' />
             Feedback
           </Link>
+          {application?.hasChangelog && (
+            <Link
+              to="/changelog"
+              className='-mb-[1px] border-b-[1px] border-transparent font-medium text-gray-400 px-3 py-2 text-sm horizontal center-v gap-2 [&>svg]:stroke-gray-400'
+              activeProps={{
+                className: '!border-[var(--color-primary)] !text-[var(--color-primary)] [&>svg]:!stroke-[var(--color-primary)]',
+              }}
+            >
+              <Icons.RefreshCcw className='size-4' />
+              Changelog
+            </Link>
+          )}
         </div>
       </div>
       <hr className='z-[0]' />

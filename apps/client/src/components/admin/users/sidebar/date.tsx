@@ -10,10 +10,6 @@ export function DateRange() {
     const router = useRouter();
 
     const handleChange = (range: { start?: Date, end?: Date }) => {
-        console.log({
-            start: range.start ? DateTime.fromJSDate(range.start).isValid ? DateTime.fromJSDate(range.start).toFormat('yyyy-MM-dd') : undefined : undefined,
-            end: range.end ? DateTime.fromJSDate(range.end).isValid ? DateTime.fromJSDate(range.end).toFormat('yyyy-MM-dd') : undefined : undefined
-        })
         router.navigate({
             from: userSlug ? UserRoute.fullPath : Route.fullPath,
             params: { userSlug },

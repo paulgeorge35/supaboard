@@ -58,15 +58,17 @@ const duplicateRoadmap = async (req: BareSessionRequest, res: Response) => {
 
 const renameRoadmap = async (req: BareSessionRequest, res: Response) => {
     const roadmapSlug = req.params.roadmapSlug
+    const applicationId = req.application?.id!
     const name = createRoadmapSchema.parse(req.body).name
 
-    const roadmap = await db.roadmap.update({ select: roadmapSummarySelect, where: { slug: roadmapSlug }, data: { name } })
+    const roadmap = await db.roadmap.update({ select: roadmapSummarySelect, where: { applicationId_slug: { applicationId, slug: roadmapSlug } }, data: { name } })
 
     res.status(200).json(roadmap)
 }
 
 const deleteRoadmap = async (req: BareSessionRequest, res: Response) => {
     const roadmapSlug = req.params.roadmapSlug
+    const applicationId = req.application?.id!
 
     const isLastRoadmap = await db.roadmap.count({ where: { applicationId: req.application?.id! } }) === 1
 
@@ -75,7 +77,7 @@ const deleteRoadmap = async (req: BareSessionRequest, res: Response) => {
         return;
     }
 
-    await db.roadmap.delete({ where: { slug: roadmapSlug } })
+    await db.roadmap.delete({ where: { applicationId_slug: { applicationId, slug: roadmapSlug } } })
 
     res.status(200).json({ success: true })
 }

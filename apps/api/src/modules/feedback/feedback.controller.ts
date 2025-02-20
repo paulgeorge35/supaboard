@@ -73,7 +73,7 @@ async function generateUniqueSlug(title: string, boardId: string): Promise<strin
 
 export async function createFeedback(req: BareSessionRequest<z.infer<typeof feedbackSchema>>, res: Response) {
     const { boardId } = req.params;
-    const applicationId = req.application?.id;
+    const applicationId = req.application?.id!;
     const userId = req.auth?.id;
 
     if (!userId) {
@@ -124,7 +124,7 @@ export async function createFeedback(req: BareSessionRequest<z.infer<typeof feed
             },
             roadmapItems: data.roadmapSlug ? {
                 create: {
-                    roadmap: { connect: { slug: data.roadmapSlug } },
+                    roadmap: { connect: { applicationId_slug: { applicationId, slug: data.roadmapSlug } } },
                 },
             } : undefined,
         },
@@ -176,6 +176,7 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
         isDeletable: hasActivity ? !!member : userId === feedback.authorId,
         isEditable: userId === feedback.authorId,
         createdAt: feedback.createdAt,
+        changelogSlug: feedback.changelog?.slug,
         author: {
             id: feedback.author?.id ?? "deleted",
             name: feedback.author?.name ?? "Deleted User",

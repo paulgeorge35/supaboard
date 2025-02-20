@@ -9,7 +9,7 @@ const buttonVariants = cva(
         variants: {
             variant: {
                 default: "",
-                outline: "!bg-transparent border hover:!bg-zinc-100/50 dark:hover:!bg-zinc-800/50",
+                outline: "!bg-transparent border hover:!bg-zinc-100/50 dark:hover:!bg-zinc-800/50 [&>svg]:stroke-gray-500 dark:[&>svg]:stroke-zinc-400",
                 ghost: "!bg-transparent hover:!bg-zinc-100/80 dark:hover:!bg-zinc-800/50 [&>svg]:stroke-zinc-600 dark:[&>svg]:stroke-zinc-50",
                 link: "!bg-transparent hover:underline underline-offset-4",
             },
@@ -22,7 +22,7 @@ const buttonVariants = cva(
                 sm: "h-7 px-2 text-sm gap-1 [&>svg]:size-4",
                 md: "h-9 px-4 text-base gap-2 [&>svg]:size-5",
                 lg: "h-10 px-6 text-lg gap-3 [&>svg]:size-5",
-                icon: "size-8",
+                icon: "size-8 aspect-square",
             },
         },
         defaultVariants: {

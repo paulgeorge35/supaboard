@@ -84,6 +84,18 @@ enum ApplicationInviteStatus {
   ACCEPTED
 }
 
+enum ChangelogTag {
+  NEW
+  IMPROVED
+  FIXED
+}
+
+enum ChangelogStatus {
+  PUBLISHED
+  SCHEDULED
+  DRAFT
+}
+
 model User {
   id       String  @id @default(uuid())
   name     String
@@ -106,6 +118,7 @@ model User {
   votes          Vote[]
   activities     Activity[]
   likes          ActivityLike[]
+  changelogLikes ChangelogLike[]
   oauthAccounts  OAuthAccount[]
   invitesSent    ApplicationInvite[] @relation("ApplicationInviteInvitedBy")
 
@@ -171,11 +184,13 @@ model Application {
   ownerId String
   owner   User   @relation("ApplicationOwner", fields: [ownerId], references: [id])
 
-  members  Member[]
-  feedback Feedback[]
-  boards   Board[]
-  invites  ApplicationInvite[]
-  roadmaps Roadmap[]
+  members         Member[]
+  feedback        Feedback[]
+  boards          Board[]
+  invites         ApplicationInvite[]
+  roadmaps        Roadmap[]
+  changelogs      Changelog[]
+  changelogLabels ChangelogLabel[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -229,6 +244,8 @@ model Feedback {
   application   Application       @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   categoryId    String?
   category      FeedbackCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  changelogId   String?
+  changelog     Changelog?        @relation(fields: [changelogId], references: [id], onDelete: SetNull)
 
   tags       Tag[]
   votes      Vote[]
@@ -384,7 +401,7 @@ model RoadmapItem {
 model Roadmap {
   id   String @id @default(uuid())
   name String
-  slug String @unique
+  slug String
 
   applicationId String
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
@@ -396,4 +413,59 @@ model Roadmap {
 
   @@unique([applicationId, slug])
   @@index([applicationId, slug])
+}
+
+model ChangelogLabel {
+  id   String @id @default(uuid())
+  name String
+
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  changelogs Changelog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([applicationId])
+}
+
+model Changelog {
+  id          String          @id @default(uuid())
+  title       String
+  slug        String          @unique
+  description String
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  status      ChangelogStatus @default(DRAFT)
+  views       Int             @default(0)
+
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  tags            ChangelogTag[]
+  labels          ChangelogLabel[]
+  linkedFeedbacks Feedback[]
+  likes           ChangelogLike[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([applicationId, slug])
+  @@index([applicationId, slug])
+}
+
+model ChangelogLike {
+  id String @id @default(uuid())
+
+  changelogId String
+  changelog   Changelog @relation(fields: [changelogId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([changelogId, authorId])
+  @@index([changelogId, authorId])
 }

@@ -1,5 +1,6 @@
 export * from './application'
 export * from './auth'
 export * from './board'
+export * from './changelog'
 export * from './feedback'
 export * from './roadmap'

@@ -45,12 +45,22 @@ async function applicationPart(req: BareSessionRequest, res: Response, next: Nex
         select: boardSummarySelect
     });
 
+    const hasChangelog = await db.changelog.findFirst({
+        where: {
+            applicationId: application.id,
+            publishedAt: {
+                not: null,
+            }
+        },
+    });
+
     req.application = {
         ...application,
         icon: application.icon ? publicUrl(application.icon) : undefined,
         logo: application.logo ? publicUrl(application.logo) : undefined,
         boards,
         url: applicationUrl,
+        hasChangelog: !!hasChangelog,
     };
     next();
 }

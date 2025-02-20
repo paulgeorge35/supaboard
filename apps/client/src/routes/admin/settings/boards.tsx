@@ -48,7 +48,6 @@ function RouteComponent() {
     onClick: () => {
       let subpath = window.location.pathname.split('/').pop();
       router.navigate({ to: '/admin/settings/boards/$boardSlug/' + subpath, params: { boardSlug: board.slug } })
-      console.log('navigating to', `/admin/settings/boards/$boardSlug/${subpath}`, { boardSlug: board.slug })
     }
   })) ?? [], [application])
 

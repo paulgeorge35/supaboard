@@ -62,7 +62,6 @@ export const useRenameRoadmapMutation = (roadmapSlug: string, remoteQueryClient?
             return { previousRoadmaps, previousRoadmap };
         },
         onError: (error, __, context) => {
-            console.log(error);
             remoteQueryClient?.setQueryData(roadmapQuery(roadmapSlug).queryKey, context?.previousRoadmap);
 
             queryClient.setQueryData(roadmapsQuery.queryKey, context?.previousRoadmaps);

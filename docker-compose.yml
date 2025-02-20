@@ -7,3 +7,4 @@ services:
     container_name: redis-test
     ports:
       - "127.0.0.1:6380:6380"
+    command: redis-server --port 6380

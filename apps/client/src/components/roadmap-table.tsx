@@ -74,6 +74,10 @@ const columns = ({ checkedItems, setCheckedItems, isMobile, maxVotes }: ColumnPr
         disabled={info.table.getRowModel().rows.length === 0}
         checked={checkedItems.length >= info.table.getRowModel().rows.length && info.table.getRowModel().rows.length > 0}
         onChange={(value) => setCheckedItems(value.target.checked ? info.table.getRowModel().rows.map(row => row.original.id) : [])}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
       />
       <p className='text-gray-500 dark:text-zinc-400'>Posts ({info.table.getRowModel().rows.length})</p>
     </div>,
@@ -123,9 +127,9 @@ const columns = ({ checkedItems, setCheckedItems, isMobile, maxVotes }: ColumnPr
     enablePinning: true,
     enableResizing: true,
     enableHiding: false,
-    minSize: isMobile ? 100 : 250,
+    minSize: isMobile ? 250 : 250,
     maxSize: isMobile ? 400 : 600,
-    size: isMobile ? 100 : 600,
+    size: isMobile ? 350 : 600,
   }),
   columnHelper.accessor('estimatedDelivery', {
     header: 'ETA',

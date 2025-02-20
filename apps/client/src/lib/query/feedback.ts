@@ -49,7 +49,7 @@ export const feedbacksInfiniteQuery = (queryParams?: FeedbackSearch) => ({
     }
 });
 
-export type FeedbackQueryData = Omit<FeedbackDetail, '_count' | 'votes'> & {
+export type FeedbackQueryData = Omit<FeedbackDetail, '_count' | 'votes' | 'changelog'> & {
     votes: number;
     votedByMe: boolean;
     isDeletable: boolean;
@@ -58,6 +58,7 @@ export type FeedbackQueryData = Omit<FeedbackDetail, '_count' | 'votes'> & {
         isAdmin: boolean;
     };
     roadmaps: RoadmapSummary[];
+    changelogSlug?: string;
 }
 
 export const feedbackQuery = (boardSlug: string, feedbackSlug: string) => queryOptions<FeedbackQueryData>({

@@ -67,7 +67,7 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className="col-span-1 overflow-y-auto border-l bg-white dark:bg-zinc-900 z-10">
+      <div className="col-span-1 overflow-y-auto border-l bg-white dark:bg-zinc-900 z-10" style={{ transform: 'translate3d(0, 0, 0)' }}>
         <div className="vertical gap-2 h-full">
           <div className="w-full h-full bg-white dark:bg-zinc-900">
             <div className='p-4 border-b'>

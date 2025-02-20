@@ -57,6 +57,11 @@ export const roadmapDetailSelect = Prisma.validator<Prisma.RoadmapSelect>()({
                 }
             }
         },
+        orderBy: {
+            feedback: {
+                createdAt: 'desc',
+            },
+        },
     },
 });
 

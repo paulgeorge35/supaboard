@@ -68,3 +68,15 @@ export const FeedbackStatusConfig = {
     background: 'bg-red-500/20',
   },
 }
+
+export const ChangelogStatusConfig = {
+  DRAFT: {
+    label: 'Draft',
+  },
+  PUBLISHED: {
+    label: 'Published',
+  },
+  SCHEDULED: {
+    label: 'Scheduled',
+  },
+}

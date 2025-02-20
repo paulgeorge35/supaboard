@@ -3,7 +3,6 @@ import { meQuery } from '@/lib/query/auth'
 import { useAuthStore } from '@/stores/auth-store'
 import { QueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { useEffect } from 'react'
 
 export const Route = createRootRoute({
@@ -47,7 +46,7 @@ function RootComponent() {
   return (
     <div className='h-[100dvh]'>
       <Outlet />
-      {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
+      {/* {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />} */}
     </div>
   )
 }

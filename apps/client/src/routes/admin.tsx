@@ -53,7 +53,7 @@ function RouteComponent() {
           <Link to="/admin/users" className='button button-navigation'>Users</Link>
           <Link to="/admin/changelog" className='button button-navigation'>Changelog</Link>
         </span>
-        <span className='horizontal center-v gap-2'>
+        <span className='horizontal center-v gap-2 ml-2'>
           <PublicButton />
           <ThemeToggle />
           <AdminAuthButtons user={user} workspaces={workspaces} currentWorkspace={application?.id} />

@@ -7,8 +7,9 @@ import {
   NotFoundPage,
   StatusBadge,
   VoteButton,
-  VoteButtonSkeleton,
+  VoteButtonSkeleton
 } from '@/components'
+import { FeedbackChangelog, FeedbackInfo } from '@/components/public/feedback'
 import { Skeleton } from '@/components/skeleton'
 import { fetchClient } from '@/lib/client'
 import {
@@ -27,7 +28,6 @@ import {
 } from '@tanstack/react-query'
 import {
   createFileRoute,
-  Link,
   useParams
 } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
@@ -189,61 +189,9 @@ function RouteComponent() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
-      <div className="vertical gap-2 hidden md:block">
-        <div className="grid grid-cols-[auto_1fr] gap-2 p-4 border rounded-lg">
-          {feedback.estimatedDelivery && feedback.publicEstimate && (
-            <>
-              <h1 className="text-xs font-bold uppercase text-gray-500 col-span-full">
-                Estimated
-              </h1>
-              <p className="text-sm font-light text-gray-500 col-span-full">
-                {feedback.estimatedDelivery
-                  ? DateTime.fromJSDate(
-                    new Date(feedback.estimatedDelivery),
-                  ).toFormat('MMMM yyyy')
-                  : 'Not estimated'}
-              </p>
-            </>
-          )}
-          <h1 className="text-xs font-bold uppercase text-gray-500 col-span-full">
-            Voters
-          </h1>
-          {feedbackVoters.map((voter) => (
-            <span
-              key={`voter-${voter.id}`}
-              className="horizontal gap-2 center-v col-span-full"
-            >
-              <Avatar
-                src={voter.avatar ?? undefined}
-                name={voter.name}
-                className="size-6"
-                isAdmin={voter.isAdmin}
-              />
-              <span
-                className={cn(
-                  'text-sm font-light',
-                  voter.isAdmin && 'text-[var(--color-primary)] font-normal',
-                )}
-              >
-                {voter.name}
-              </span>
-            </span>
-          ))}
-          {feedbackVoters.length > 3 && (
-            <Link
-              to="/$boardSlug/$feedbackSlug/voters"
-              params={{ boardSlug, feedbackSlug }}
-              className="text-sm font-light col-start-2 text-[var(--color-primary)] hover:text-[var(--color-primary)]/80"
-            >
-              and {feedbackVoters.length - 3} more
-            </Link>
-          )}
-          {feedbackVoters.length === 0 && (
-            <span className="text-sm font-light text-gray-500 col-span-full">
-              No voters yet
-            </span>
-          )}
-        </div>
+      <div className="vertical gap-4">
+        <FeedbackChangelog feedback={feedback} />
+        <FeedbackInfo feedback={feedback} feedbackVoters={feedbackVoters} boardSlug={boardSlug} feedbackSlug={feedbackSlug} />
       </div>
       <div className="vertical grid grid-cols-[auto_1fr] gap-8">
         <span className="horizontal center-v gap-4 grid col-span-full grid-cols-subgrid">
@@ -280,8 +228,8 @@ function RouteComponent() {
             {feedback.description}
           </p>
           <span className="flex flex-col md:flex-row gap-2 col-start-2">
-            <p className="text-xs text-gray-500">
-              {DateTime.fromJSDate(new Date(feedback.createdAt)).diffNow().as('hours') > -24 
+            <p className="text-xs text-gray-500 dark:text-zinc-400">
+              {DateTime.fromJSDate(new Date(feedback.createdAt)).diffNow().as('hours') > -24
                 ? DateTime.fromJSDate(new Date(feedback.createdAt)).toRelative()
                 : DateTime.fromJSDate(new Date(feedback.createdAt)).toFormat('MMMM dd, yyyy, HH:mm')
               }
