@@ -209,7 +209,6 @@ export function Details() {
             router.navigate({ to: '/admin/feedback/$boardSlug/$feedbackSlug', params: { boardSlug: data.board.slug, feedbackSlug: data.slug }, search, replace: true });
         },
         onSuccess: () => {
-            console.log('success')
             setStatusChange(undefined);
             estimateOpen.setFalse();
         }

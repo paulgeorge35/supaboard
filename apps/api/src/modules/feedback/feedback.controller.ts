@@ -476,7 +476,7 @@ export async function comment(req: BareSessionRequest, res: Response) {
                     data: data.files,
                 },
             } : undefined,
-            thread: { connect: { id: data.threadId } },
+            thread: data.threadId ? { connect: { id: data.threadId } } : undefined,
         },
     });
 
