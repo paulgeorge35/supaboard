@@ -6,6 +6,7 @@ export type MeQueryData = {
     user: UserSummary;
     application: ApplicationSummary & {
         boards: BoardSummary[];
+        hasChangelog: boolean
     };
     workspaces: Workspace[];
 }

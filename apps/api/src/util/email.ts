@@ -58,4 +58,36 @@ export const sendInvitationEmail = async (params: SendInvitationEmailParams) => 
             error: error instanceof Error ? error.message : 'Unknown error',
         };
     }
-}; 
+};
+
+interface SendPasswordResetEmailParams {
+    email: string;
+    resetLink: string;
+}
+
+export const sendPasswordResetEmail = async (params: SendPasswordResetEmailParams) => {
+    try {
+        const templatePath = path.join(__dirname, 'templates', 'password-reset.pug');
+        const compiledTemplate = pug.compileFile(templatePath);
+        const html = compiledTemplate(params);
+
+        const mailOptions = {
+            from: EMAIL_FROM,
+            to: params.email,
+            subject: 'Password Reset Request',
+            html,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        return {
+            success: true,
+            messageId: info.messageId,
+        };
+    } catch (error) {
+        console.error('Failed to send password reset email:', error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error',
+        };
+    }
+}

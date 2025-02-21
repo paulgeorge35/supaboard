@@ -13,8 +13,10 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as AdminImport } from './routes/admin'
 import { Route as PublicImport } from './routes/_public'
+import { Route as PasswordResetIndexImport } from './routes/password-reset/index'
 import { Route as AdminIndexImport } from './routes/admin/index'
 import { Route as PublicIndexImport } from './routes/_public/index'
+import { Route as PasswordResetTokenImport } from './routes/password-reset/$token'
 import { Route as AdminUsersImport } from './routes/admin/users'
 import { Route as AdminSettingsImport } from './routes/admin/settings'
 import { Route as AdminRoadmapImport } from './routes/admin/roadmap'
@@ -81,6 +83,12 @@ const PublicRoute = PublicImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const PasswordResetIndexRoute = PasswordResetIndexImport.update({
+  id: '/password-reset/',
+  path: '/password-reset/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const AdminIndexRoute = AdminIndexImport.update({
   id: '/',
   path: '/',
@@ -91,6 +99,12 @@ const PublicIndexRoute = PublicIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PublicRoute,
+} as any)
+
+const PasswordResetTokenRoute = PasswordResetTokenImport.update({
+  id: '/password-reset/$token',
+  path: '/password-reset/$token',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const AdminUsersRoute = AdminUsersImport.update({
@@ -486,6 +500,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersImport
       parentRoute: typeof AdminImport
     }
+    '/password-reset/$token': {
+      id: '/password-reset/$token'
+      path: '/password-reset/$token'
+      fullPath: '/password-reset/$token'
+      preLoaderRoute: typeof PasswordResetTokenImport
+      parentRoute: typeof rootRoute
+    }
     '/_public/': {
       id: '/_public/'
       path: '/'
@@ -499,6 +520,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexImport
       parentRoute: typeof AdminImport
+    }
+    '/password-reset/': {
+      id: '/password-reset/'
+      path: '/password-reset'
+      fullPath: '/password-reset'
+      preLoaderRoute: typeof PasswordResetIndexImport
+      parentRoute: typeof rootRoute
     }
     '/_public/changelog/$changelogSlug': {
       id: '/_public/changelog/$changelogSlug'
@@ -1129,8 +1157,10 @@ export interface FileRoutesByFullPath {
   '/admin/roadmap': typeof AdminRoadmapRouteWithChildren
   '/admin/settings': typeof AdminSettingsRouteWithChildren
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/password-reset/$token': typeof PasswordResetTokenRoute
   '/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/password-reset': typeof PasswordResetIndexRoute
   '/changelog/$changelogSlug': typeof PublicChangelogChangelogSlugRoute
   '/admin/changelog/create': typeof AdminChangelogCreateRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
@@ -1185,8 +1215,10 @@ export interface FileRoutesByTo {
   '/admin/feedback': typeof AdminFeedbackRouteWithChildren
   '/admin/roadmap': typeof AdminRoadmapRouteWithChildren
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/password-reset/$token': typeof PasswordResetTokenRoute
   '/': typeof PublicIndexRoute
   '/admin': typeof AdminIndexRoute
+  '/password-reset': typeof PasswordResetIndexRoute
   '/changelog/$changelogSlug': typeof PublicChangelogChangelogSlugRoute
   '/admin/changelog/create': typeof AdminChangelogCreateRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
@@ -1244,8 +1276,10 @@ export interface FileRoutesById {
   '/admin/roadmap': typeof AdminRoadmapRouteWithChildren
   '/admin/settings': typeof AdminSettingsRouteWithChildren
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/password-reset/$token': typeof PasswordResetTokenRoute
   '/_public/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/password-reset/': typeof PasswordResetIndexRoute
   '/_public/changelog/$changelogSlug': typeof PublicChangelogChangelogSlugRoute
   '/admin/changelog/create': typeof AdminChangelogCreateRoute
   '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
@@ -1305,8 +1339,10 @@ export interface FileRouteTypes {
     | '/admin/roadmap'
     | '/admin/settings'
     | '/admin/users'
+    | '/password-reset/$token'
     | '/'
     | '/admin/'
+    | '/password-reset'
     | '/changelog/$changelogSlug'
     | '/admin/changelog/create'
     | '/admin/feedback/$boardSlug'
@@ -1360,8 +1396,10 @@ export interface FileRouteTypes {
     | '/admin/feedback'
     | '/admin/roadmap'
     | '/admin/users'
+    | '/password-reset/$token'
     | '/'
     | '/admin'
+    | '/password-reset'
     | '/changelog/$changelogSlug'
     | '/admin/changelog/create'
     | '/admin/feedback/$boardSlug'
@@ -1417,8 +1455,10 @@ export interface FileRouteTypes {
     | '/admin/roadmap'
     | '/admin/settings'
     | '/admin/users'
+    | '/password-reset/$token'
     | '/_public/'
     | '/admin/'
+    | '/password-reset/'
     | '/_public/changelog/$changelogSlug'
     | '/admin/changelog/create'
     | '/admin/feedback/$boardSlug'
@@ -1473,11 +1513,15 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
+  PasswordResetTokenRoute: typeof PasswordResetTokenRoute
+  PasswordResetIndexRoute: typeof PasswordResetIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
+  PasswordResetTokenRoute: PasswordResetTokenRoute,
+  PasswordResetIndexRoute: PasswordResetIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -1491,7 +1535,9 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/_public",
-        "/admin"
+        "/admin",
+        "/password-reset/$token",
+        "/password-reset/"
       ]
     },
     "/_public": {
@@ -1555,6 +1601,9 @@ export const routeTree = rootRoute
         "/admin/users/$userSlug"
       ]
     },
+    "/password-reset/$token": {
+      "filePath": "password-reset/$token.tsx"
+    },
     "/_public/": {
       "filePath": "_public/index.tsx",
       "parent": "/_public"
@@ -1562,6 +1611,9 @@ export const routeTree = rootRoute
     "/admin/": {
       "filePath": "admin/index.tsx",
       "parent": "/admin"
+    },
+    "/password-reset/": {
+      "filePath": "password-reset/index.tsx"
     },
     "/_public/changelog/$changelogSlug": {
       "filePath": "_public/changelog/$changelogSlug.tsx",

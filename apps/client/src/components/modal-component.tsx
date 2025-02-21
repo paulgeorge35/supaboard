@@ -1,10 +1,10 @@
 import { type ReactNode } from 'react';
 import {
-    Dialog,
-    Modal,
-    ModalOverlay,
-    type DialogProps,
-    type ModalOverlayProps,
+  Dialog,
+  Modal,
+  ModalOverlay,
+  type DialogProps,
+  type ModalOverlayProps,
 } from 'react-aria-components';
 
 interface ModalComponentProps extends Omit<DialogProps, 'children'> {
@@ -55,7 +55,7 @@ export function ModalComponent({
           }`}
           {...dialogProps}
         >
-          {children}
+          {isOpen ? children : null}
         </Dialog>
       </ModalOverlay>
     </Modal>
