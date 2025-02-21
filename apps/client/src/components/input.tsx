@@ -4,13 +4,14 @@ import { forwardRef, useRef } from "react"
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
     inputClassName?: string
     label?: string
+    description?: string
     prefix?: string
     suffix?: string
     addornmentRight?: React.ReactNode
     addornmentLeft?: React.ReactNode
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(({ className, label, prefix, suffix, addornmentRight, addornmentLeft, required, inputClassName, ...props }, ref) => {
+export const Input = forwardRef<HTMLInputElement, InputProps>(({ className, label, prefix, suffix, addornmentRight, addornmentLeft, required, inputClassName, description, ...props }, ref) => {
     const internalRef = useRef<HTMLInputElement>(null)
     const inputRef = (ref as React.RefObject<HTMLInputElement>) || internalRef
 
@@ -52,6 +53,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({ className, labe
                 </span>
                 {addornmentRight}
             </div>
+            {description && <span className='text-xs font-light text-gray-400 dark:text-zinc-600'>{description}</span>}
         </div>
     )
 })

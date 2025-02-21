@@ -4,6 +4,7 @@ import { Details } from '@/components/admin/feedback/controls/details'
 import { Roadmaps } from '@/components/admin/feedback/controls/roadmaps'
 import { Tags } from '@/components/admin/feedback/controls/tags'
 import { Voters } from '@/components/admin/feedback/controls/voters'
+import { MergeButton } from '@/components/admin/feedback/merge-button'
 import { Skeleton } from '@/components/skeleton'
 import { fetchClient } from '@/lib/client'
 import {
@@ -141,6 +142,7 @@ function RouteComponent() {
                 ) : (
                     <h1 className="text-lg font-medium">{feedback?.title}</h1>
                 )}
+                <MergeButton feedback={feedback} boardSlug={boardSlug} className="ml-auto" />
             </span>
             <div className="grid grid-cols-[minmax(400px,1fr)_minmax(250px,310px)] h-[calc(100%-80px)] overflow-x-scroll">
                 <div className="vertical grow relative overflow-hidden">

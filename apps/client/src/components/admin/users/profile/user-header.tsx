@@ -11,7 +11,7 @@ export function UserHeader({ user }: UserHeaderProps) {
 
     return (
         <div className="p-4 horizontal center-v gap-4 border-b sticky top-0 bg-white dark:bg-zinc-900">
-            <Avatar src={user.avatar ?? undefined} name={user.name} className='size-14' isAdmin={application?.ownerId === user.id} />
+            <Avatar width={56} quality={75} src={user.avatar ?? undefined} name={user.name} className='size-14' isAdmin={application?.ownerId === user.id} />
             <span className='vertical gap-1'>
                 <h1 className="text-sm font-medium">{user.name}</h1>
                 <span className="horizontal items-baseline gap-2">

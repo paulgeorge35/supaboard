@@ -17,7 +17,6 @@ import { useParams, useRouter, useSearch } from "@tanstack/react-router";
 import { DateTime } from "luxon";
 import { ChangeEvent, RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { DetailsSkeleton } from './skeletons';
 
 enum FeedbackStatus {
     OPEN = 'OPEN',
@@ -59,8 +58,6 @@ export function Details() {
     const estimateRef = useRef<HTMLDivElement>(null);
     const estimateOpen = useBoolean(false);
     
-    const { data: feedback, isLoading } = useQuery(feedbackQuery(boardSlug, feedbackSlug));
-
     const { mutate, isPending } = useMutation({
         mutationFn: async (data: FeedbackUpdateData) => fetchClient(`admin/feedback/${boardSlug}/${feedbackSlug}`, {
             method: 'PUT',
@@ -83,7 +80,8 @@ export function Details() {
                     if (!old) return undefined;
                     return {
                         ...old,
-                        ...data
+                        ...data,
+                        files: data.files?.map(file => file.key) ?? [],
                     }
                 }
             )
@@ -156,6 +154,7 @@ export function Details() {
                                         from: data.status!,
                                         content: data.content,
                                     },
+                                    mergedFromId: null,
                                     likes: 0,
                                     likedByMe: false,
                                     files: data.files?.map(file => file.key) ?? [],
@@ -207,14 +206,11 @@ export function Details() {
             router.navigate({ to: '/admin/feedback/$boardSlug/$feedbackSlug', params: { boardSlug: data.board.slug, feedbackSlug: data.slug }, search, replace: true });
         },
         onSuccess: () => {
+            console.log('success')
             setStatusChange(undefined);
             estimateOpen.setFalse();
         }
     })
-
-    if (isLoading) {
-        return <DetailsSkeleton />
-    }
 
     return (
         <div className="grid grid-cols-[auto_1fr] gap-1 max-w-full">
@@ -620,6 +616,16 @@ const EstimatedDeliveryComponent = ({ isPending, updateData, feedbackSlug, board
                     className="w-full focus:outline-none md:text-sm pl-2"
                     value={estimatedDelivery}
                     onChange={(e) => setEstimatedDelivery(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            updateData({
+                                estimatedDelivery: estimatedDelivery ?
+                                    DateTime.fromFormat(estimatedDelivery, 'MM/yyyy').toJSDate() : null,
+                                publicEstimate: showPublicly
+                            })
+                        }
+                    }}
                 />
             }
             {open.value && DateTime.fromFormat(estimatedDelivery, 'MM/yyyy').isValid && (

@@ -141,6 +141,8 @@ function RouteComponent() {
       <form onSubmit={handleSubmit} className='p-8 vertical items-start gap-4 md:max-w-2xl'>
         <span className='horizontal center-v gap-4'>
           <Avatar
+            width={80}
+            quality={75}
             src={uploadedFile?.url ?? previewUrl}
             name={user?.name ?? "User"}
             className='size-20 text-3xl'

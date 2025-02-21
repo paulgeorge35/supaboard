@@ -4,6 +4,9 @@ import { controller } from "./admin.controller";
 
 const router = Router();
 
+router.get("/feedback/:boardSlug/:feedbackSlug/merge", member, controller.feedback.getMerge);
+router.post("/feedback/:feedbackId/merge", member, controller.feedback.merge);
+router.post("/feedback/:feedbackId/unmerge", member, controller.feedback.unmerge);
 router.put("/feedback/:boardSlug/:feedbackSlug", member, controller.feedback.update);
 router.get("/activity-overview", member, controller.activityOverview.get);
 router.get("/stale-posts", member, controller.activityOverview.stalePosts);

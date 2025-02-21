@@ -24,7 +24,8 @@ import { Avatar } from './avatar';
 import { Checkbox } from './checkbox';
 import { Icons } from './icons';
 import { Input } from './input';
-import { SelectComponent } from './select';
+// import { SelectComponent } from './select';
+import { SelectComponent } from './select-v2';
 import { StatusBadge } from './status-badge';
 
 type RoadmapItem = RoadmapDetailResponse['items'][0];
@@ -403,13 +404,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
   const [checkedItems, setCheckedItems] = useState<string[]>([]);
   const isMobile = useMediaQuery('(max-width: 768px)').matches;
   const { roadmapSlug } = useParams({ from: Route.fullPath });
-  const [inputRef, isFocused] = useFocus<HTMLInputElement>({
-    onBlur: () => {
-      if (newRoadmapItemTitle === '') {
-        setNewRoadmapItemTitle(undefined);
-      }
-    }
-  });
+  const [inputRef, isFocused] = useFocus<HTMLInputElement>();
   const [newRoadmapItemTitle, setNewRoadmapItemTitle] = useState<string | undefined>(undefined);
   const [newRoadmapItemBoard, setNewRoadmapItemBoard] = useState<string | undefined>(undefined);
   const { data: boards } = useQuery(applicationBoardsQuery);
@@ -509,7 +504,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
       tagFilter(item.tags, tags as string[]) &&
       dateFilter(item.estimatedDelivery, eta_start as string, 'gte') &&
       dateFilter(item.estimatedDelivery, eta_end as string, 'lte')
-      )
+    )
   }, [items, search, impact, votes, effort, status, board, category, owner, tags, eta_start, eta_end]);
 
   const table = useReactTable({
@@ -813,18 +808,25 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                 !isMobile && 'after:absolute after:right-0 after:top-0 after:h-full after:w-[1px] after:bg-gray-200 dark:after:bg-zinc-800'
               )}
                 role='button'
-                onClick={() => newRoadmapItemTitle === undefined ? setNewRoadmapItemTitle('') : undefined}
+                onClick={() => {
+                  if (!newRoadmapItemTitle)
+                    setNewRoadmapItemTitle('');
+                }}
               >
                 <div className='horizontal center-v gap-2 text-gray-400 dark:text-zinc-500 [&>svg]:stroke-gray-400 dark:[&>svg]:stroke-zinc-500'>
                   {(isFocused || newRoadmapItemTitle !== undefined) ?
                     <>
-                      <button type='button' className='horizontal center-v gap-2 text-gray-400 dark:text-zinc-500 [&>svg]:stroke-gray-400 dark:[&>svg]:stroke-zinc-500' onClick={() => setNewRoadmapItemTitle(undefined)}>
+                      <button type='button' className='horizontal center-v gap-2 [&>svg]:stroke-gray-400 dark:[&>svg]:stroke-zinc-500 hover:[&>svg]:stroke-gray-500 dark:hover:[&>svg]:stroke-zinc-400 cursor-pointer'
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setNewRoadmapItemTitle(undefined);
+                        }}>
                         <Icons.X className='size-4 shrink-0' />
                       </button>
                       <Input
                         ref={inputRef}
                         placeholder='Add a title...'
-                        className='w-full border-none px-2'
+                        className='w-full border-none px-2 !debug'
                         value={newRoadmapItemTitle ?? ''}
                         onChange={(e) => setNewRoadmapItemTitle(e.target.value)}
                         onKeyDown={(e) => {
@@ -843,8 +845,9 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                         })) ?? []}
                         value={newRoadmapItemBoard}
                         onChange={(value) => setNewRoadmapItemBoard(value as string)}
-                        className='h-9 hover:bg-transparent'
                         triggerClassName='border-none hover:bg-transparent dark:hover:bg-transparent'
+                        size='sm'
+                        checkMarks
                       />
                     </>
                     :

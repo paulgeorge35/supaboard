@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
 
 type EditFeedbackButtonProps = {
     isEditable: boolean;
@@ -8,7 +8,7 @@ type EditFeedbackButtonProps = {
 }
 
 export function EditFeedbackButton({ isEditable, boardSlug, feedbackSlug, to = "/$boardSlug/$feedbackSlug/edit" }: EditFeedbackButtonProps) {
-
+    const search = useSearch({ strict: false })
     if (!isEditable) return null;
 
     return (
@@ -17,6 +17,7 @@ export function EditFeedbackButton({ isEditable, boardSlug, feedbackSlug, to = "
             <Link
                 to={to}
                 params={{ boardSlug, feedbackSlug }}
+                search={search}
                 className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200"
             >
                 Edit

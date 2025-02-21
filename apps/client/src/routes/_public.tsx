@@ -41,7 +41,7 @@ function RouteComponent() {
     }
   }, [application?.color])
 
-  const defaultBoardSlug = params?.boardSlug ?? boards[0]?.slug ?? '/';
+  const defaultBoardSlug = params?.boardSlug ?? boards[0]?.slug ?? undefined;
 
   return (
     <div className='vertical justify-between h-full'>
@@ -68,7 +68,7 @@ function RouteComponent() {
             <Icons.Map className='size-4' />
             Roadmap
           </Link>
-          <Link
+          {defaultBoardSlug && <Link
             to="/$boardSlug"
             params={{
               boardSlug: defaultBoardSlug,
@@ -80,7 +80,7 @@ function RouteComponent() {
           >
             <Icons.Lightbulb className='size-4' />
             Feedback
-          </Link>
+          </Link>}
           {application?.hasChangelog && (
             <Link
               to="/changelog"

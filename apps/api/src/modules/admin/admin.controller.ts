@@ -1,5 +1,5 @@
 import { sendInvitationEmail } from "@/util";
-import { activityOverview, ActivityType, ApplicationInviteStatus, applicationInviteSummarySelect, db, FeedbackStatus, getLatestPosts, memberActivity, membersDetail, memberSummarySelect, postOverviewAllBoards, postOverviewCategories, postOverviewTags, Role, userSummarySelect } from "@repo/database";
+import { activityOverview, ActivityType, ApplicationInviteStatus, applicationInviteSummarySelect, createMergeActivity, db, FeedbackStatus, feeedbackSummarySelect, getLatestPosts, memberActivity, membersDetail, memberSummarySelect, mergeActivities, mergeVotes, postOverviewAllBoards, postOverviewCategories, postOverviewTags, Role, unmergeActivities, unmergeVotes, userSummarySelect } from "@repo/database";
 import type { Response } from "express";
 import { DateTime } from "luxon";
 import { v4 as uuidv4 } from 'uuid';
@@ -143,6 +143,7 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
                 categoryId,
             },
         });
+
         if (updatedFeedback.categoryId !== feedback.categoryId) {
             await tx.activity.create({
                 data: {
@@ -186,8 +187,8 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
                 data: {
                     type: ActivityType.FEEDBACK_OWNER_CHANGE,
                     data: {
-                        from: feedback.owner?.name,
-                        to: updatedFeedback.owner?.name,
+                        from: feedback.owner?.name ?? 'Unassigned',
+                        to: updatedFeedback.owner?.name ?? 'Unassigned',
                         content,
                     },
                     files: files ? {
@@ -220,28 +221,30 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
             });
         }
         if (updatedFeedback.estimatedDelivery !== feedback.estimatedDelivery) {
-            await tx.activity.create({
-                data: {
-                    type: ActivityType.FEEDBACK_ESTIMATED_DELIVERY_CHANGE,
+            if (!updatedFeedback.estimatedDelivery || !feedback.estimatedDelivery || new Date(updatedFeedback.estimatedDelivery!).getTime() !== new Date(feedback.estimatedDelivery!).getTime())
+                await tx.activity.create({
                     data: {
-                        from: feedback.estimatedDelivery,
-                        to: updatedFeedback.estimatedDelivery,
-                        content,
-                    },
-                    files: files ? {
-                        createMany: {
-                            data: files,
+                        type: ActivityType.FEEDBACK_ESTIMATED_DELIVERY_CHANGE,
+                        data: {
+                            from: feedback.estimatedDelivery,
+                            to: updatedFeedback.estimatedDelivery,
+                            content,
                         },
-                    } : undefined,
-                    authorId: userId,
-                    feedbackId: feedback.id,
-                },
-            });
+                        files: files ? {
+                            createMany: {
+                                data: files,
+                            },
+                        } : undefined,
+                        authorId: userId,
+                        feedbackId: feedback.id,
+                    },
+                });
         }
         return updatedFeedback;
     });
 
-    res.json(updatedFeedback);
+
+    res.status(200).json(updatedFeedback);
 }
 
 export async function getUsers(request: BareSessionRequest, res: Response) {
@@ -891,9 +894,164 @@ export async function postsOverview(req: BareSessionRequest, res: Response) {
     }
 }
 
+const getMergeCompatibleFeedbacks = async (req: BareSessionRequest, res: Response) => {
+    const boardSlug = req.params.boardSlug;
+    const feedbackSlug = req.params.feedbackSlug;
+
+    const feedback = await db.feedback.findFirst({
+        where: {
+            slug: feedbackSlug,
+            board: {
+                slug: boardSlug,
+            },
+        },
+    });
+
+    if (!feedback) {
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    const feedbacks = await db.feedback.findMany({
+        select: feeedbackSummarySelect,
+        where: {
+            boardId: feedback.boardId,
+            status: {
+                notIn: [FeedbackStatus.CLOSED, FeedbackStatus.RESOLVED],
+            },
+            mergedIntoId: null,
+            changelog: null,
+        },
+    });
+
+    res.status(200).json(feedbacks.map((feedback) => ({
+        ...feedback,
+        votes: feedback._count.votes,
+        activities: feedback._count.activities,
+        _count: undefined,
+    })));
+}
+
+const mergeFeedbackSchema = z.object({
+    feedbackIds: z.array(z.string().uuid()),
+});
+
+const mergeFeedbacks = async (req: BareSessionRequest, res: Response) => {
+    const feedbackId = req.params.feedbackId;
+    const applicationId = req.application?.id!
+    const userId = req.auth?.id!
+
+    const { feedbackIds } = mergeFeedbackSchema.parse(req.body);
+
+    const feedback = await db.feedback.findFirst({
+        where: {
+            id: feedbackId,
+            applicationId,
+        },
+    });
+
+    if (!feedback) {
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    const feedbacks = await db.feedback.findMany({
+        where: {
+            id: { in: feedbackIds },
+            boardId: feedback.boardId,
+        },
+    });
+
+    if (feedbacks.length !== feedbackIds.length) {
+        res.status(400).json({ error: 'Some feedbacks were not found', code: 'FEEDBACKS_NOT_FOUND' });
+        return;
+    }
+
+    await db.$transaction(async (tx) => {
+
+        // Update mergedIntoId for all feedbacks to be merged
+        await tx.feedback.updateMany({
+            where: { id: { in: feedbackIds } },
+            data: { mergedIntoId: feedback.id },
+        });
+
+        // Delete roadmap items for all feedbacks to be merged
+        await tx.roadmapItem.deleteMany({
+            where: {
+                feedbackId: { in: feedbackIds },
+            },
+        });
+
+        // Move activities to the new feedback and mark them as mergedFrom the old feedback
+        await tx.$queryRawTyped(mergeActivities(feedback.id, feedbackIds));
+
+        // Move votes from new authors to the new feedback
+        await tx.$queryRawTyped(mergeVotes(feedback.id, feedbackIds));
+
+        // Create a new merge activity for each feedback being merged
+        await tx.$queryRawTyped(createMergeActivity(feedback.id, feedbackIds, userId));
+    });
+
+    res.status(200).json({ success: true });
+}
+
+const unmergeFeedback = async (req: BareSessionRequest, res: Response) => {
+    const feedbackId = req.params.feedbackId;
+    const applicationId = req.application?.id!
+
+    const feedback = await db.feedback.findFirst({
+        where: {
+            id: feedbackId,
+            applicationId,
+        },
+    });
+
+    if (!feedback) {
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    if (!feedback.mergedIntoId) {
+        res.status(400).json({ error: 'Feedback is not merged', code: 'NOT_MERGED' });
+        return;
+    }
+
+    await db.$transaction(async (tx) => {
+
+        // Unmerge the feedback
+        await tx.feedback.update({
+            where: { id: feedback.id },
+            data: { mergedIntoId: null },
+        });
+
+        // Unmerge activities
+        await tx.$queryRawTyped(unmergeActivities(feedback.id));
+
+        // Unmerge votes
+        await tx.$queryRawTyped(unmergeVotes(feedback.id));
+
+        // Delete the merge activity
+        await tx.activity.deleteMany({
+            where: {
+                feedbackId: feedback.mergedIntoId!,
+                type: ActivityType.FEEDBACK_MERGE,
+                data: {
+                    path: ['from'],
+                    equals: feedback.id,
+                }
+            },
+        });
+    });
+
+    res.status(200).json({ success: true });
+}
+
 export const controller = {
     feedback: {
         update: updateFeedback,
+        getMerge: getMergeCompatibleFeedbacks,
+        merge: mergeFeedbacks,
+        unmerge: unmergeFeedback,
     },
     users: {
         get: getUsers,

@@ -9,7 +9,6 @@ import { Tag } from "@repo/database";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { TagsSkeleton } from './skeletons';
 
 type TagsProps = {
     feedbackId: string;
@@ -24,16 +23,16 @@ export function Tags({ feedbackId, tags: initialTags, isLoading }: TagsProps) {
 
     const [search, setSearch] = useState<string | undefined>(undefined);
     const { value: debouncedSearch } = useDebounce(search, {
-        delay: 0
+        delay: 100
     });
 
     const [ref, isFocused] = useFocus({
         onFocus: () => {
-            setSearch('');
+            // setSearch('');
             input.setTrue();
         },
         onBlur: () => {
-            setSearch('');
+            // setSearch('');
         }
     });
 
@@ -138,9 +137,9 @@ export function Tags({ feedbackId, tags: initialTags, isLoading }: TagsProps) {
         setSearch(undefined);
     }, [input.value]);
 
-    if (isLoading || isTagsLoading) {
-        return <TagsSkeleton />
-    }
+    // if (isLoading || isTagsLoading) {
+    //     return <TagsSkeleton />
+    // }
 
     return (
         <div className="grid grid-cols-[auto_1fr_auto] gap-2">

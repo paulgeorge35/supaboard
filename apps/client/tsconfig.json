@@ -14,6 +14,7 @@
       "@/utils/*": ["./src/utils/*"],
       "@/lib/*": ["./src/lib/*"],
       "@/stores/*": ["./src/stores/*"],
+      "@/hooks/*": ["./src/hooks/*"],
     }
   }
 }

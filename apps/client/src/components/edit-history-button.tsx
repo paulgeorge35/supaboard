@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
 
 type EditHistoryProps = {
     boardSlug: string;
@@ -8,7 +8,7 @@ type EditHistoryProps = {
 }
 
 export function EditHistory({ boardSlug, feedbackSlug, edited, to = "/$boardSlug/$feedbackSlug/edit-history" }: EditHistoryProps) {
-
+    const search = useSearch({ strict: false })
     if (!edited) return null;
 
     return (
@@ -17,6 +17,7 @@ export function EditHistory({ boardSlug, feedbackSlug, edited, to = "/$boardSlug
             <Link
                 to={to ?? "/$boardSlug/$feedbackSlug/edit-history"}
                 params={{ boardSlug, feedbackSlug }}
+                search={search}
                 className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200"
             >
                 Edit History

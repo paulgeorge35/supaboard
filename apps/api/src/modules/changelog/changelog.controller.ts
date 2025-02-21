@@ -1,4 +1,5 @@
 import type { BareSessionRequest } from "@/types";
+import { parseAndThrowFirstError } from "@/util/error-parser";
 import { redis } from "@/util/redis";
 import { changelogDetailedInclude, changelogLabelSelect, ChangelogStatus, ChangelogTag, db, Prisma } from "@repo/database";
 import type { Response } from "express";
@@ -276,19 +277,16 @@ const getLabels = async (req: BareSessionRequest, res: Response) => {
     })));
 }
 
+const labelNameSchema = z.object({
+    name: z.string().min(1, { message: 'Label name is required' }).max(20, { message: 'Label name must not exceed 20 characters' })
+});
+
 const createLabel = async (req: BareSessionRequest, res: Response) => {
     const applicationId = req.application?.id!;
 
-    const { success, data } = z.object({
-        name: z.string().min(1).max(20)
-    }).safeParse(req.body);
+    const { name } = parseAndThrowFirstError(labelNameSchema, req.body, res);
 
-    if (!success) {
-        res.status(400).json({ error: 'Invalid label data' });
-        return;
-    }
-
-    const label = await db.changelogLabel.create({ data: { name: data.name, applicationId } });
+    const label = await db.changelogLabel.create({ data: { name, applicationId } });
 
     res.status(201).json(label);
 }
@@ -457,7 +455,7 @@ const getPublicBySlug = async (req: BareSessionRequest, res: Response) => {
 
     try {
         let shouldIncrementView = true;
-        
+
         try {
             const visitor = await redis.get(visitorKey);
             if (!visitor) {
@@ -471,13 +469,13 @@ const getPublicBySlug = async (req: BareSessionRequest, res: Response) => {
         }
 
         if (shouldIncrementView) {
-            await db.changelog.update({ 
-                where: { applicationId_slug: { applicationId, slug: changelogSlug } }, 
-                data: { views: { increment: 1 } } 
+            await db.changelog.update({
+                where: { applicationId_slug: { applicationId, slug: changelogSlug } },
+                data: { views: { increment: 1 } }
             });
         }
 
-        const changelog = await db.changelog.findUnique({ 
+        const changelog = await db.changelog.findUnique({
             where: { applicationId_slug: { applicationId, slug: changelogSlug } },
             include: {
                 likes: {
@@ -522,7 +520,7 @@ const like = async (req: BareSessionRequest, res: Response) => {
         res.status(401).json({ error: 'Unauthorized' });
         return;
     }
-    
+
     const changelog = await db.changelog.findUnique({ where: { applicationId_slug: { applicationId, slug: changelogSlug } } });
 
     if (!changelog) {

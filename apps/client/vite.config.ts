@@ -37,6 +37,10 @@ export default defineConfig({
         find: '@/stores',
         replacement: fileURLToPath(new URL('./src/stores', import.meta.url)),
       },
+      {
+        find: '@/hooks',
+        replacement: fileURLToPath(new URL('./src/hooks', import.meta.url)),
+      },
     ],
   },
 })

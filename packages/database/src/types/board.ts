@@ -28,8 +28,11 @@ export const boardFeedbackSummarySelect = Prisma.validator<Prisma.BoardSelect>()
     feedbacks: {
         where: {
             status: {
-                in: ['PLANNED', 'IN_PROGRESS', 'RESOLVED']
+                in: ['OPEN','UNDER_REVIEW','PLANNED', 'IN_PROGRESS']
             }
+        },
+        orderBy: {
+            createdAt: 'desc',
         },
         select: {
             id: true,

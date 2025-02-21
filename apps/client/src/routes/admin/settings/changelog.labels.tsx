@@ -17,7 +17,9 @@ function RouteComponent() {
   const [editId, setEditId] = useState<string | null>(null);
 
   const { data: labels } = useQuery(changelogLabelsQuery);
-  const { mutate: createLabel, isPending: isCreatingLabel } = useCreateLabelMutation(() => setName(''));
+  const { mutate: createLabel, isPending: isCreatingLabel } = useCreateLabelMutation({
+    onSuccess: () => setName('')
+  });
   const { mutate: updateLabel, isPending: isUpdatingLabel } = useUpdateLabelMutation(() => setEditId(null));
   const { mutate: deleteLabel, isPending: isDeletingLabel } = useDeleteLabelMutation(() => setEditId(null));
 
@@ -38,7 +40,7 @@ function RouteComponent() {
             <Input
               value={editId === label.id ? name : `${label.name} (${label.count} entries)`}
               readOnly={editId !== label.id}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value.slice(0, 20))}
               className={cn(
                 'grow',
                 {
@@ -93,7 +95,7 @@ function RouteComponent() {
           <div className='horizontal gap-2 center-v'>
             <Input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value.slice(0, 20))}
               placeholder='Add a label'
               className='w-full border-none'
               onKeyDown={(e) => {
@@ -101,6 +103,7 @@ function RouteComponent() {
                   createLabel(name);
                 }
               }}
+              description='Must not exceed 20 characters'
             />
             <Button
               onClick={() => createLabel(name)}

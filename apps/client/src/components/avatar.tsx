@@ -3,12 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { cn } from "../lib/utils";
 import { Icons } from "./icons";
+import { ImageComponent } from "./image";
 
 type AvatarProps = React.HTMLAttributes<HTMLDivElement> & {
     src?: string;
     name: string;
     className?: string;
     isAdmin?: boolean;
+    width?: number;
+    quality?: number;
 }
 
 const colors = [
@@ -38,7 +41,7 @@ const colors = [
     },
 ]
 
-export function Avatar({ src, name, className, isAdmin, ...props }: AvatarProps) {
+export function Avatar({ src, name, className, isAdmin, width = 32, quality = 50, ...props }: AvatarProps) {
     const [imgError, setImgError] = useState(false);
 
     const { data: uploadedFile } = useQuery<{ url: string }>({
@@ -62,14 +65,16 @@ export function Avatar({ src, name, className, isAdmin, ...props }: AvatarProps)
         >
             {isAdmin && <Icons.Star className="absolute z-10 -right-[5%] -bottom-[5%] size-[35%] p-[1px] bg-[var(--color-primary)] stroke-[var(--color-primary)] rounded-full fill-white border-white" />}
             {!shouldShowPlaceholder ? (
-                <img 
-                    src={uploadedFile?.url ?? src} 
-                    alt={name} 
+                <ImageComponent
+                    width={width}
+                    quality={quality}
+                    src={uploadedFile?.url ?? src}
+                    alt={name}
                     className="size-full rounded-full"
                     onError={handleImageError}
-                    // style={{
-                    //     mask: isAdmin ? "radial-gradient(circle 10px at 23px 82%, transparent 99%, #fff 100%)" : undefined
-                    // }}
+                // style={{
+                //     mask: isAdmin ? "radial-gradient(circle 10px at 23px 82%, transparent 99%, #fff 100%)" : undefined
+                // }}
                 />
             ) : (
                 <span

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query"
-import { useRouter } from "@tanstack/react-router"
+import { useRouter, useSearch } from "@tanstack/react-router"
 import { toast } from "sonner"
 import { fetchClient } from "../lib/client"
 import { closeModal, getModal, Modal } from "./modal"
@@ -7,9 +7,11 @@ import { closeModal, getModal, Modal } from "./modal"
 type DeleteFeedbackButtonProps = {
     boardSlug: string
     feedbackSlug: string
+    to?: string
 }
 
-export function DeleteFeedbackButton({ boardSlug, feedbackSlug }: DeleteFeedbackButtonProps) {
+export function DeleteFeedbackButton({ boardSlug, feedbackSlug, to = '/$boardSlug' }: DeleteFeedbackButtonProps) {
+    const search = useSearch({ strict: false })
     const router = useRouter()
     const { mutate: deleteFeedback, isPending } = useMutation({
         mutationFn: () => fetchClient(`/feedback/${boardSlug}/${feedbackSlug}`, {
@@ -17,9 +19,9 @@ export function DeleteFeedbackButton({ boardSlug, feedbackSlug }: DeleteFeedback
         }),
         onSuccess: () => {
             toast.success('Feedback deleted successfully')
-            router.navigate({ to: '/$boardSlug', params: { boardSlug } })
+            router.navigate({ to, params: { boardSlug }, search, replace: true })
         },
-        onError: () => {    
+        onError: () => {
             toast.error('Failed to delete feedback')
         }
     })
@@ -29,7 +31,7 @@ export function DeleteFeedbackButton({ boardSlug, feedbackSlug }: DeleteFeedback
     }
 
     const handleCancel = () => {
-        if(getModal()) {
+        if (getModal()) {
             closeModal(getModal() as HTMLElement)
         }
     }
@@ -42,7 +44,6 @@ export function DeleteFeedbackButton({ boardSlug, feedbackSlug }: DeleteFeedback
                 triggerClassName="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200 cursor-pointer"
                 dismissable={false}
                 contentClassName="max-w-sm"
-                // title="Delete Feedback"
                 footer={
                     <div className="horizontal gap-2 center-v justify-end">
                         <button type="button" onClick={handleCancel} className="button button-secondary" disabled={isPending}>Cancel</button>

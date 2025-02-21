@@ -1,4 +1,4 @@
-import { Activity, FeedbackActivity, FeedbackDetail, FeedbackStatus, FeedbackSummary, RoadmapSummary, User } from "@repo/database";
+import { Activity, FeedbackActivity, FeedbackDetail, FeedbackDetailMerged, FeedbackStatus, FeedbackSummary, RoadmapSummary, User } from "@repo/database";
 import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import { fetchClient } from "../client";
@@ -49,7 +49,7 @@ export const feedbacksInfiniteQuery = (queryParams?: FeedbackSearch) => ({
     }
 });
 
-export type FeedbackQueryData = Omit<FeedbackDetail, '_count' | 'votes' | 'changelog'> & {
+export type FeedbackQueryData = Omit<FeedbackDetail, '_count' | 'votes' | 'changelog' | 'files'> & {
     votes: number;
     votedByMe: boolean;
     isDeletable: boolean;
@@ -59,6 +59,7 @@ export type FeedbackQueryData = Omit<FeedbackDetail, '_count' | 'votes' | 'chang
     };
     roadmaps: RoadmapSummary[];
     changelogSlug?: string;
+    files: string[];
 }
 
 export const feedbackQuery = (boardSlug: string, feedbackSlug: string) => queryOptions<FeedbackQueryData>({
@@ -68,11 +69,19 @@ export const feedbackQuery = (boardSlug: string, feedbackSlug: string) => queryO
 
 export interface ActivityCommentData {
     content: string;
+    from?: string;
+    to?: string;
 }
 
 export interface ActivityStatusChangeData {
     from: FeedbackStatus;
     to: FeedbackStatus;
+    content?: string;
+}
+
+export interface ActivityMergeData {
+    from: string;
+    to?: string;
     content?: string;
 }
 
@@ -83,7 +92,7 @@ export type FeedbackActivitySummary = Omit<FeedbackActivity, '_count' | 'files' 
     author: FeedbackActivity['author'] & {
         isAdmin: boolean;
     };
-    data: ActivityCommentData | ActivityStatusChangeData;
+    data: ActivityCommentData | ActivityStatusChangeData | ActivityMergeData;
 }
 
 export type FeedbackActivitiesQueryData = {
@@ -117,9 +126,28 @@ export const feedbackEditHistoryQuery = (boardSlug: string, feedbackSlug: string
 
 export type FeedbackVotersQueryData = (Pick<User, 'id' | 'name' | 'avatar'> & {
     isAdmin: boolean;
-  })[]
-  
-  export const feedbackVotersQuery = (boardSlug: string, feedbackSlug: string) => queryOptions<FeedbackVotersQueryData>({
+})[]
+
+export const feedbackVotersQuery = (boardSlug: string, feedbackSlug: string) => queryOptions<FeedbackVotersQueryData>({
     queryKey: ['feedback', 'voters', boardSlug, feedbackSlug],
     queryFn: () => fetchClient(`feedback/${boardSlug}/${feedbackSlug}/voters`)
-  })
+})
+
+export type FeedbackMergeQueryData = Omit<FeedbackSummary, '_count'> & {
+    votes: number;
+    activities: number;
+}
+
+export const feedbacksMergeQuery = (boardSlug?: string, feedbackSlug?: string) => queryOptions<FeedbackMergeQueryData[]>({
+    queryKey: ['feedback', 'merge', boardSlug, feedbackSlug],
+    queryFn: () => fetchClient(`admin/feedback/${boardSlug}/${feedbackSlug}/merge`),
+    enabled: !!boardSlug && !!feedbackSlug
+})
+
+export type FeedbackByIdQueryData = FeedbackDetailMerged;
+
+export const feedbackByIdQuery = (feedbackId?: string) => queryOptions<FeedbackByIdQueryData>({
+    queryKey: ['feedback', feedbackId],
+    queryFn: () => fetchClient(`feedback/${feedbackId}`),
+    enabled: !!feedbackId
+})

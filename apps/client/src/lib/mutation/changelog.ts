@@ -100,12 +100,20 @@ export const useUnlinkFeedbackMutation = () => {
     })
 }
 
-export const useCreateLabelMutation = (callback?: () => void) => {
+type UseCreateLabelMutation = {
+    onSuccess?: () => void;
+    onMutate?: (name: string) => void;
+    onError?: (error: any, variables: any, context: any) => void;
+    onSettled?: () => void;
+}
+
+export const useCreateLabelMutation = ({ onSuccess, onError, onMutate, onSettled }: UseCreateLabelMutation) => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (name: string) => fetchClient(`/changelog/labels`, { method: 'POST', body: JSON.stringify({ name }) }),
         onMutate: async (name) => {
+            onMutate?.(name);
             await queryClient.cancelQueries(changelogLabelsQuery);
 
             const previousLabels = queryClient.getQueryData<ChangelogLabelSummary[]>(changelogLabelsQuery.queryKey);
@@ -115,16 +123,17 @@ export const useCreateLabelMutation = (callback?: () => void) => {
                 return [...old, { id: uuidv4(), name, count: 0 }];
             });
 
-            callback?.();
-
             return { previousLabels };
         },
-        onError: (_, __, context) => {
+        onError: (error, variables, context) => {
+            onError?.(error, variables, context);
             queryClient.setQueryData(changelogLabelsQuery.queryKey, context?.previousLabels);
         },
         onSettled: () => {
+            onSettled?.();
             queryClient.invalidateQueries(changelogLabelsQuery);
         },
+        onSuccess,
     })
 }
 

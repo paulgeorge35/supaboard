@@ -55,6 +55,7 @@ enum ActivityType {
   FEEDBACK_ESTIMATED_DELIVERY_CHANGE
   FEEDBACK_SCREENSHOT_ADD
   FEEDBACK_SCREENSHOT_REMOVE
+  FEEDBACK_MERGE
 }
 
 enum Theme {
@@ -246,11 +247,16 @@ model Feedback {
   category      FeedbackCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   changelogId   String?
   changelog     Changelog?        @relation(fields: [changelogId], references: [id], onDelete: SetNull)
+  mergedIntoId  String?
+  mergedInto    Feedback?         @relation("FeedbackMerged", fields: [mergedIntoId], references: [id], onDelete: Cascade)
 
-  tags       Tag[]
-  votes      Vote[]
-  activities Activity[]
-  files      File[]
+  tags                 Tag[]
+  votes                Vote[]
+  activities           Activity[]
+  files                File[]
+  merged               Feedback[] @relation("FeedbackMerged")
+  activitiesMergedAway Activity[] @relation("ActivityMergedAway")
+  votesMergedAway      Vote[]     @relation("VoteMergedAway")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -344,10 +350,12 @@ model Activity {
   type   ActivityType
   data   Json
 
-  feedbackId String
-  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
-  authorId   String
-  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  feedbackId   String
+  feedback     Feedback  @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  mergedFromId String?
+  mergedFrom   Feedback? @relation("ActivityMergedAway", fields: [mergedFromId], references: [id], onDelete: Cascade)
 
   likes ActivityLike[]
   files File[]
@@ -370,11 +378,14 @@ model ActivityLike {
 }
 
 model Vote {
-  id         String   @id @default(uuid())
-  feedbackId String
-  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
-  authorId   String
-  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  id String @id @default(uuid())
+
+  feedbackId   String
+  feedback     Feedback  @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  mergedFromId String?
+  mergedFrom   Feedback? @relation("VoteMergedAway", fields: [mergedFromId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

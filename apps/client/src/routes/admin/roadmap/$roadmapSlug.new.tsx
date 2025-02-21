@@ -135,7 +135,7 @@ function RouteComponent() {
             <>
               <TextArea
                 placeholder='Enter description...'
-                className='w-full border rounded-md p-2 md:text-sm focus:outline-none resize-none'
+                className='w-full border rounded-md px-3 py-2 md:text-sm focus:outline-none resize-none text-zinc-800 dark:text-zinc-300'
                 onInput={(e) => {
                   e.currentTarget.style.height = 'auto';
                   e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';

@@ -6,11 +6,15 @@ import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import { Button } from './button';
 import { FieldInfo } from './field-info';
-import { SelectComponent } from './select';
+import { Icons } from './icons';
+import { ImageFile } from './image-file';
+import { SelectComponent } from './select-v2';
 import { Skeleton } from './skeleton';
 
 export function FeedbackForm() {
@@ -20,15 +24,24 @@ export function FeedbackForm() {
     const navigate = useNavigate();
     const [isExpanded, setIsExpanded] = useState(true);
 
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [attachments, setAttachments] = useState<ImageFile[]>([]);
+
     const { data: categories } = useQuery(categoriesQuery(boardSlug))
 
     const createFeedback = useMutation({
         mutationFn: async (data: z.infer<typeof schema>) => await fetchClient(`/feedback/${board?.id}/create`, {
             method: 'POST',
-            body: JSON.stringify(data),
+            body: JSON.stringify({
+                ...data,
+                files: attachments,
+            }),
         }),
         onSuccess: (data) => {
             toast.success('Feedback created successfully');
+            setAttachments([]);
+            form.reset();
+            setIsExpanded(false);
             navigate({
                 to: '/$boardSlug/$feedbackSlug',
                 params: {
@@ -55,8 +68,6 @@ export function FeedbackForm() {
         },
         onSubmit: async (data) => {
             await createFeedback.mutateAsync(data.value);
-            form.reset();
-            setIsExpanded(false);
         },
     });
 
@@ -70,6 +81,31 @@ export function FeedbackForm() {
         form.reset();
         setIsExpanded(false);
     };
+
+    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(event.target.files ?? []);
+        setAttachments([
+            ...attachments,
+            ...files.map(file => ({
+                file,
+                key: uuidv4(),
+                name: file.name.split('.').slice(0, -1).join('.'),
+                extension: file.name.split('.').pop() ?? '',
+                contentType: file.type,
+                size: file.size,
+            }))
+        ]);
+    }
+
+    const { mutate: removeFile } = useMutation({
+        mutationFn: async (key: string) => await fetchClient(`storage/${key}`, {
+            method: 'DELETE',
+        }),
+        onMutate: (key) => {
+            setAttachments(attachments.filter(attachment => attachment.key !== key));
+        },
+    })
+
 
     if (isLoading) {
         return (
@@ -156,7 +192,7 @@ export function FeedbackForm() {
                                                 }
                                             }}
                                             placeholder={board.details ?? 'Describe your feedback'}
-                                            className='w-full md:text-sm focus:outline-none resize-none'
+                                            className='w-full md:text-sm focus:outline-none resize-none py-2 text-gray-500 dark:text-zinc-400'
                                             value={field.state.value ?? ''}
                                             onBlur={field.handleBlur}
                                             onChange={(e) => field.handleChange(e.target.value)}
@@ -180,11 +216,19 @@ export function FeedbackForm() {
                                                     label: category.name,
                                                     value: category.id,
                                                 }))}
+                                                checkMarks
+                                                clearable
+                                                size='sm'
                                             />
                                         )}
                                     />
                                 </>
                             )}
+                            {attachments.length > 0 && <span className='horizontal gap-2 flex-wrap pt-4'>
+                                {attachments.map(attachment => (
+                                    <ImageFile key={attachment.key} fileKey={attachment.key} file={attachment.file} onRemove={() => removeFile(attachment.key)} />
+                                ))}
+                            </span>}
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -197,11 +241,15 @@ export function FeedbackForm() {
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.2 }}
-                        className='border-t horizontal center-v justify-end gap-2 px-4 py-2 bg-gray-50 dark:bg-zinc-800/20'
+                        className='border-t horizontal center-v gap-2 px-4 py-2 bg-gray-50 dark:bg-zinc-800/20'
                     >
+                        <input ref={fileInputRef} accept="image/*" name="files" type="file" className="sr-only" multiple onChange={handleFileChange} />
+                        <Button type='button' size='icon' variant='outline' onClick={() => fileInputRef.current?.click()}>
+                            <Icons.Paperclip className="size-4 !stroke-gray-500" />
+                        </Button>
                         <button
                             type="button"
-                            className='button button-secondary'
+                            className='button button-secondary ml-auto'
                             disabled={createFeedback.isPending}
                             onClick={handleCancel}
                         >

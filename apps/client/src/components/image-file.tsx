@@ -2,9 +2,12 @@ import { useEffect } from "react";
 
 import { fetchClient } from "@/lib/client";
 import { cn } from "@/lib/utils";
+import { useBoolean } from "@paulgeorge35/hooks";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Icons } from "./icons";
+import { ImageComponent } from "./image";
+import { ModalComponent } from "./modal-component";
 import { Skeleton } from "./skeleton";
 import { LoadingSpinner } from "./spinner";
 
@@ -103,6 +106,7 @@ async function preprocessImage(
 export function ImageFile({ file, fileKey: key, width, height, ratio, onRemove, className }: ImageFileProps) {
     const [uploaded, setUploaded] = useState(file ? false : true);
     const [processedFile, setProcessedFile] = useState<File | undefined>(file);
+    const imageModal = useBoolean(false)
 
     const { data: uploadedFile } = useQuery<{ url: string }>({
         queryKey: ['storage', key, 'read'],
@@ -159,24 +163,30 @@ export function ImageFile({ file, fileKey: key, width, height, ratio, onRemove, 
 
     const handleClick = () => {
         if (uploadedFile) {
-            window.open(uploadedFile.url, '_blank');
+            // window.open(uploadedFile.url, '_blank');
+            imageModal.toggle()
         }
     }
 
     return (
-        <span className={cn("relative max-h-24 h-24 rounded-xl overflow-hidden", className)}>
-            {uploadedFile && uploaded ?
-                <img src={uploadedFile?.url} alt={file?.name} className="max-h-24 cursor-pointer" onClick={handleClick} />
-                :
-                <Skeleton className="h-full aspect-square horizontal center">
-                    <LoadingSpinner />
-                </Skeleton>
-            }
-            {onRemove && uploadedFile && uploaded &&
-                <button className="absolute top-2 right-2 rounded-full bg-white/50 hover:bg-white/80 transition-colors duration-200 p-1 cursor-pointer" onClick={handleRemove}>
-                    <Icons.X className="size-3 stroke-zinc-800" />
-                </button>
-            }
-        </span>
+        <>
+            {uploadedFile && <ModalComponent isOpen={imageModal.value} onClose={imageModal.toggle} className="!p-0 rounded-none border-none max-w-none horizontal center !bg-transparent !shadow-none">
+                {imageModal.value && <ImageComponent src={uploadedFile?.url} alt={file?.name} className="h-full cursor-pointer shadow-md" onClick={handleClick} />}
+            </ModalComponent>}
+            <span className={cn("relative max-h-24 h-24 rounded-xl overflow-hidden shadow-lg", className)}>
+                {uploadedFile && uploaded ?
+                    <ImageComponent width={200} quality={30} src={uploadedFile?.url} alt={file?.name} className="max-h-24 cursor-pointer" onClick={handleClick} />
+                    :
+                    <Skeleton className="h-full aspect-square horizontal center">
+                        <LoadingSpinner />
+                    </Skeleton>
+                }
+                {onRemove && uploadedFile && uploaded &&
+                    <button className="absolute top-2 right-2 rounded-full bg-white/50 hover:bg-white/80 transition-colors duration-200 p-1 cursor-pointer" onClick={handleRemove}>
+                        <Icons.X className="size-3 stroke-zinc-800" />
+                    </button>
+                }
+            </span>
+        </>
     );
 }

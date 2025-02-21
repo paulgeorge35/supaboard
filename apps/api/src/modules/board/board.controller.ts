@@ -1,5 +1,6 @@
 import type { BareSessionRequest } from "@/types";
-import { db, Prisma } from "@repo/database";
+import { parseAndThrowFirstError } from "@/util/error-parser";
+import { db, FeedbackStatus, Prisma } from "@repo/database";
 import type { Response } from "express";
 import { z } from "zod";
 
@@ -25,22 +26,57 @@ export async function getBoardBySlug(req: BareSessionRequest, res: Response) {
     res.status(200).json(board);
 }
 
+const getBoardBySlugDetailedSchema = z.object({
+    search: z.string().optional().transform(
+        (value) => {
+            if (!value) return undefined;
+            return value.trim().replace(/ +(?= )/g, '')
+                .split(' ')
+                .filter((word) => word.length > 2)
+                .join(' | ');
+        }
+    ),
+    sort: z.enum(['newest', 'top']).default('newest').optional(),
+    status: z.union([z.array(z.nativeEnum(FeedbackStatus)), z.nativeEnum(FeedbackStatus)]).optional().default(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS']),
+});
+
 export async function getBoardBySlugDetailed(req: BareSessionRequest, res: Response) {
     const userId = req.auth?.id;
     const { slug } = req.params;
 
     const member = userId ? await db.user.findUnique({ where: { id: userId } }) : null;
 
+    const { search, sort, status } = parseAndThrowFirstError(getBoardBySlugDetailedSchema, req.query, res);
+
+    const where: Prisma.FeedbackWhereInput = {};
+
+    if (search) {
+        where.OR = [
+            { title: { search } },
+            { description: { search } },
+        ];
+    }
+
+    if (status) {
+        where.status = { in: Array.isArray(status) ? status : [status] };
+    }
+
+    let orderBy: Prisma.FeedbackOrderByWithRelationInput = {};
+
+    if (sort) {
+        if (sort === 'newest') {
+            orderBy = { createdAt: 'desc' };
+        } else if (sort === 'top') {
+            orderBy = { votes: { _count: 'desc' } };
+        }
+    }
+
     const board = await db.board.findFirst({
         where: { slug, applicationId: req.application?.id },
         include: {
             feedbacks: {
-                where: {
-                    OR: req.query.search ? [
-                        { title: { contains: req.query.search as string } },
-                        { description: { contains: req.query.search as string } },
-                    ] : undefined
-                },
+                where,
+                orderBy,
                 select: {
                     id: true,
                     title: true,
@@ -58,6 +94,9 @@ export async function getBoardBySlugDetailed(req: BareSessionRequest, res: Respo
                             activities: {
                                 where: {
                                     public: member ? undefined : true,
+                                    type: {
+                                        in: ['FEEDBACK_COMMENT', 'FEEDBACK_STATUS_CHANGE', 'FEEDBACK_MERGE']
+                                    }
                                 },
                             },
                         },
@@ -580,7 +619,15 @@ export async function deleteTag(req: BareSessionRequest, res: Response) {
 }
 
 const getTagsSchema = z.object({
-    search: z.string().optional().transform((val) => val ? val.trim().replace(/ +(?= )/g, '') : undefined),
+    search: z.string().optional().transform(
+        (value) => {
+            if (!value) return undefined;
+            return value.trim().replace(/ +(?= )/g, '')
+                .split(' ')
+                .filter((word) => word.length > 2)
+                .join(' | ');
+        }
+    ),
     all: z.preprocess((val) => {
         if (val === undefined) return false;
         if (typeof val === "string") {
@@ -633,7 +680,7 @@ export async function getTags(req: BareSessionRequest, res: Response) {
         board: tag.board,
         count: tag._count.feedbacks,
     }));
-    
+
 
     res.status(200).json(result);
 }

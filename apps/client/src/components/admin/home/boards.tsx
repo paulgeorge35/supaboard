@@ -12,8 +12,8 @@ export function Boards() {
     const inProgressFeedbacks = boards.flatMap((board) =>
         board.feedbacks.filter((feedback) => feedback.status === 'IN_PROGRESS'),
     )
-    const completeFeedbacks = boards.flatMap((board) =>
-        board.feedbacks.filter((feedback) => feedback.status === 'RESOLVED'),
+    const underReviewFeedbacks = boards.flatMap((board) =>
+        board.feedbacks.filter((feedback) => feedback.status === 'UNDER_REVIEW'),
     )
     return (
         <>
@@ -28,9 +28,9 @@ export function Boards() {
                 </button>
             </span>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <StatusBoard status="UNDER_REVIEW" items={underReviewFeedbacks} admin={true} />
                 <StatusBoard status="PLANNED" items={plannedFeedbacks} admin={true} />
                 <StatusBoard status="IN_PROGRESS" items={inProgressFeedbacks} admin={true} />
-                <StatusBoard status="RESOLVED" items={completeFeedbacks} admin={true} />
             </div>
         </>
     )

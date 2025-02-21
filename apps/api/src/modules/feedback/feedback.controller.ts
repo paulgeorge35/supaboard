@@ -1,4 +1,4 @@
-import { ActivityType, db, feedbackAcivityInclude, feedbackDetail, FeedbackStatus, feeedbackSummarySelect, Prisma } from "@repo/database";
+import { ActivityType, db, feedbackAcivityInclude, feedbackDetail, feedbackDetailMerged, FeedbackStatus, feeedbackSummarySelect, Prisma } from "@repo/database";
 import type { Response } from "express";
 import { DateTime } from "luxon";
 import { z } from "zod";
@@ -27,6 +27,11 @@ export async function vote(req: BareSessionRequest, res: Response) {
         return;
     }
 
+    if (feedback.mergedIntoId) {
+        res.status(400).json({ error: 'Feedback is merged into another feedback', code: 'BAD_REQUEST' });
+        return;
+    }
+
     await db.$transaction(async (tx) => {
         const existingVote = await tx.vote.findFirst({ where: { feedbackId: feedback.id, authorId: userId } });
 
@@ -42,11 +47,20 @@ export async function vote(req: BareSessionRequest, res: Response) {
     res.status(200).json({ success: true });
 }
 
+const fileSchema = z.object({
+    key: z.string(),
+    name: z.string(),
+    extension: z.string(),
+    contentType: z.string(),
+    size: z.number(),
+});
+
 const feedbackSchema = z.object({
     title: z.string().min(1).trim(),
     description: z.string().optional(),
     categoryId: z.string().optional(),
     roadmapSlug: z.string().optional(),
+    files: z.array(fileSchema).optional(),
 });
 
 async function generateUniqueSlug(title: string, boardId: string): Promise<string> {
@@ -111,6 +125,11 @@ export async function createFeedback(req: BareSessionRequest<z.infer<typeof feed
             board: { connect: { id: boardId } },
             application: { connect: { id: applicationId } },
             author: { connect: { id: userId } },
+            files: data.files ? {
+                createMany: {
+                    data: data.files,
+                },
+            } : undefined,
             activities: {
                 create: {
                     type: ActivityType.FEEDBACK_CREATE,
@@ -177,18 +196,40 @@ export async function getFeedbackBySlug(req: BareSessionRequest, res: Response) 
         isEditable: userId === feedback.authorId,
         createdAt: feedback.createdAt,
         changelogSlug: feedback.changelog?.slug,
+        files: feedback.files.map((file) => file.key),
         author: {
             id: feedback.author?.id ?? "deleted",
             name: feedback.author?.name ?? "Deleted User",
             avatar: feedback.author?.avatar ?? undefined,
             isAdmin: feedback.author?.id === ownerId,
         },
+        merged: feedback.merged,
         roadmaps: feedback.roadmapItems.map((item) => ({
             id: item.roadmap?.id,
             name: item.roadmap?.name,
             slug: item.roadmap?.slug,
         })),
         owner: feedback.owner,
+    });
+}
+
+export async function getFeedbackById(req: BareSessionRequest, res: Response) {
+    const { feedbackId } = req.params;
+
+    const feedback = await db.feedback.findUnique({ where: { id: feedbackId }, include: feedbackDetailMerged });
+
+    if (!feedback) {
+        res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    res.status(200).json({
+        ...feedback,
+        author: {
+            ...feedback.author,
+            isAdmin: feedback.author?.id === req.application?.ownerId,
+        },
+        files: feedback.files.map((file) => file.key),
     });
 }
 
@@ -245,7 +286,12 @@ const statusChangeDataSchema = z.object({
     content: z.string().optional(),
 });
 
-const activityDataSchema = z.discriminatedUnion('type', [commentDataSchema, statusChangeDataSchema]);
+const mergeDataSchema = z.object({
+    type: z.literal(ActivityType.FEEDBACK_MERGE),
+    from: z.string(),
+});
+
+const activityDataSchema = z.discriminatedUnion('type', [commentDataSchema, statusChangeDataSchema, mergeDataSchema]);
 
 export async function getActivities(req: BareSessionRequest, res: Response) {
     const { boardSlug, feedbackSlug } = req.params;
@@ -278,6 +324,7 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
     const activityTypes: ActivityType[] = [
         'FEEDBACK_COMMENT',
         'FEEDBACK_STATUS_CHANGE',
+        'FEEDBACK_MERGE',
     ];
 
     const pinned = await db.activity.findFirst({
@@ -335,14 +382,6 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
     res.status(200).json(response);
 }
 
-const fileSchema = z.object({
-    key: z.string(),
-    name: z.string(),
-    extension: z.string(),
-    contentType: z.string(),
-    size: z.number(),
-});
-
 const commentSchema = z.object({
     content: z.string().min(1),
     public: z.boolean().optional().default(true),
@@ -377,6 +416,11 @@ export async function comment(req: BareSessionRequest, res: Response) {
 
     if (!feedback) {
         res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    if (feedback.mergedIntoId) {
+        res.status(400).json({ error: 'Feedback is merged into another feedback', code: 'BAD_REQUEST' });
         return;
     }
 
@@ -512,8 +556,14 @@ export async function updateFeedback(req: BareSessionRequest, res: Response) {
 
     const feedback = await db.feedback.findFirst({ where: { slug: feedbackSlug, boardId: board.id } });
 
+    
     if (!feedback) {
         res.status(404).json({ error: 'Feedback not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    if (feedback.mergedIntoId) {
+        res.status(400).json({ error: 'Feedback is merged into another feedback', code: 'BAD_REQUEST' });
         return;
     }
 
@@ -688,7 +738,10 @@ export async function getFeedbacks(req: BareSessionRequest, res: Response) {
 
     const { cursor, take, order, start, end, ...filters } = data;
 
-    const where: Prisma.FeedbackWhereInput = {};
+    const where: Prisma.FeedbackWhereInput = {
+        applicationId,
+        mergedIntoId: null,
+    };
 
     if (member) {
         if (filters?.boards) {
@@ -828,6 +881,7 @@ export const controller = {
         create: createFeedback,
         getAll: getFeedbacks,
         getBySlug: getFeedbackBySlug,
+        getById: getFeedbackById,
         getVoters: getVoters,
         getActivities: getActivities,
         update: updateFeedback,

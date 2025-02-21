@@ -234,7 +234,10 @@ function RouteComponent() {
         ))}
         <Input
           placeholder='Create new category...'
-          className='p-0 pl-4 border-0 h-14'
+          className={cn('p-0 border-0 pl-4 h-14', {
+            'hidden': editSlug !== null
+          })}
+          inputClassName='pl-4 py-2'
           value={editSlug === null ? newCategory : ''}
           onChange={(e) => setNewCategory(e.target.value)}
           onKeyDown={(e) => {

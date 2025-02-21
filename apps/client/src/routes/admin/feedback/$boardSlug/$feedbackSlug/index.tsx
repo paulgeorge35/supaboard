@@ -1,5 +1,6 @@
 import { Avatar, DeleteFeedbackButton, EditFeedbackButton, EditHistory, NotFoundPage } from '@/components'
 import { ActivityCard } from '@/components/activity-card'
+import { ImageFile } from '@/components/image-file'
 import { SelectComponent } from '@/components/select'
 import { Skeleton } from '@/components/skeleton'
 import { feedbackActivitiesQuery, feedbackQuery } from '@/lib/query/feedback'
@@ -55,6 +56,9 @@ function RouteComponent() {
         <p className="text-sm hyphens-auto font-light col-start-2">
           {feedback.description}
         </p>
+        {feedback.files.length > 0 && <div className="col-start-2 horizontal flex-wrap gap-2">
+          {feedback.files.map(file => <ImageFile key={file} fileKey={file} />)}
+        </div>}
         <span className="horizontal gap-2 col-start-2">
           <p className="text-xs text-gray-500 hidden md:block">
             {DateTime.fromJSDate(new Date(feedback.createdAt)).toFormat(
@@ -75,6 +79,7 @@ function RouteComponent() {
           <DeleteFeedbackButton
             boardSlug={boardSlug}
             feedbackSlug={feedbackSlug}
+            to="/admin/feedback/$boardSlug"
           />
           <EditHistory
             boardSlug={boardSlug}

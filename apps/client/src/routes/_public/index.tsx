@@ -16,25 +16,31 @@ function HomeComponent() {
   const inProgressFeedbacks = boards.flatMap((board) =>
     board.feedbacks.filter((feedback) => feedback.status === 'IN_PROGRESS'),
   )
-  const completeFeedbacks = boards.flatMap((board) =>
-    board.feedbacks.filter((feedback) => feedback.status === 'RESOLVED'),
+  const underReviewFeedbacks = boards.flatMap((board) =>
+    board.feedbacks.filter((feedback) => feedback.status === 'UNDER_REVIEW'),
   )
+
+  const hasPublicBoards = boards.some((board) => board.showOnHome)
 
   return (
     <>
-      <span className="horizontal center-v justify-between">
-        <h1 className="font-medium">Boards</h1>
-      </span>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-        {boards.filter((board) => board.showOnHome).map((board) => (
-          <BoardComponent
-            key={board.slug}
-            title={board.name}
-            items={board.count}
-            to={board.slug}
-          />
-        ))}
-      </div>
+      {hasPublicBoards && (
+        <>
+          <span className="horizontal center-v justify-between">
+            <h1 className="font-medium">Boards</h1>
+          </span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+            {boards.filter((board) => board.showOnHome).map((board) => (
+              <BoardComponent
+                key={board.slug}
+                title={board.name}
+                items={board.count}
+                to={board.slug}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
       <span className="horizontal center-v justify-between">
         <h1 className="font-medium">Roadmap</h1>
@@ -48,9 +54,9 @@ function HomeComponent() {
       </span>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <StatusBoard status="UNDER_REVIEW" items={underReviewFeedbacks} />
         <StatusBoard status="PLANNED" items={plannedFeedbacks} />
         <StatusBoard status="IN_PROGRESS" items={inProgressFeedbacks} />
-        <StatusBoard status="RESOLVED" items={completeFeedbacks} />
       </div>
     </>
   )

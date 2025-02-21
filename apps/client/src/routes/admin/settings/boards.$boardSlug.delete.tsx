@@ -45,7 +45,7 @@ function RouteComponent() {
         Deleting this board will remove it from your application. This action is irreversible.
       </p>
       <p className='text-sm font-light text-gray-500 dark:text-zinc-400'>
-        This will delete all the data associated with this board, including all the feedbacks, categories, tags, and comments.
+        This will delete all the data associated with this board, including all the feedbacks, categories, tags and comments.
       </p>
 
       <Input

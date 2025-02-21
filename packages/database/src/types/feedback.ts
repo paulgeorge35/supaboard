@@ -1,4 +1,4 @@
-import { Prisma } from "../../generated/client";
+import { ActivityType, Prisma } from "../../generated/client";
 
 export const feeedbackSummarySelect = Prisma.validator<Prisma.FeedbackSelect>()({
     id: true,
@@ -8,13 +8,20 @@ export const feeedbackSummarySelect = Prisma.validator<Prisma.FeedbackSelect>()(
     slug: true,
     board: {
         select: {
+            name: true,
             slug: true,
         }
     },
     _count: {
         select: {
             votes: true,
-            activities: true,
+            activities: {
+                where: {
+                    type: {
+                        in: [ActivityType.FEEDBACK_COMMENT, ActivityType.FEEDBACK_STATUS_CHANGE]
+                    }
+                }
+            },
         },
     },
 });
@@ -77,6 +84,17 @@ export const feedbackDetail = (userId: string) => Prisma.validator<Prisma.Feedba
             },
         },
     },
+    merged: {
+        select: {
+            id: true,
+        },
+        take: 1,
+    },
+    files: {
+        select: {
+            key: true,
+        },
+    },
     _count: {
         select: {
             votes: true,
@@ -87,6 +105,38 @@ export const feedbackDetail = (userId: string) => Prisma.validator<Prisma.Feedba
 export type FeedbackDetail = Prisma.FeedbackGetPayload<{
     include: ReturnType<typeof feedbackDetail>;
 }>;
+
+export const feedbackDetailMerged = Prisma.validator<Prisma.FeedbackInclude>()({
+    author: {
+        select: {
+            id: true,
+            name: true,
+            avatar: true,
+        },
+    },
+    board: {
+        select: {
+            slug: true,
+        },
+    },
+    files: {
+        select: {
+            key: true,
+        },
+    },
+})
+
+export type FeedbackDetailMerged = Omit<Prisma.FeedbackGetPayload<{
+    include: typeof feedbackDetailMerged;
+}>, 'files'> & {
+    author: {
+        id: string;
+        name: string;
+        avatar: string | null;
+        isAdmin: boolean;
+    };
+    files: string[];
+}
 
 export const feedbackAcivityInclude = Prisma.validator<Prisma.ActivityInclude>()({
     files: {

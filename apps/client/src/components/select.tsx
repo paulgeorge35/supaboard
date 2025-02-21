@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils'
-import { useResizeObserver } from '@paulgeorge35/hooks'
 import { useEffect, useRef, useState } from 'react'
 import { Label } from 'react-aria-components'
 import { Icons } from './icons'
@@ -45,9 +44,6 @@ export function SelectComponent({
     const ref = useRef<HTMLDivElement>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
-    const { ref: resizeRef, dimensions } = useResizeObserver<HTMLDivElement>({
-        immediate: true,
-    });
 
     const selectedValues = Array.isArray(value) ? value : value ? [value] : [];
 
@@ -99,8 +95,11 @@ export function SelectComponent({
     return (
         <div ref={ref} className={cn('relative', className)}>
             <div
-                ref={resizeRef}
-                onClick={() => !disabled && setIsOpen(!isOpen)}
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    !disabled && setIsOpen(!isOpen);
+                }}
                 className={cn(
                     "relative w-full cursor-pointer border rounded-md bg-white dark:bg-zinc-900",
                     "hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors duration-200",
@@ -186,6 +185,7 @@ export function SelectComponent({
                             className="w-full px-3 py-2 border-b focus:outline-none text-sm"
                             placeholder="Search..."
                             autoComplete="off"
+                            autoFocus
                         />
                         <div className="max-h-60 overflow-y-auto">
                             {filteredOptions.length === 0 ? (
@@ -204,7 +204,8 @@ export function SelectComponent({
                                             "px-3 py-2 text-sm cursor-pointer horizontal center-v gap-2",
                                             "hover:bg-gray-100 dark:hover:bg-zinc-800",
                                             {
-                                                "bg-gray-50 dark:bg-zinc-800": selectedValues.includes(option.value),
+                                                "bg-[var(--color-primary)]/10": selectedValues.includes(option.value) && !checkMarks,
+                                                "pointer-events-none cursor-auto": selectedValues.includes(option.value) && checkMarks
                                             }
                                         )}
                                     >
@@ -216,8 +217,10 @@ export function SelectComponent({
                                                 <span className="truncate">{option.label}</span>
                                             </>
                                         )}
-                                        {checkMarks && selectedValues.includes(option.value) && (
-                                            <Icons.Check className="ml-auto size-4 shrink-0 stroke-[var(--color-primary)]" />
+                                        {checkMarks && (
+                                            <Icons.Check className={cn("ml-auto opacity-0 size-4 shrink-0 stroke-[var(--color-primary)] transition-opacity duration-200", {
+                                                "opacity-100": selectedValues.includes(option.value),
+                                            })} />
                                         )}
                                     </div>
                                 ))

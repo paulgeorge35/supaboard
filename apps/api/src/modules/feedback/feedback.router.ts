@@ -6,6 +6,7 @@ const router = Router();
 
 router.get('/', application, controller.feedback.getAll);
 router.get('/:boardSlug/:feedbackSlug', application, controller.feedback.getBySlug);
+router.get('/:feedbackId', application, controller.feedback.getById);
 router.post('/:boardId/create', application, controller.feedback.create);
 router.put('/:boardSlug/:feedbackSlug', application, controller.feedback.update);
 router.delete('/:boardSlug/:feedbackSlug', application, controller.feedback.delete);

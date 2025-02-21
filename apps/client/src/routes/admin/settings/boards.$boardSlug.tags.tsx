@@ -202,9 +202,10 @@ function RouteComponent() {
         ))}
         <Input
           placeholder='Create new tag...'
-          className={cn('p-0 pl-4 border-0 h-14', {
+          className={cn('p-0 border-0 pl-4 h-14', {
             'hidden': editId !== null
           })}
+          inputClassName='pl-4 py-2'
           value={editId === null ? name : ''}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => {

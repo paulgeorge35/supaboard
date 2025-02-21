@@ -170,7 +170,7 @@ export function UserCard({ user, ref }: UserCardProps) {
         activeProps={{ className: "[&>div]:!bg-[var(--color-primary)]/10 dark:[&>div]:!bg-[var(--color-primary)]/10" }}
       >
         <div ref={ref} className={cn("p-4 border-zinc-200 dark:border-zinc-800 horizontal center-v gap-2 bg-white dark:bg-zinc-900 hover:bg-gray-300/20 dark:hover:bg-zinc-800/20 transition-colors duration-200")}>
-          <Avatar src={avatar ?? undefined} name={name} className='size-10' />
+          <Avatar width={40} quality={75} src={avatar ?? undefined} name={name} className='size-10' />
           <span className='vertical'>
             <h1 className="text-sm font-medium">{name}</h1>
             <p className="text-sm text-gray-500 line-clamp-2">
