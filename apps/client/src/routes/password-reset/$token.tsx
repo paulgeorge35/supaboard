@@ -3,7 +3,7 @@ import { fetchClient } from '@/lib/client';
 import { useAuthStore } from '@/stores/auth-store';
 import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createFileRoute, useParams, useRouter } from '@tanstack/react-router';
+import { createFileRoute, Navigate, useParams, useRouter } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -91,9 +91,9 @@ function RouteComponent() {
     form.handleSubmit()
   }
 
-  // if (user || error) {
-  //   return <Navigate to="/" />
-  // }
+  if (user || error) {
+    return <Navigate to="/" />
+  }
 
   return (
     <div className='vertical center gap-2 h-[100dvh] overflow-y-auto'>

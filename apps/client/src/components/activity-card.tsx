@@ -8,9 +8,12 @@ import { FeedbackStatus } from "@repo/database";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
 import { DateTime } from "luxon";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Avatar } from "./avatar";
 import { Button } from "./button";
+import { CommentContent } from "./comment-content";
+import { CommentForm } from "./comment-form";
 import { Icons } from "./icons";
 import { ImageFile } from "./image-file";
 import { LikeButton } from "./like-button";
@@ -23,9 +26,13 @@ type ActivityCardProps = {
     activity: FeedbackActivitySummary;
     feedbackSlug: string
     boardSlug: string
+    className?: string;
 }
 
-export function ActivityCard({ activity, feedbackSlug, boardSlug }: ActivityCardProps) {
+export function ActivityCard({ activity, feedbackSlug, boardSlug, className }: ActivityCardProps) {
+    const { user } = useAuthStore();
+    const [threadId, setThreadId] = useState<string | undefined>(undefined);
+    const [replyTo, setReplyTo] = useState<string | undefined>(undefined);
     const queryClient = useQueryClient();
 
     const { mutate: like, isPending: isLikePending } = useMutation({
@@ -80,8 +87,20 @@ export function ActivityCard({ activity, feedbackSlug, boardSlug }: ActivityCard
         }
     })
 
+    const handleReplyOpen = () => {
+        if (threadId) {
+            setThreadId(undefined);
+            setReplyTo(undefined);
+            return;
+        }
+        if (user?.id !== activity.author.id) {
+            setReplyTo(activity.author.name);
+        }
+        setThreadId(activity.threadId ?? activity.id);
+    }
+
     return (
-        <span className='horizontal gap-4 grid col-span-full grid-cols-subgrid'>
+        <span className={cn('gap-2 grid col-span-full grid-cols-subgrid', className)}>
             {/* Activity author avatar */}
             <span className='horizontal justify-end'>
                 <Avatar src={activity.author.avatar ?? undefined} name={activity.author.name} className='size-6' isAdmin={activity.author.isAdmin} />
@@ -106,8 +125,8 @@ export function ActivityCard({ activity, feedbackSlug, boardSlug }: ActivityCard
             <MergedActivityCard activity={activity} />
 
             {/* Activity text content */}
-            {activity.data.content && <p className='text-sm hyphens-auto font-light col-start-2'>{activity.data.content}</p>}
-
+            {/* {activity.data.content && <p className='text-sm hyphens-auto font-light col-start-2'>{activity.data.content}</p>} */}
+            <CommentContent content={activity.data.content} className="col-start-2" mention={activity.threadId ? activity.thread?.author?.name : undefined} />
             {/* Activity attachments */}
             {activity.files.length > 0 && <div className="col-start-2 horizontal flex-wrap gap-2">
                 {activity.files.map(file => <ImageFile key={file} fileKey={file} />)}
@@ -127,8 +146,8 @@ export function ActivityCard({ activity, feedbackSlug, boardSlug }: ActivityCard
                 <LikeButton likes={activity.likes} likedByMe={activity.likedByMe} like={() => like(activity.id)} isPending={isLikePending} />
 
                 {/* Activity timestamp for desktop */}
-                <span className='text-xs text-gray-500 hidden md:flex horizontal center-v gap-1'>
-                    <p className='text-xs text-gray-500'>&bull;</p>
+                <span className='text-xs text-gray-500 dark:text-zinc-400 hidden md:flex horizontal center-v gap-1'>
+                    <p className='text-xs text-gray-500 dark:text-zinc-400'>&bull;</p>
                     {
                         DateTime.fromJSDate(new Date(activity.createdAt)).diffNow().as('hours') > -24
                             ? DateTime.fromJSDate(new Date(activity.createdAt)).toRelative()
@@ -137,14 +156,38 @@ export function ActivityCard({ activity, feedbackSlug, boardSlug }: ActivityCard
                 </span>
 
                 {/* Private activity */}
-                {!activity.public && <p className="text-xs text-gray-500">&bull; Private</p>}
+                {!activity.public && <p className="text-xs text-gray-500 dark:text-zinc-400">&bull; Private</p>}
 
                 {/* Pin button */}
                 {activity.public && activity.type !== 'FEEDBACK_MERGE' && <PinButton pinned={activity.pinned} pin={() => pin(activity.id)} isPending={isPinPending} />}
 
                 {/* Unmerge button */}
                 <UnmergeButton activity={activity} />
+
+                <>
+                    <span className="text-xs text-gray-500">&bull;</span>
+                    <button onClick={handleReplyOpen} className="text-xs text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+                        Reply
+                    </button>
+                </>
             </span>
+
+            <CommentForm
+                boardSlug={boardSlug}
+                feedbackSlug={feedbackSlug}
+                threadId={threadId}
+                isReply={true}
+                replyTo={replyTo}
+                className="col-start-2"
+                resetReply={() => {
+                    setThreadId(undefined);
+                    setReplyTo(undefined);
+                }}
+            />
+
+            {!activity.threadId && activity.replies?.length > 0 && <div className="col-start-2 vertical gap-2 pt-4">
+                {activity.replies.map(reply => <ActivityCard key={reply.id} activity={reply as unknown as FeedbackActivitySummary} feedbackSlug={feedbackSlug} boardSlug={boardSlug} className="grid-cols-[auto_1fr]" />)}
+            </div>}
         </span>
     )
 }
@@ -255,7 +298,7 @@ const UnmergeButton = ({ activity }: UnmergeButtonProps) => {
                 </div>
             </ModalComponent>
             <span className="text-xs text-gray-500">&bull;</span>
-            <button onClick={confimationModal.setTrue} disabled={isUnmergePending || isFeedbackLoading} className="text-xs text-gray-500 hover:text-gray-700">
+            <button onClick={confimationModal.setTrue} disabled={isUnmergePending || isFeedbackLoading} className="text-xs text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-300">
                 Unmerge
             </button>
         </>

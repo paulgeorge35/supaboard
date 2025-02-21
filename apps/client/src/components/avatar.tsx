@@ -52,7 +52,7 @@ export function Avatar({ src, name, className, isAdmin, width = 32, quality = 50
         enabled: !!src && src.startsWith('avatar/')
     })
 
-    const color = colors[name.charCodeAt(0) % colors.length]
+    const color = colors[(name.charCodeAt(0) ?? 0) % colors.length]
 
     const handleImageError = () => {
         setImgError(true);

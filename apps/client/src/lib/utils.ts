@@ -30,6 +30,13 @@ export const buildQueryString = (search: Record<string, any>): string => {
   return params.toString();
 }
 
+export const numberFormatter = (number: number) => {
+  if (number >= 1000) {
+    return `${(number / 1000).toFixed((number >= 10000 || number % 1000 < 100 ? 0 : 1))}k`;
+  }
+  return number;
+}
+
 export const FeedbackStatusConfig = {
   OPEN: {
     label: 'Open',

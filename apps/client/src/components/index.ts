@@ -27,6 +27,6 @@ export * from './skeleton'
 export * from './spinner'
 export * from './status-badge'
 export * from './status-board'
+export * from './textbox'
 export * from './theme-toggle'
 export * from './vote-button'
-

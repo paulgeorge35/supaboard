@@ -333,7 +333,7 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
             pinned: true,
             type: { in: activityTypes }
         },
-        include: feedbackAcivityInclude
+        include: feedbackAcivityInclude(userId),
     });
 
 
@@ -342,8 +342,9 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
             feedbackId: feedback.id,
             type: { in: activityTypes },
             public: member ? undefined : true,
+            threadId: null,
         },
-        include: feedbackAcivityInclude,
+        include: feedbackAcivityInclude(userId),
         orderBy: {
             createdAt: sort === 'newest' ? 'desc' : 'asc',
         },
@@ -357,12 +358,28 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
                 ...pinned.data as Prisma.JsonObject,
             }),
             likes: pinned._count.likes,
-            likedByMe: pinned.likes.some((like) => like.authorId === userId),
+            likedByMe: pinned.likes?.length > 0,
             files: pinned.files.map((file) => file.key),
             author: {
                 ...pinned.author,
                 isAdmin: pinned.author.id === application.ownerId,
             },
+            threadId: pinned.threadId,
+            thread: pinned.thread,
+            replies: pinned.replies.map((reply) => ({
+                ...reply,
+                data: activityDataSchema.parse({
+                    type: reply.type,
+                    ...reply.data as Prisma.JsonObject,
+                }),
+                likes: reply._count.likes,
+                likedByMe: reply.likes?.length > 0,
+                files: reply.files.map((file) => file.key),
+                author: {
+                    ...reply.author,
+                    isAdmin: reply.author.id === application.ownerId,
+                },
+            })),
         } : undefined,
         activities: activities.map((activity) => ({
             ...activity,
@@ -371,12 +388,30 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
                 ...activity.data as Prisma.JsonObject,
             }) : undefined,
             likes: activity._count.likes,
-            likedByMe: activity.likes.some((like) => like.authorId === userId),
+            likedByMe: activity.likes?.length > 0,
             files: activity.files.map((file) => file.key),
             author: {
                 ...activity.author,
                 isAdmin: activity.author.id === application.ownerId,
             },
+            threadId: activity.threadId,
+            thread: activity.thread,
+            replies: activity.replies.map((reply) => ({
+                ...reply,
+                data: activityDataSchema.parse({
+                    type: reply.type,
+                    ...reply.data as Prisma.JsonObject,
+                }),
+                likes: reply._count.likes,
+                likedByMe: reply.likes?.length > 0,
+                files: reply.files.map((file) => file.key),
+                author: {
+                    ...reply.author,
+                    isAdmin: reply.author.id === application.ownerId,
+                },
+                threadId: reply.threadId,
+                thread: reply.thread,
+            })),
         })),
     }
     res.status(200).json(response);
@@ -386,6 +421,7 @@ const commentSchema = z.object({
     content: z.string().min(1),
     public: z.boolean().optional().default(true),
     files: z.array(fileSchema).optional(),
+    threadId: z.string().optional(),
 });
 
 export async function comment(req: BareSessionRequest, res: Response) {
@@ -440,6 +476,7 @@ export async function comment(req: BareSessionRequest, res: Response) {
                     data: data.files,
                 },
             } : undefined,
+            thread: { connect: { id: data.threadId } },
         },
     });
 

@@ -34,7 +34,7 @@ export function LikeButton({ likes, likedByMe, like, isPending }: LikeButtonProp
         <button
             onClick={handleLike}
             className={cn(
-                'horizontal center-v gap-1 text-xs text-gray-500 [&>svg]:stroke-gray-500 hover:text-gray-700 hover:[&>svg]:fill-gray-500',
+                'horizontal center-v gap-1 text-xs text-gray-500 hover:text-gray-700 [&>svg]:stroke-gray-500 hover:[&>svg]:fill-gray-500 dark:text-zinc-400 dark:hover:text-zinc-300 dark:[&>svg]:stroke-zinc-400 dark:hover:[&>svg]:fill-zinc-400',
                 {
                     '[&>svg]:fill-[var(--color-primary)] [&>svg]:stroke-[var(--color-primary)] hover:[&>svg]:fill-[var(--color-primary)] hover:[&>svg]:stroke-[var(--color-primary)]': likedByMe
                 }

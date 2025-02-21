@@ -138,18 +138,22 @@ export type FeedbackDetailMerged = Omit<Prisma.FeedbackGetPayload<{
     files: string[];
 }
 
-export const feedbackAcivityInclude = Prisma.validator<Prisma.ActivityInclude>()({
+export const feedbackAcivityInclude = (userId?: string) => Prisma.validator<Prisma.ActivityInclude>()({
     files: {
         select: {
             key: true,
         },
     },
-    likes: {
+    likes: userId ? {
         select: {
             id: true,
             authorId: true,
         },
-    },
+        where: {
+            authorId: userId,
+        },
+        take: 1,
+    } : undefined,
     _count: {
         select: {
             likes: true,
@@ -162,8 +166,58 @@ export const feedbackAcivityInclude = Prisma.validator<Prisma.ActivityInclude>()
             avatar: true,
         },
     },
+    thread: {
+        select: {
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+        }
+    },
+    replies: {
+        include: {
+            files: {
+                select: {
+                    key: true,
+                },
+            },
+            likes: userId ? {
+                select: {
+                    id: true,
+                    authorId: true,
+                },
+            } : undefined,
+            _count: {
+                select: {
+                    likes: true,
+                },
+            },
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                    avatar: true,
+                },
+            },
+            thread: {
+                select: {
+                    author: {
+                        select: {
+                            id: true,
+                            name: true,
+                        },
+                    },
+                }
+            }
+        },
+        orderBy: {
+            createdAt: 'asc',
+        },
+    },
 })
 
 export type FeedbackActivity = Prisma.ActivityGetPayload<{
-    include: typeof feedbackAcivityInclude;
+    include: ReturnType<typeof feedbackAcivityInclude>;
 }>;

@@ -69,8 +69,12 @@ export function AdminComment() {
                         data: {
                             content
                         },
+                        mergedFromId: null,
                         feedbackId: feedbackSlug,
-                        authorId: user.id
+                        authorId: user.id,
+                        threadId: null,
+                        thread: null,
+                        replies: [] as any,
                     }]
                 }
             })

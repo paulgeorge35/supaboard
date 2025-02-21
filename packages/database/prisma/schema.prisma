@@ -356,7 +356,10 @@ model Activity {
   author       User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   mergedFromId String?
   mergedFrom   Feedback? @relation("ActivityMergedAway", fields: [mergedFromId], references: [id], onDelete: Cascade)
+  threadId     String?
+  thread       Activity? @relation("ActivityThread", fields: [threadId], references: [id], onDelete: Cascade)
 
+  replies Activity[] @relation("ActivityThread")
   likes ActivityLike[]
   files File[]
 

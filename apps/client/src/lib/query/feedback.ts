@@ -84,15 +84,20 @@ export interface ActivityMergeData {
     to?: string;
     content?: string;
 }
-
-export type FeedbackActivitySummary = Omit<FeedbackActivity, '_count' | 'files' | 'likes'> & {
+type FeedbackActivitySummaryCore = Omit<FeedbackActivity, '_count' | 'files' | 'likes' | 'replies'> & {
     likes: number;
     likedByMe: boolean;
     files: string[];
     author: FeedbackActivity['author'] & {
         isAdmin: boolean;
     };
+}
+
+export type FeedbackActivitySummary = FeedbackActivitySummaryCore & {
     data: ActivityCommentData | ActivityStatusChangeData | ActivityMergeData;
+    replies: (FeedbackActivitySummaryCore & {
+        data: ActivityCommentData;
+    })[];
 }
 
 export type FeedbackActivitiesQueryData = {

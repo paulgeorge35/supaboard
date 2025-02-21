@@ -43,7 +43,7 @@ export function ModalComponent({
   ...dialogProps
 }: ModalComponentProps) {
   return (
-    <Modal isOpen={isOpen} shouldCloseOnInteractOutside={() => true} onOpenChange={(isOpen) => !isOpen && onClose()}>
+    <Modal isOpen={isOpen} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <ModalOverlay
         className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center"
         isDismissable

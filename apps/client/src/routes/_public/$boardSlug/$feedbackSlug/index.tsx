@@ -228,9 +228,9 @@ function RouteComponent() {
           <p className="text-sm hyphens-auto font-light col-start-2">
             {feedback.description}
           </p>
-        {feedback.files.length > 0 && <div className="col-start-2 horizontal flex-wrap gap-2">
-          {feedback.files.map(file => <ImageFile key={file} fileKey={file} />)}
-        </div>}
+          {feedback.files.length > 0 && <div className="col-start-2 horizontal flex-wrap gap-2">
+            {feedback.files.map(file => <ImageFile key={file} fileKey={file} />)}
+          </div>}
           <span className="flex flex-col md:flex-row gap-2 col-start-2">
             <p className="text-xs text-gray-500 dark:text-zinc-400">
               {DateTime.fromJSDate(new Date(feedback.createdAt)).diffNow().as('hours') > -24

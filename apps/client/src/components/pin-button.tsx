@@ -19,8 +19,8 @@ export function PinButton({ pinned, pin, isPending }: PinButtonProps) {
 
     return (
         <>
-            <span className="text-xs text-gray-500">&bull;</span>
-            <button onClick={handlePin} disabled={isPending} className="text-xs text-gray-500 hover:text-gray-700">
+            <span className="text-xs text-gray-500 dark:text-zinc-400">&bull;</span>
+            <button onClick={handlePin} disabled={isPending} className="text-xs text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-300">
                 {pinned ? 'Unpin Comment' : 'Pin Comment'}
             </button>
         </>

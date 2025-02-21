@@ -159,6 +159,9 @@ export function Details() {
                                     likedByMe: false,
                                     files: data.files?.map(file => file.key) ?? [],
                                     authorId: user?.id ?? '',
+                                    threadId: null,
+                                    thread: null,
+                                    replies: [] as any,
                                     author: {
                                         id: user?.id ?? '',
                                         name: user?.name ?? '',
