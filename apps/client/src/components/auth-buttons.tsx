@@ -204,7 +204,7 @@ export function AuthButtons({ user, isAdmin, workspaces, currentWorkspace }: Aut
                         </span>
                         <div className="vertical gap-2">
                             <a href={`${apiURL}/auth/google/sign-in`} type="button" className="button button-primary">
-                                <Icons.Google className="size-4 shrink-0" />
+                                <Icons.Google className="size-4 shrink-0 fill-white dark:fill-zinc-900" />
                                 Continue with Google
                             </a>
                         </div>
@@ -277,7 +277,7 @@ export function AuthButtons({ user, isAdmin, workspaces, currentWorkspace }: Aut
                         </span>
                         <div className="vertical gap-2">
                             <a href={`${apiURL}/auth/google/sign-up`} type="button" className="button button-primary">
-                                <Icons.Google className="size-4 shrink-0" />
+                                <Icons.Google className="size-4 shrink-0 fill-white dark:fill-zinc-900" />
                                 Continue with Google
                             </a>
                         </div>
