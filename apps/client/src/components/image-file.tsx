@@ -182,7 +182,7 @@ export function ImageFile({ file, fileKey: key, width, height, ratio, onRemove, 
                     </Skeleton>
                 }
                 {onRemove && uploadedFile && uploaded &&
-                    <button className="absolute top-2 right-2 rounded-full bg-white/50 hover:bg-white/80 transition-colors duration-200 p-1 cursor-pointer" onClick={handleRemove}>
+                    <button type="button" className="absolute top-2 right-2 rounded-full bg-white/50 hover:bg-white/80 transition-colors duration-200 p-1 cursor-pointer" onClick={handleRemove}>
                         <Icons.X className="size-3 stroke-zinc-800" />
                     </button>
                 }

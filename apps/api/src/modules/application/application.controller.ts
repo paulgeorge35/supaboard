@@ -1,4 +1,6 @@
 import type { BareSessionRequest } from "@/types";
+import { subdomainBlacklist } from "@/util/blacklist";
+import { parseAndThrowFirstError } from "@/util/error-parser";
 import { boardFeedbackSummarySelect, db, DomainStatus } from "@repo/database";
 import { type Response } from "express";
 import dns from 'node:dns/promises';
@@ -61,7 +63,9 @@ const updateApplicationSchema = z.object({
     logo: z.string().nullish(),
     icon: z.string().nullish(),
     name: z.string().min(3).optional(),
-    subdomain: z.string().min(3).optional(),
+    subdomain: z.string().min(3).optional().refine((subdomain) => subdomain && subdomainBlacklist.includes(subdomain), {
+        message: 'Subdomain is unavailable',
+    }),
     color: z.string().min(1).optional(),
     preferredTheme: z.enum(['LIGHT', 'DARK', 'SYSTEM']).optional(),
     preferredLanguage: z.enum(['EN', 'RO']).optional(),
@@ -76,7 +80,18 @@ export async function updateApplication(req: BareSessionRequest, res: Response) 
         return;
     }
 
-    const data = updateApplicationSchema.parse(req.body);
+    const data = parseAndThrowFirstError(updateApplicationSchema, req.body, res);
+
+    if (data.subdomain) {
+        const application = await db.application.findUnique({
+            where: { customDomain: data.subdomain },
+        });
+
+        if (application) {
+            res.status(400).json({ error: 'Subdomain is unavailable', code: 'SUBDOMAIN_UNAVAILABLE' });
+            return;
+        }
+    }
 
     const application = await db.application.update({
         where: { id: req.application?.id },
@@ -126,37 +141,37 @@ const getScriptPath = (scriptName: string) => {
 
 const addDomain = async (domain: string) => {
     const scriptPath = getScriptPath('add_domain.sh');
-    
+
     const proc = Bun.spawn(['bash', scriptPath, domain], {
         cwd: path.dirname(scriptPath),
     });
-    
+
     const output = await new Response(proc.stdout).text();
     const error = await new Response(proc.stderr).text();
-    
+
     if (error) {
         console.error('Script error:', error);
         throw new Error(error);
     }
-    
+
     return output;
 };
 
 const deleteDomain = async (domain: string) => {
     const scriptPath = getScriptPath('remove_domain.sh');
-    
+
     const proc = Bun.spawn(['bash', scriptPath, domain], {
         cwd: path.dirname(scriptPath),
     });
-    
+
     const output = await new Response(proc.stdout).text();
     const error = await new Response(proc.stderr).text();
-    
+
     if (error) {
         console.error('Script error:', error);
         throw new Error(error);
     }
-    
+
     return output;
 };
 

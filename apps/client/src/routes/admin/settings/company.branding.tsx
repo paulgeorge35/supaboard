@@ -93,12 +93,6 @@ function RouteComponent() {
     },
   });
 
-  const { mutate: deleteFile } = useMutation({
-    mutationFn: (fileKey: string) => fetchClient(`storage/${fileKey}/delete`, {
-      method: 'DELETE',
-    })
-  });
-
   const form = useForm({
     defaultValues: {
       color: application?.color ?? '',
@@ -153,7 +147,6 @@ function RouteComponent() {
                   className='size-24'
                   onRemove={() => {
                     if (field.state.value) {
-                      deleteFile(field.state.value);
                       field.handleChange(null);
                     }
                   }}
@@ -201,7 +194,6 @@ function RouteComponent() {
                   className='size-24 p-6'
                   onRemove={() => {
                     if (field.state.value) {
-                      deleteFile(field.state.value);
                       field.handleChange(null);
                     }
                   }}
