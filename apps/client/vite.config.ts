@@ -29,7 +29,8 @@ export default defineConfig(({ command, mode }) => ({
           ['@babel/plugin-syntax-dynamic-import']
         ]
       },
-      jsxRuntime: 'automatic'
+      jsxRuntime: 'automatic',
+      jsxImportSource: 'react'
     }),
     tailwindcss()
   ],
@@ -40,36 +41,68 @@ export default defineConfig(({ command, mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': [
-            'react',
-            'react-dom',
-            'react/jsx-runtime',
-            'react-aria',
-            'react-aria-components',
-            'react-stately'
-          ],
-          'vendor-tanstack': [
-            '@tanstack/react-query',
-            '@tanstack/react-router',
-            '@tanstack/react-table',
-            '@tanstack/router-devtools',
-            '@tanstack/react-form'
-          ],
-          'vendor-ui': [
-            'framer-motion',
-            '@radix-ui/react-tooltip',
-            'lucide-react',
-            'recharts',
-            'sonner'
-          ],
-          'vendor-utils': [
-            'luxon',
-            'uuid',
-            'lodash.clonedeep',
-            'class-variance-authority',
-            'tailwind-merge'
-          ]
+        manualChunks(id) {
+          // Bundle all React related code together to avoid initialization issues
+          if (id.includes('node_modules/react') || 
+              id.includes('node_modules/react-dom') || 
+              id.includes('node_modules/scheduler') ||
+              id.includes('node_modules/react-aria') || 
+              id.includes('node_modules/react-stately')) {
+            return 'vendor-react'
+          }
+
+          // TanStack packages
+          if (id.includes('node_modules/@tanstack')) {
+            if (id.includes('react-router')) {
+              return 'vendor-router'
+            }
+            if (id.includes('react-query')) {
+              return 'vendor-query'
+            }
+            return 'vendor-tanstack'
+          }
+
+          // UI packages
+          if (id.includes('node_modules')) {
+            if (id.includes('framer-motion')) {
+              return 'vendor-framer'
+            }
+            if (id.includes('recharts') || id.includes('d3') || id.includes('victory')) {
+              return 'vendor-charts'
+            }
+            if (id.includes('lucide-react') || id.includes('@radix-ui') || id.includes('sonner')) {
+              return 'vendor-ui'
+            }
+            if (id.includes('zustand')) {
+              return 'vendor-state'
+            }
+            // Other node_modules
+            return 'vendor'
+          }
+
+          // Application code
+          if (id.includes('src/routes')) {
+            if (id.includes('/_public/')) {
+              return 'route-public'
+            }
+            if (id.includes('/admin/')) {
+              const section = id.split('/admin/')[1]?.split('/')[0]
+              return section ? `route-admin-${section}` : 'route-admin'
+            }
+            return 'routes'
+          }
+
+          // Shared code
+          if (id.includes('src/components/')) {
+            const isAdmin = id.includes('/admin/')
+            const isPublic = id.includes('/public/')
+            return isAdmin ? 'components-admin' : isPublic ? 'components-public' : 'components'
+          }
+
+          // Group remaining app code
+          if (id.includes('src/lib/')) return 'lib'
+          if (id.includes('src/utils/')) return 'utils'
+          if (id.includes('src/stores/')) return 'stores'
         }
       }
     },
@@ -127,7 +160,12 @@ export default defineConfig(({ command, mode }) => ({
     __DEV__: mode === 'development'
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'zustand']
+    include: [
+      'react',
+      'react-dom',
+      'scheduler',
+      'zustand'
+    ]
   },
   // Enable proper HMR
   esbuild: {
