@@ -21,12 +21,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { DateTime } from 'luxon';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Avatar } from './avatar';
+import { Button } from './button';
 import { Checkbox } from './checkbox';
 import { Icons } from './icons';
 import { Input } from './input';
-// import { SelectComponent } from './select';
 import { SelectComponent } from './select-v2';
 import { StatusBadge } from './status-badge';
+import { Tooltip } from './tooltip-content';
 
 type RoadmapItem = RoadmapDetailResponse['items'][0];
 
@@ -74,6 +75,7 @@ const columns = ({ checkedItems, setCheckedItems, isMobile, maxVotes }: ColumnPr
       <Checkbox
         disabled={info.table.getRowModel().rows.length === 0}
         checked={checkedItems.length >= info.table.getRowModel().rows.length && info.table.getRowModel().rows.length > 0}
+        indeterminate={checkedItems.length > 0 && checkedItems.length < info.table.getRowModel().rows.length}
         onChange={(value) => setCheckedItems(value.target.checked ? info.table.getRowModel().rows.map(row => row.original.id) : [])}
         onClick={(e) => {
           e.preventDefault();
@@ -397,6 +399,75 @@ function EmptyPlaceholder() {
 
 type GroupedItems = Record<string, { expanded: boolean, items: RoadmapItem[] }>;
 
+function SelectionDock({ selectedCount, onClear, selectedItems }: { selectedCount: number; onClear: () => void; selectedItems: RoadmapItem[] }) {
+  // Check if selected posts are from multiple boards
+  const uniqueBoards = new Set(selectedItems.map(item => item.board.slug));
+  const isMultipleBoards = uniqueBoards.size > 1;
+
+  return (
+    <motion.div
+      initial={{ y: 100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 100, opacity: 0 }}
+      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white dark:bg-zinc-900 shadow-lg rounded-lg border border-gray-200 dark:border-zinc-800 px-4 py-2"
+    >
+      <div className="horizontal center gap-4">
+        <p className="text-sm text-gray-500 dark:text-zinc-400">
+          {selectedCount} {selectedCount === 1 ? 'post' : 'posts'} selected
+        </p>
+        <div className="h-4 w-[1px] bg-gray-200 dark:bg-zinc-800" />
+        <div className="horizontal center gap-2">
+          <Tooltip content={selectedCount === 1 ? "You must select at least two posts to merge." : "Merge selected posts"}>
+            <span>
+              <Button variant="outline" size="icon" disabled={selectedCount === 1}>
+                <Icons.Merge className='size-4' />
+              </Button>
+            </span>
+          </Tooltip>
+          <Tooltip content="Add to roadmap">
+            <Button variant="outline" size="icon">
+              <Icons.Map className='size-4' />
+            </Button>
+          </Tooltip>
+          <Tooltip content="Move to board">
+            <Button variant="outline" size="icon">
+              <Icons.ClipboardPaste className='size-4' />
+            </Button>
+          </Tooltip>
+          <Tooltip content="Change owner">
+            <Button variant="outline" size="icon">
+              <Icons.User className='size-4' />
+            </Button>
+          </Tooltip>
+          <Tooltip content={isMultipleBoards ? "You can only perform this action with posts from one board selected." : "Change category"}>
+            <span>
+              <Button variant="outline" size="icon" disabled={isMultipleBoards}>
+                <Icons.LayoutGrid className='size-4' />
+              </Button>
+            </span>
+          </Tooltip>
+          <Tooltip content={isMultipleBoards ? "You can only perform this action with posts from one board selected." : "Add tags"}>
+            <span>
+              <Button variant="outline" size="icon" disabled={isMultipleBoards}>
+                <Icons.Tag className='size-4' />
+              </Button>
+            </span>
+          </Tooltip>
+          <Tooltip content="Export">
+            <Button variant="outline" size="icon">
+              <Icons.Download className='size-4' />
+            </Button>
+          </Tooltip>
+        </div>
+        <div className="h-4 w-[1px] bg-gray-200 dark:bg-zinc-800" />
+        <Button variant="ghost" size="icon" onClick={onClear}>
+          <Icons.X className='size-4' />
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
+
 export function RoadmapTable({ items }: RoadmapTableProps) {
   const visibleFields = useRoadmapStore((state) => state.visibleFields);
   const { search, groupBy, impact, votes, effort, ...searchParams } = useSearch({ from: Route.fullPath });
@@ -542,359 +613,382 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
   }
 
   return (
-    <div className="w-full border border-t-0">
-      <div className="relative w-full overflow-auto">
-        <table
-          className="w-full border-collapse"
-          style={{
-            minWidth: table.getTotalSize(),
-          }}
-        >
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b">
-                {headerGroup.headers.map((header) => {
-                  const isPinned = isMobile ? false : header.column.getIsPinned();
-                  const alwaysShowLeftBorder = header.column.columnDef.meta && 'alwaysShowLeftBorder' in header.column.columnDef.meta ? true : false;
-                  const isVisible = visibleFields.includes(header.column.id as RoadmapField);
+    <>
+      <div className="w-full border border-t-0">
+        <div className="relative w-full overflow-auto">
+          <table
+            className="w-full border-collapse"
+            style={{
+              minWidth: table.getTotalSize(),
+            }}
+          >
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id} className="border-b">
+                  {headerGroup.headers.map((header) => {
+                    const isPinned = isMobile ? false : header.column.getIsPinned();
+                    const alwaysShowLeftBorder = header.column.columnDef.meta && 'alwaysShowLeftBorder' in header.column.columnDef.meta ? true : false;
+                    const isVisible = visibleFields.includes(header.column.id as RoadmapField);
 
-                  if (!isVisible) {
+                    if (!isVisible) {
+                      return null;
+                    }
+
+                    return (
+                      <th
+                        key={header.id}
+                        style={{
+                          width: header.getSize(),
+                          position: isPinned ? 'sticky' : undefined,
+                        }}
+                        className={cn(
+                          '[&>*]:text-xs [&>*]:text-gray-500 [&>*]:dark:text-zinc-400 [&>*]:uppercase [&>*]:font-medium px-4 py-4 text-left bg-white dark:bg-zinc-900 relative',
+                          'group',
+                          isPinned && 'z-20',
+                          isPinned === 'left' && [
+                            'left-0',
+                            'after:absolute after:right-0 after:top-0 after:h-full after:w-[1px] after:bg-gray-200 dark:after:bg-zinc-800',
+                            'bg-white dark:bg-zinc-900'
+                          ],
+                          isPinned === 'right' && [
+                            'right-0',
+                            'after:absolute after:left-0 after:top-0 after:h-full after:w-[3px] after:bg-gray-200 dark:after:bg-zinc-800',
+                            'bg-white dark:bg-zinc-900'
+                          ],
+                        )}
+                      >
+                        <div
+                          className='horizontal center-v gap-2 cursor-pointer'
+                          onClick={() => header.column.toggleSorting()}
+                        >
+                          {header.column.id === 'title' ? (
+                            <div className='horizontal gap-4 center-v' onClick={(e) => e.stopPropagation()}>
+                              <Checkbox
+                                disabled={table.getRowModel().rows.length === 0}
+                                checked={checkedItems.length > 0 && checkedItems.length >= table.getRowModel().rows.length}
+                                indeterminate={checkedItems.length > 0 && checkedItems.length < table.getRowModel().rows.length}
+                                onChange={(value) => setCheckedItems(value.target.checked ? table.getRowModel().rows.map(row => row.original.id) : [])}
+                              />
+                              <p className='text-gray-500 dark:text-zinc-400'>Posts ({table.getRowModel().rows.length})</p>
+                            </div>
+                          ) : (
+                            flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )
+                          )}
+                          {header.column.getCanSort() && header.column.id !== 'title' && (
+                            header.column.getIsSorted() ? (
+                              header.column.getIsSorted() === 'asc' ? (
+                                <Icons.ArrowUp className='size-4 shrink-0 stroke-gray-500 dark:stroke-zinc-400' />
+                              ) : (
+                                <Icons.ArrowDown className='size-4 shrink-0 stroke-gray-500 dark:stroke-zinc-400' />
+                              )
+                            ) : (
+                              <Icons.ArrowUpDown className='size-4 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity stroke-gray-500 dark:stroke-zinc-400' />
+                            )
+                          )}
+                        </div>
+                        <div className={cn("absolute inset-y-0 left-[-1px] w-[1px] bg-transparent group-hover:bg-gray-200 dark:group-hover:bg-zinc-800", alwaysShowLeftBorder && 'bg-gray-200 dark:bg-zinc-800')} />
+                        <div className="absolute inset-y-0 right-0 w-[1px] bg-transparent group-hover:bg-gray-200 dark:group-hover:bg-zinc-800" />
+                        {header.column.getCanResize() && (
+                          <div
+                            onMouseDown={header.getResizeHandler()}
+                            onTouchStart={header.getResizeHandler()}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                            className={cn(
+                              'absolute -right-px top-0 h-full w-2 cursor-col-resize select-none touch-none group-hover:bg-blue-500/10',
+                              header.column.getIsResizing() && 'bg-blue-500/50 w-1'
+                            )}
+                          />
+                        )}
+                      </th>
+                    );
+                  })}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {Object.entries(groupedItems).length === 0 ? table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  className="border-b last:border-b-0 text-sm transition-colors group"
+                >
+                  {row.getVisibleCells().map((cell) => {
+                    const isPinned = isMobile ? false : cell.column.getIsPinned();
+                    const isResizing = cell.column.getIsResizing();
+                    const alwaysShowLeftBorder = cell.column.columnDef.meta && 'alwaysShowLeftBorder' in cell.column.columnDef.meta ? true : false;
+                    const isVisible = visibleFields.includes(cell.column.id as RoadmapField);
+
+                    if (!isVisible) {
+                      return null;
+                    }
+
+                    return (
+                      <td
+                        key={cell.id}
+                        style={{
+                          width: cell.column.getSize(),
+                          position: isPinned ? 'sticky' : undefined,
+                        }}
+                        className={cn(
+                          'px-4 py-2 text-zinc-800 dark:text-zinc-200 font-light relative',
+                          'transition-colors',
+                          cell.column.id === 'title' && 'cursor-pointer py-0 group/title',
+                          !isPinned && 'group-hover:bg-[var(--color-primary)]/5',
+                          isPinned && 'z-20',
+                          isPinned === 'left' && [
+                            'left-0',
+                            'after:absolute after:right-0 after:top-0 after:h-full after:w-[1px] after:bg-gray-200 dark:after:bg-zinc-800',
+                            'bg-white dark:bg-zinc-900'
+                          ],
+                          isPinned === 'right' && [
+                            'right-0',
+                            'after:absolute after:left-0 after:top-0 after:h-full after:w-[3px] after:bg-gray-200 dark:after:bg-zinc-800',
+                            'bg-white dark:bg-zinc-900'
+                          ],
+                          isResizing && 'cursor-col-resize'
+                        )}
+                      >
+                        <div className={cn("absolute inset-y-0 left-[-1px] w-[1px]", alwaysShowLeftBorder && 'bg-gray-200 dark:bg-zinc-800')} />
+                        {isPinned && <div className='absolute inset-0 pointer-events-none group-hover:bg-[var(--color-primary)]/5 transition-colors' />}
+                        <span className={cn({
+                          'relative': isPinned
+                        })}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </span>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))
+                :
+                Object.entries(groupedItems).map(([group, { expanded, items }]) => {
+                  const rows = table.getRowModel().rows.filter(row => items.some(item => item.id === row.original.id));
+
+                  if (rows.length === 0) {
                     return null;
                   }
 
                   return (
-                    <th
-                      key={header.id}
-                      style={{
-                        width: header.getSize(),
-                        position: isPinned ? 'sticky' : undefined,
-                      }}
-                      className={cn(
-                        '[&>*]:text-xs [&>*]:text-gray-500 [&>*]:dark:text-zinc-400 [&>*]:uppercase [&>*]:font-medium px-4 py-4 text-left bg-white dark:bg-zinc-900 relative',
-                        'group',
-                        isPinned && 'z-20',
-                        isPinned === 'left' && [
-                          'left-0',
-                          'after:absolute after:right-0 after:top-0 after:h-full after:w-[1px] after:bg-gray-200 dark:after:bg-zinc-800',
-                          'bg-white dark:bg-zinc-900'
-                        ],
-                        isPinned === 'right' && [
-                          'right-0',
-                          'after:absolute after:left-0 after:top-0 after:h-full after:w-[3px] after:bg-gray-200 dark:after:bg-zinc-800',
-                          'bg-white dark:bg-zinc-900'
-                        ],
-                      )}
-                    >
-                      <div
-                        className='horizontal center-v gap-2 cursor-pointer'
-                        onClick={() => header.column.toggleSorting()}
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
+                    <React.Fragment key={group}>
+                      <tr key={group} className='border-b'>
+                        <td
+                          role='button'
+                          onClick={() => toggleGroup(group)}
+                          style={{
+                            position: 'sticky',
+                          }}
+                          className='cursor-pointer left-0 z-20 gap-2 p-4 bg-gray-50 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 font-light border-b'
+                        >
+                          <div className='horizontal center-v gap-2 text-xs font-bold'>
+                            <Icons.ChevronDown className={cn('size-4 shrink-0 transition-transform', !expanded && '-rotate-180')} />
+                            {group}
+                            <span className='text-gray-400 dark:text-zinc-500 border rounded-sm px-1'>
+                              {items.length}
+                            </span>
+                          </div>
+                          <div className='absolute inset-0 pointer-events-none bg-gray-50/20 dark:bg-zinc-800/20 transition-colors' />
+                        </td>
+                        <td role='button'
+                          onClick={() => toggleGroup(group)}
+                          colSpan={table.getAllColumns().length - 1}
+                          className='cursor-pointer bg-gray-50 dark:bg-zinc-800/20'
+                        />
+                      </tr>
+                      <AnimatePresence initial={false}>
+                        {expanded && (
+                          <motion.tr
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <td colSpan={table.getAllColumns().length}>
+                              <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                <table className="w-full">
+                                  <tbody>
+                                    {rows.map((row, index) => (
+                                      <motion.tr
+                                        key={row.id}
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{
+                                          duration: 0.2,
+                                          delay: index * 0.05,
+                                          ease: 'easeOut'
+                                        }}
+                                        className="border-b last:border-b-0 text-sm transition-colors group"
+                                      >
+                                        {row.getVisibleCells().map((cell) => {
+                                          const isPinned = isMobile ? false : cell.column.getIsPinned();
+                                          const isResizing = cell.column.getIsResizing();
+                                          const alwaysShowLeftBorder = cell.column.columnDef.meta && 'alwaysShowLeftBorder' in cell.column.columnDef.meta ? true : false;
+                                          const isVisible = visibleFields.includes(cell.column.id as RoadmapField);
+
+                                          if (!isVisible) {
+                                            return null;
+                                          }
+
+                                          return (
+                                            <td
+                                              key={cell.id}
+                                              style={{
+                                                width: cell.column.getSize(),
+                                                position: isPinned ? 'sticky' : undefined,
+                                              }}
+                                              className={cn(
+                                                'px-4 py-2 text-zinc-800 border-b dark:text-zinc-200 font-light relative',
+                                                'transition-colors',
+                                                cell.column.id === 'title' && 'cursor-pointer py-0 group/title',
+                                                !isPinned && 'group-hover:bg-[var(--color-primary)]/5',
+                                                isPinned && 'z-20',
+                                                isPinned === 'left' && [
+                                                  'left-0',
+                                                  'after:absolute after:right-0 after:top-0 after:h-full after:w-[1px] after:bg-gray-200 dark:after:bg-zinc-800',
+                                                  'bg-white dark:bg-zinc-900'
+                                                ],
+                                                isPinned === 'right' && [
+                                                  'right-0',
+                                                  'after:absolute after:left-0 after:top-0 after:h-full after:w-[3px] after:bg-gray-200 dark:after:bg-zinc-800',
+                                                  'bg-white dark:bg-zinc-900'
+                                                ],
+                                                isResizing && 'cursor-col-resize'
+                                              )}
+                                            >
+                                              <div className={cn("absolute inset-y-0 left-[-1px] w-[1px]", alwaysShowLeftBorder && 'bg-gray-200 dark:bg-zinc-800')} />
+                                              {isPinned && <div className='absolute inset-0 pointer-events-none group-hover:bg-[var(--color-primary)]/5 transition-colors' />}
+                                              <span className={cn({
+                                                'relative': isPinned
+                                              })}>
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                              </span>
+                                            </td>
+                                          );
+                                        })}
+                                      </motion.tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </motion.div>
+                            </td>
+                          </motion.tr>
                         )}
-                        {header.column.getCanSort() && (
-                          header.column.getIsSorted() ? (
-                            header.column.getIsSorted() === 'asc' ? (
-                              <Icons.ArrowUp className='size-4 shrink-0 stroke-gray-500 dark:stroke-zinc-400' />
-                            ) : (
-                              <Icons.ArrowDown className='size-4 shrink-0 stroke-gray-500 dark:stroke-zinc-400' />
-                            )
-                          ) : (
-                            <Icons.ArrowUpDown className='size-4 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity stroke-gray-500 dark:stroke-zinc-400' />
-                          )
-                        )}
-                      </div>
-                      <div className={cn("absolute inset-y-0 left-[-1px] w-[1px] bg-transparent group-hover:bg-gray-200 dark:group-hover:bg-zinc-800", alwaysShowLeftBorder && 'bg-gray-200 dark:bg-zinc-800')} />
-                      <div className="absolute inset-y-0 right-0 w-[1px] bg-transparent group-hover:bg-gray-200 dark:group-hover:bg-zinc-800" />
-                      {header.column.getCanResize() && (
-                        <div
-                          onMouseDown={header.getResizeHandler()}
-                          onTouchStart={header.getResizeHandler()}
+                      </AnimatePresence>
+                    </React.Fragment>
+                  )
+                })
+              }
+              <tr className='text-sm'>
+                <td className={cn('px-4 py-0 relative group cursor-pointer',
+                  !isMobile && 'z-20 left-0 bg-white dark:bg-zinc-900 sticky',
+                  !isMobile && 'after:absolute after:right-0 after:top-0 after:h-full after:w-[1px] after:bg-gray-200 dark:after:bg-zinc-800'
+                )}
+                  role='button'
+                  onClick={() => {
+                    if (!newRoadmapItemTitle)
+                      setNewRoadmapItemTitle('');
+                  }}
+                >
+                  <div className='horizontal center-v gap-2 text-gray-400 dark:text-zinc-500 [&>svg]:stroke-gray-400 dark:[&>svg]:stroke-zinc-500'>
+                    {(isFocused || newRoadmapItemTitle !== undefined) ?
+                      <>
+                        <button type='button' className='horizontal center-v gap-2 [&>svg]:stroke-gray-400 dark:[&>svg]:stroke-zinc-500 hover:[&>svg]:stroke-gray-500 dark:hover:[&>svg]:stroke-zinc-400 cursor-pointer'
                           onClick={(e) => {
                             e.stopPropagation();
-                          }}
-                          className={cn(
-                            'absolute -right-px top-0 h-full w-2 cursor-col-resize select-none touch-none group-hover:bg-blue-500/10',
-                            header.column.getIsResizing() && 'bg-blue-500/50 w-1'
-                          )}
-                        />
-                      )}
-                    </th>
-                  );
-                })}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {Object.entries(groupedItems).length === 0 ? table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                className="border-b last:border-b-0 text-sm transition-colors group"
-              >
-                {row.getVisibleCells().map((cell) => {
-                  const isPinned = isMobile ? false : cell.column.getIsPinned();
-                  const isResizing = cell.column.getIsResizing();
-                  const alwaysShowLeftBorder = cell.column.columnDef.meta && 'alwaysShowLeftBorder' in cell.column.columnDef.meta ? true : false;
-                  const isVisible = visibleFields.includes(cell.column.id as RoadmapField);
-
-                  if (!isVisible) {
-                    return null;
-                  }
-
-                  return (
-                    <td
-                      key={cell.id}
-                      style={{
-                        width: cell.column.getSize(),
-                        position: isPinned ? 'sticky' : undefined,
-                      }}
-                      className={cn(
-                        'px-4 py-2 text-zinc-800 dark:text-zinc-200 font-light relative',
-                        'transition-colors',
-                        cell.column.id === 'title' && 'cursor-pointer py-0 group/title',
-                        !isPinned && 'group-hover:bg-[var(--color-primary)]/5',
-                        isPinned && 'z-20',
-                        isPinned === 'left' && [
-                          'left-0',
-                          'after:absolute after:right-0 after:top-0 after:h-full after:w-[1px] after:bg-gray-200 dark:after:bg-zinc-800',
-                          'bg-white dark:bg-zinc-900'
-                        ],
-                        isPinned === 'right' && [
-                          'right-0',
-                          'after:absolute after:left-0 after:top-0 after:h-full after:w-[3px] after:bg-gray-200 dark:after:bg-zinc-800',
-                          'bg-white dark:bg-zinc-900'
-                        ],
-                        isResizing && 'cursor-col-resize'
-                      )}
-                    >
-                      <div className={cn("absolute inset-y-0 left-[-1px] w-[1px]", alwaysShowLeftBorder && 'bg-gray-200 dark:bg-zinc-800')} />
-                      {isPinned && <div className='absolute inset-0 pointer-events-none group-hover:bg-[var(--color-primary)]/5 transition-colors' />}
-                      <span className={cn({
-                        'relative': isPinned
-                      })}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </span>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))
-              :
-              Object.entries(groupedItems).map(([group, { expanded, items }]) => {
-                const rows = table.getRowModel().rows.filter(row => items.some(item => item.id === row.original.id));
-
-                if (rows.length === 0) {
-                  return null;
-                }
-
-                return (
-                  <React.Fragment key={group}>
-                    <tr key={group} className='border-b'>
-                      <td
-                        role='button'
-                        onClick={() => toggleGroup(group)}
-                        style={{
-                          position: 'sticky',
-                        }}
-                        className='cursor-pointer left-0 z-20 gap-2 p-4 bg-gray-50 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 font-light border-b'
-                      >
-                        <div className='horizontal center-v gap-2 text-xs font-bold'>
-                          <Icons.ChevronDown className={cn('size-4 shrink-0 transition-transform', !expanded && '-rotate-180')} />
-                          {group}
-                          <span className='text-gray-400 dark:text-zinc-500 border rounded-sm px-1'>
-                            {items.length}
-                          </span>
-                        </div>
-                        <div className='absolute inset-0 pointer-events-none bg-gray-50/20 dark:bg-zinc-800/20 transition-colors' />
-                      </td>
-                      <td role='button'
-                        onClick={() => toggleGroup(group)}
-                        colSpan={table.getAllColumns().length - 1}
-                        className='cursor-pointer bg-gray-50 dark:bg-zinc-800/20'
-                      />
-                    </tr>
-                    <AnimatePresence initial={false}>
-                      {expanded && (
-                        <motion.tr
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <td colSpan={table.getAllColumns().length}>
-                            <motion.div
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <table className="w-full">
-                                <tbody>
-                                  {rows.map((row, index) => (
-                                    <motion.tr
-                                      key={row.id}
-                                      initial={{ x: -20, opacity: 0 }}
-                                      animate={{ x: 0, opacity: 1 }}
-                                      transition={{
-                                        duration: 0.2,
-                                        delay: index * 0.05,
-                                        ease: 'easeOut'
-                                      }}
-                                      className="border-b last:border-b-0 text-sm transition-colors group"
-                                    >
-                                      {row.getVisibleCells().map((cell) => {
-                                        const isPinned = isMobile ? false : cell.column.getIsPinned();
-                                        const isResizing = cell.column.getIsResizing();
-                                        const alwaysShowLeftBorder = cell.column.columnDef.meta && 'alwaysShowLeftBorder' in cell.column.columnDef.meta ? true : false;
-                                        const isVisible = visibleFields.includes(cell.column.id as RoadmapField);
-
-                                        if (!isVisible) {
-                                          return null;
-                                        }
-
-                                        return (
-                                          <td
-                                            key={cell.id}
-                                            style={{
-                                              width: cell.column.getSize(),
-                                              position: isPinned ? 'sticky' : undefined,
-                                            }}
-                                            className={cn(
-                                              'px-4 py-2 text-zinc-800 border-b dark:text-zinc-200 font-light relative',
-                                              'transition-colors',
-                                              cell.column.id === 'title' && 'cursor-pointer py-0 group/title',
-                                              !isPinned && 'group-hover:bg-[var(--color-primary)]/5',
-                                              isPinned && 'z-20',
-                                              isPinned === 'left' && [
-                                                'left-0',
-                                                'after:absolute after:right-0 after:top-0 after:h-full after:w-[1px] after:bg-gray-200 dark:after:bg-zinc-800',
-                                                'bg-white dark:bg-zinc-900'
-                                              ],
-                                              isPinned === 'right' && [
-                                                'right-0',
-                                                'after:absolute after:left-0 after:top-0 after:h-full after:w-[3px] after:bg-gray-200 dark:after:bg-zinc-800',
-                                                'bg-white dark:bg-zinc-900'
-                                              ],
-                                              isResizing && 'cursor-col-resize'
-                                            )}
-                                          >
-                                            <div className={cn("absolute inset-y-0 left-[-1px] w-[1px]", alwaysShowLeftBorder && 'bg-gray-200 dark:bg-zinc-800')} />
-                                            {isPinned && <div className='absolute inset-0 pointer-events-none group-hover:bg-[var(--color-primary)]/5 transition-colors' />}
-                                            <span className={cn({
-                                              'relative': isPinned
-                                            })}>
-                                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                            </span>
-                                          </td>
-                                        );
-                                      })}
-                                    </motion.tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </motion.div>
-                          </td>
-                        </motion.tr>
-                      )}
-                    </AnimatePresence>
-                  </React.Fragment>
-                )
-              })
-            }
-            <tr className='text-sm'>
-              <td className={cn('px-4 py-0 relative group cursor-pointer',
-                !isMobile && 'z-20 left-0 bg-white dark:bg-zinc-900 sticky',
-                !isMobile && 'after:absolute after:right-0 after:top-0 after:h-full after:w-[1px] after:bg-gray-200 dark:after:bg-zinc-800'
-              )}
-                role='button'
-                onClick={() => {
-                  if (!newRoadmapItemTitle)
-                    setNewRoadmapItemTitle('');
-                }}
-              >
-                <div className='horizontal center-v gap-2 text-gray-400 dark:text-zinc-500 [&>svg]:stroke-gray-400 dark:[&>svg]:stroke-zinc-500'>
-                  {(isFocused || newRoadmapItemTitle !== undefined) ?
-                    <>
-                      <button type='button' className='horizontal center-v gap-2 [&>svg]:stroke-gray-400 dark:[&>svg]:stroke-zinc-500 hover:[&>svg]:stroke-gray-500 dark:hover:[&>svg]:stroke-zinc-400 cursor-pointer'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setNewRoadmapItemTitle(undefined);
-                        }}>
-                        <Icons.X className='size-4 shrink-0' />
-                      </button>
-                      <Input
-                        ref={inputRef}
-                        placeholder='Add a title...'
-                        className='w-full border-none px-2 !debug'
-                        value={newRoadmapItemTitle ?? ''}
-                        onChange={(e) => setNewRoadmapItemTitle(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && newRoadmapItemTitle && newRoadmapItemBoard) {
-                            addNewRoadmapItem({ title: newRoadmapItemTitle, board: { name: boards?.find(board => board.slug === newRoadmapItemBoard)?.name ?? '', slug: newRoadmapItemBoard } });
                             setNewRoadmapItemTitle(undefined);
-                          }
-                        }}
-                        autoFocus
-                      />
-                      in
-                      <SelectComponent
-                        options={boards?.map(board => ({
-                          label: board.name,
-                          value: board.slug
-                        })) ?? []}
-                        value={newRoadmapItemBoard}
-                        onChange={(value) => setNewRoadmapItemBoard(value as string)}
-                        triggerClassName='border-none hover:bg-transparent dark:hover:bg-transparent'
-                        size='sm'
-                        checkMarks
-                      />
-                    </>
-                    :
-                    <>
-                      <Icons.Plus className='size-4 shrink-0 mr-2' />
-                      Add new
-                      <div className='absolute inset-0 pointer-events-none group-hover:bg-[var(--color-primary)]/5 transition-colors' />
-                    </>
-                  }
-                </div>
-              </td>
-              {visibleFields.filter((item => !['title', 'score', 'impact', 'effort', 'votes'].includes(item))).length > 0 && <td colSpan={visibleFields.filter((item => !['title', 'score', 'impact', 'effort', 'votes'].includes(item))).length}>
-                <div className='horizontal gap-4' />
-              </td>}
-              {visibleFields.includes('impact') && <td className='relative'>
-                <div className='absolute inset-y-0 left-[-1px] w-[1px] bg-gray-200 dark:bg-zinc-800' />
-                <div className='horizontal gap-4'>
-                </div>
-              </td>}
-              {visibleFields.includes('votes') && <td className='relative'>
-                <div className='horizontal gap-4'>
-                </div>
-              </td>}
-              {visibleFields.includes('effort') && <td className='px-4 py-2 relative text-zinc-800 dark:text-zinc-200 font-light'>
-                <div className='absolute inset-y-0 left-[-1px] w-[1px] bg-gray-200 dark:bg-zinc-800' />
-                <div className='horizontal gap-4'>
-                  {table.getRowModel().rows.reduce((acc, row) => {
-                    return acc + row.original.effort;
-                  }, 0)}
-                </div>
-              </td>}
-              <td className={cn('px-4 py-2 relative',
-                !isMobile && 'z-20 right-0 bg-white dark:bg-zinc-900 sticky',
-                !isMobile && 'after:absolute after:left-0 after:top-0 after:h-full after:w-[3px] after:bg-gray-200 dark:after:bg-zinc-800'
-              )}>
-                <div className='horizontal gap-4'>
-                  <span className='text-[var(--color-primary)] text-xs font-bold bg-[var(--color-primary)]/10 rounded-full size-10 horizontal center'>
-                    {formatNumber(
-                      getTotalScore(table)
-                    )}
-                  </span>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                          }}>
+                          <Icons.X className='size-4 shrink-0' />
+                        </button>
+                        <Input
+                          ref={inputRef}
+                          placeholder='Add a title...'
+                          className='w-full border-none px-2 !debug'
+                          value={newRoadmapItemTitle ?? ''}
+                          onChange={(e) => setNewRoadmapItemTitle(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && newRoadmapItemTitle && newRoadmapItemBoard) {
+                              addNewRoadmapItem({ title: newRoadmapItemTitle, board: { name: boards?.find(board => board.slug === newRoadmapItemBoard)?.name ?? '', slug: newRoadmapItemBoard } });
+                              setNewRoadmapItemTitle(undefined);
+                            }
+                          }}
+                          autoFocus
+                        />
+                        in
+                        <SelectComponent
+                          options={boards?.map(board => ({
+                            label: board.name,
+                            value: board.slug
+                          })) ?? []}
+                          value={newRoadmapItemBoard}
+                          onChange={(value) => setNewRoadmapItemBoard(value as string)}
+                          triggerClassName='border-none hover:bg-transparent dark:hover:bg-transparent'
+                          size='sm'
+                          checkMarks
+                        />
+                      </>
+                      :
+                      <>
+                        <Icons.Plus className='size-4 shrink-0 mr-2' />
+                        Add new
+                        <div className='absolute inset-0 pointer-events-none group-hover:bg-[var(--color-primary)]/5 transition-colors' />
+                      </>
+                    }
+                  </div>
+                </td>
+                {visibleFields.filter((item => !['title', 'score', 'impact', 'effort', 'votes'].includes(item))).length > 0 && <td colSpan={visibleFields.filter((item => !['title', 'score', 'impact', 'effort', 'votes'].includes(item))).length}>
+                  <div className='horizontal gap-4' />
+                </td>}
+                {visibleFields.includes('impact') && <td className='relative'>
+                  <div className='absolute inset-y-0 left-[-1px] w-[1px] bg-gray-200 dark:bg-zinc-800' />
+                  <div className='horizontal gap-4'>
+                  </div>
+                </td>}
+                {visibleFields.includes('votes') && <td className='relative'>
+                  <div className='horizontal gap-4'>
+                  </div>
+                </td>}
+                {visibleFields.includes('effort') && <td className='px-4 py-2 relative text-zinc-800 dark:text-zinc-200 font-light'>
+                  <div className='absolute inset-y-0 left-[-1px] w-[1px] bg-gray-200 dark:bg-zinc-800' />
+                  <div className='horizontal gap-4'>
+                    {table.getRowModel().rows.reduce((acc, row) => {
+                      return acc + row.original.effort;
+                    }, 0)}
+                  </div>
+                </td>}
+                <td className={cn('px-4 py-2 relative',
+                  !isMobile && 'z-20 right-0 bg-white dark:bg-zinc-900 sticky',
+                  !isMobile && 'after:absolute after:left-0 after:top-0 after:h-full after:w-[3px] after:bg-gray-200 dark:after:bg-zinc-800'
+                )}>
+                  <div className='horizontal gap-4'>
+                    <span className='text-[var(--color-primary)] text-xs font-bold bg-[var(--color-primary)]/10 rounded-full size-10 horizontal center'>
+                      {formatNumber(
+                        getTotalScore(table)
+                      )}
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+      <AnimatePresence>
+        {checkedItems.length > 0 && (
+          <SelectionDock
+            selectedCount={checkedItems.length}
+            onClear={() => setCheckedItems([])}
+            selectedItems={items?.filter(item => checkedItems.includes(item.id)) ?? []}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 } 

@@ -29,4 +29,6 @@ export * from './status-badge'
 export * from './status-board'
 export * from './textbox'
 export * from './theme-toggle'
+export * from './tooltip-content'
 export * from './vote-button'
+

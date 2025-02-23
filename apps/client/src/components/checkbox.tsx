@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, forwardRef } from 'react';
+import { ComponentPropsWithoutRef, forwardRef, useEffect, useRef } from 'react';
 import { cn } from '../lib/utils';
 import { Icons } from './icons';
 
@@ -11,12 +11,21 @@ export interface CheckboxProps extends ComponentPropsWithoutRef<'input'> {
   error?: string;
   /** Additional className for the label */
   labelClassName?: string;
+  /** Whether the checkbox is in an indeterminate state */
+  indeterminate?: boolean;
 }
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ label, className, wrapperClassName, error, id, checked, disabled, onChange, labelClassName, ...props }, ref) => {
+  ({ label, className, wrapperClassName, error, id, checked, disabled, onChange, labelClassName, indeterminate, ...props }, ref) => {
     // Generate a unique ID if none provided
     const checkboxId = id || `checkbox-${Math.random().toString(36).slice(2)}`;
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.indeterminate = !!indeterminate;
+      }
+    }, [indeterminate]);
 
     const handleClick = () => {
       if (disabled) return;
@@ -35,7 +44,15 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             <input
               type="checkbox"
               id={checkboxId}
-              ref={ref}
+              ref={(node) => {
+                // Handle both refs
+                inputRef.current = node;
+                if (typeof ref === 'function') {
+                  ref(node);
+                } else if (ref) {
+                  ref.current = node;
+                }
+              }}
               checked={checked}
               disabled={disabled}
               onChange={onChange}
@@ -53,14 +70,26 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                 className
               )}
             >
-              <Icons.Check
-                className={cn(
-                  'h-3.5 w-3.5 text-white opacity-0 transition-opacity',
-                  'peer-checked:opacity-100 stroke-4',
-                  !checked && 'group-hover:opacity-20',
-                  checked && 'opacity-100'
-                )}
-              />
+              {indeterminate ? (
+                <Icons.Minus
+                  className={cn(
+                    'h-3.5 w-3.5 text-white opacity-0 transition-opacity',
+                    'peer-checked:opacity-100 stroke-4',
+                    !checked && 'group-hover:opacity-20',
+                    (checked || indeterminate) && 'opacity-100',
+                    'stroke-[var(--color-primary)]'
+                  )}
+                />
+              ) : (
+                <Icons.Check
+                  className={cn(
+                    'h-3.5 w-3.5 text-white opacity-0 transition-opacity',
+                    'peer-checked:opacity-100 stroke-4',
+                    !checked && 'group-hover:opacity-20',
+                    checked && 'opacity-100'
+                  )}
+                />
+              )}
             </span>
           </div>
           {label && (
