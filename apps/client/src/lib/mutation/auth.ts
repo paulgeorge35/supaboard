@@ -13,7 +13,9 @@ export const useRespondInvitationMutation = () => {
 
             const previousInvitation = queryClient.getQueryData(invitationQuery.queryKey);
 
-            queryClient.removeQueries({ queryKey: invitationQuery.queryKey });
+            queryClient.setQueryData(invitationQuery.queryKey, () => {
+                return null;
+            });
 
             return { previousInvitation };
         },
@@ -26,6 +28,7 @@ export const useRespondInvitationMutation = () => {
         onSuccess: (_, data) => {
             if (data.accept) {
                 toast.success('You have joined the team');
+                window.location.reload();
             } else {
                 toast.success('You have rejected the invitation');
             }

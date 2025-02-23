@@ -1,4 +1,4 @@
-import { ApplicationInvite, ApplicationSummary, BoardSummary, UserSummary, Workspace } from "@repo/database";
+import { ApplicationInvite, ApplicationSummary, BoardSummary, Role, UserSummary, Workspace } from "@repo/database";
 import { queryOptions } from "@tanstack/react-query";
 import { fetchClient } from "../client";
 
@@ -6,7 +6,8 @@ export type MeQueryData = {
     user: UserSummary;
     application: ApplicationSummary & {
         boards: BoardSummary[];
-        hasChangelog: boolean
+        hasChangelog: boolean;
+        role: Role | null;
     };
     workspaces: Workspace[];
 }
@@ -25,7 +26,7 @@ export type InvitationQueryData = Pick<ApplicationInvite, 'id' | 'email' | 'role
     invitedBy: Pick<UserSummary, 'name' | 'avatar'>;
 }
 
-export const invitationQuery = queryOptions<InvitationQueryData>({
+export const invitationQuery = queryOptions<InvitationQueryData | null>({
     queryKey: ['invitation'],
     queryFn: () => fetchClient('/auth/invitation'),
 });

@@ -1,6 +1,6 @@
 import { Button, Icons, LoadingSpinner, Skeleton } from '@/components'
+import { ChangelogContent } from '@/components/admin/changelog/changelog-renderer'
 import { Filters } from '@/components/admin/changelog/filters'
-import { Badge } from '@/components/badge'
 import { changelogsInfiniteQuery } from '@/lib/query'
 import { useVisibility, UseVisibility } from '@paulgeorge35/hooks'
 import { ChangelogDetailed } from '@repo/database'
@@ -113,17 +113,8 @@ function ChangelogCard({ changelog, ref }: ChangelogCardProps) {
             <p className='text-sm font-light text-gray-500 dark:text-zinc-500'>
                 {changelog.publishedAt ? DateTime.fromJSDate(new Date(changelog.publishedAt)).toFormat('dd MMM yyyy, hh:mm') : 'Unpublished'}
             </p>
-            <span className='horizontal gap-2 flex-wrap'>
-                {changelog.status === 'DRAFT' && <Badge label='Draft' className='border-amber-500 text-amber-500 bg-amber-500/10' />}
-                {changelog.tags.includes('NEW') && <Badge label='New' className='border-green-500 text-green-500 bg-green-500/10' />}
-                {changelog.tags.includes('IMPROVED') && <Badge label='Improved' className='border-blue-500 text-blue-500 bg-blue-500/10' />}
-                {changelog.tags.includes('FIXED') && <Badge label='Fixed' className='border-red-500 text-red-500 bg-red-500/10' />}
-                {changelog.labels.map((label) => (
-                    <Badge key={label.id} label={label.name} className='border-gray-500 text-gray-500 bg-gray-500/10' />
-                ))}
-            </span>
 
-            <p>{changelog.title}</p>
+            <ChangelogContent changelog={changelog} status={changelog.status} publishedAt={changelog.publishedAt} slug={changelog.slug} preview />
         </div>
     )
 }

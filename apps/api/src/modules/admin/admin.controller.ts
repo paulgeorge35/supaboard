@@ -472,7 +472,6 @@ export async function inviteUsers(request: BareSessionRequest, res: Response) {
                     in: emails,
                 },
                 acceptedAt: null,
-                rejectedAt: null,
             },
         });
 

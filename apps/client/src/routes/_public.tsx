@@ -3,7 +3,7 @@ import { PoweredBy } from '@/components/powered-by'
 import { applicationBoardsQuery } from '@/lib/query/application'
 import { useAuthStore } from '@/stores/auth-store'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute, Link, Outlet, useParams } from '@tanstack/react-router'
+import { createFileRoute, Link, Outlet, useLocation, useParams } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { Toaster as Sonner } from 'sonner'
 
@@ -19,6 +19,7 @@ function RouteComponent() {
 
   const { data: boards } = useSuspenseQuery(applicationBoardsQuery)
   const { application, user, workspaces } = useAuthStore();
+  const location = useLocation()
 
   useEffect(() => {
     const theme = application?.preferredTheme.toLowerCase()
@@ -33,7 +34,10 @@ function RouteComponent() {
 
   useEffect(() => {
     document.title = `${application?.name} | Feedback Board`
-  }, [application?.icon, application?.name])
+    if (location.pathname.startsWith('/changelog')) {
+      document.title = `${application?.name} | Changelog`
+    }
+  }, [application?.icon, application?.name, location.pathname])
 
   useEffect(() => {
     if (application?.color) {

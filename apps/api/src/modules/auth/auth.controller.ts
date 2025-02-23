@@ -489,14 +489,14 @@ const invitation = async (req: BareSessionRequest, res: Response) => {
     const applicationId = req.application?.id!;
 
     if (!userId) {
-        res.status(200);
+        res.status(200).json(null);
         return;
     }
 
     const user = await db.user.findUnique({ where: { id: userId } });
 
     if (!user) {
-        res.status(200);
+        res.status(200).json(null);
         return;
     }
 
@@ -516,7 +516,7 @@ const invitation = async (req: BareSessionRequest, res: Response) => {
     })
 
     if (!invite) {
-        res.status(200);
+        res.status(200).json(null);
         return;
     }
 

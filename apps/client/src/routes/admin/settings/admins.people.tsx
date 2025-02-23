@@ -64,6 +64,10 @@ function RouteComponent() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(applicationInvitesQuery);
+    },
+    onSuccess: (_, data) => {
+      toast.success(`Invites sent to ${data.emails.length} ${data.emails.length === 1 ? 'person' : 'people'}`);
+      form.reset();
     }
   });
 
@@ -131,7 +135,7 @@ function RouteComponent() {
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting, state.isDirty, state.isValid]}
             children={([canSubmit, isSubmitting, isDirty, isValid]) => (
-              <Button type='submit' color='secondary' isLoading={isSubmitting} disabled={!canSubmit || !isDirty || !isValid}>
+              <Button type='submit' isLoading={isSubmitting} disabled={!canSubmit || !isDirty || !isValid}>
                 Send invites
               </Button>
             )}
@@ -180,7 +184,7 @@ const MemberRow = ({ member }: { member: MemberSummary }) => {
       queryClient.cancelQueries(membersQuery);
 
       const previousMembers = queryClient.getQueryData(membersQuery.queryKey);
-      
+
       queryClient.setQueryData(membersQuery.queryKey, (old: MemberSummary[] | undefined) => {
         if (!old) return undefined;
         return old.filter(member => member.user.id !== data);
@@ -208,7 +212,7 @@ const MemberRow = ({ member }: { member: MemberSummary }) => {
       queryClient.cancelQueries(membersQuery);
 
       const previousMembers = queryClient.getQueryData(membersQuery.queryKey);
-      
+
       queryClient.setQueryData(membersQuery.queryKey, (old: MemberSummary[] | undefined) => {
         if (!old) return undefined;
         return old.map(member => member.user.id === data.id ? { ...member, role: data.role } : member);
@@ -293,7 +297,7 @@ const InviteRow = ({ invite }: { invite: ApplicationInviteSummary }) => {
         <span className='font-medium text-sm'>{invite.email}</span>
         <span className='text-xs text-gray-500'>{ROLE_OPTIONS.find(option => option.value === invite.role)?.label}</span>
       </span>
-      <Button 
+      <Button
         size='icon'
         variant='ghost'
         className='[&>svg]:!stroke-red-500 ml-auto'
