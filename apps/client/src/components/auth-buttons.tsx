@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { useAuthStore } from "@/stores/auth-store"
 import { useBoolean } from "@paulgeorge35/hooks"
 import type { User, Workspace } from "@repo/database"
 import { useForm } from "@tanstack/react-form"
@@ -16,12 +17,13 @@ import { Popover } from "./popover"
 
 type AuthButtonsProps = {
     user?: Pick<User, 'id' | 'email' | 'name' | 'avatar'>
-    isAdmin: boolean
     workspaces?: Workspace[]
     currentWorkspace?: string
 }
 
-export function AuthButtons({ user, isAdmin, workspaces, currentWorkspace }: AuthButtonsProps) {
+export function AuthButtons({ user, workspaces, currentWorkspace }: AuthButtonsProps) {
+    const { application } = useAuthStore();
+    const isAdmin = !(application?.role !== undefined && (application.role === null || !['ADMIN', 'COLLABORATOR'].includes(application.role)));
     const loginModal = useBoolean(false);
     const signUpModal = useBoolean(false);
     const forgotPasswordModal = useBoolean(false);
@@ -338,7 +340,7 @@ export function AuthButtons({ user, isAdmin, workspaces, currentWorkspace }: Aut
                                 )}
                             />
                             <span className="text-xs font-light text-gray-400 dark:text-zinc-600 text-center">
-                                By signing up, you agree to the 
+                                By signing up, you agree to the
                                 {" "}<a href={`${import.meta.env.VITE_APP_URL}/tos`} className="underline hover:text-gray-900 dark:hover:text-zinc-100 transition-colors">terms of service</a>
                                 {" "}and{" "}
                                 <a href={`${import.meta.env.VITE_APP_URL}/privacy`} className="underline hover:text-gray-900 dark:hover:text-zinc-100 transition-colors">privacy policy</a>.

@@ -63,12 +63,12 @@ const updateApplicationSchema = z.object({
     logo: z.string().nullish(),
     icon: z.string().nullish(),
     name: z.string().min(3).optional(),
-    subdomain: z.string().min(3).optional().refine((subdomain) => subdomain && subdomainBlacklist.includes(subdomain), {
-        message: 'Subdomain is unavailable',
-    }),
+    subdomain: z.string().min(3).optional(),
     color: z.string().min(1).optional(),
     preferredTheme: z.enum(['LIGHT', 'DARK', 'SYSTEM']).optional(),
     preferredLanguage: z.enum(['EN', 'RO']).optional(),
+    isChangelogPublic: z.boolean().optional(),
+    isChangelogSubscribable: z.boolean().optional(),
 });
 
 export async function updateApplication(req: BareSessionRequest, res: Response) {
@@ -80,14 +80,28 @@ export async function updateApplication(req: BareSessionRequest, res: Response) 
         return;
     }
 
+    const existingApplication = await db.application.findUnique({
+        where: { id: applicationId },
+    });
+
+    if (!existingApplication) {
+        res.status(404).json({ error: 'Application not found', code: 'NOT_FOUND' });
+        return;
+    }
+
     const data = parseAndThrowFirstError(updateApplicationSchema, req.body, res);
 
-    if (data.subdomain) {
-        const application = await db.application.findUnique({
-            where: { customDomain: data.subdomain },
+    if (data.subdomain && data.subdomain !== existingApplication.customDomain) {
+        const application = await db.application.findFirst({
+            where: { customDomain: data.subdomain, id: { not: applicationId } },
         });
 
         if (application) {
+            res.status(400).json({ error: 'Subdomain is unavailable', code: 'SUBDOMAIN_UNAVAILABLE' });
+            return;
+        }
+
+        if (!subdomainBlacklist.includes(data.subdomain)) {
             res.status(400).json({ error: 'Subdomain is unavailable', code: 'SUBDOMAIN_UNAVAILABLE' });
             return;
         }
@@ -266,6 +280,25 @@ export async function removeDomain(req: BareSessionRequest, res: Response) {
     res.status(200).json({ message: 'Domain removed' });
 }
 
+const deleteApplication = async (req: BareSessionRequest, res: Response) => {
+    const applicationId = req.application?.id!;
+
+    const application = await db.application.findUnique({
+        where: { id: applicationId },
+    });
+
+    if (!application) {
+        res.status(404).json({ error: 'Application not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    await db.application.delete({
+        where: { id: application.id },
+    });
+
+    res.status(200).json({ message: 'Application deleted' });
+}
+
 export const controller = {
     application: {
         get: getApplication,
@@ -273,5 +306,6 @@ export const controller = {
         boards: getBoards,
         verifyDomain,
         removeDomain,
+        delete: deleteApplication,
     },
 };

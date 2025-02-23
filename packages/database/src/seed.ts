@@ -72,7 +72,7 @@ async function main(): Promise<void> {
         users.map((user) =>
           prisma.member.create({
             data: {
-              role: Role.DEVELOPER,
+              role: Role.COLLABORATOR,
               userId: user.id,
               applicationId: app.id,
             },

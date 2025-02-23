@@ -55,7 +55,7 @@ function RouteComponent() {
   }, [handleClickOutside]);
 
   return (
-    <div ref={ref} className='z-50 h-full w-86 bg-white dark:bg-zinc-900 border-l shadow-lg overflow-y-auto'>
+    <div ref={ref} className='z-10 h-full w-86 bg-white dark:bg-zinc-900 border-l shadow-lg overflow-y-auto'>
       <div className='p-4 border-b sticky top-0 bg-white dark:bg-zinc-900 z-10'>
         <h1 className='font-light'>Filters</h1>
       </div>

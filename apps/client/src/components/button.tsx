@@ -47,10 +47,8 @@ export const Button = React.forwardRef<
     const disabled = props.disabled || isLoading
     return (
         <button ref={ref} className={cn(buttonVariants({ variant, color, size }), className)} {...props} disabled={disabled}>
-            {isLoading ?
-                <LoadingSpinner />
-                : children
-            }
+            {children}
+            {isLoading && <LoadingSpinner />}
         </button>
     )
 })

@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "@tanstack/react-router";
 import { v4 as uuidv4 } from 'uuid';
 import { fetchClient } from "../client";
-import { changelogLabelsQuery, changelogPublicBySlugQuery, changelogPublicQuery, changelogsInfiniteQuery } from "../query/changelog";
+import { changelogLabelsQuery, changelogPublicBySlugQuery, changelogPublicQuery, changelogsInfiniteQuery, ChangelogsPublicQueryData } from "../query/changelog";
 
 type CreateChangelogValues = {
     title: string;
@@ -276,16 +276,16 @@ export const useLikeChangelogMutation = () => {
             await queryClient.cancelQueries(changelogPublicQuery);
 
             const previousChangelog = queryClient.getQueryData<Changelog & { likes: number, likedByMe: boolean }>(changelogPublicBySlugQuery(changelogSlug).queryKey);
-            const previousChangelogs = queryClient.getQueryData<(Changelog & { likes: number, likedByMe: boolean })[]>(changelogPublicQuery.queryKey);
+            const previousChangelogs = queryClient.getQueryData<ChangelogsPublicQueryData>(changelogPublicQuery.queryKey);
 
             queryClient.setQueryData(changelogPublicBySlugQuery(changelogSlug).queryKey, (old: Changelog & { likes: number, likedByMe: boolean } | undefined) => {
                 if (!old) return undefined;
                 return { ...old, likes: likedByMe ? likes - 1 : likes + 1, likedByMe: !likedByMe };
             });
 
-            queryClient.setQueryData(changelogPublicQuery.queryKey, (old: (Changelog & { likes: number, likedByMe: boolean })[] | undefined) => {
+            queryClient.setQueryData(changelogPublicQuery.queryKey, (old: ChangelogsPublicQueryData | undefined) => {
                 if (!old) return undefined;
-                return old.map(changelog => changelog.slug === changelogSlug ? { ...changelog, likes: likedByMe ? likes - 1 : likes + 1, likedByMe: !likedByMe } : changelog);
+                return { ...old, changelogs: old.changelogs.map(changelog => changelog.slug === changelogSlug ? { ...changelog, likes: likedByMe ? likes - 1 : likes + 1, likedByMe: !likedByMe } : changelog) };
             });
 
             return { previousChangelog, previousChangelogs };
@@ -298,5 +298,33 @@ export const useLikeChangelogMutation = () => {
             queryClient.invalidateQueries(changelogPublicBySlugQuery(changelogSlug));
             queryClient.invalidateQueries(changelogPublicQuery);
         },
+    })
+}
+
+type UseSubscribeChangelogMutation = {
+    onSuccess?: (data: { isSubscribed: boolean }) => void;
+}
+
+export const useSubscribeChangelogMutation = ({ onSuccess }: UseSubscribeChangelogMutation) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: () => fetchClient(`/changelog/public/subscribe`, { method: 'POST' }),
+        onSuccess,
+        onMutate: async () => {
+            await queryClient.cancelQueries(changelogPublicQuery);
+
+            const previousChangelogs = queryClient.getQueryData<ChangelogsPublicQueryData>(changelogPublicQuery.queryKey);
+
+            queryClient.setQueryData(changelogPublicQuery.queryKey, (old: ChangelogsPublicQueryData | undefined) => {
+                if (!old) return undefined;
+                return { ...old, isSubscribed: !old.isSubscribed };
+            });
+
+            return { previousChangelogs };
+        },
+        onError: (_, __, context) => {
+            queryClient.setQueryData(changelogPublicQuery.queryKey, context?.previousChangelogs);
+        }
     })
 }

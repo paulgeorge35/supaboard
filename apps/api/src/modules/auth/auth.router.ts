@@ -1,4 +1,4 @@
-import { application, session } from '@/middleware';
+import { application, member, session } from '@/middleware';
 import { Router } from 'express';
 import { controller, } from './auth.controller';
 const router = Router();
@@ -23,5 +23,8 @@ router.get('/google/sign-up/callback', controller.oauth.googleSignUpCallback);
 
 router.get('/preferences', session, controller.preferences.get);
 router.put('/preferences', session, controller.preferences.update);
+
+router.get('/invitation', application, controller.invitation.get);
+router.post('/invitation', member(), controller.invitation.respond);
 
 export { router as authRouter };

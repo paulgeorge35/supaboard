@@ -61,9 +61,11 @@ export function Avatar({ src, name, className, isAdmin, width = 32, quality = 50
     const shouldShowPlaceholder = useMemo(() => !uploadedFile?.url && !src || imgError, [uploadedFile, src, imgError]);
 
     return (
-        <div className={cn("size-8 rounded-full relative", className)}
+        <div
+            className={cn("size-8 rounded-full relative", className)}
+            {...props}
         >
-            {isAdmin && <Icons.Star className="absolute z-10 -right-[5%] -bottom-[5%] size-[35%] p-[1px] bg-[var(--color-primary)] stroke-[var(--color-primary)] rounded-full fill-white border-white" />}
+            {isAdmin && <Icons.Star className="absolute z-10 -right-[5%] -bottom-[5%] size-[40%] p-[1px] bg-[var(--color-primary)] stroke-[var(--color-primary)] rounded-full fill-white border-white" />}
             {!shouldShowPlaceholder ? (
                 <ImageComponent
                     width={width}
@@ -72,17 +74,10 @@ export function Avatar({ src, name, className, isAdmin, width = 32, quality = 50
                     alt={name}
                     className="size-full rounded-full"
                     onError={handleImageError}
-                // style={{
-                //     mask: isAdmin ? "radial-gradient(circle 10px at 23px 82%, transparent 99%, #fff 100%)" : undefined
-                // }}
                 />
             ) : (
                 <span
                     className={cn("aspect-square w-full rounded-full flex items-center justify-center", color.bg, color.text)}
-                    // style={{
-                    //     mask: isAdmin ? "radial-gradient(circle 8px at 23px 82%, transparent 99%, #fff 100%)" : undefined
-                    // }}
-                    {...props}
                 >
                     {name.slice(0, 1).toUpperCase()}
                 </span>

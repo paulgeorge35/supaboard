@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils"
 
 import { Badge } from "@/components/badge"
-import { Link } from "@tanstack/react-router"
 import { DateTime } from "luxon"
 
 type Changelog = {
@@ -41,19 +40,13 @@ export const ChangelogContent = ({ changelog, status, publishedAt, preview, slug
                     <Badge key={label.id} label={label.name} className='border-gray-500 text-gray-500 bg-gray-500/10' />
                 ))}
             </span>
-            {preview && slug? <Link to='/changelog/$changelogSlug' params={{ changelogSlug: slug }}
-                className={cn('text-2xl font-bold underline underline-offset-4', {
-                    'text-gray-500 dark:text-zinc-500': changelog.title === ''
-                })}
-            >
-                {changelog.title === '' ? 'Enter a title' : changelog.title}
-            </Link> : <h1
+            <h1
                 className={cn('text-2xl font-bold', {
                     'text-gray-500 dark:text-zinc-500': changelog.title === ''
                 })}
             >
                 {changelog.title === '' ? 'Enter a title' : changelog.title}
-            </h1>}
+            </h1>
         </div>
     )
 
@@ -204,26 +197,14 @@ export const ChangelogContent = ({ changelog, status, publishedAt, preview, slug
     flushList();
 
     if (preview) {
-        // Find the first regular paragraph text
-        const firstParagraphText = lines.find(line => {
-            // Skip special tags and empty lines
-            return !line.trim().startsWith('[') && 
-                   !line.trim().startsWith('#') && 
-                   !line.trim().startsWith('-') &&
-                   !(/^\d+\.\s/.test(line)) &&
-                   line.trim() !== '';
-        }) || '';
-
-        const truncatedContent = firstParagraphText.length > 200 
-            ? `${firstParagraphText.slice(0, 200)}...` 
-            : firstParagraphText;
-
         return (
             <div className="text-sm [&>*]:text-zinc-700 dark:[&>*]:text-zinc-300">
-                {result[0]}
-                <p className="mb-4">
-                    {parseLine(truncatedContent)}
-                </p>
+                <div className="relative">
+                    <div className="max-h-[400px] overflow-hidden">
+                        {result}
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white dark:from-zinc-900 to-transparent pointer-events-none" />
+                </div>
             </div>
         );
     }

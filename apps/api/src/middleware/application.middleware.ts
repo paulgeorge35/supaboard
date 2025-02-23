@@ -60,7 +60,8 @@ async function applicationPart(req: BareSessionRequest, res: Response, next: Nex
         logo: application.logo ? publicUrl(application.logo) : undefined,
         boards,
         url: applicationUrl,
-        hasChangelog: !!hasChangelog,
+        hasChangelog: !!hasChangelog && (application.isChangelogPublic || !!member),
+        role: member?.role ?? null,
     };
     next();
 }

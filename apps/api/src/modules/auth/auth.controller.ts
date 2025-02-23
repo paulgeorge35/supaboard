@@ -1,5 +1,6 @@
 import type { BareSessionRequest } from '@/types';
 import { cookieOptions, encrypt, googleClient, presignReadUrl, redis, sendPasswordResetEmail } from '@/util';
+import { parseAndThrowFirstError } from '@/util/error-parser';
 import { AdminReportFrequency, db, Language } from '@repo/database';
 import { fetch } from 'bun';
 import { type Request, type Response } from 'express';
@@ -84,7 +85,7 @@ async function requestPasswordReset(req: Request, res: Response) {
 
     const user = await db.user.findUnique({ where: { email } });
 
-    if(user) {
+    if (user) {
         const token = uuidv4();
         await redis.set(`password-reset-${token}`, user.id);
         await redis.expire(`password-reset-${token}`, 60 * 60 * 24);
@@ -102,8 +103,8 @@ async function verifyPasswordReset(req: Request, res: Response) {
     const { token } = req.body;
 
     const userId = await redis.get(`password-reset-${token}`);
-    
-    if(!userId) {
+
+    if (!userId) {
         res.status(400).json({ success: false, error: 'Invalid token' });
         return;
     }
@@ -121,7 +122,7 @@ async function resetPassword(req: Request, res: Response) {
 
     const userId = await redis.get(`password-reset-${token}`);
 
-    if(!userId) {
+    if (!userId) {
         res.status(400).json({ error: 'Invalid token' });
         return;
     }
@@ -483,6 +484,74 @@ export async function updatePreferences(req: BareSessionRequest, res: Response) 
     res.status(200).json({ user });
 }
 
+const invitation = async (req: BareSessionRequest, res: Response) => {
+    const userId = req.auth?.id;
+    const applicationId = req.application?.id!;
+
+    if (!userId) {
+        res.status(200);
+        return;
+    }
+
+    const user = await db.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+        res.status(200);
+        return;
+    }
+
+    const invite = await db.applicationInvite.findFirst({
+        where: { email: user.email, applicationId, acceptedAt: null, rejectedAt: null },
+        select: {
+            id: true,
+            email: true,
+            role: true,
+            invitedBy: {
+                select: {
+                    name: true,
+                    avatar: true,
+                }
+            }
+        }
+    })
+
+    if (!invite) {
+        res.status(200);
+        return;
+    }
+
+
+    res.status(200).json(invite);
+}
+
+const respondInvitationSchema = z.object({
+    inviteId: z.string().uuid(),
+    accept: z.coerce.boolean(),
+});
+
+const respondInvitation = async (req: BareSessionRequest, res: Response) => {
+    const userId = req.auth?.id!;
+    const applicationId = req.application?.id!;
+
+    const data = parseAndThrowFirstError(respondInvitationSchema, req.body, res);
+
+    const invite = await db.applicationInvite.findUnique({ where: { id: data.inviteId, applicationId, acceptedAt: null, rejectedAt: null } });
+
+    if (!invite) {
+        res.status(400).json({ error: 'Invitation not found' });
+        return;
+    }
+
+    if (data.accept) {
+        await db.applicationInvite.update({ where: { id: invite.id }, data: { acceptedAt: new Date(), user: { connect: { id: userId } } } });
+        await db.member.upsert({ where: { userId_applicationId: { userId, applicationId } }, update: { role: invite.role }, create: { userId, applicationId, role: invite.role } });
+        res.status(200).json({ message: 'You have accepted the invitation' });
+    } else {
+        await db.applicationInvite.update({ where: { id: invite.id }, data: { rejectedAt: new Date() } });
+        res.status(200).json({ message: 'You have rejected the invitation' });
+    }
+}
+
 export const controller = {
     auth: {
         me,
@@ -490,6 +559,10 @@ export const controller = {
         login,
         logout,
         customCookie,
+    },
+    invitation: {
+        get: invitation,
+        respond: respondInvitation,
     },
     password: {
         requestReset: requestPasswordReset,

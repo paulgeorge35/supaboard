@@ -1,7 +1,8 @@
 import { ThemeToggle } from '@/components'
 import { AdminAuthButtons, PublicButton } from '@/components/admin'
+import { Logo } from '@/components/logo'
 import { useAuthStore } from '@/stores/auth-store'
-import { createFileRoute, Link, Outlet, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Link, Navigate, Outlet, useRouter } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { Toaster as Sonner } from 'sonner'
 
@@ -41,12 +42,16 @@ function RouteComponent() {
     }
   }, [user, application])
 
+  if (application?.role !== undefined && (application.role === null || !['ADMIN', 'COLLABORATOR'].includes(application.role))) {
+    return <Navigate to="/" />
+  }
+
   return (
     <span className='vertical h-[100dvh]'>
-      <nav className="flex items-center justify-between p-4 fixed top-0 left-0 right-0 z-20 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 h-18 overflow-x-auto overflow-y-hidden">
+      <nav className="flex items-center justify-between p-4 fixed top-0 left-0 right-0 z-40 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 h-18 overflow-x-auto overflow-y-hidden">
         <span className='horizontal gap-2 center-v'>
           <Link to="/admin" activeOptions={{ exact: true }} className='button button-navigation font-medium gap-0 text-base'>
-            supa<span className='text-violet-400 font-bold underline'>board</span>
+            <Logo className='size-6 stroke-0' />
           </Link>
           <Link to="/admin/feedback" className='button button-navigation'>Feedback</Link>
           <Link to="/admin/roadmap" className='button button-navigation'>Roadmap</Link>

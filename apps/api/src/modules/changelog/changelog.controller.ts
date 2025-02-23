@@ -417,6 +417,13 @@ const getResolvedFeedbacks = async (req: BareSessionRequest, res: Response) => {
 
 const getPublic = async (req: BareSessionRequest, res: Response) => {
     const applicationId = req.application?.id!;
+    const userId = req.auth?.id;
+
+    const subscriber = userId ? await db.user.findFirst({
+        select: { id: true },
+        where: { id: userId, changelogSubscriptions: { some: { id: applicationId } } }
+    })
+        : null;
 
     const changelogs = await db.changelog.findMany({
         where: { applicationId, status: 'PUBLISHED', publishedAt: { not: null } },
@@ -438,11 +445,14 @@ const getPublic = async (req: BareSessionRequest, res: Response) => {
         }
     });
 
-    res.status(200).json(changelogs.map((changelog) => ({
-        ...changelog,
-        likes: changelog._count.likes ?? 0,
-        likedByMe: changelog?.likes && changelog.likes.length > 0 ? true : false
-    })));
+    res.status(200).json({
+        changelogs: changelogs.map((changelog) => ({
+            ...changelog,
+            likes: changelog._count.likes ?? 0,
+            likedByMe: changelog?.likes && changelog.likes.length > 0 ? true : false,
+        })),
+        isSubscribed: subscriber ? true : false
+    });
 }
 
 const getPublicBySlug = async (req: BareSessionRequest, res: Response) => {
@@ -495,7 +505,8 @@ const getPublicBySlug = async (req: BareSessionRequest, res: Response) => {
         });
 
         if (!changelog) {
-            return res.status(404).json({ error: 'Changelog not found' });
+            res.status(404).json({ error: 'Changelog not found' });
+            return;
         }
 
         res.status(200).json({
@@ -539,6 +550,40 @@ const like = async (req: BareSessionRequest, res: Response) => {
     res.status(200).json({ success: true });
 }
 
+const subscribe = async (req: BareSessionRequest, res: Response) => {
+    const applicationId = req.application?.id!;
+    const userId = req.auth?.id;
+
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+
+    const user = await db.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+        res.status(404).json({ error: 'User not found' });
+        return;
+    }
+
+    const isSubscribed = await db.user.findFirst({ where: { id: userId, changelogSubscriptions: { some: { id: applicationId } } } });
+
+    if (isSubscribed) {
+        await db.user.update({
+            where: { id: userId },
+            data: { changelogSubscriptions: { disconnect: { id: applicationId } } }
+        });
+    } else {
+        await db.user.update({
+            where: { id: userId },
+            data: { changelogSubscriptions: { connect: { id: applicationId } } }
+        });
+    }
+
+    res.status(200).json({ success: true });
+}
+
+
 
 export default {
     getAll,
@@ -559,5 +604,6 @@ export default {
     unschedule,
     getPublic,
     getPublicBySlug,
-    like
+    like,
+    subscribe
 }

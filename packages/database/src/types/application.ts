@@ -24,6 +24,8 @@ export const applicationSummarySelect = Prisma.validator<Prisma.ApplicationSelec
     preferredTheme: true,
     preferredLanguage: true,
     ownerId: true,
+    isChangelogPublic: true,
+    isChangelogSubscribable: true,
 });
 
 export type ApplicationSummary = Prisma.ApplicationGetPayload<{
@@ -40,7 +42,6 @@ export const applicationInviteSummarySelect = Prisma.validator<Prisma.Applicatio
     id: true,
     email: true,
     role: true,
-    expiresAt: true,
 });
 
 export type ApplicationInviteSummary = Prisma.ApplicationInviteGetPayload<{

@@ -1,4 +1,4 @@
-import { DomainStatus, Language, Theme } from '@repo/database';
+import { DomainStatus, Language, Role, Theme } from '@repo/database';
 import type { Request } from 'express';
 import { z } from 'zod';
 
@@ -41,6 +41,7 @@ export const applicationSchema = z.object({
     })),
     url: z.string(),
     hasChangelog: z.boolean().default(false),
+    role: z.nativeEnum(Role).nullable(),
 });
 
 export const workspacesSchema = z.array(workspaceSchema);

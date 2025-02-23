@@ -8,7 +8,6 @@ import { ApplicationInviteSummary, MemberSummary, Role } from '@repo/database';
 import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { DateTime } from 'luxon';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
@@ -24,7 +23,7 @@ function RouteComponent() {
 
   const schema = z.object({
     emails: z.string().transform((val) => val.trim().split(/[,\s]+/).map(email => email.trim())),
-    role: z.enum(['ADMIN', 'DEVELOPER'], {
+    role: z.enum(['ADMIN', 'COLLABORATOR'], {
       message: 'Role is required',
     })
   }).superRefine((data, ctx) => {
@@ -55,8 +54,6 @@ function RouteComponent() {
           id: uuidv4(),
           email,
           role: data.role as Role,
-          expiresAt: DateTime.now().plus({ days: 7 }).toJSDate(),
-          status: 'PENDING',
         }))];
       });
 
@@ -121,11 +118,11 @@ function RouteComponent() {
                 placeholder='Select role...'
                 value={field.state.value}
                 onChange={(value) => {
-                  field.handleChange(value as 'ADMIN' | 'DEVELOPER');
+                  field.handleChange(value as 'ADMIN' | 'COLLABORATOR');
                 }}
                 options={[
-                  { label: 'Owner', value: 'ADMIN' },
-                  { label: 'Contributor', value: 'DEVELOPER' },
+                  { label: 'Admin', value: 'ADMIN' },
+                  { label: 'Contributor', value: 'COLLABORATOR' },
                 ]}
                 className='w-32'
               />
@@ -244,8 +241,8 @@ const MemberRow = ({ member }: { member: MemberSummary }) => {
           updateRole({ id: member.user.id, role: value as Role });
         }}
         options={[
-          { label: 'Owner', value: 'ADMIN' },
-          { label: 'Contributor', value: 'DEVELOPER' },
+          { label: 'Admin', value: 'ADMIN' },
+          { label: 'Contributor', value: 'COLLABORATOR' },
         ]}
         className='ml-auto h-9 w-32'
       />

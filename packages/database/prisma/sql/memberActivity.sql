@@ -29,7 +29,6 @@ FROM "Feedback" as feedback
         AND "feedback-comments"."type" = 'FEEDBACK_COMMENT'
     LEFT JOIN "Vote" as "feedback-votes"
         ON feedback.id = "feedback-votes"."feedbackId"
-        -- AND "feedback-votes"."type" = 'FEEDBACK_VOTE'
     LEFT JOIN (
             SELECT activity."createdAt", activity.id, activity."authorId", activity."feedbackId"
             FROM "Activity" as activity

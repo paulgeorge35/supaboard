@@ -85,12 +85,12 @@ function MemberActivityCard({ data, ref }: MemberActivityCardProps) {
             {data.votes > 0 && <Icons.Triangle />}
             {data.comments > 0 && <Icons.MessageSquare />}
           </div>
-          <div className={cn("p-4 vertical gap-2")}>
+          <div className={cn("p-4 vertical gap-2 w-full")}>
             <h1 className="text-sm font-medium">{data.title}</h1>
             <p className="text-sm text-gray-500 line-clamp-2">
               {data.description}
             </p>
-            <span className="horizontal gap-2 center-v flex-wrap md:flex-nowrap">
+            <span className="horizontal gap-2 center-v flex-wrap md:flex-nowrap w-full">
               <Icons.Triangle size={12} />
               <span className="text-xs text-gray-500">
                 {data.totalVotes}

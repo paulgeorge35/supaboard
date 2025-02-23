@@ -57,7 +57,12 @@ export const changelogFeedbacksQuery = queryOptions<ChangelogFeedback[]>({
 
 export type ChangelogPublic = Changelog & { likes: number, likedByMe: boolean };
 
-export const changelogPublicQuery = queryOptions<ChangelogPublic[]>({
+export type ChangelogsPublicQueryData = {
+    changelogs: ChangelogPublic[];
+    isSubscribed: boolean;
+}
+
+export const changelogPublicQuery = queryOptions<ChangelogsPublicQueryData>({
     queryKey: ['changelog', 'public'],
     queryFn: () => fetchClient(`changelog/public`)
 })

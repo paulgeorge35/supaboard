@@ -30,8 +30,8 @@ function RouteComponent() {
               duration: 0.1,
               ease: 'easeInOut',
             },
-            initial: { top: 0, right: '-100%', bottom: 0, position: 'absolute', zIndex: 100 },
-            animate: { right: 0, zIndex: 100 },
+            initial: { top: 0, right: '-100%', bottom: 0, position: 'absolute', zIndex: 30 },
+            animate: { right: 0, zIndex: 30 },
             exit: { right: '-100%', transition: { duration: 0.3, ease: 'easeInOut' } },
           } : {
             transition: {

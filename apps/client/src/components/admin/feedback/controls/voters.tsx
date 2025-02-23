@@ -36,7 +36,7 @@ export function Voters() {
                         name={voter.name}
                         style={{
                             marginLeft: index > 0 ? `-${index * 5}px` : undefined,
-                            mask: index > 0 ? 'radial-gradient(circle 18px at -10px 50%, transparent 99%, #fff 100%)' : undefined
+                            mask: index > 0 ? `radial-gradient(circle 18px at -${10 - (index-1) * 5}px 50%, transparent 99%, #fff 100%)` : undefined
                         }}
                     />
                 ))}

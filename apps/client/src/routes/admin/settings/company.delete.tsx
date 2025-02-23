@@ -1,5 +1,6 @@
 import { Button, Checkbox, Input } from '@/components'
 import { fetchClient } from '@/lib/client'
+import { useDeleteApplicationMutation } from '@/lib/mutation/application'
 import { Application } from '@repo/database'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
@@ -25,9 +26,10 @@ function RouteComponent() {
   const { data } = useQuery(applicationQuery);
   const [confirm, setConfirm] = useState(false);
   const [confirmText, setConfirmText] = useState('');
-  
+  const { mutate: deleteApplication, isPending } = useDeleteApplicationMutation();
+
   const handleDelete = () => {
-    console.log('delete')
+    deleteApplication();
   }
 
   const isValidated = useMemo(() => {
@@ -64,7 +66,7 @@ function RouteComponent() {
         onChange={(e) => setConfirm(e.target.checked)}
       />
 
-      <Button type='button' color='danger' onClick={handleDelete} disabled={!isValidated}>Delete Workspace</Button>
+      <Button type='button' color='danger' onClick={handleDelete} isLoading={isPending} disabled={!isValidated}>Delete Workspace</Button>
       
     </div>
   )

@@ -1,4 +1,4 @@
-import type { ApplicationSummary, BoardSummary, User, Workspace } from '@repo/database'
+import type { ApplicationSummary, BoardSummary, Role, User, Workspace } from '@repo/database'
 import { create } from 'zustand'
 
 interface AuthState {
@@ -6,6 +6,7 @@ interface AuthState {
     application?: ApplicationSummary & {
         boards: BoardSummary[]
         hasChangelog: boolean
+        role: Role | null
     }
     workspaces?: Workspace[]
     setUser: (user?: AuthState['user']) => void

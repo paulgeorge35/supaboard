@@ -52,8 +52,8 @@ function RouteComponent() {
             <h1 className='text-2xl font-medium'>{application?.name}</h1>
           </span>
           <span className='horizontal gap-2 center-v'>
-            <AdminButton isAdmin={user?.id === application?.ownerId} />
-            <AuthButtons user={user} isAdmin={user?.id === application?.ownerId} workspaces={workspaces} currentWorkspace={application?.id} />
+            <AdminButton />
+            <AuthButtons user={user} workspaces={workspaces} currentWorkspace={application?.id} />
           </span>
         </div>
         <div className="horizontal items-end gap-2 text-lg max-w-4xl mx-auto w-full">

@@ -3,6 +3,7 @@ import { ChangelogContent } from "@/components/admin/changelog/changelog-rendere
 import { useLikeChangelogMutation } from "@/lib/mutation"
 import { ChangelogPublic } from "@/lib/query"
 import { cn } from "@/lib/utils"
+import { Link } from "@tanstack/react-router"
 import { DateTime } from "luxon"
 
 type ChangelogItemProps = {
@@ -18,7 +19,9 @@ export const ChangelogItem = ({ changelog }: ChangelogItemProps) => {
                 {changelog.publishedAt ? DateTime.fromJSDate(new Date(changelog.publishedAt)).toFormat('MMMM dd, yyyy') : 'Unpublished'}
             </h2>
             <div className='vertical gap-2'>
-                <ChangelogContent changelog={changelog} status={changelog.status} publishedAt={changelog.publishedAt} slug={changelog.slug} preview />
+                <Link to='/changelog/$changelogSlug' params={{ changelogSlug: changelog.slug }}>
+                    <ChangelogContent changelog={changelog} status={changelog.status} publishedAt={changelog.publishedAt} slug={changelog.slug} preview />
+                </Link>
                 <span className='horizontal gap-2 center-v'>
                     <Button variant='outline' size='icon'
                         onClick={() => likeChangelog({

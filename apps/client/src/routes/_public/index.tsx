@@ -1,4 +1,5 @@
 import { Board as BoardComponent, Icons, StatusBoard } from '@/components'
+import { Invitation } from '@/components/public/invitations'
 import { applicationBoardsQuery } from '@/lib/query'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
@@ -26,6 +27,7 @@ function HomeComponent() {
     <>
       {hasPublicBoards && (
         <>
+          <Invitation />
           <span className="horizontal center-v justify-between">
             <h1 className="font-medium">Boards</h1>
           </span>

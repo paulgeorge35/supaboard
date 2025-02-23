@@ -1,3 +1,4 @@
+import { parseAndThrowFirstError } from "@/util/error-parser";
 import { ActivityType, db, feedbackAcivityInclude, feedbackDetail, feedbackDetailMerged, FeedbackStatus, feeedbackSummarySelect, Prisma } from "@repo/database";
 import type { Response } from "express";
 import { DateTime } from "luxon";
@@ -418,7 +419,7 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
 }
 
 const commentSchema = z.object({
-    content: z.string().min(1),
+    content: z.string().min(1).max(1000, { message: 'Comment must be less than 1000 characters' }),
     public: z.boolean().optional().default(true),
     files: z.array(fileSchema).optional(),
     threadId: z.string().optional(),
@@ -434,12 +435,7 @@ export async function comment(req: BareSessionRequest, res: Response) {
         return;
     }
 
-    const { success, data } = commentSchema.safeParse(req.body);
-
-    if (!success) {
-        res.status(400).json({ error: 'Invalid comment data' });
-        return;
-    }
+    const data = parseAndThrowFirstError(commentSchema, req.body, res);
 
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId } });
 
@@ -901,6 +897,17 @@ const addNewRoadmapItem = async (req: BareSessionRequest, res: Response) => {
             applicationId,
             slug,
             authorId: userId,
+            activities: {
+                create: {
+                    type: ActivityType.FEEDBACK_CREATE,
+                    data: {
+                        title,
+                        description: '',
+                        slug,
+                    },
+                    authorId: userId,
+                }
+            },
             roadmapItems: {
                 create: {
                     roadmapId: roadmap.id,

@@ -11,8 +11,8 @@ export const SORT_OPTIONS = [
 ]
 
 export const ROLE_OPTIONS = [
-  { label: 'Owner', value: 'ADMIN' },
-  { label: 'Contributor', value: 'DEVELOPER' },
+  { label: 'Admin', value: 'ADMIN' },
+  { label: 'Contributor', value: 'COLLABORATOR' },
 ]
 
 export const buildQueryString = (search: Record<string, any>): string => {

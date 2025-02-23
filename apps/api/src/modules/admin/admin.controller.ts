@@ -1,8 +1,7 @@
 import { sendInvitationEmail } from "@/util";
-import { activityOverview, ActivityType, ApplicationInviteStatus, applicationInviteSummarySelect, createMergeActivity, db, FeedbackStatus, feeedbackSummarySelect, getLatestPosts, memberActivity, membersDetail, memberSummarySelect, mergeActivities, mergeVotes, postOverviewAllBoards, postOverviewCategories, postOverviewTags, Role, unmergeActivities, unmergeVotes, userSummarySelect } from "@repo/database";
+import { activityOverview, ActivityType, applicationInviteSummarySelect, createMergeActivity, db, FeedbackStatus, feeedbackSummarySelect, getLatestPosts, memberActivity, membersDetail, memberSummarySelect, mergeActivities, mergeVotes, postOverviewAllBoards, postOverviewCategories, postOverviewTags, Role, unmergeActivities, unmergeVotes, userSummarySelect } from "@repo/database";
 import type { Response } from "express";
 import { DateTime } from "luxon";
-import { v4 as uuidv4 } from 'uuid';
 import { z } from "zod";
 import type { BareSessionRequest } from "../../types";
 
@@ -258,6 +257,9 @@ export async function getUsers(request: BareSessionRequest, res: Response) {
     const members = await db.member.findMany({
         where: {
             applicationId,
+            role: {
+                in: [Role.ADMIN, Role.COLLABORATOR],
+            },
         },
         select: {
             role: true,
@@ -392,6 +394,17 @@ export async function getMemberActivity(request: BareSessionRequest, res: Respon
         0,
     )) : [];
 
+    console.log({
+        applicationId,
+        start: start ?? DateTime.fromFormat('2000-01-01', 'yyyy-MM-dd').toJSDate(),
+        end: end ?? DateTime.fromFormat('2100-01-01', 'yyyy-MM-dd').toJSDate(),
+        userId,
+        filterComments: filter?.includes('comments'),
+        filterVotes: filter?.includes('votes'),
+        filterPosts: filter?.includes('posts'),
+        take,
+        cursor,
+    });
     const members = await db.$queryRawTyped(memberActivity(
         applicationId,
         start ?? DateTime.fromFormat('2000-01-01', 'yyyy-MM-dd').toJSDate(),
@@ -422,10 +435,8 @@ export async function getInvites(request: BareSessionRequest, res: Response) {
         select: applicationInviteSummarySelect,
         where: {
             applicationId,
-            status: ApplicationInviteStatus.PENDING,
-            expiresAt: {
-                gt: DateTime.now().toJSDate(),
-            },
+            acceptedAt: null,
+            rejectedAt: null,
         },
     });
 
@@ -460,7 +471,8 @@ export async function inviteUsers(request: BareSessionRequest, res: Response) {
                 email: {
                     in: emails,
                 },
-                status: ApplicationInviteStatus.PENDING,
+                acceptedAt: null,
+                rejectedAt: null,
             },
         });
 
@@ -470,7 +482,9 @@ export async function inviteUsers(request: BareSessionRequest, res: Response) {
                 email: {
                     in: emails,
                 },
-                status: ApplicationInviteStatus.ACCEPTED,
+                acceptedAt: {
+                    not: null,
+                },
             },
         });
 
@@ -503,8 +517,6 @@ export async function inviteUsers(request: BareSessionRequest, res: Response) {
                 email: email.email,
                 role,
                 applicationId,
-                token: uuidv4(),
-                expiresAt: DateTime.now().plus({ days: 7 }).toJSDate(),
                 invitedById: userId,
                 userId: email.userId,
             }))
@@ -525,7 +537,7 @@ export async function inviteUsers(request: BareSessionRequest, res: Response) {
                 invitedByUsername: request.auth?.name!,
                 invitedByEmail: request.auth?.email!,
                 teamName: request.application?.name!,
-                inviteLink: `${request.application?.url}/invite/${invite.token}`,
+                inviteLink: request.application?.url!,
             });
         }
 
@@ -595,25 +607,52 @@ export async function updateRole(request: BareSessionRequest, res: Response) {
 
 export async function deleteMember(request: BareSessionRequest, res: Response) {
     const userId = request.auth?.id;
-    const memberId = request.params.memberId;
+    const userToDeleteId = request.params.userId;
 
     if (!userId) {
         res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
         return;
     }
 
-    if (userId === memberId) {
+    if (userId === userToDeleteId) {
         res.status(400).json({ error: 'Cannot delete yourself', code: 'CANNOT_DELETE_YOURSELF' });
         return;
     }
 
-    await db.member.delete({
+    const member = await db.member.findUnique({
         where: {
-            id: memberId,
+            userId_applicationId: {
+                userId: userToDeleteId,
+                applicationId: request.application?.id!,
+            },
         },
     });
 
-    res.json({ success: true });
+    if (!member) {
+        res.status(404).json({ error: 'Member not found', code: 'MEMBER_NOT_FOUND' });
+        return;
+    }
+
+    await db.applicationInvite.deleteMany({
+        where: {
+            userId: userToDeleteId,
+            applicationId: request.application?.id!,
+        },
+    });
+
+    await db.member.update({
+        where: {
+            userId_applicationId: {
+                userId: userToDeleteId,
+                applicationId: request.application?.id!,
+            },
+        },
+        data: {
+            role: Role.VIEWER,
+        },
+    });
+
+    res.status(200).json({ success: true });
 }
 
 const activityOverviewSchema = z.object({
@@ -802,6 +841,9 @@ export async function userActivity(req: BareSessionRequest, res: Response) {
             members: {
                 some: {
                     applicationId,
+                    role: {
+                        in: [Role.ADMIN, Role.COLLABORATOR],
+                    },
                 },
             },
         },
