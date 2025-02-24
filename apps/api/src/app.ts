@@ -16,23 +16,20 @@ import { storageRouter } from './modules/storage/storage.router';
  * Initializes CORS configuration by fetching allowed origins from the database
  */
 async function initializeCorsOrigins(): Promise<string[]> {
-    const [applications, tenants] = await Promise.all([
-        db.application.findMany({
-            where: {
-                customDomain: { not: null },
-                domainStatus: "VERIFIED",
+    const applicationDomains = await db.domain.findMany({
+        where: {
+            verifiedAt: {
+                not: null,
             },
-            select: { customDomain: true }
-        }),
-        db.application.findMany({
-            select: { subdomain: true }
-        })
-    ]);
+        },
+        select: {
+            domain: true,
+        },
+    });
 
-    const customDomains = applications.map(app => `https://${app.customDomain}`);
-    const tenantDomains = tenants.map(app => `https://${app.subdomain}.supaboard.io`);
+    const domains = applicationDomains.map(domain => `https://${domain.domain}`);
 
-    return [...customDomains, ...tenantDomains, 'https://supaboard.io', 'http://localhost:3001'];
+    return [...domains, 'https://supaboard.io', 'http://localhost:3001'];
 }
 
 /**
@@ -79,7 +76,7 @@ async function createApp(): Promise<Application> {
     app.use('/storage', storageRouter);
     app.use('/roadmap', roadmapRouter);
     app.use('/changelog', changelogRouter);
-    
+
     return app;
 }
 

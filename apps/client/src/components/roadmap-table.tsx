@@ -910,7 +910,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                         <Input
                           ref={inputRef}
                           placeholder='Add a title...'
-                          className='w-full border-none px-2 !debug'
+                          className='w-full border-none px-2'
                           value={newRoadmapItemTitle ?? ''}
                           onChange={(e) => setNewRoadmapItemTitle(e.target.value)}
                           onKeyDown={(e) => {

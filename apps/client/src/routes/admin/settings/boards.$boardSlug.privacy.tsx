@@ -6,7 +6,6 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useForm } from '@tanstack/react-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, useParams } from '@tanstack/react-router'
-import { useMemo } from 'react'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -22,13 +21,6 @@ function RouteComponent() {
   const { boardSlug } = useParams({ from: '/admin/settings/boards/$boardSlug/privacy' })
 
   const { data: board } = useQuery(boardQuery(boardSlug))
-
-  const url = useMemo(() => {
-    if (application?.customDomain && application?.domainStatus === 'VERIFIED') {
-      return `${application?.customDomain}`
-    }
-    return `${application?.subdomain}.${import.meta.env.VITE_APP_DOMAIN}`
-  }, [application, boardSlug])
 
   const schema = z.object({
     showOnHome: z.boolean(),
@@ -122,7 +114,7 @@ function RouteComponent() {
         children={(field) => (
           <span className='horizontal space-between center-v w-full'>
             <p className='text-sm font-light'>
-              {`Show this board on the home page (${url})`}
+              {`Show this board on the home page (${application?.url})`}
             </p>
             <Switch
               name={field.name}

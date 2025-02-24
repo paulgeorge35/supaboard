@@ -1,10 +1,9 @@
-import { db, DomainStatus } from '@repo/database';
+import { db } from '@repo/database';
 import { type NextFunction, type Response } from 'express';
 import type { BareSessionRequest } from '../types';
 import { decrypt } from '../util/jwt';
 
 const COOKIE_NAME = process.env.COOKIE_NAME as string;
-const APP_DOMAIN = process.env.APP_DOMAIN as string;
 
 export async function session(req: BareSessionRequest, res: Response, next: NextFunction) {
     const session = req.cookies[COOKIE_NAME];
@@ -34,13 +33,20 @@ export async function session(req: BareSessionRequest, res: Response, next: Next
                         userId: decoded.id,
                     }
                 }
-            }
-        })
+            },
+            include: {
+                domains: {
+                    where: {
+                        primary: true,
+                    },
+                },
+            },
+        });
 
         const workspaces = applications.map((application) => ({
             id: application.id,
             name: application.name,
-            url: application.customDomain && application.domainStatus === DomainStatus.VERIFIED ? `https://${application.customDomain}` : `https://${application.subdomain}.${APP_DOMAIN}`,
+            url: `https://${application.domains[0].domain}`,
         }));
 
         if (!user) {

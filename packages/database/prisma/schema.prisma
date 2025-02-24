@@ -28,19 +28,6 @@ enum FeedbackStatus {
   CLOSED
 }
 
-enum DomainStatus {
-  PENDING
-  CONFIRMED_OWNERSHIP
-  VERIFIED
-  FAILED
-}
-
-enum Priority {
-  CRITICAL
-  HIGH
-  MEDIUM
-  LOW
-}
 
 enum ActivityType {
   FEEDBACK_CREATE
@@ -48,15 +35,12 @@ enum ActivityType {
   FEEDBACK_VOTE
   FEEDBACK_COMMENT
   FEEDBACK_STATUS_CHANGE
-  FEEDBACK_PRIORITY_CHANGE
   FEEDBACK_TAG_ADD
   FEEDBACK_TAG_REMOVE
   FEEDBACK_CATEGORY_CHANGE
   FEEDBACK_OWNER_CHANGE
   FEEDBACK_BOARD_CHANGE
   FEEDBACK_ESTIMATED_DELIVERY_CHANGE
-  FEEDBACK_SCREENSHOT_ADD
-  FEEDBACK_SCREENSHOT_REMOVE
   FEEDBACK_MERGE
 }
 
@@ -168,31 +152,29 @@ model Member {
 }
 
 model Application {
-  id                      String       @id @default(uuid())
-  name                    String // Display name (e.g., "Google")
-  subdomain               String       @unique // Reserved subdomain (e.g., "google.supaboard.io")
-  customDomain            String?      @unique // Optional custom domain (e.g., "feedback.google.com")
-  domainStatus            DomainStatus @default(PENDING) // Verification state
-  verificationCode        String? // For DNS TXT record verification
+  id                      String   @id @default(uuid())
+  name                    String
+  subdomain               String   @unique
   logo                    String?
   icon                    String?
-  color                   String       @default("#a684ff")
-  preferredTheme          Theme        @default(SYSTEM)
-  preferredLanguage       Language     @default(EN)
-  isChangelogPublic       Boolean      @default(true)
-  isChangelogSubscribable Boolean      @default(false)
-  changelogSubscribers    User[]       @relation("ChangelogSubscriber")
+  color                   String   @default("#a684ff")
+  preferredTheme          Theme    @default(SYSTEM)
+  preferredLanguage       Language @default(EN)
+  isChangelogPublic       Boolean  @default(true)
+  isChangelogSubscribable Boolean  @default(false)
 
   ownerId String
   owner   User   @relation("ApplicationOwner", fields: [ownerId], references: [id])
 
-  members         Member[]
-  feedback        Feedback[]
-  boards          Board[]
-  invites         ApplicationInvite[]
-  roadmaps        Roadmap[]
-  changelogs      Changelog[]
-  changelogLabels ChangelogLabel[]
+  members              Member[]
+  feedback             Feedback[]
+  boards               Board[]
+  invites              ApplicationInvite[]
+  roadmaps             Roadmap[]
+  changelogs           Changelog[]
+  changelogLabels      ChangelogLabel[]
+  changelogSubscribers User[]              @relation("ChangelogSubscriber")
+  domains              Domain[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -200,10 +182,28 @@ model Application {
   @@index([subdomain])
 }
 
+model Domain {
+  id         String    @id @default(uuid())
+  domain     String    @unique
+  primary    Boolean   @default(false)
+  custom     Boolean   @default(true)
+  verifiedAt DateTime?
+  failedAt   DateTime?
+
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([domain, applicationId])
+  @@index([applicationId])
+}
+
 model ApplicationInvite {
-  id        String                  @id @default(uuid())
-  email     String
-  role      Role
+  id         String    @id @default(uuid())
+  email      String
+  role       Role
   acceptedAt DateTime?
   rejectedAt DateTime?
 
@@ -226,9 +226,6 @@ model Feedback {
   description       String?
   slug              String
   status            FeedbackStatus @default(OPEN)
-  priority          Priority?
-  deviceInfo        String?
-  appVersion        String?
   estimatedDelivery DateTime?
   publicEstimate    Boolean        @default(true)
   edited            Boolean        @default(false)

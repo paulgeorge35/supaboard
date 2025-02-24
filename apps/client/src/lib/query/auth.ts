@@ -8,6 +8,8 @@ export type MeQueryData = {
         boards: BoardSummary[];
         hasChangelog: boolean;
         role: Role | null;
+        url: string;
+        api: string;
     };
     workspaces: Workspace[];
 }

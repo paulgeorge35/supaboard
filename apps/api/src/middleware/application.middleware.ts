@@ -1,4 +1,4 @@
-import { applicationSummarySelect, boardSummarySelect, db, DomainStatus } from "@repo/database";
+import { applicationSummarySelect, boardSummarySelect, db } from "@repo/database";
 import type { NextFunction, Response } from "express";
 import type { BareSessionRequest } from "../types";
 import { publicUrl } from "../util/s3";
@@ -19,8 +19,30 @@ async function applicationPart(req: BareSessionRequest, res: Response, next: Nex
 
 
     const application = await db.application.findFirst({
-        where: { customDomain, subdomain: subdomain },
-        select: applicationSummarySelect
+        where: {
+            subdomain: subdomain,
+            domains: customDomain ? {
+                some: {
+                    domain: customDomain,
+                    custom: true,
+                    verifiedAt: {
+                        not: null,
+                    },
+                    failedAt: null,
+                }
+            } : {
+                some: {
+                    custom: false,
+                }
+            },
+        },
+        select: applicationSummarySelect({
+            custom: customDomain ? true : false,
+            verifiedAt: {
+                not: null,
+            },
+            failedAt: null,
+        })
     });
 
     if (!application) {
@@ -28,7 +50,13 @@ async function applicationPart(req: BareSessionRequest, res: Response, next: Nex
         return;
     }
 
-    const applicationUrl = application.customDomain && application.domainStatus === DomainStatus.VERIFIED ? `https://${application.customDomain}` : `https://${subdomain}.${APP_DOMAIN}`;
+    const applicationUrl = application.domains && application.domains.length > 0
+        ? `https://${application.domains[0].domain}`
+        : `https://${subdomain}.${APP_DOMAIN}`;
+
+    const applicationApi = application.domains && application.domains.length > 0
+        ? `https://${application.domains[0].domain}/api`
+        : `https://api.${APP_DOMAIN}`;
 
     const member = userId ? await db.member.findFirst({
         where: {
@@ -60,6 +88,7 @@ async function applicationPart(req: BareSessionRequest, res: Response, next: Nex
         logo: application.logo ? publicUrl(application.logo) : undefined,
         boards,
         url: applicationUrl,
+        api: applicationApi,
         hasChangelog: !!hasChangelog && (application.isChangelogPublic || !!member),
         role: member?.role ?? null,
     };

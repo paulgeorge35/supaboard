@@ -1,16 +1,33 @@
 import type { BareSessionRequest } from "@/types";
 import { subdomainBlacklist } from "@/util/blacklist";
 import { parseAndThrowFirstError } from "@/util/error-parser";
-import { boardFeedbackSummarySelect, db, DomainStatus } from "@repo/database";
+import { boardFeedbackSummarySelect, db } from "@repo/database";
 import { type Response } from "express";
 import dns from 'node:dns/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from "zod";
 
+const APP_DOMAIN = process.env.APP_DOMAIN as string;
+
 export async function getApplication(req: BareSessionRequest, res: Response) {
-    const application = await db.application.findUnique({
+    const application = await db.application.findFirst({
         where: { id: req.application?.id },
+        include: {
+            domains: {
+                select: {
+                    id: true,
+                    domain: true,
+                    custom: true,
+                    primary: true,
+                    verifiedAt: true,
+                    failedAt: true,
+                },
+                orderBy: {
+                    createdAt: 'asc',
+                },
+            },
+        },
     });
 
     if (!application) {
@@ -55,6 +72,8 @@ export async function getApplication(req: BareSessionRequest, res: Response) {
 
     res.status(200).json({
         ...application,
+        url: req.application?.url,
+        api: req.application?.api,
         ...stats,
     });
 }
@@ -82,6 +101,9 @@ export async function updateApplication(req: BareSessionRequest, res: Response) 
 
     const existingApplication = await db.application.findUnique({
         where: { id: applicationId },
+        include: {
+            domains: true,
+        },
     });
 
     if (!existingApplication) {
@@ -91,9 +113,11 @@ export async function updateApplication(req: BareSessionRequest, res: Response) 
 
     const data = parseAndThrowFirstError(updateApplicationSchema, req.body, res);
 
-    if (data.subdomain && data.subdomain !== existingApplication.customDomain) {
+    const isSubdomainChange = !!data.subdomain && existingApplication.domains.filter(d => !d.custom).map(d => d.domain).includes(`${data.subdomain}.${APP_DOMAIN}`);
+
+    if (isSubdomainChange) {
         const application = await db.application.findFirst({
-            where: { customDomain: data.subdomain, id: { not: applicationId } },
+            where: { subdomain: data.subdomain, id: { not: applicationId } },
         });
 
         if (application) {
@@ -101,15 +125,34 @@ export async function updateApplication(req: BareSessionRequest, res: Response) 
             return;
         }
 
-        if (!subdomainBlacklist.includes(data.subdomain)) {
+        if (!subdomainBlacklist.includes(data.subdomain!)) {
             res.status(400).json({ error: 'Subdomain is unavailable', code: 'SUBDOMAIN_UNAVAILABLE' });
             return;
         }
     }
 
-    const application = await db.application.update({
-        where: { id: req.application?.id },
-        data,
+    const application = await db.$transaction(async (tx) => {
+        const application = await tx.application.update({
+            where: { id: applicationId },
+            data,
+        });
+
+        if (data.subdomain) {
+            const defaultDomain = await tx.domain.findFirst({
+                where: { applicationId, custom: false },
+            });
+
+            if (defaultDomain) {
+                await tx.domain.update({
+                    where: { id: defaultDomain.id },
+                    data: {
+                        domain: `${data.subdomain}.${APP_DOMAIN}`,
+                    },
+                });
+            }
+        }
+
+        return application;
     });
 
     res.status(200).json(application);
@@ -189,7 +232,7 @@ const deleteDomain = async (domain: string) => {
     return output;
 };
 
-export async function verifyDomain(req: BareSessionRequest, res: Response) {
+export async function addCustomDomain(req: BareSessionRequest, res: Response) {
     const userId = req.auth?.id;
     const applicationId = req.application?.id;
 
@@ -198,13 +241,14 @@ export async function verifyDomain(req: BareSessionRequest, res: Response) {
         return;
     }
 
-    const applications = await db.application.findMany({
+    const domains = await db.domain.findMany({
         where: {
-            customDomain: req.body.domain,
+            domain: req.body.domain,
+            custom: true,
         }
     })
 
-    if (applications.length > 0) {
+    if (domains.length > 0) {
         res.status(400).json({
             error: 'Domain already in use',
             code: 'DOMAIN_ALREADY_IN_USE',
@@ -222,46 +266,71 @@ export async function verifyDomain(req: BareSessionRequest, res: Response) {
             });
             return;
         }
-    } catch (error) {
-        res.status(400).json({
-            error: 'DNS verification failed',
-            code: 'DNS_VERIFICATION_FAILED',
-            details: 'Could not verify domain. Please ensure the domain exists and has proper DNS records.'
-        });
-        return;
-    }
-
-    try {
         await addDomain(req.body.domain);
     } catch (error) {
-        console.error('Domain addition failed:', error);
-        res.status(400).json({
-            error: 'Failed to add domain',
-            code: 'FAILED_TO_ADD_DOMAIN',
-            details: error instanceof Error ? error.message : 'Unknown error'
-        });
-        return;
+        console.error('Initial domain verification failed:', error);
     }
 
     await db.application.update({
         where: { id: applicationId },
-        data: { domainStatus: DomainStatus.VERIFIED, customDomain: req.body.domain },
+        data: { domains: { create: { domain: req.body.domain } } },
     });
 
-    res.status(200).json({ message: 'Domain verified' });
+    res.status(200).json({ message: 'Domain added' });
+}
+
+async function retryVerification(req: BareSessionRequest, res: Response) {
+    const applicationId = req.application?.id;
+    const domainId = req.params.domainId;
+
+    const domain = await db.domain.findUnique({
+        where: { id: domainId, applicationId },
+    });
+
+    if (!domain) {
+        res.status(404).json({ error: 'Domain not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    await db.domain.update({
+        where: { id: domainId },
+        data: { failedAt: null },
+    });
+
+    res.status(200).json({ message: 'Domain verification retried' });
 }
 
 export async function removeDomain(req: BareSessionRequest, res: Response) {
     const userId = req.auth?.id;
     const applicationId = req.application?.id;
+    const domainId = req.params.domainId;
 
     if (!userId || !applicationId) {
         res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
         return;
     }
 
+    const applicationDomain = await db.domain.findUnique({
+        where: { id: domainId },
+    });
+
+    if (!applicationDomain) {
+        res.status(404).json({ error: 'Domain not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    if (applicationDomain.primary) {
+        res.status(400).json({ error: 'Cannot remove primary domain', code: 'CANNOT_REMOVE_PRIMARY_DOMAIN' });
+        return;
+    }
+
+    if (!applicationDomain.custom) {
+        res.status(400).json({ error: 'Cannot remove default domain', code: 'CANNOT_REMOVE_DEFAULT_DOMAIN' });
+        return;
+    }
+
     try {
-        await deleteDomain(req.body.domain);
+        await deleteDomain(applicationDomain.domain);
     } catch (error) {
         console.error('Domain deletion failed:', error);
         res.status(400).json({
@@ -274,10 +343,54 @@ export async function removeDomain(req: BareSessionRequest, res: Response) {
 
     await db.application.update({
         where: { id: applicationId },
-        data: { domainStatus: DomainStatus.PENDING, customDomain: null },
+        data: { domains: { delete: { id: domainId } } },
     });
 
     res.status(200).json({ message: 'Domain removed' });
+}
+
+const setPrimaryDomain = async (req: BareSessionRequest, res: Response) => {
+    const userId = req.auth?.id;
+    const applicationId = req.application?.id;
+    const domainId = req.params.domainId;
+
+    if (!userId || !applicationId || !domainId) {
+        res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
+        return;
+    }
+
+    const domain = await db.domain.findUnique({
+        where: { id: domainId },
+    });
+
+    if (!domain) {
+        res.status(404).json({ error: 'Domain not found', code: 'NOT_FOUND' });
+        return;
+    }
+
+    if (domain.primary) {
+        res.status(200).json({ message: 'Primary domain set' });
+        return;
+    }
+    
+    if(!domain.verifiedAt) {
+        res.status(400).json({ error: 'Domain not verified', code: 'DOMAIN_NOT_VERIFIED' });
+        return;
+    }
+
+    await db.$transaction(async (tx) => {
+        await tx.domain.updateMany({
+            where: { applicationId },
+            data: { primary: false },
+        });
+
+        await tx.domain.update({
+            where: { id: domainId },
+            data: { primary: true },
+        });
+    });
+
+    res.status(200).json({ message: 'Primary domain set' });
 }
 
 const deleteApplication = async (req: BareSessionRequest, res: Response) => {
@@ -304,8 +417,10 @@ export const controller = {
         get: getApplication,
         update: updateApplication,
         boards: getBoards,
-        verifyDomain,
+        addCustomDomain,
         removeDomain,
+        retryVerification,
         delete: deleteApplication,
+        setPrimaryDomain,
     },
 };

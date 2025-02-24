@@ -392,15 +392,14 @@ export async function categorySubscription(req: BareSessionRequest, res: Respons
 }
 
 const createCategorySchema = z.object({
-    name: z.string(),
+    name: z.string().min(3, { message: 'Name must be at least 3 characters long' }).max(15, { message: 'Name must not exceed 15 characters' }),
     subscribeAllAdmins: z.boolean().optional(),
 });
 
 export async function createCategory(req: BareSessionRequest, res: Response) {
     const applicationId = req.application?.id;
     const { slug: boardSlug } = req.params;
-    const { name, subscribeAllAdmins } = createCategorySchema.parse(req.body);
-
+    const { name, subscribeAllAdmins } = parseAndThrowFirstError(createCategorySchema, req.body, res);
 
     const board = await db.board.findFirst({ where: { slug: boardSlug, applicationId: req.application?.id } });
 

@@ -5,7 +5,7 @@ export interface RadioOption {
   /** The value of the radio option */
   value: string;
   /** The label text to display */
-  label: string;
+  label?: string;
   /** Whether the option is disabled */
   disabled?: boolean;
 }
@@ -34,13 +34,13 @@ export interface RadioGroupProps {
 }
 
 export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
-  ({ 
-    name, 
-    options, 
-    value, 
-    onChange, 
-    label, 
-    error, 
+  ({
+    name,
+    options,
+    value,
+    onChange,
+    label,
+    error,
     className,
     groupClassName,
     disabled = false,
@@ -52,7 +52,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
 
     const handleClick = (optionValue: string, isDisabled: boolean) => {
       if (isDisabled) return;
-      
+
       const input = document.getElementById(`${name}-${optionValue}`) as HTMLInputElement;
       if (input) {
         input.click();
@@ -60,21 +60,21 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
     };
 
     return (
-      <div 
-        ref={ref} 
+      <div
+        ref={ref}
         className={cn('flex flex-col gap-1', className)}
         role="radiogroup"
         aria-labelledby={label ? `${name}-label` : undefined}
       >
         {label && (
-          <span 
+          <span
             id={`${name}-label`}
             className="text-sm font-medium mb-2"
           >
             {label}
           </span>
         )}
-        <div 
+        <div
           className={cn(
             'flex gap-2',
             direction === 'vertical' ? 'flex-col' : 'flex-row flex-wrap',
@@ -108,7 +108,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
                       error && 'border-red-500'
                     )}
                   >
-                    <span 
+                    <span
                       className={cn(
                         'size-2 rounded-full opacity-0 transition-opacity',
                         'bg-[var(--color-primary)]',
@@ -119,7 +119,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
                     />
                   </span>
                 </div>
-                <label
+                {option.label && <label
                   htmlFor={id}
                   className={cn(
                     'text-sm font-light dark:text-zinc-300',
@@ -128,7 +128,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
                   )}
                 >
                   {option.label}
-                </label>
+                </label>}
               </div>
             );
           })}

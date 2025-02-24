@@ -87,7 +87,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className='vertical gap-4'>
+    <div className='vertical gap-4 min-w-screen md:min-w-full'>
       <h1 className='text-sm font-medium'>Manage admins</h1>
 
       <form onSubmit={handleSubmit} className='w-full items-start vertical gap-4'>

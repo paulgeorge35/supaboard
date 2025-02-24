@@ -2,7 +2,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
 import { fileURLToPath } from 'url'
-import { defineConfig } from 'vite'
+import { defineConfig, searchForWorkspaceRoot } from 'vite'
 
 // Vendor package groups
 const vendorChunks = {
@@ -36,6 +36,11 @@ export default defineConfig(({ command, mode }) => ({
   ],
   server: {
     allowedHosts: true,
+    fs: {
+      allow: [
+        searchForWorkspaceRoot(process.cwd()),
+      ],
+    },
     // allowedHosts: [ 'supaboard.io'],
   },
   build: {

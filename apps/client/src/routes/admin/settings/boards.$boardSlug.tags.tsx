@@ -67,7 +67,7 @@ function RouteComponent() {
       method: 'PUT',
       body: JSON.stringify({ name })
     }),
-    onMutate: (data) => {
+    onMutate: () => {
       queryClient.cancelQueries(tagsQuery(boardSlug))
 
       const previousTags = queryClient.getQueryData<TagSummary[]>(tagsQuery(boardSlug).queryKey)
@@ -137,14 +137,14 @@ function RouteComponent() {
       <div className='vertical'>
         <br />
         {tags?.map((tag, index) => (
-          <span key={tag.id} className={cn('horizontal gap-2 space-between center-v border-t pl-8 text-sm font-light py-2 group h-14', {
-            'border-b': index === tags.length - 1
+          <span key={tag.id} className={cn('horizontal gap-2 space-between center-v border-b text-sm pl-4 font-light py-2 group h-14', {
+            'border-t': index === 0
           })}>
             <Input
               className='p-0 border-0 grow'
               readOnly={editId !== tag.id}
               value={editId === tag.id ? name : `${tag.name} (${tag.count})`}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value.slice(0, 10))}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && name.length >= 3) {
                   handleUpdateTag()
@@ -202,12 +202,11 @@ function RouteComponent() {
         ))}
         <Input
           placeholder='Create new tag...'
-          className={cn('p-0 border-0 pl-4 h-14', {
+          className={cn('p-0 border-0 pl-4 h-14 py-1', {
             'hidden': editId !== null
           })}
-          inputClassName='pl-4 py-2'
           value={editId === null ? name : ''}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => setName(e.target.value.slice(0, 10))}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && name.length >= 3) {
               handleCreateTag()
@@ -229,6 +228,7 @@ function RouteComponent() {
               </Button>
             </div>
           }
+          description='Must not exceed 10 characters'
         />
       </div>
     </div>

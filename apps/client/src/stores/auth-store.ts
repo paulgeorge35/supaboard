@@ -8,6 +8,8 @@ interface AuthState {
         boards: BoardSummary[]
         hasChangelog: boolean
         role: Role | null
+        url: string
+        api: string
     }
     workspaces?: Workspace[]
     setUser: (user?: AuthState['user']) => void

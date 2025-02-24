@@ -21,7 +21,7 @@ function RouteComponent() {
   
     useEffect(() => {
       if (router.state.location.pathname === '/admin/settings/changelog') {
-        router.navigate({ to: '/admin/settings/changelog/labels' })
+        router.navigate({ to: '/admin/settings/changelog/labels', replace: true })
       }
     }, [router])
   

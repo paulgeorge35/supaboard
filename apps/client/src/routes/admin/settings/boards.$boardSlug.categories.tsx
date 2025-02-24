@@ -120,7 +120,7 @@ function RouteComponent() {
     }
   })
 
-  const { mutate: deleteCategory, isPending: isDeletingCategory } = useMutation({
+  const { mutate: deleteCategory } = useMutation({
     mutationFn: ({ categorySlug }: { categorySlug: string }) => fetchClient(`/board/${boardSlug}/categories/${categorySlug}`, {
       method: 'DELETE'
     }),
@@ -171,14 +171,14 @@ function RouteComponent() {
       <div className='vertical'>
         <p className='text-xs font-medium ml-auto uppercase mb-2'>Subscribed</p>
         {categories?.map((category, index) => (
-          <span key={category.id} className={cn('horizontal gap-2 space-between center-v border-t pl-8 text-sm font-light py-2 group h-14', {
-            'border-b': index === categories.length - 1
+          <span key={category.id} className={cn('horizontal gap-2 space-between center-v border-b pl-4 text-sm font-light py-2 group h-14', {
+            'border-t': index === 0
           })}>
             <Input
               className='p-0 border-0 grow'
               readOnly={editSlug !== category.slug}
               value={editSlug === category.slug ? newCategory : `${category.name} (${category.count})`}
-              onChange={(e) => setNewCategory(e.target.value)}
+              onChange={(e) => setNewCategory(e.target.value.slice(0, 15))}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && newCategory.length >= 3) {
                   handleUpdateCategory()
@@ -235,12 +235,11 @@ function RouteComponent() {
         ))}
         <Input
           placeholder='Create new category...'
-          className={cn('p-0 border-0 pl-4 h-14', {
+          className={cn('p-0 border-0 pl-4 h-14 py-1', {
             'hidden': editSlug !== null
           })}
-          inputClassName='pl-4 py-2'
           value={editSlug === null ? newCategory : ''}
-          onChange={(e) => setNewCategory(e.target.value)}
+          onChange={(e) => setNewCategory(e.target.value.slice(0, 15))}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && newCategory.length >= 3) {
               handleCreateCategory()
@@ -262,6 +261,7 @@ function RouteComponent() {
               </Button>
             </div>
           }
+          description='Must not exceed 15 characters'
         />
         {newCategory.length >= 3 && (
           <Checkbox

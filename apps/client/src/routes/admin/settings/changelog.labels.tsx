@@ -30,13 +30,15 @@ function RouteComponent() {
       <p className='text-sm font-light'>
         Labels look like this: <Badge label='Label name' className='ml-2' />
       </p>
-      <p className='text-sm font-light'>
+      <p className='text-sm font-light text-gray-500 dark:text-zinc-400'>
         You can add labels to changelog entries to specify which part of your product is being changed.
         Labels are public-facing, and can be used to filter down the list view.
       </p>
-      <div className='vertical'>
-        {labels?.map((label) => (
-          <div key={label.id} className='group horizontal gap-2 center-v border-b py-2'>
+      <div className='vertical mt-2'>
+        {labels?.map((label, index) => (
+          <div key={label.id} className={cn('group horizontal gap-2 center-v border-b py-2', {
+            'border-t': index === 0
+          })}>
             <Input
               value={editId === label.id ? name : `${label.name} (${label.count} entries)`}
               readOnly={editId !== label.id}

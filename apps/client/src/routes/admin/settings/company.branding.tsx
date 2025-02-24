@@ -3,9 +3,8 @@ import { ImageFile } from '@/components/image-file';
 import { Input } from '@/components/input';
 import { Popover } from '@/components/popover';
 import { fetchClient } from '@/lib/client';
-import { applicationQuery } from '@/lib/query';
+import { applicationQuery, ApplicationQueryData } from '@/lib/query';
 import { cn } from '@/lib/utils';
-import { Application } from '@repo/database';
 import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useLocation } from '@tanstack/react-router';
@@ -60,10 +59,10 @@ function RouteComponent() {
     onMutate: (data) => {
       queryClient.cancelQueries({ queryKey: applicationQuery.queryKey });
 
-      const previousApplication = queryClient.getQueryData<Application>(applicationQuery.queryKey);
+      const previousApplication = queryClient.getQueryData<ApplicationQueryData>(applicationQuery.queryKey);
 
       if (data.subdomain === application?.subdomain) {
-        queryClient.setQueryData(applicationQuery.queryKey, (old: Application | undefined) => {
+        queryClient.setQueryData(applicationQuery.queryKey, (old: ApplicationQueryData | undefined) => {
           if (!old) return undefined;
           return {
             ...old,
@@ -84,8 +83,7 @@ function RouteComponent() {
     },
     onSuccess: (data) => {
       toast.success('Application updated successfully');
-      const hostname = application?.customDomain && application?.domainStatus === 'VERIFIED' ? application.customDomain : `${data.subdomain}.${import.meta.env.VITE_APP_DOMAIN}`;
-      const url = new URL(location.href, `https://${hostname}`);
+      const url = new URL(location.href, `https://${application?.url}`);
 
       if (application?.subdomain !== data.subdomain) {
         window.location.replace(url.toString());

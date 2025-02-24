@@ -26,7 +26,20 @@ export const memberQuery = (userId: string) => queryOptions<MemberSummary>({
     queryFn: () => fetchClient(`admin/users/details/${userId}`)
 })
 
-export const applicationQuery = queryOptions<Application>({
+export type ApplicationQueryData = Application & {
+    url: string;
+    api: string;
+    domains: {
+        id: string;
+        domain: string;
+        custom: boolean;
+        primary: boolean;
+        verifiedAt: Date | null;
+        failedAt: Date | null;
+    }[];
+}
+
+export const applicationQuery = queryOptions<ApplicationQueryData>({
     queryKey: ['application'],
     queryFn: () => fetchClient('application'),
 })

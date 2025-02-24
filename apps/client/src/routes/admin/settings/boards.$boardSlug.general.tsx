@@ -6,7 +6,6 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useForm } from '@tanstack/react-form'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute, useParams, useRouter } from '@tanstack/react-router'
-import { useMemo } from 'react'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -22,14 +21,6 @@ function RouteComponent() {
     const { application } = useAuthStore()
 
     const { data: board } = useQuery(boardQuery(boardSlug))
-
-    const url = useMemo(() => {
-        if (application?.customDomain && application.domainStatus === 'VERIFIED') {
-            return `https://${application.customDomain}/`
-        }
-
-        return `https://${application?.subdomain}.${import.meta.env.VITE_APP_DOMAIN}/`
-    }, [application])
 
     const schema = z.object({
         name: z.string({
@@ -126,7 +117,7 @@ function RouteComponent() {
                             <Input
                                 label='URL'
                                 required
-                                prefix={url}
+                                prefix={application?.url}
                                 className='w-full'
                                 placeholder='feature-requests'
                                 name={field.name}

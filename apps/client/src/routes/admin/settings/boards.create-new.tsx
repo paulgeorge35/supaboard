@@ -2,9 +2,8 @@ import { Button, FieldInfo, Input } from '@/components'
 import { fetchClient } from '@/lib/client'
 import { useAuthStore } from '@/stores/auth-store'
 import { useForm } from '@tanstack/react-form'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { useMemo } from 'react'
 import { z } from 'zod'
 
 export const Route = createFileRoute('/admin/settings/boards/create-new')({
@@ -13,16 +12,7 @@ export const Route = createFileRoute('/admin/settings/boards/create-new')({
 
 function RouteComponent() {
   const router = useRouter()
-  const queryClient = useQueryClient()
   const { application } = useAuthStore()
-
-  const url = useMemo(() => {
-    if (application?.customDomain && application.domainStatus === 'VERIFIED') {
-      return `https://${application.customDomain}/`
-    }
-
-    return `https://${application?.subdomain}.${import.meta.env.VITE_APP_DOMAIN}/`
-  }, [application])
 
   const schema = z.object({
     name: z.string().min(3, {
@@ -126,7 +116,7 @@ function RouteComponent() {
             <Input
               label='URL'
               required
-              prefix={url}
+              prefix={application?.url}
               className='w-full'
               placeholder='feature-requests'
               name={field.name}

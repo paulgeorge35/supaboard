@@ -12,12 +12,18 @@ export type Workspace = Prisma.ApplicationGetPayload<{
     url: string;
 };
 
-export const applicationSummarySelect = Prisma.validator<Prisma.ApplicationSelect>()({
+export const applicationSummarySelect = (where?: Prisma.DomainWhereInput) => Prisma.validator<Prisma.ApplicationSelect>()({
     id: true,
     name: true,
     subdomain: true,
-    customDomain: true,
-    domainStatus: true,
+    domains: {
+        select: {
+            domain: true,
+            custom: true,
+            primary: true,
+        },
+        where,
+    },
     logo: true,
     icon: true,
     color: true,
@@ -29,7 +35,7 @@ export const applicationSummarySelect = Prisma.validator<Prisma.ApplicationSelec
 });
 
 export type ApplicationSummary = Prisma.ApplicationGetPayload<{
-    select: typeof applicationSummarySelect;
+    select: ReturnType<typeof applicationSummarySelect>;
 }>;
 
 export type FeedbackDetailed = Pick<BoardFeedbackSummary['feedbacks'][number], 'id' | 'title' | 'status' | 'slug'> & {
