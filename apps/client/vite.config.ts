@@ -6,7 +6,7 @@ import { defineConfig } from 'vite'
 
 // Vendor package groups
 const vendorChunks = {
-  'vendor-react': ['react', 'react-dom', 'react-aria', 'react-aria-components', 'react-stately'],
+  'vendor-react': ['react', 'react-dom', 'react-aria', 'react-aria-components', 'react-stately', 'scheduler'],
   'vendor-tanstack': [
     '@tanstack/react-query',
     '@tanstack/react-router',
@@ -22,16 +22,16 @@ const vendorChunks = {
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => ({
   plugins: [
-    TanStackRouterVite({}),
     react({
+      jsxRuntime: 'automatic',
+      jsxImportSource: 'react',
       babel: {
         plugins: [
           ['@babel/plugin-syntax-dynamic-import']
         ]
-      },
-      jsxRuntime: 'automatic',
-      jsxImportSource: 'react'
+      }
     }),
+    TanStackRouterVite({}),
     tailwindcss()
   ],
   server: {
@@ -39,84 +39,52 @@ export default defineConfig(({ command, mode }) => ({
     // allowedHosts: [ 'supaboard.io'],
   },
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          // Bundle all React related code together to avoid initialization issues
-          if (id.includes('node_modules/react') || 
-              id.includes('node_modules/react-dom') || 
-              id.includes('node_modules/scheduler') ||
-              id.includes('node_modules/react-aria') || 
-              id.includes('node_modules/react-stately')) {
-            return 'vendor-react'
-          }
-
-          // TanStack packages
-          if (id.includes('node_modules/@tanstack')) {
-            if (id.includes('react-router')) {
-              return 'vendor-router'
-            }
-            if (id.includes('react-query')) {
-              return 'vendor-query'
-            }
-            return 'vendor-tanstack'
-          }
-
-          // UI packages
-          if (id.includes('node_modules')) {
-            if (id.includes('framer-motion')) {
-              return 'vendor-framer'
-            }
-            if (id.includes('recharts') || id.includes('d3') || id.includes('victory')) {
-              return 'vendor-charts'
-            }
-            if (id.includes('lucide-react') || id.includes('@radix-ui') || id.includes('sonner')) {
-              return 'vendor-ui'
-            }
-            if (id.includes('zustand')) {
-              return 'vendor-state'
-            }
-            // Other node_modules
-            return 'vendor'
-          }
-
-          // Application code
-          if (id.includes('src/routes')) {
-            if (id.includes('/_public/')) {
-              return 'route-public'
-            }
-            if (id.includes('/admin/')) {
-              const section = id.split('/admin/')[1]?.split('/')[0]
-              return section ? `route-admin-${section}` : 'route-admin'
-            }
-            return 'routes'
-          }
-
-          // Shared code
-          if (id.includes('src/components/')) {
-            const isAdmin = id.includes('/admin/')
-            const isPublic = id.includes('/public/')
-            return isAdmin ? 'components-admin' : isPublic ? 'components-public' : 'components'
-          }
-
-          // Group remaining app code
-          if (id.includes('src/lib/')) return 'lib'
-          if (id.includes('src/utils/')) return 'utils'
-          if (id.includes('src/stores/')) return 'stores'
-        }
-      }
-    },
-    chunkSizeWarningLimit: 500,
     target: 'esnext',
+    chunkSizeWarningLimit: 700,
     minify: 'esbuild',
     cssCodeSplit: true,
     sourcemap: mode === 'development',
     reportCompressedSize: false,
-    // Ensure proper production optimizations
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': [
+            'react',
+            'react-dom',
+            'react/jsx-runtime',
+            'scheduler',
+            'react-aria',
+            'react-aria-components',
+            'react-stately'
+          ],
+          'vendor-tanstack': [
+            '@tanstack/react-query',
+            '@tanstack/react-router',
+            '@tanstack/react-table',
+            '@tanstack/router-devtools',
+            '@tanstack/react-form'
+          ],
+          'vendor-ui': [
+            'framer-motion',
+            '@radix-ui/react-tooltip',
+            'lucide-react',
+            'recharts',
+            'sonner'
+          ],
+          'vendor-utils': [
+            'luxon',
+            'uuid',
+            'lodash.clonedeep',
+            'class-variance-authority',
+            'tailwind-merge'
+          ],
+          'vendor-state': ['zustand']
+        }
+      }
+    },
     modulePreload: {
       polyfill: true
     },
-    // Add proper React production optimizations
     commonjsOptions: {
       include: [/node_modules/],
       defaultIsModuleExports: true
@@ -152,9 +120,8 @@ export default defineConfig(({ command, mode }) => ({
         find: '@/hooks',
         replacement: fileURLToPath(new URL('./src/hooks', import.meta.url)),
       },
-    ],
+    ]
   },
-  // Add proper define options for production
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),
     __DEV__: mode === 'development'
@@ -163,12 +130,17 @@ export default defineConfig(({ command, mode }) => ({
     include: [
       'react',
       'react-dom',
+      'react/jsx-runtime',
       'scheduler',
+      '@tanstack/react-router',
+      '@tanstack/react-query',
       'zustand'
-    ]
-  },
-  // Enable proper HMR
-  esbuild: {
-    logOverride: { 'this-is-undefined-in-esm': 'silent' }
+    ],
+    exclude: ['@tanstack/router-devtools'],
+    esbuildOptions: {
+      target: 'esnext',
+      jsx: 'automatic',
+      jsxImportSource: 'react'
+    }
   }
 }))
