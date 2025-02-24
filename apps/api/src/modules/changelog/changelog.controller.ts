@@ -446,11 +446,11 @@ const getPublic = async (req: BareSessionRequest, res: Response) => {
     });
 
     res.status(200).json({
-        changelogs: changelogs.map((changelog) => ({
+        changelogs: req.application?.hasChangelog ? changelogs.map((changelog) => ({
             ...changelog,
             likes: changelog._count.likes ?? 0,
             likedByMe: changelog?.likes && changelog.likes.length > 0 ? true : false,
-        })),
+        })) : [],
         isSubscribed: subscriber ? true : false
     });
 }

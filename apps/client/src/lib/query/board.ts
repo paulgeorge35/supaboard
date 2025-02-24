@@ -13,7 +13,8 @@ export type BoardQueryData = Pick<Board, 'id' | 'name' | 'slug' | 'title' | 'det
 export const boardDetailedQuery = (slug?: string, search?: string, sort: 'newest' | 'oldest' = 'newest') => queryOptions<BoardQueryData>({
     queryKey: ['board', slug, 'detailed', search, sort],
     queryFn: () => fetchClient(`board/${slug}/detailed?${search ? `search=${search}&` : ''}${sort ? `sort=${sort}` : ''}`),
-    enabled: !!slug
+    enabled: !!slug,
+    retry: false,
   })
 
 

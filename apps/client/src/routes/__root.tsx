@@ -2,9 +2,8 @@ import { NotFoundPage } from '@/components'
 import { meQuery } from '@/lib/query/auth'
 import { useAuthStore } from '@/stores/auth-store'
 import { QueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { Outlet, createRootRoute } from '@tanstack/react-router'
+import { Outlet, createRootRoute, notFound } from '@tanstack/react-router'
 import { useEffect } from 'react'
-
 export const Route = createRootRoute({
   notFoundComponent: () => <NotFoundPage redirect="https://supaboard.io" />,
   context: () => {
@@ -38,13 +37,19 @@ export const Route = createRootRoute({
       }
     }, [data?.application?.icon])
 
+    useEffect(() => {
+      if (!data?.application) {
+        throw notFound()
+      }
+    }, [data?.application])
+
     return <RootComponent />
   },
 })
 
 function RootComponent() {
   return (
-    <div className='h-[100dvh]'>
+    <div className='h-[100dvh] vertical'>
       <Outlet />
       {/* {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />} */}
     </div>

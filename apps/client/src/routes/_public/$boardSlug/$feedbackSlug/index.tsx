@@ -23,12 +23,14 @@ import {
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import {
+  QueryClient,
   useMutation,
   useQuery,
   useQueryClient
 } from '@tanstack/react-query'
 import {
   createFileRoute,
+  notFound,
   useParams
 } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
@@ -36,7 +38,20 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/_public/$boardSlug/$feedbackSlug/')({
-  notFoundComponent: () => <NotFoundPage />,
+  context: () => {
+    const queryClient = new QueryClient()
+    return {
+      queryClient,
+    }
+  },
+  loader: async ({ context, params }) => {
+    const { queryClient } = context;
+    const feedback = await queryClient.fetchQuery(feedbackQuery(params.boardSlug, params.feedbackSlug))
+    if (!feedback) {
+      throw notFound();
+    }
+  },
+  notFoundComponent: () => <NotFoundPage title="Feedback not found" description="The feedback you are looking for does not exist." />,
   component: RouteComponent,
 })
 

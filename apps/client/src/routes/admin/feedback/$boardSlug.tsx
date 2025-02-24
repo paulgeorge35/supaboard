@@ -36,7 +36,7 @@ function RouteComponent() {
           </div>
         </div>
       </div>
-      <div className="col-span-1 p-8 relative border-l max-h-[calc(100dvh-72px)] bg-white dark:bg-zinc-900">
+      <div className="col-span-1 p-8 relative vertical border-l max-h-[calc(100dvh-72px)] bg-white dark:bg-zinc-900">
         <Outlet />
       </div>
     </>

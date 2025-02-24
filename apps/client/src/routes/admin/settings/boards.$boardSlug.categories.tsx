@@ -25,7 +25,8 @@ export const categoriesQuery = (boardSlug: string, search?: string, all = false)
   queryFn: () => fetchClient(`/board/${boardSlug}/categories`, {
     queryParams: { search, all }
   }),
-  enabled: !!boardSlug
+  enabled: !!boardSlug,
+  retry: false,
 })
 
 export const Route = createFileRoute(

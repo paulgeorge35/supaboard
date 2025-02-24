@@ -1,15 +1,29 @@
-import { ThemeToggle } from '@/components'
+import { NotFoundPage, ThemeToggle } from '@/components'
 import { AdminAuthButtons, PublicButton } from '@/components/admin'
 import { Logo } from '@/components/logo'
+import { meQuery } from '@/lib/query'
 import { useAuthStore } from '@/stores/auth-store'
-import { createFileRoute, Link, Navigate, Outlet, useRouter } from '@tanstack/react-router'
+import { QueryClient } from '@tanstack/react-query'
+import { createFileRoute, Link, Navigate, notFound, Outlet, useRouter } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { Toaster as Sonner } from 'sonner'
 
 export const Route = createFileRoute('/admin')({
+  context: () => {
+    const queryClient = new QueryClient()
+    return {
+      queryClient,
+    }
+  },
   component: RouteComponent,
-  loader: () => {
-    document.documentElement.style.setProperty('--color-primary', '#a684ff')
+  notFoundComponent: () => <NotFoundPage title="Unauthorized" description="You are not authorized to access this page." />,
+  loader: async ({ context }) => {
+    document.documentElement.style.setProperty('--color-primary', '#a684ff');
+    const me = await context.queryClient.fetchQuery(meQuery)
+
+    if (!me || !me.application.role || !['ADMIN', 'COLLABORATOR'].includes(me.application.role)) {
+      throw notFound()
+    }
   }
 })
 

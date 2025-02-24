@@ -1,4 +1,4 @@
-import { Button, Icons, LoadingSpinner } from '@/components'
+import { Button, Icons, LoadingSpinner, NotFoundPage } from '@/components'
 import { ChangelogContent } from '@/components/admin/changelog/changelog-renderer'
 import { Controls } from '@/components/admin/changelog/controls'
 import { ChangelogEditor } from '@/components/admin/changelog/editor'
@@ -6,14 +6,27 @@ import { useUnpublishChangelogMutation, useUpdateChangelogMutation } from '@/lib
 import { changelogLabelsQuery, ChangelogPage, changelogQuery, changelogsInfiniteQuery } from '@/lib/query'
 import { FeedbackStatusConfig } from '@/lib/utils'
 import { ChangelogDetailed } from '@repo/database'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { createFileRoute, Outlet, useParams, useRouter } from '@tanstack/react-router'
+import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query'
+import { createFileRoute, notFound, Outlet, useParams, useRouter } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 
 export const Route = createFileRoute('/admin/changelog/$changelogSlug/edit')({
   component: RouteComponent,
+  notFoundComponent: () => <NotFoundPage title='Changelog not found' description='The changelog you are looking for does not exist.' redirect='/admin/changelog' />,
+  context: () => {
+    const queryClient = new QueryClient()
+    return {
+      queryClient,
+    }
+  },
+  loader: async ({ context, params }) => {
+    const changelog = await context.queryClient.fetchQuery(changelogQuery(params.changelogSlug))
+    if (!changelog) {
+      throw notFound()
+    }
+  },
 })
 
 function RouteComponent() {

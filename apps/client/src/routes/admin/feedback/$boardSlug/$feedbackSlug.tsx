@@ -14,7 +14,7 @@ import {
     FeedbackVotersQueryData,
 } from '@/lib/query/feedback'
 import { useAuthStore } from '@/stores/auth-store'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
     createFileRoute,
     notFound,
@@ -27,7 +27,19 @@ export const Route = createFileRoute(
     '/admin/feedback/$boardSlug/$feedbackSlug',
 )({
     component: RouteComponent,
-    notFoundComponent: () => <NotFoundPage />,
+    notFoundComponent: () => <NotFoundPage title='Feedback not found' description='The feedback you are looking for does not exist.' showRedirect={false} />,
+    context: () => {
+        const queryClient = new QueryClient()
+        return {
+            queryClient,
+        }
+    },
+    loader: async ({ context, params }) => {
+        const feedback = await context.queryClient.fetchQuery(feedbackQuery(params.boardSlug, params.feedbackSlug))
+        if (!feedback) {
+            throw notFound()
+        }
+    },
 })
 
 function RouteComponent() {
@@ -122,10 +134,6 @@ function RouteComponent() {
             })
         },
     })
-
-    if (!feedback && !isLoading) {
-        throw notFound()
-    }
 
     return (
         <div className="border-4 border-zinc-300 dark:border-zinc-800 rounded-2xl max-h-full h-full min-w-[100dvw] lg:min-w-0">

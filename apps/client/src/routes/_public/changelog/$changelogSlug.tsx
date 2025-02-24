@@ -1,12 +1,27 @@
-import { Button, Icons, Skeleton } from '@/components'
+import { Button, Icons, NotFoundPage, Skeleton } from '@/components'
 import { ChangelogContent } from '@/components/admin/changelog/changelog-renderer'
 import { useLikeChangelogMutation } from '@/lib/mutation'
 import { changelogPublicBySlugQuery } from '@/lib/query'
 import { cn } from '@/lib/utils'
-import { useQuery } from '@tanstack/react-query'
-import { createFileRoute, Link, useParams } from '@tanstack/react-router'
+import { QueryClient } from '@tanstack/react-query'
+import { createFileRoute, getRouteApi, Link, notFound } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_public/changelog/$changelogSlug')({
+  context: () => {
+      const queryClient = new QueryClient()
+      return {
+          queryClient,
+      }
+  },
+  loader: async ({ context, params }) => {
+    const { queryClient } = context;
+    const changelog = await queryClient.fetchQuery(changelogPublicBySlugQuery(params.changelogSlug))
+    if (!changelog) {
+      throw notFound();
+    }
+    return { data: changelog, isLoading: false };
+  },
+  notFoundComponent: () => <NotFoundPage redirect='/changelog' title='Changelog not found' description='The changelog you are looking for does not exist.' />,
   component: RouteComponent,
 })
 
@@ -40,8 +55,7 @@ function ChangelogSkeleton() {
 }
 
 function RouteComponent() {
-  const { changelogSlug } = useParams({ from: '/_public/changelog/$changelogSlug' })
-  const { data: changelog, isLoading } = useQuery(changelogPublicBySlugQuery(changelogSlug))
+  const { data: changelog, isLoading } = getRouteApi('/_public/changelog/$changelogSlug').useLoaderData();
   const { mutate: likeChangelog } = useLikeChangelogMutation()
 
   return (

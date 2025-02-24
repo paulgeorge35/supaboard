@@ -1,10 +1,11 @@
-import { Board as BoardComponent, Icons, StatusBoard } from '@/components'
+import { Board as BoardComponent, Icons, NotFoundPage, StatusBoard } from '@/components'
 import { Invitation } from '@/components/public/invitations'
 import { applicationBoardsQuery } from '@/lib/query'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_public/')({
+  notFoundComponent: () => <NotFoundPage />,
   component: HomeComponent,
 })
 

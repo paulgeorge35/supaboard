@@ -17,7 +17,8 @@ export const applicationBoardsQuery = queryOptions<ApplicationBoardsQueryData>({
 
 export const membersQuery = queryOptions<MemberSummary[]>({
     queryKey: ['admin', 'users'],
-    queryFn: () => fetchClient("admin/users")
+    queryFn: () => fetchClient("admin/users"),
+    throwOnError: true,
 })
 
 export const memberQuery = (userId: string) => queryOptions<MemberSummary>({

@@ -34,7 +34,8 @@ export const changelogsInfiniteQuery = (queryParams?: ChangelogSearch) => ({
 
 export const changelogQuery = (slug: string) => queryOptions<ChangelogDetailed>({
     queryKey: ['changelog', slug],
-    queryFn: () => fetchClient(`changelog/${slug}`)
+    queryFn: () => fetchClient(`changelog/${slug}`),
+    retry: false,
 })
 
 export const changelogLabelsQuery = queryOptions<ChangelogLabelSummary[]>({
@@ -69,5 +70,7 @@ export const changelogPublicQuery = queryOptions<ChangelogsPublicQueryData>({
 
 export const changelogPublicBySlugQuery = (slug: string) => queryOptions<ChangelogPublic>({
     queryKey: ['changelog', 'public', slug],
-    queryFn: () => fetchClient(`changelog/public/${slug}`)
+    queryFn: () => fetchClient(`changelog/public/${slug}`),
+    throwOnError: true,
+    retry: false,
 })

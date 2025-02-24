@@ -64,7 +64,8 @@ export type FeedbackQueryData = Omit<FeedbackDetail, '_count' | 'votes' | 'chang
 
 export const feedbackQuery = (boardSlug: string, feedbackSlug: string) => queryOptions<FeedbackQueryData>({
     queryKey: ['feedback', boardSlug, feedbackSlug],
-    queryFn: () => fetchClient(`feedback/${boardSlug}/${feedbackSlug}`)
+    queryFn: () => fetchClient(`feedback/${boardSlug}/${feedbackSlug}`),
+    retry: false,
 })
 
 export interface ActivityCommentData {

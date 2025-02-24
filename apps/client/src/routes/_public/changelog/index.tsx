@@ -1,12 +1,13 @@
 import { Button } from '@/components/button'
 import { Icons } from '@/components/icons'
+import { NotFoundPage } from '@/components/not-found'
 import { ChangelogItem } from '@/components/public/changelog/changelog-item'
 import { ChangelogItemSkeleton } from '@/components/public/changelog/changelog-item-skeleton'
 import { useSubscribeChangelogMutation } from '@/lib/mutation'
 import { changelogPublicQuery } from '@/lib/query'
 import { useAuthStore } from '@/stores/auth-store'
 import { useQuery } from '@tanstack/react-query'
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/_public/changelog/')({
@@ -29,7 +30,7 @@ function RouteComponent() {
     }
 
     if (!application?.hasChangelog) {
-        throw notFound();
+        return <NotFoundPage redirect='/' />
     }
 
     return (

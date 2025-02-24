@@ -11,29 +11,58 @@ import { fetchClient } from '@/lib/client'
 import { applicationBoardsQuery, boardDetailedQuery, BoardQueryData } from '@/lib/query'
 import { cn } from '@/lib/utils'
 import {
+  QueryClient,
   useMutation,
-  useQuery,
   useQueryClient,
-  useSuspenseQuery,
+  useSuspenseQuery
 } from '@tanstack/react-query'
 import {
   createFileRoute,
+  getRouteApi,
   Link,
-  useParams
+  notFound,
+  useParams,
+  useRouter,
+  useSearch
 } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { z } from 'zod'
+
+const searchSchema = z.object({
+  search: z.string().optional(),
+})
 
 export const Route = createFileRoute('/_public/$boardSlug/')({
+  validateSearch: searchSchema,
+  context: () => {
+    const queryClient = new QueryClient()
+    return {
+      queryClient,
+    }
+  },
+  loaderDeps: ({ search: { search } }) => ({ search }),
+  loader: async ({ context, params, deps: { search } }) => {
+    const { queryClient } = context;
+    const board = await queryClient.fetchQuery(boardDetailedQuery(params.boardSlug, search));
+    if (!board) {
+      throw notFound();
+    }
+    return board;
+  },
   component: RouteComponent,
-  notFoundComponent: () => <NotFoundPage />,
+  notFoundComponent: () => <NotFoundPage title="Board not found" description="The board you are looking for does not exist." />,
 })
 
 function RouteComponent() {
-  const [search, setSearch] = useState('')
+  const [searchQuery, setSearchQuery] = useState('');
+
   const { boardSlug } = useParams({ from: '/_public/$boardSlug/' })
+  const search = useSearch({ from: '/_public/$boardSlug/' });
+
+  const router = useRouter();
   const { data: boards, isLoading: isBoardsLoading } = useSuspenseQuery(applicationBoardsQuery)
-  const { data: board, isLoading: isBoardLoading } = useQuery(boardDetailedQuery(boardSlug, search))
+  const board = getRouteApi('/_public/$boardSlug/').useLoaderData();
   const queryClient = useQueryClient()
 
   const toBoard = (slug: string) => `/${slug}`
@@ -90,6 +119,19 @@ function RouteComponent() {
     },
   })
 
+  useEffect(() => {
+    if (search) {
+      setTimeout(() => {
+        router.navigate({
+          to: '/$boardSlug',
+          params: { boardSlug },
+          search: { search: searchQuery !== '' ? searchQuery : undefined },
+          replace: true,
+        })
+      }, 500)
+    }
+  }, [searchQuery])
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
       <div className="vertical gap-2">
@@ -121,41 +163,27 @@ function RouteComponent() {
         </div>
       </div>
       <div className="vertical gap-2">
-        {isBoardLoading ? (
-          <Skeleton className="h-6 w-48" />
-        ) : (
-          <h1 className="font-medium">{board?.callToAction}</h1>
-        )}
+        <h1 className="font-medium">{board?.callToAction}</h1>
         <div className="vertical">
           <FeedbackForm />
 
           <div className="border rounded-t-lg horizontal center-v justify-between gap-2 px-4 py-2 bg-gray-50 mt-4 dark:bg-zinc-800/20">
-            <FiltersInput onChange={setSearch} />
+            <FiltersInput onChange={setSearchQuery} />
           </div>
-          {isBoardLoading ? (
-            <>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <FeedbackCardSkeleton key={i} isLast={i === 2} />
-              ))}
-            </>
-          ) : (
-            <>
-              {board?.feedbacks.map((feedback, index) => (
-                <FeedbackCard
-                  key={feedback.id}
-                  feedback={feedback}
-                  index={index}
-                  board={board}
-                  vote={vote}
-                  isPending={isPending}
-                />
-              ))}
-              {board?.feedbacks.length === 0 && (
-                <p className="text-sm text-gray-500 p-4 border border-t-0 rounded-b-lg">
-                  There are no feedbacks yet
-                </p>
-              )}
-            </>
+          {board?.feedbacks.map((feedback, index) => (
+            <FeedbackCard
+              key={feedback.id}
+              feedback={feedback}
+              index={index}
+              board={board}
+              vote={vote}
+              isPending={isPending}
+            />
+          ))}
+          {board?.feedbacks.length === 0 && (
+            <p className="text-sm text-gray-500 p-4 border border-t-0 rounded-b-lg">
+              There are no feedbacks yet
+            </p>
           )}
         </div>
       </div>

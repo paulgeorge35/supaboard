@@ -19,7 +19,7 @@ export const meQuery = queryOptions<MeQueryData>({
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     refetchInterval: 1000 * 60 * 5, // 5 minutes
-    refetchIntervalInBackground: false,
+    retry: false,
 });
 
 export type InvitationQueryData = Pick<ApplicationInvite, 'id' | 'email' | 'role'> & {

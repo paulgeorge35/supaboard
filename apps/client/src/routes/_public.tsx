@@ -100,7 +100,7 @@ function RouteComponent() {
         </div>
       </div>
       <hr className='z-[0]' />
-      <div className="vertical gap-4 max-w-4xl mx-auto w-full py-8 px-4 md:px-0">
+      <div className="vertical gap-4 max-w-4xl mx-auto w-full py-8 px-4 md:px-0 grow">
         <Outlet />
       </div>
       <PoweredBy className='mt-auto mx-auto pb-8' />

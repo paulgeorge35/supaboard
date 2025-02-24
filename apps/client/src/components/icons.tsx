@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowRight, ArrowUp, ArrowUpDown, Bell, Bold, Calendar1, CalendarClock, ChartNoAxesColumn, Check, ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, ClipboardList, ClipboardPaste, Clock, Code, Copy, Download, Eye, EyeOff, Filter, Heading, Heart, Image, Info, Italic, LayoutGrid, Lightbulb, Link, List, ListOrdered, MapIcon, Merge, MessageSquare, Minus, Monitor, Moon, MoreHorizontal, PackageOpen, Paperclip, Pencil, Pin, Plus, RefreshCcw, Search, Settings, Sigma, SquarePlay, Star, Sun, Tag, TicketX, Trash, Trash2, Triangle, User, X } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, ArrowUpDown, Bell, Bold, Calendar1, CalendarClock, ChartNoAxesColumn, Check, ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, ClipboardList, ClipboardPaste, Clock, Code, Copy, Download, Eye, EyeOff, Filter, Frown, Heading, Heart, Image, Info, Italic, LayoutGrid, Lightbulb, Link, List, ListOrdered, MapIcon, Merge, MessageSquare, Minus, Monitor, Moon, MoreHorizontal, PackageOpen, Paperclip, Pencil, Pin, Plus, RefreshCcw, Search, Settings, Sigma, SquarePlay, Star, Sun, Tag, TicketX, Trash, Trash2, Triangle, User, X } from 'lucide-react';
 import type { RefAttributes, SVGProps } from "react";
 
 type SVGAttributes = Partial<SVGProps<SVGSVGElement>>;
@@ -50,6 +50,7 @@ export const Icons = {
     Calendar1,
     Pencil,
     Trash,
+    Frown,
     Trash2,
     Paperclip,
     Download,
