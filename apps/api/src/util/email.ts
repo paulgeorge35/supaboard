@@ -17,6 +17,7 @@ interface SendInvitationEmailParams {
 const transporter = nodemailer.createTransport({
     host: "smtp.mail.me.com",
     port: 587,
+    from: `supaboard <${EMAIL_FROM}>`,
     auth: {
         type: "login",
         user: ICLOUD_USER,
@@ -40,7 +41,7 @@ export const sendInvitationEmail = async (params: SendInvitationEmailParams) => 
         const html = compiledTemplate(params);
 
         const mailOptions = {
-            from: EMAIL_FROM,
+            from: `Supaboard <${EMAIL_FROM}>`,
             to: params.email,
             subject: `Join ${params.teamName} on Supaboard`,
             html,
@@ -72,7 +73,7 @@ export const sendPasswordResetEmail = async (params: SendPasswordResetEmailParam
         const html = compiledTemplate(params);
 
         const mailOptions = {
-            from: EMAIL_FROM,
+            from: `supaboard <${EMAIL_FROM}>`,
             to: params.email,
             subject: 'Password Reset Request',
             html,
