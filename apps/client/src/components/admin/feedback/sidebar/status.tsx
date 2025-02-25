@@ -11,15 +11,20 @@ export function Status() {
     const search = useSearch({ from: Route.fullPath });
     const router = useRouter();
 
+    const DEFAULT_STATUSES = useMemo(() => data?.filter(status => ['DEFAULT', 'ACTIVE'].includes(status.type)).map(status => status.slug) ?? [], [data]);
+
     const isAllDefaultStatusesIncluded = useCallback((newStatuses: string[]) => {
-        return data?.filter(status => ['DEFAULT','ACTIVE'].includes(status.type)).every(status => newStatuses.includes(status.slug)) ?? false;
-    }, []);
+        if (DEFAULT_STATUSES.length !== newStatuses.length) {
+            return false;
+        }
+        
+        return DEFAULT_STATUSES.every(status => newStatuses.includes(status)) && 
+               newStatuses.every(status => DEFAULT_STATUSES.includes(status));
+    }, [DEFAULT_STATUSES]);
 
     const statuses = useMemo(() => {
-        console.log(search.status);
-        console.log(data?.filter(status => ['DEFAULT','ACTIVE'].includes(status.type)).map(status => status.slug))
-        return search.status ?? data?.filter(status => ['DEFAULT','ACTIVE'].includes(status.type)).map(status => status.slug) ?? [];
-    }, [search, data]);
+        return search.status ?? DEFAULT_STATUSES;
+    }, [search, DEFAULT_STATUSES]);
 
     const handleChange = (status: string) => {
         const newStatuses = statuses.includes(status) ? statuses.filter(s => s !== status) : [...statuses, status];
