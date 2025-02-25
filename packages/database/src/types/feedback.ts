@@ -37,6 +37,7 @@ export const feedbackDetail = (userId: string) => Prisma.validator<Prisma.Feedba
             slug: true,
         },
     },
+    status: true,
     changelog: {
         select: {
             slug: true,

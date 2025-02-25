@@ -1,4 +1,4 @@
-import { Activity, FeedbackActivity, FeedbackDetail, FeedbackDetailMerged, FeedbackStatus, FeedbackSummary, RoadmapSummary, User } from "@repo/database";
+import { Activity, FeedbackActivity, FeedbackDetail, FeedbackDetailMerged, FeedbackSummary, RoadmapSummary, User } from "@repo/database";
 import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import { fetchClient } from "../client";
@@ -9,7 +9,7 @@ const feedbackSearchSchema = z.object({
     take: z.number().optional(),
     order: z.enum(['newest', 'oldest']).optional(),
     boards: z.array(z.string()).optional(),
-    status: z.array(z.enum(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'])).optional(),
+    status: z.array(z.string()).optional(),
     categories: z.array(z.string()).optional(),
     uncategorized: z.boolean().optional(),
     tags: z.array(z.string()).optional(),
@@ -75,8 +75,8 @@ export interface ActivityCommentData {
 }
 
 export interface ActivityStatusChangeData {
-    from: FeedbackStatus;
-    to: FeedbackStatus;
+    from: string;
+    to: string;
     content?: string;
 }
 

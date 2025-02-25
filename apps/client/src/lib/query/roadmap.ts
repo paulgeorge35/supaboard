@@ -1,6 +1,7 @@
 import { Board, Feedback, FeedbackCategory, RoadmapDetail, RoadmapSummary, User } from "@repo/database";
 import { queryOptions } from "@tanstack/react-query";
 import { fetchClient } from "../client";
+import { Status } from "./status";
 
 export const roadmapsQuery = queryOptions<RoadmapSummary[]>({
     queryKey: ['roadmaps'],
@@ -8,7 +9,8 @@ export const roadmapsQuery = queryOptions<RoadmapSummary[]>({
 })
 
 export type RoadmapDetailResponse = Omit<RoadmapDetail, 'items'> & {
-    items: (Pick<Feedback, 'id' | 'title' | 'slug' | 'status' | 'estimatedDelivery'> & {
+    items: (Pick<Feedback, 'id' | 'title' | 'slug' | 'estimatedDelivery'> & {
+        status: Status,
         votes: number;
         tags: string[];
         impact: number;

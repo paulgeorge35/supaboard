@@ -1,27 +1,27 @@
 import { Checkbox, Icons } from "@/components";
-import { FeedbackStatusConfig } from "@/lib/utils";
+import { statusesQuery } from "@/lib/query";
 import { Route } from "@/routes/admin/feedback";
 import { Route as AddminFeedbackSlugRoute } from "@/routes/admin/feedback/$boardSlug/$feedbackSlug";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
 import { useCallback, useMemo } from "react";
 
-type FeedbackStatus = keyof typeof FeedbackStatusConfig;
-
-const DEFAULT_STATUSES = ['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS'] as FeedbackStatus[];
-
 export function Status() {
+    const { data } = useQuery(statusesQuery)
     const search = useSearch({ from: Route.fullPath });
     const router = useRouter();
 
-    const isAllDefaultStatusesIncluded = useCallback((newStatuses: FeedbackStatus[]) => {
-        return DEFAULT_STATUSES.every(status => newStatuses.includes(status)) && newStatuses.length === DEFAULT_STATUSES.length;
+    const isAllDefaultStatusesIncluded = useCallback((newStatuses: string[]) => {
+        return data?.filter(status => ['DEFAULT','ACTIVE'].includes(status.type)).every(status => newStatuses.includes(status.slug)) ?? false;
     }, []);
 
     const statuses = useMemo(() => {
-        return search.status ?? DEFAULT_STATUSES;
-    }, [search]);
+        console.log(search.status);
+        console.log(data?.filter(status => ['DEFAULT','ACTIVE'].includes(status.type)).map(status => status.slug))
+        return search.status ?? data?.filter(status => ['DEFAULT','ACTIVE'].includes(status.type)).map(status => status.slug) ?? [];
+    }, [search, data]);
 
-    const handleChange = (status: FeedbackStatus) => {
+    const handleChange = (status: string) => {
         const newStatuses = statuses.includes(status) ? statuses.filter(s => s !== status) : [...statuses, status];
         router.navigate({
             from: AddminFeedbackSlugRoute.fullPath,
@@ -36,7 +36,7 @@ export function Status() {
         })
     }
 
-    const handleClick = (status: FeedbackStatus) => {
+    const handleClick = (status: string) => {
         router.navigate({
             from: AddminFeedbackSlugRoute.fullPath,
             search: { ...search, status: [status] }
@@ -52,16 +52,16 @@ export function Status() {
                 Reset
             </button>
 
-            {Object.entries(FeedbackStatusConfig).map(([status, config]) => (
-                <div key={status} className="grid grid-cols-[auto_1fr_auto] gap-2 group col-span-full">
+            {data?.map((status) => (
+                <div key={status.slug} className="grid grid-cols-[auto_1fr_auto] gap-2 group col-span-full">
                     <Checkbox
                         wrapperClassName="col-span-2"
-                        label={config.label}
-                        checked={statuses.includes(status as FeedbackStatus)}
-                        onChange={() => handleChange(status as FeedbackStatus)}
+                        label={status.name}
+                        checked={statuses.includes(status.slug)}
+                        onChange={() => handleChange(status.slug)}
                     />
                     <button
-                        onClick={() => handleClick(status as FeedbackStatus)}
+                        onClick={() => handleClick(status.slug)}
                         className="cursor-pointer size-4 border rounded-sm text-xs font-light horizontal hidden center group-hover:flex text-gray-500 dark:text-zinc-300"
                     >
                         <Icons.Check size={10} />

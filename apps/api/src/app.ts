@@ -11,6 +11,7 @@ import { boardRouter } from './modules/board/board.router';
 import { changelogRouter } from './modules/changelog/changelog.router';
 import { feedbackRouter } from './modules/feedback/feedback.router';
 import { roadmapRouter } from './modules/roadmap/roadmap.router';
+import { statusRouter } from './modules/status/status.router';
 import { storageRouter } from './modules/storage/storage.router';
 /**
  * Initializes CORS configuration by fetching allowed origins from the database
@@ -76,7 +77,8 @@ async function createApp(): Promise<Application> {
     app.use('/storage', storageRouter);
     app.use('/roadmap', roadmapRouter);
     app.use('/changelog', changelogRouter);
-
+    app.use('/status', statusRouter);
+    
     return app;
 }
 

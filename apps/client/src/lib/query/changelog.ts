@@ -1,7 +1,8 @@
-import { Changelog, ChangelogDetailed, ChangelogLabelSummary, FeedbackStatus } from "@repo/database";
+import { Changelog, ChangelogDetailed, ChangelogLabelSummary } from "@repo/database";
 import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import { fetchClient } from "../client";
+import { Status } from "./status";
 
 const searchParams = z.object({
     search: z.string().optional(),
@@ -46,7 +47,7 @@ export const changelogLabelsQuery = queryOptions<ChangelogLabelSummary[]>({
 type ChangelogFeedback = {
     id: string;
     title: string;
-    status: FeedbackStatus;
+    status: Status;
     board: { slug: string };
     votes: number;
 }

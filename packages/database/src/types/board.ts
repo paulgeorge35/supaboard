@@ -1,4 +1,4 @@
-import { Prisma } from "../../generated/client";
+import { Prisma, StatusType } from "../../generated/client";
 
 export const boardSummarySelect = Prisma.validator<Prisma.BoardSelect>()({
     id: true,
@@ -25,10 +25,11 @@ export const boardFeedbackSummarySelect = Prisma.validator<Prisma.BoardSelect>()
     name: true,
     slug: true,
     showOnHome: true,
+    includeInRoadmap: true,
     feedbacks: {
         where: {
             status: {
-                in: ['OPEN','UNDER_REVIEW','PLANNED', 'IN_PROGRESS']
+                includeInRoadmap: true,
             }
         },
         orderBy: {
@@ -62,7 +63,9 @@ export const boardFeedbackSummarySelect = Prisma.validator<Prisma.BoardSelect>()
             feedbacks: {
                 where: {
                     status: {
-                        notIn: ['CLOSED', 'RESOLVED']
+                        type: {
+                            notIn: [StatusType.CLOSED, StatusType.COMPLETE],
+                        }
                     }
                 },
             },

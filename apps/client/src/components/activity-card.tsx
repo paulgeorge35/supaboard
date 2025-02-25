@@ -4,7 +4,6 @@ import { FeedbackActivitiesQueryData, FeedbackActivitySummary, feedbackByIdQuery
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useBoolean } from "@paulgeorge35/hooks";
-import { FeedbackStatus } from "@repo/database";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
 import { DateTime } from "luxon";
@@ -113,7 +112,7 @@ export function ActivityCard({ activity, feedbackSlug, boardSlug, className }: A
                     {activity.type === 'FEEDBACK_STATUS_CHANGE' && (
                         <span className="horizontal center-v gap-1">
                             <p className="text-sm text-gray-500">marked this as</p>
-                            <StatusBadge status={activity.data.to as FeedbackStatus} />
+                            <StatusBadge status={activity.data.to} />
                         </span>
                     )}
                 </span>
@@ -164,12 +163,12 @@ export function ActivityCard({ activity, feedbackSlug, boardSlug, className }: A
                 {/* Unmerge button */}
                 <UnmergeButton activity={activity} />
 
-                <>
+                {user && <>
                     <span className="text-xs text-gray-500">&bull;</span>
                     <button onClick={handleReplyOpen} className="text-xs text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-300">
                         Reply
                     </button>
-                </>
+                </>}
             </span>
 
             <CommentForm

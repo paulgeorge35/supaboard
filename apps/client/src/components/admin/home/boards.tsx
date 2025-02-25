@@ -1,20 +1,11 @@
 import { Icons } from "@/components/icons";
 import { StatusBoard } from "@/components/status-board";
-import { applicationBoardsQuery } from "@/lib/query";
+import { applicationBoardsQuery, statusesQuery } from "@/lib/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export function Boards() {
     const { data: boards } = useSuspenseQuery(applicationBoardsQuery)
-
-    const plannedFeedbacks = boards.flatMap((board) =>
-        board.feedbacks.filter((feedback) => feedback.status === 'PLANNED'),
-    )
-    const inProgressFeedbacks = boards.flatMap((board) =>
-        board.feedbacks.filter((feedback) => feedback.status === 'IN_PROGRESS'),
-    )
-    const underReviewFeedbacks = boards.flatMap((board) =>
-        board.feedbacks.filter((feedback) => feedback.status === 'UNDER_REVIEW'),
-    )
+    const { data: statuses } = useSuspenseQuery(statusesQuery)
     return (
         <>
             <span className="horizontal center-v justify-between">
@@ -28,9 +19,9 @@ export function Boards() {
                 </button>
             </span>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <StatusBoard status="UNDER_REVIEW" items={underReviewFeedbacks} admin={true} />
-                <StatusBoard status="PLANNED" items={plannedFeedbacks} admin={true} />
-                <StatusBoard status="IN_PROGRESS" items={inProgressFeedbacks} admin={true} />
+                {statuses?.filter(status => status.includeInRoadmap).map(status => (
+                    <StatusBoard key={status.slug} status={status} items={boards.flatMap(board => board.feedbacks.filter(feedback => feedback.status.slug === status.slug))} admin={true} />
+                ))}
             </div>
         </>
     )

@@ -3,6 +3,7 @@ import { RoadmapMenu } from '@/components/admin/roadmap/roadmap-menu';
 import { SelectComponent } from '@/components/select';
 import { useCreateRoadmapMutation, useDuplicateRoadmapMutation } from '@/lib/mutation';
 import { roadmapsQuery } from '@/lib/query';
+import { useRoadmapSearchStore } from '@/stores/roadmap-search-store';
 import { useDebounce } from '@paulgeorge35/hooks';
 import { QueryClient } from '@tanstack/react-query';
 import { createFileRoute, getRouteApi, Link, Outlet, useParams, useRouter, useSearch } from '@tanstack/react-router';
@@ -23,7 +24,7 @@ const filterRoadmapItemsSchema = z.object({
   impact: numberFilterSchema.optional(),
   effort: numberFilterSchema.optional(),
   votes: numberFilterSchema.optional(),
-  status: z.union([z.array(z.enum(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'])), z.enum(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'])]).optional(),
+  status: z.union([z.array(z.string()), z.string()]).optional(),
   owner: z.union([z.array(z.string()), z.string()]).optional(),
   eta_start: z.string().optional(),
   eta_end: z.string().optional(),
@@ -49,7 +50,8 @@ export const Route = createFileRoute('/admin/roadmap')({
 function RouteComponent() {
   const router = useRouter();
   const search = useSearch({ from: Route.fullPath });
-  const [searchQuery, setSearchQuery] = useState(search.search);
+  const { searchParams, setSearchParams } = useRoadmapSearchStore();
+  const [searchQuery, setSearchQuery] = useState(searchParams.search ?? search.search);
   const debouncedSearch = useDebounce(searchQuery, {
     delay: 200,
   });
@@ -60,11 +62,24 @@ function RouteComponent() {
   const { mutate: duplicateRoadmap, isPending: isDuplicatingRoadmap } = useDuplicateRoadmapMutation(roadmapSlug);
 
   const groupBy = useMemo(() => {
-    if (search.groupBy) {
-      return search.groupBy;
+    return searchParams.groupBy ?? search.groupBy;
+  }, [searchParams.groupBy, search.groupBy]);
+
+  // Load persisted search params on initial render
+  useEffect(() => {
+    if (Object.keys(searchParams).length > 0 && roadmapSlug) {
+      router.navigate({
+        to: '/admin/roadmap/$roadmapSlug',
+        params: { roadmapSlug },
+        search: searchParams
+      });
     }
-    return undefined;
-  }, [search]);
+  }, []);
+
+  // Update store when URL search params change
+  useEffect(() => {
+    setSearchParams(search);
+  }, [search, setSearchParams]);
 
   useEffect(() => {
     if (roadmaps.length > 0) {
@@ -73,28 +88,36 @@ function RouteComponent() {
           return;
         }
       }
-      router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: roadmaps[0].slug }, search });
+      router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: roadmaps[0].slug }, search: searchParams });
     }
-  }, [roadmaps, router, roadmapSlug]);
+  }, [roadmaps, router, roadmapSlug, searchParams]);
 
   useEffect(() => {
     if (debouncedSearch.value !== undefined) {
-      if (roadmapSlug && search.search !== debouncedSearch.value) {
+      if (roadmapSlug && searchParams.search !== debouncedSearch.value) {
+        const newSearchParams = {
+          ...searchParams,
+          search: debouncedSearch.value.length > 0 ? debouncedSearch.value : undefined,
+        };
+        setSearchParams(newSearchParams);
         router.navigate({
-          to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug }, search: {
-            ...search, search: debouncedSearch.value.length > 0 ? debouncedSearch.value : undefined,
-          }
+          to: '/admin/roadmap/$roadmapSlug',
+          params: { roadmapSlug },
+          search: newSearchParams
         });
         if (debouncedSearch.value.length === 0) {
           setSearchQuery(undefined);
         }
       }
     }
-  }, [debouncedSearch, router, search]);
+  }, [debouncedSearch, router, searchParams, setSearchParams]);
 
   const filtersApplied: number = useMemo(() => {
-    return Object.keys(search).filter(key => !['groupBy', 'search'].includes(key)).filter((key) => search[key as keyof typeof search] !== undefined).length;
-  }, [search]);
+    return Object.keys(searchParams)
+      .filter(key => !['groupBy', 'search'].includes(key))
+      .filter((key) => searchParams[key as keyof typeof searchParams] !== undefined)
+      .length;
+  }, [searchParams]);
 
   if (roadmaps.length === 0) {
     return (
@@ -118,8 +141,8 @@ function RouteComponent() {
           value={roadmapSlug}
           options={roadmaps?.map((roadmap) => ({ label: roadmap.name, value: roadmap.slug })) ?? []}
           onChange={(value) => {
-            if (value)
-              router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: value as string }, search });
+            if (value && typeof value === 'string')
+              router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: value }, search: searchParams });
           }}
           disabled={isDuplicatingRoadmap || isCreatingRoadmap}
         />
@@ -127,7 +150,7 @@ function RouteComponent() {
           disabled={isDuplicatingRoadmap || isCreatingRoadmap}
           onRename={() => {
             if (roadmapSlug)
-              router.navigate({ to: '/admin/roadmap/$roadmapSlug/rename', params: { roadmapSlug }, search });
+              router.navigate({ to: '/admin/roadmap/$roadmapSlug/rename', params: { roadmapSlug }, search: searchParams });
           }}
           onDuplicate={() => {
             if (roadmapSlug)
@@ -135,7 +158,7 @@ function RouteComponent() {
           }}
           onDelete={roadmaps.length > 1 ? () => {
             if (roadmapSlug)
-              router.navigate({ to: '/admin/roadmap/$roadmapSlug/delete', params: { roadmapSlug }, search });
+              router.navigate({ to: '/admin/roadmap/$roadmapSlug/delete', params: { roadmapSlug }, search: searchParams });
           } : undefined}
         />
         <div className='h-5 border-l hidden md:block' />
@@ -148,7 +171,7 @@ function RouteComponent() {
           disabled={!roadmapSlug}
           addornmentLeft={<Icons.Search className='size-4 shrink-0 mr-2' />}
         />
-        {roadmapSlug && <Link to="/admin/roadmap/$roadmapSlug/filter" params={{ roadmapSlug }} replace={true} search={search} className='ml-auto'>
+        {roadmapSlug && <Link to="/admin/roadmap/$roadmapSlug/filter" params={{ roadmapSlug }} replace={true} search={searchParams} className='ml-auto'>
           <Button role='button' id='filter-button' className='h-9 px-4 gap-4 hidden md:flex' variant='outline' size='sm' color='secondary'>
             <Icons.Filter />
             Filters
@@ -165,16 +188,21 @@ function RouteComponent() {
           value={groupBy ?? ''}
           options={['board', 'category', 'owner', 'status'].map((group) => ({ label: group.charAt(0).toUpperCase() + group.slice(1), value: group }))}
           onChange={(value) => {
+            const newSearchParams = {
+              ...searchParams,
+              groupBy: value as 'board' | 'category' | 'owner' | 'status' | undefined,
+            };
+            setSearchParams(newSearchParams);
             router.navigate({
-              to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug }, search: {
-                ...search, groupBy: value as 'board' | 'category' | 'owner' | 'status',
-              }
+              to: '/admin/roadmap/$roadmapSlug',
+              params: { roadmapSlug },
+              search: newSearchParams
             });
           }}
           clearable
         />}
         <div className='h-5 border-l hidden md:block' />
-        {roadmapSlug && <Link to="/admin/roadmap/$roadmapSlug/new" params={{ roadmapSlug }} search={search}>
+        {roadmapSlug && <Link to="/admin/roadmap/$roadmapSlug/new" params={{ roadmapSlug }} search={searchParams}>
           <Button className='h-8 hidden md:flex' size='sm'>
             <Icons.Plus />
             Create Feedback

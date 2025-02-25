@@ -1,7 +1,6 @@
 import { fetchClient } from "@/lib/client";
+import { Status } from "@/lib/query";
 import { applicationBoardsQuery, ApplicationBoardsQueryData, FeedbackDetailed } from "@/lib/query/application";
-import { FeedbackStatusConfig } from "@/lib/utils";
-import type { FeedbackStatus } from "@repo/database";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -10,12 +9,11 @@ import { Icons } from "./icons";
 import { VoteButton } from "./vote-button";
 
 interface StatusBoardProps {
-    status: FeedbackStatus;
+    status: Status;
     items: FeedbackDetailed[]
     admin?: boolean
 }
 export const StatusBoard = ({ status, items, admin }: StatusBoardProps) => {
-    const { label } = FeedbackStatusConfig[status];
     const queryClient = useQueryClient();
 
     const { mutate: vote, isPending } = useMutation({
@@ -66,7 +64,7 @@ export const StatusBoard = ({ status, items, admin }: StatusBoardProps) => {
     return (
         <div className='w-full border rounded-lg max-h-[400px] md:h-[400px] vertical'>
             <div className='w-full h-[50px] border-b bg-gray-50 dark:bg-zinc-800/20 rounded-t-lg horizontal center-v px-4 shrink-0'>
-                <span className='text-sm font-medium horizontal center-v gap-2'><Dot status={status} />{label}</span>
+                <span className='text-sm font-medium horizontal center-v gap-2'><Dot status={status} />{status.name}</span>
             </div>
             <div className='flex-1 w-full p-4 vertical gap-4 overflow-y-auto'>
                 {items.length === 0 && (

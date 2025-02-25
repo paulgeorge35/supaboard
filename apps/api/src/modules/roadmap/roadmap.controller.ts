@@ -1,4 +1,5 @@
 import type { BareSessionRequest } from "@/types"
+import { parseAndThrowFirstError } from "@/util/error-parser"
 import { db, roadmapDetailSelect, roadmapSummarySelect } from "@repo/database"
 import type { Response } from "express"
 import { z } from "zod"
@@ -126,8 +127,8 @@ const getAllRoadmaps = async (req: BareSessionRequest, res: Response) => {
 
     const roadmaps = await db.roadmap.findMany({
         select: roadmapSummarySelect,
-        where: { applicationId },
-        orderBy: { createdAt: "desc" }
+        where: { applicationId, isArchived: false },
+        orderBy: { createdAt: "asc" }
     })
     res.status(200).json(roadmaps)
 }
@@ -178,6 +179,52 @@ const updateRoadmapItem = async (req: BareSessionRequest, res: Response) => {
     res.status(200).json({ success: true })
 }
 
+const archiveRoadmap = async (req: BareSessionRequest, res: Response) => {
+    const applicationId = req.application?.id!
+    const roadmapSlug = req.params.roadmapSlug
+
+    const count = await db.roadmap.count({ where: { applicationId, isArchived: false } })
+
+    if (count === 1) {
+        res.status(400).json({ error: "Cannot archive the last roadmap" })
+        return;
+    }
+
+    await db.roadmap.update({ where: { applicationId_slug: { applicationId, slug: roadmapSlug } }, data: { isArchived: true } })
+
+    res.status(200).json({ success: true })
+}
+
+const restoreRoadmap = async (req: BareSessionRequest, res: Response) => {
+    const applicationId = req.application?.id!
+    const roadmapSlug = req.params.roadmapSlug
+
+    await db.roadmap.update({ where: { applicationId_slug: { applicationId, slug: roadmapSlug } }, data: { isArchived: false } })
+
+    res.status(200).json({ success: true })
+}
+
+const updateRoadmapSettingsSchema = z.object({
+    isPublic: z.boolean().optional(),
+    includeInRoadmap: z.array(z.string()).optional(),
+})
+
+const updateRoadmapSettings = async (req: BareSessionRequest, res: Response) => {
+    const applicationId = req.application?.id!
+    const { isPublic, includeInRoadmap } = parseAndThrowFirstError(updateRoadmapSettingsSchema, req.body, res);
+
+    await db.$transaction(async (tx) => {
+        await tx.application.update({ where: { id: applicationId }, data: { isRoadmapPublic: isPublic } })
+
+        if (includeInRoadmap) {
+            await tx.board.updateMany({ where: { applicationId }, data: { includeInRoadmap: false } })
+            await tx.board.updateMany({ where: { applicationId, slug: { in: includeInRoadmap } }, data: { includeInRoadmap: true } })
+        }
+    });
+
+    res.status(200).json({ success: true })
+}
+
 export default {
     getAll: getAllRoadmaps,
     getBySlug: getRoadmapBySlug,
@@ -185,7 +232,10 @@ export default {
     delete: deleteRoadmap,
     duplicate: duplicateRoadmap,
     rename: renameRoadmap,
+    archive: archiveRoadmap,
+    restore: restoreRoadmap,
     add: addToRoadmap,
     remove: removeFromRoadmap,
     update: updateRoadmapItem,
+    updateSettings: updateRoadmapSettings,
 }

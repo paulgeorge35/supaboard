@@ -3,7 +3,7 @@ import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRouter, useSearch } from "@tanstack/react-router";
 import { v4 as uuidv4 } from 'uuid';
 import { fetchClient } from "../client";
-import { feedbackQuery, FeedbackQueryData } from "../query";
+import { applicationBoardsQuery, ApplicationBoardsQueryData, applicationQuery, ApplicationQueryData, feedbackQuery, FeedbackQueryData } from "../query";
 import { RoadmapDetailResponse, roadmapQuery, roadmapsQuery } from "../query/roadmap";
 
 export const useCreateRoadmapMutation = () => {
@@ -354,5 +354,52 @@ export const useCreateFeedbackMutation = (roadmapSlug: string) => {
         onSuccess: () => {
             router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: roadmapSlug }, search });
         },
+    })
+}
+
+type UpdateRoadmapSettingsValues = {
+    isPublic?: boolean;
+    includeInRoadmap?: string[];
+}
+
+type UseUpdateRoadmapSettingsMutationProps = {
+    onSuccess?: () => void;
+}
+
+export const useUpdateRoadmapSettingsMutation = ({ onSuccess }: UseUpdateRoadmapSettingsMutationProps) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (settings: UpdateRoadmapSettingsValues) => fetchClient(`/roadmap/settings`, {
+            method: 'PUT',
+            body: JSON.stringify(settings),
+        }),
+        onMutate: (settings) => {
+            queryClient.cancelQueries({ queryKey: applicationQuery.queryKey });
+            queryClient.cancelQueries({ queryKey: applicationBoardsQuery.queryKey });
+
+            const previousApplication = queryClient.getQueryData<ApplicationQueryData>(applicationQuery.queryKey);
+            const previousBoards = queryClient.getQueryData<ApplicationBoardsQueryData>(applicationBoardsQuery.queryKey);
+
+            queryClient.setQueryData(applicationQuery.queryKey, (old: ApplicationQueryData | undefined) => old ? { ...old, isRoadmapPublic: settings.isPublic ?? old.isRoadmapPublic } : undefined);
+            queryClient.setQueryData(applicationBoardsQuery.queryKey, (old: ApplicationBoardsQueryData | undefined) => {
+                if (!old) return undefined;
+
+                return old.map(board => ({ ...board, includeInRoadmap: settings.includeInRoadmap ? settings.includeInRoadmap.includes(board.slug) : board.includeInRoadmap }));
+            });
+
+            return { previousApplication, previousBoards };
+        },
+        onError: (_, __, context) => {
+            queryClient.setQueryData(applicationQuery.queryKey, context?.previousApplication);
+            queryClient.setQueryData(applicationBoardsQuery.queryKey, context?.previousBoards);
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: applicationQuery.queryKey });
+            queryClient.invalidateQueries({ queryKey: applicationBoardsQuery.queryKey });
+        },
+        onSuccess: () => {
+            onSuccess?.();
+        }
     })
 }

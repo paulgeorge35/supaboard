@@ -197,7 +197,7 @@ export const CommentForm = ({ className, boardSlug, feedbackSlug, isReply = fals
                         placeholder="Add a comment"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        wrapperClassName={cn({ 'col-start-2': isReply })}
+                        wrapperClassName={cn('',{ 'col-start-2': isReply })}
                         onFocus={expanded.setTrue}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && e.metaKey && !isCommentDisabled) {

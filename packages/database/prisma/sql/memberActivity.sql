@@ -13,7 +13,7 @@ SELECT DISTINCT
     feedback.id,
     feedback.title,
     feedback.description,
-    feedback.status,
+    status.slug as "status",
     feedback.slug,
     board.slug as "boardSlug",
     CAST(COUNT(DISTINCT comments."id") as INTEGER) as "comments",
@@ -24,6 +24,8 @@ SELECT DISTINCT
 FROM "Feedback" as feedback
     JOIN "Board" as board
         ON feedback."boardId" = board.id
+    JOIN "Status" as status
+        ON feedback."statusId" = status.id
     LEFT JOIN "Activity" as "feedback-comments"
         ON feedback.id = "feedback-comments"."feedbackId"
         AND "feedback-comments"."type" = 'FEEDBACK_COMMENT'
@@ -69,7 +71,7 @@ GROUP BY
     feedback.id,
     feedback.title,
     feedback.description,
-    feedback.status,
+    status.slug,
     feedback.slug,
     board.slug
 HAVING

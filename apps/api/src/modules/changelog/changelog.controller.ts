@@ -1,7 +1,7 @@
 import type { BareSessionRequest } from "@/types";
 import { parseAndThrowFirstError } from "@/util/error-parser";
 import { redis } from "@/util/redis";
-import { changelogDetailedInclude, changelogLabelSelect, ChangelogStatus, ChangelogTag, db, Prisma } from "@repo/database";
+import { changelogDetailedInclude, changelogLabelSelect, ChangelogStatus, ChangelogTag, db, Prisma, StatusType } from "@repo/database";
 import type { Response } from "express";
 import { z } from "zod";
 
@@ -402,7 +402,9 @@ const getResolvedFeedbacks = async (req: BareSessionRequest, res: Response) => {
         where: {
             applicationId,
             changelogId: null,
-            status: 'RESOLVED'
+            status: {
+                type: StatusType.COMPLETE
+            }
         }
     });
 

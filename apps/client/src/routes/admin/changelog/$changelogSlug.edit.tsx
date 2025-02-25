@@ -3,8 +3,8 @@ import { ChangelogContent } from '@/components/admin/changelog/changelog-rendere
 import { Controls } from '@/components/admin/changelog/controls'
 import { ChangelogEditor } from '@/components/admin/changelog/editor'
 import { useUnpublishChangelogMutation, useUpdateChangelogMutation } from '@/lib/mutation'
-import { changelogLabelsQuery, ChangelogPage, changelogQuery, changelogsInfiniteQuery } from '@/lib/query'
-import { FeedbackStatusConfig } from '@/lib/utils'
+import { changelogLabelsQuery, ChangelogPage, changelogQuery, changelogsInfiniteQuery, Status } from '@/lib/query'
+
 import { ChangelogDetailed } from '@repo/database'
 import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, notFound, Outlet, useParams, useRouter } from '@tanstack/react-router'
@@ -47,7 +47,7 @@ function RouteComponent() {
     linkedFeedbacks: {
       id: string
       title: string
-      status: keyof typeof FeedbackStatusConfig
+      status: Status,
       board: { slug: string }
       votes: number
     }[]

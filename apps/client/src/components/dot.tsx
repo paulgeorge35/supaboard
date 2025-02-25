@@ -1,19 +1,20 @@
-import { FeedbackStatus } from "@repo/database"
+import { Status } from "@/lib/query"
+import colors from 'tailwindcss/colors'
 import { cn } from "../lib/utils"
 
 type DotProps = {
-    status: FeedbackStatus
+    status: Status
 }
 
 export const Dot = ({ status }: DotProps) => {
+    const color = status.color.split('-')[0] as Exclude<keyof typeof colors, 'white' | 'black' | 'transparent' | 'inherit' | 'current'>;
+    const shade = status.color.split('-')[1] as keyof typeof colors[typeof color];
     return (
-        <div className={cn('size-2 rounded-full shrink-0', {
-            "bg-gray-500": status === "OPEN",
-            "bg-orange-500": status === "UNDER_REVIEW",
-            "bg-blue-500": status === "PLANNED",
-            "bg-violet-500": status === "IN_PROGRESS",
-            "bg-green-500": status === "RESOLVED",
-            "bg-red-500": status === "CLOSED",
-        })} />
+        <div
+            className={cn('size-2 rounded-full shrink-0 bg-gray-500')}
+            style={{
+                backgroundColor: colors[color][shade]
+            }}
+        />
     )
 }

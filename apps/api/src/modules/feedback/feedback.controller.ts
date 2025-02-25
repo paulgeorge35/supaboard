@@ -1,5 +1,5 @@
 import { parseAndThrowFirstError } from "@/util/error-parser";
-import { ActivityType, db, feedbackAcivityInclude, feedbackDetail, feedbackDetailMerged, FeedbackStatus, feeedbackSummarySelect, Prisma } from "@repo/database";
+import { ActivityType, db, feedbackAcivityInclude, feedbackDetail, feedbackDetailMerged, feeedbackSummarySelect, Prisma, StatusType } from "@repo/database";
 import type { Response } from "express";
 import { DateTime } from "luxon";
 import { z } from "zod";
@@ -117,9 +117,17 @@ export async function createFeedback(req: BareSessionRequest<z.infer<typeof feed
 
     const slug = await generateUniqueSlug(data.title, boardId);
 
+    const defaultStatus = await db.status.findFirst({ where: { applicationId, type: StatusType.DEFAULT } });
+
+    if (!defaultStatus) {
+        res.status(400).json({ error: 'Default status not found' });
+        return;
+    }
+
     const feedback = await db.feedback.create({
         data: {
             title: data.title,
+            status: { connect: { id: defaultStatus.id } },
             description: data.description ?? '',
             slug,
             category: data.categoryId && data.categoryId !== 'uncategorized' ? { connect: { id: data.categoryId } } : undefined,
@@ -282,8 +290,8 @@ const commentDataSchema = z.object({
 
 const statusChangeDataSchema = z.object({
     type: z.literal(ActivityType.FEEDBACK_STATUS_CHANGE),
-    from: z.nativeEnum(FeedbackStatus),
-    to: z.nativeEnum(FeedbackStatus),
+    from: z.string(),
+    to: z.string(),
     content: z.string().optional(),
 });
 
@@ -736,7 +744,7 @@ const feedbacksSchema = z.object({
     take: z.coerce.number().default(10),
     order: z.enum(['newest', 'oldest']).default('newest'),
     boards: z.union([z.array(z.string()), z.string()]).optional(),
-    status: z.union([z.array(z.nativeEnum(FeedbackStatus)), z.nativeEnum(FeedbackStatus)]).optional().default(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS']),
+    status: z.union([z.array(z.string()), z.string()]).optional(),
     categories: z.union([z.array(z.string()), z.string()]).optional(),
     uncategorized: z.coerce.boolean().optional(),
     tags: z.union([z.array(z.string()), z.string()]).optional(),
@@ -803,7 +811,13 @@ export async function getFeedbacks(req: BareSessionRequest, res: Response) {
     }
 
     if (filters?.status) {
-        where.status = { in: Array.isArray(filters.status) ? filters.status : [filters.status] };
+        where.status = { slug: { in: Array.isArray(filters.status) ? filters.status : [filters.status] } };
+    } else {
+        where.status = {
+            type: {
+                notIn: [StatusType.CLOSED, StatusType.COMPLETE],
+            }
+        }
     }
 
     if (filters?.categories) {
@@ -890,9 +904,17 @@ const addNewRoadmapItem = async (req: BareSessionRequest, res: Response) => {
 
     const slug = await generateUniqueSlug(title, board.id)
 
+    const defaultStatus = await db.status.findFirst({ where: { applicationId, type: StatusType.DEFAULT } });
+
+    if (!defaultStatus) {
+        res.status(400).json({ error: 'Default status not found' });
+        return;
+    }
+
     await db.feedback.create({
         data: {
             title,
+            statusId: defaultStatus.id,
             boardId: board.id,
             applicationId,
             slug,

@@ -26,6 +26,7 @@ import { Route as AdminChangelogIndexImport } from './routes/admin/changelog/ind
 import { Route as PublicChangelogIndexImport } from './routes/_public/changelog/index'
 import { Route as PublicBoardSlugIndexImport } from './routes/_public/$boardSlug/index'
 import { Route as AdminUsersUserSlugImport } from './routes/admin/users/$userSlug'
+import { Route as AdminSettingsRoadmapImport } from './routes/admin/settings/roadmap'
 import { Route as AdminSettingsProfileImport } from './routes/admin/settings/profile'
 import { Route as AdminSettingsPreferencesImport } from './routes/admin/settings/preferences'
 import { Route as AdminSettingsCompanyImport } from './routes/admin/settings/company'
@@ -38,6 +39,9 @@ import { Route as AdminChangelogCreateImport } from './routes/admin/changelog/cr
 import { Route as PublicChangelogChangelogSlugImport } from './routes/_public/changelog/$changelogSlug'
 import { Route as AdminSettingsCustomDomainsIndexImport } from './routes/admin/settings/custom-domains.index'
 import { Route as PublicBoardSlugFeedbackSlugIndexImport } from './routes/_public/$boardSlug/$feedbackSlug/index'
+import { Route as AdminSettingsRoadmapStatusesImport } from './routes/admin/settings/roadmap.statuses'
+import { Route as AdminSettingsRoadmapPublicImport } from './routes/admin/settings/roadmap.public'
+import { Route as AdminSettingsRoadmapArchiveImport } from './routes/admin/settings/roadmap.archive'
 import { Route as AdminSettingsPreferencesLanguageImport } from './routes/admin/settings/preferences.language'
 import { Route as AdminSettingsPreferencesEmailImport } from './routes/admin/settings/preferences.email'
 import { Route as AdminSettingsCompanyPreferencesImport } from './routes/admin/settings/company.preferences'
@@ -161,6 +165,12 @@ const AdminUsersUserSlugRoute = AdminUsersUserSlugImport.update({
   getParentRoute: () => AdminUsersRoute,
 } as any)
 
+const AdminSettingsRoadmapRoute = AdminSettingsRoadmapImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => AdminSettingsRoute,
+} as any)
+
 const AdminSettingsProfileRoute = AdminSettingsProfileImport.update({
   id: '/profile',
   path: '/profile',
@@ -234,6 +244,28 @@ const PublicBoardSlugFeedbackSlugIndexRoute =
     id: '/$boardSlug/$feedbackSlug/',
     path: '/$boardSlug/$feedbackSlug/',
     getParentRoute: () => PublicRoute,
+  } as any)
+
+const AdminSettingsRoadmapStatusesRoute =
+  AdminSettingsRoadmapStatusesImport.update({
+    id: '/statuses',
+    path: '/statuses',
+    getParentRoute: () => AdminSettingsRoadmapRoute,
+  } as any)
+
+const AdminSettingsRoadmapPublicRoute = AdminSettingsRoadmapPublicImport.update(
+  {
+    id: '/public',
+    path: '/public',
+    getParentRoute: () => AdminSettingsRoadmapRoute,
+  } as any,
+)
+
+const AdminSettingsRoadmapArchiveRoute =
+  AdminSettingsRoadmapArchiveImport.update({
+    id: '/archive',
+    path: '/archive',
+    getParentRoute: () => AdminSettingsRoadmapRoute,
   } as any)
 
 const AdminSettingsPreferencesLanguageRoute =
@@ -598,6 +630,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsProfileImport
       parentRoute: typeof AdminSettingsImport
     }
+    '/admin/settings/roadmap': {
+      id: '/admin/settings/roadmap'
+      path: '/roadmap'
+      fullPath: '/admin/settings/roadmap'
+      preLoaderRoute: typeof AdminSettingsRoadmapImport
+      parentRoute: typeof AdminSettingsImport
+    }
     '/admin/users/$userSlug': {
       id: '/admin/users/$userSlug'
       path: '/$userSlug'
@@ -758,6 +797,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/settings/preferences/language'
       preLoaderRoute: typeof AdminSettingsPreferencesLanguageImport
       parentRoute: typeof AdminSettingsPreferencesImport
+    }
+    '/admin/settings/roadmap/archive': {
+      id: '/admin/settings/roadmap/archive'
+      path: '/archive'
+      fullPath: '/admin/settings/roadmap/archive'
+      preLoaderRoute: typeof AdminSettingsRoadmapArchiveImport
+      parentRoute: typeof AdminSettingsRoadmapImport
+    }
+    '/admin/settings/roadmap/public': {
+      id: '/admin/settings/roadmap/public'
+      path: '/public'
+      fullPath: '/admin/settings/roadmap/public'
+      preLoaderRoute: typeof AdminSettingsRoadmapPublicImport
+      parentRoute: typeof AdminSettingsRoadmapImport
+    }
+    '/admin/settings/roadmap/statuses': {
+      id: '/admin/settings/roadmap/statuses'
+      path: '/statuses'
+      fullPath: '/admin/settings/roadmap/statuses'
+      preLoaderRoute: typeof AdminSettingsRoadmapStatusesImport
+      parentRoute: typeof AdminSettingsRoadmapImport
     }
     '/_public/$boardSlug/$feedbackSlug/': {
       id: '/_public/$boardSlug/$feedbackSlug/'
@@ -1069,6 +1129,21 @@ const AdminSettingsPreferencesRouteWithChildren =
     AdminSettingsPreferencesRouteChildren,
   )
 
+interface AdminSettingsRoadmapRouteChildren {
+  AdminSettingsRoadmapArchiveRoute: typeof AdminSettingsRoadmapArchiveRoute
+  AdminSettingsRoadmapPublicRoute: typeof AdminSettingsRoadmapPublicRoute
+  AdminSettingsRoadmapStatusesRoute: typeof AdminSettingsRoadmapStatusesRoute
+}
+
+const AdminSettingsRoadmapRouteChildren: AdminSettingsRoadmapRouteChildren = {
+  AdminSettingsRoadmapArchiveRoute: AdminSettingsRoadmapArchiveRoute,
+  AdminSettingsRoadmapPublicRoute: AdminSettingsRoadmapPublicRoute,
+  AdminSettingsRoadmapStatusesRoute: AdminSettingsRoadmapStatusesRoute,
+}
+
+const AdminSettingsRoadmapRouteWithChildren =
+  AdminSettingsRoadmapRoute._addFileChildren(AdminSettingsRoadmapRouteChildren)
+
 interface AdminSettingsRouteChildren {
   AdminSettingsAdminsRoute: typeof AdminSettingsAdminsRouteWithChildren
   AdminSettingsBoardsRoute: typeof AdminSettingsBoardsRouteWithChildren
@@ -1076,6 +1151,7 @@ interface AdminSettingsRouteChildren {
   AdminSettingsCompanyRoute: typeof AdminSettingsCompanyRouteWithChildren
   AdminSettingsPreferencesRoute: typeof AdminSettingsPreferencesRouteWithChildren
   AdminSettingsProfileRoute: typeof AdminSettingsProfileRoute
+  AdminSettingsRoadmapRoute: typeof AdminSettingsRoadmapRouteWithChildren
   AdminSettingsIndexRoute: typeof AdminSettingsIndexRoute
   AdminSettingsCustomDomainsIndexRoute: typeof AdminSettingsCustomDomainsIndexRoute
 }
@@ -1087,6 +1163,7 @@ const AdminSettingsRouteChildren: AdminSettingsRouteChildren = {
   AdminSettingsCompanyRoute: AdminSettingsCompanyRouteWithChildren,
   AdminSettingsPreferencesRoute: AdminSettingsPreferencesRouteWithChildren,
   AdminSettingsProfileRoute: AdminSettingsProfileRoute,
+  AdminSettingsRoadmapRoute: AdminSettingsRoadmapRouteWithChildren,
   AdminSettingsIndexRoute: AdminSettingsIndexRoute,
   AdminSettingsCustomDomainsIndexRoute: AdminSettingsCustomDomainsIndexRoute,
 }
@@ -1171,6 +1248,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
   '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
   '/admin/settings/profile': typeof AdminSettingsProfileRoute
+  '/admin/settings/roadmap': typeof AdminSettingsRoadmapRouteWithChildren
   '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
   '/$boardSlug': typeof PublicBoardSlugIndexRoute
   '/changelog': typeof PublicChangelogIndexRoute
@@ -1194,6 +1272,9 @@ export interface FileRoutesByFullPath {
   '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
   '/admin/settings/preferences/email': typeof AdminSettingsPreferencesEmailRoute
   '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
+  '/admin/settings/roadmap/archive': typeof AdminSettingsRoadmapArchiveRoute
+  '/admin/settings/roadmap/public': typeof AdminSettingsRoadmapPublicRoute
+  '/admin/settings/roadmap/statuses': typeof AdminSettingsRoadmapStatusesRoute
   '/$boardSlug/$feedbackSlug': typeof PublicBoardSlugFeedbackSlugIndexRoute
   '/admin/settings/custom-domains': typeof AdminSettingsCustomDomainsIndexRoute
   '/admin/changelog/$changelogSlug/edit/delete': typeof AdminChangelogChangelogSlugEditDeleteRoute
@@ -1229,6 +1310,7 @@ export interface FileRoutesByTo {
   '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
   '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
   '/admin/settings/profile': typeof AdminSettingsProfileRoute
+  '/admin/settings/roadmap': typeof AdminSettingsRoadmapRouteWithChildren
   '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
   '/$boardSlug': typeof PublicBoardSlugIndexRoute
   '/changelog': typeof PublicChangelogIndexRoute
@@ -1251,6 +1333,9 @@ export interface FileRoutesByTo {
   '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
   '/admin/settings/preferences/email': typeof AdminSettingsPreferencesEmailRoute
   '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
+  '/admin/settings/roadmap/archive': typeof AdminSettingsRoadmapArchiveRoute
+  '/admin/settings/roadmap/public': typeof AdminSettingsRoadmapPublicRoute
+  '/admin/settings/roadmap/statuses': typeof AdminSettingsRoadmapStatusesRoute
   '/$boardSlug/$feedbackSlug': typeof PublicBoardSlugFeedbackSlugIndexRoute
   '/admin/settings/custom-domains': typeof AdminSettingsCustomDomainsIndexRoute
   '/admin/changelog/$changelogSlug/edit/delete': typeof AdminChangelogChangelogSlugEditDeleteRoute
@@ -1290,6 +1375,7 @@ export interface FileRoutesById {
   '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
   '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
   '/admin/settings/profile': typeof AdminSettingsProfileRoute
+  '/admin/settings/roadmap': typeof AdminSettingsRoadmapRouteWithChildren
   '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
   '/_public/$boardSlug/': typeof PublicBoardSlugIndexRoute
   '/_public/changelog/': typeof PublicChangelogIndexRoute
@@ -1313,6 +1399,9 @@ export interface FileRoutesById {
   '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
   '/admin/settings/preferences/email': typeof AdminSettingsPreferencesEmailRoute
   '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
+  '/admin/settings/roadmap/archive': typeof AdminSettingsRoadmapArchiveRoute
+  '/admin/settings/roadmap/public': typeof AdminSettingsRoadmapPublicRoute
+  '/admin/settings/roadmap/statuses': typeof AdminSettingsRoadmapStatusesRoute
   '/_public/$boardSlug/$feedbackSlug/': typeof PublicBoardSlugFeedbackSlugIndexRoute
   '/admin/settings/custom-domains/': typeof AdminSettingsCustomDomainsIndexRoute
   '/admin/changelog/$changelogSlug/edit/delete': typeof AdminChangelogChangelogSlugEditDeleteRoute
@@ -1353,6 +1442,7 @@ export interface FileRouteTypes {
     | '/admin/settings/company'
     | '/admin/settings/preferences'
     | '/admin/settings/profile'
+    | '/admin/settings/roadmap'
     | '/admin/users/$userSlug'
     | '/$boardSlug'
     | '/changelog'
@@ -1376,6 +1466,9 @@ export interface FileRouteTypes {
     | '/admin/settings/company/preferences'
     | '/admin/settings/preferences/email'
     | '/admin/settings/preferences/language'
+    | '/admin/settings/roadmap/archive'
+    | '/admin/settings/roadmap/public'
+    | '/admin/settings/roadmap/statuses'
     | '/$boardSlug/$feedbackSlug'
     | '/admin/settings/custom-domains'
     | '/admin/changelog/$changelogSlug/edit/delete'
@@ -1410,6 +1503,7 @@ export interface FileRouteTypes {
     | '/admin/settings/company'
     | '/admin/settings/preferences'
     | '/admin/settings/profile'
+    | '/admin/settings/roadmap'
     | '/admin/users/$userSlug'
     | '/$boardSlug'
     | '/changelog'
@@ -1432,6 +1526,9 @@ export interface FileRouteTypes {
     | '/admin/settings/company/preferences'
     | '/admin/settings/preferences/email'
     | '/admin/settings/preferences/language'
+    | '/admin/settings/roadmap/archive'
+    | '/admin/settings/roadmap/public'
+    | '/admin/settings/roadmap/statuses'
     | '/$boardSlug/$feedbackSlug'
     | '/admin/settings/custom-domains'
     | '/admin/changelog/$changelogSlug/edit/delete'
@@ -1469,6 +1566,7 @@ export interface FileRouteTypes {
     | '/admin/settings/company'
     | '/admin/settings/preferences'
     | '/admin/settings/profile'
+    | '/admin/settings/roadmap'
     | '/admin/users/$userSlug'
     | '/_public/$boardSlug/'
     | '/_public/changelog/'
@@ -1492,6 +1590,9 @@ export interface FileRouteTypes {
     | '/admin/settings/company/preferences'
     | '/admin/settings/preferences/email'
     | '/admin/settings/preferences/language'
+    | '/admin/settings/roadmap/archive'
+    | '/admin/settings/roadmap/public'
+    | '/admin/settings/roadmap/statuses'
     | '/_public/$boardSlug/$feedbackSlug/'
     | '/admin/settings/custom-domains/'
     | '/admin/changelog/$changelogSlug/edit/delete'
@@ -1590,6 +1691,7 @@ export const routeTree = rootRoute
         "/admin/settings/company",
         "/admin/settings/preferences",
         "/admin/settings/profile",
+        "/admin/settings/roadmap",
         "/admin/settings/",
         "/admin/settings/custom-domains/"
       ]
@@ -1689,6 +1791,15 @@ export const routeTree = rootRoute
     "/admin/settings/profile": {
       "filePath": "admin/settings/profile.tsx",
       "parent": "/admin/settings"
+    },
+    "/admin/settings/roadmap": {
+      "filePath": "admin/settings/roadmap.tsx",
+      "parent": "/admin/settings",
+      "children": [
+        "/admin/settings/roadmap/archive",
+        "/admin/settings/roadmap/public",
+        "/admin/settings/roadmap/statuses"
+      ]
     },
     "/admin/users/$userSlug": {
       "filePath": "admin/users/$userSlug.tsx",
@@ -1791,6 +1902,18 @@ export const routeTree = rootRoute
     "/admin/settings/preferences/language": {
       "filePath": "admin/settings/preferences.language.tsx",
       "parent": "/admin/settings/preferences"
+    },
+    "/admin/settings/roadmap/archive": {
+      "filePath": "admin/settings/roadmap.archive.tsx",
+      "parent": "/admin/settings/roadmap"
+    },
+    "/admin/settings/roadmap/public": {
+      "filePath": "admin/settings/roadmap.public.tsx",
+      "parent": "/admin/settings/roadmap"
+    },
+    "/admin/settings/roadmap/statuses": {
+      "filePath": "admin/settings/roadmap.statuses.tsx",
+      "parent": "/admin/settings/roadmap"
     },
     "/_public/$boardSlug/$feedbackSlug/": {
       "filePath": "_public/$boardSlug/$feedbackSlug/index.tsx",

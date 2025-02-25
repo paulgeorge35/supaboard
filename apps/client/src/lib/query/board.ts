@@ -1,10 +1,11 @@
-import { Board, Feedback } from "@repo/database";
+import { Board, Feedback, Status } from "@repo/database";
 import { queryOptions } from "@tanstack/react-query";
 import { fetchClient } from "../client";
 
 export type BoardQueryData = Pick<Board, 'id' | 'name' | 'slug' | 'title' | 'details' | 'detailsRequired' | 'callToAction' | 'buttonText'> & {
-    feedbacks: (Pick<Feedback, 'id' | 'title' | 'description' | 'status' | 'slug'> & {
+    feedbacks: (Pick<Feedback, 'id' | 'title' | 'description' | 'slug'> & {
       votes: number;
+      status: Status;
       activities: number;
       votedByMe: boolean;
     })[]

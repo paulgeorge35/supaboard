@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/skeleton';
 import { useAddNewRoadmapItemMutation, useUpdateRoadmapItemMutation } from '@/lib/mutation/roadmap';
 import { applicationBoardsQuery } from '@/lib/query';
 import type { RoadmapDetailResponse } from '@/lib/query/roadmap';
-import { cn, FeedbackStatusConfig } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Route } from '@/routes/admin/roadmap/$roadmapSlug';
 import { RoadmapField, useRoadmapStore } from '@/stores/roadmap-store';
 import { useFocus, useMediaQuery, useNumber } from '@paulgeorge35/hooks';
@@ -173,7 +173,7 @@ const columns = ({ checkedItems, setCheckedItems, isMobile, maxVotes }: ColumnPr
   }),
   columnHelper.accessor('status', {
     header: 'Status',
-    cell: (info) => <StatusBadge status={info.getValue()} variant='text' />,
+    cell: (info) => <StatusBadge status={info.getValue().slug} variant='text' />,
     enableResizing: true,
     minSize: isMobile ? 100 : 130,
     maxSize: isMobile ? 150 : 600,
@@ -503,7 +503,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
         } else if (groupBy === 'owner') {
           group = item.owner?.name ?? 'Unknown';
         } else if (groupBy === 'status') {
-          group = FeedbackStatusConfig[item.status].label;
+          group = item.status.name;
         }
         groupedItems[group] = { expanded: true, items: [...(groupedItems[group]?.items ?? []), item] };
       }
@@ -568,7 +568,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
       numberFilter(item.impact, impact?.operator, impact?.value) &&
       numberFilter(item.votes, votes?.operator, votes?.value) &&
       numberFilter(item.effort, effort?.operator, effort?.value) &&
-      statusFilter(item.status, status as string[]) &&
+      statusFilter(item.status.slug, status as string[]) &&
       boardFilter(item.board.slug, board as string[]) &&
       categoryFilter(item.category?.slug ?? '', category as string[]) &&
       ownerFilter(item.owner?.id ?? '', owner as string[]) &&

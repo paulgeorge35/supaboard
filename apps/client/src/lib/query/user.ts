@@ -1,4 +1,3 @@
-import { FeedbackStatus } from "@repo/database";
 import { z } from "zod";
 import { fetchClient } from "../client";
 
@@ -65,7 +64,7 @@ export type MemberActivity = {
     id: string;
     title: string;
     description: string;
-    status: FeedbackStatus;
+    status: string;
     slug: string;
     boardSlug: string;
     comments: number;

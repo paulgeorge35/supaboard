@@ -221,10 +221,10 @@ const FeedbackCard = ({ feedback, index, board, vote, isPending }: FeedbackCardP
           <span className="text-xs text-gray-500">
             {feedback.activities}
           </span>
-          {feedback.status !== 'OPEN' && (
+          {feedback.status.type !== 'DEFAULT' && (
             <>
               <span className="text-gray-500 text-xs">&bull;</span>
-              <StatusBadge status={feedback.status} />
+              <StatusBadge status={feedback.status.slug} />
             </>
           )}
         </span>

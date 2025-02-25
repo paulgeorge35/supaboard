@@ -2,22 +2,19 @@ import { Button, Icons, StatusBadge } from "@/components"
 import { Checkbox } from "@/components/checkbox"
 import { SelectComponent } from "@/components/select"
 import { LoadingSpinner } from "@/components/spinner"
-import { changelogFeedbacksQuery, changelogLabelsQuery } from "@/lib/query"
-import { FeedbackStatusConfig } from "@/lib/utils"
+import { changelogFeedbacksQuery, changelogLabelsQuery, Status } from "@/lib/query"
 import { useBoolean } from "@paulgeorge35/hooks"
 import { useQuery } from "@tanstack/react-query"
 import { Link, useParams } from "@tanstack/react-router"
 import { useMemo } from "react"
-
-type FeedbackStatus = keyof typeof FeedbackStatusConfig
 
 type ControlsProps = {
     types: TypeValues[]
     onTypeChange: (value: TypeValues[]) => void
     labels: { id: string, name: string }[]
     onLabelChange: (value: { id: string, name: string }[]) => void
-    feedbacks?: { id: string, title: string, status: FeedbackStatus, board: { slug: string }, votes: number }[]
-    onFeedbackChange?: (value: { id: string, title: string, status: FeedbackStatus, board: { slug: string }, votes: number }[]) => void
+    feedbacks?: { id: string, title: string, status: Status, board: { slug: string }, votes: number }[]
+    onFeedbackChange?: (value: { id: string, title: string, status: Status, board: { slug: string }, votes: number }[]) => void
 }
 
 
@@ -33,8 +30,8 @@ export const Controls = ({ types, onTypeChange, labels, onLabelChange, feedbacks
 }
 
 type FeedbackProps = {
-    linkedFeedbacks: { id: string, title: string, status: FeedbackStatus, board: { slug: string }, votes: number }[]
-    onChange: (value: { id: string, title: string, status: FeedbackStatus, board: { slug: string }, votes: number }[]) => void
+    linkedFeedbacks: { id: string, title: string, status: Status, board: { slug: string }, votes: number }[]
+    onChange: (value: { id: string, title: string, status: Status, board: { slug: string }, votes: number }[]) => void
 }
 
 const Feedback = ({ linkedFeedbacks, onChange }: FeedbackProps) => {
@@ -64,7 +61,7 @@ const Feedback = ({ linkedFeedbacks, onChange }: FeedbackProps) => {
                             <Icons.Triangle className="size-3 stroke-0 fill-gray-500 dark:fill-zinc-300" />
                             {feedback.votes}
                         </span>
-                        <StatusBadge status={feedback.status} variant='text' className="ml-auto" />
+                        <StatusBadge status={feedback.status.slug} variant='text' className="ml-auto" />
                     </span>
                 </span>
             )
@@ -94,7 +91,7 @@ const Feedback = ({ linkedFeedbacks, onChange }: FeedbackProps) => {
                                 <Icons.Triangle className="size-3 stroke-0 fill-gray-500 dark:fill-zinc-300" />
                                 {feedback.votes}
                             </span>
-                            <StatusBadge status={feedback.status} variant='text' />
+                            <StatusBadge status={feedback.status.slug} variant='text' />
                         </span>
                     </span>
                     <Button variant="ghost" size="icon" className="ml-auto" onClick={() => onChange(linkedFeedbacks.filter((f) => f.id !== feedback.id))}>

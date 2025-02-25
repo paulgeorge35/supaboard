@@ -1,4 +1,4 @@
-import { FeedbackStatus, Prisma } from "../../generated/client";
+import { Prisma, Status } from "../../generated/client";
 
 export const changelogDetailedInclude = Prisma.validator<Prisma.ChangelogInclude>()({
     labels: {
@@ -33,7 +33,7 @@ export type ChangelogDetailed = Omit<Prisma.ChangelogGetPayload<{
     linkedFeedbacks: {
         id: string;
         title: string;
-        status: FeedbackStatus;
+        status: Status;
         board: { slug: string };
         votes: number;
     }[];

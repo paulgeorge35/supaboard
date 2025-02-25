@@ -19,16 +19,6 @@ enum Role {
   VIEWER
 }
 
-enum FeedbackStatus {
-  OPEN
-  UNDER_REVIEW
-  PLANNED
-  IN_PROGRESS
-  RESOLVED
-  CLOSED
-}
-
-
 enum ActivityType {
   FEEDBACK_CREATE
   FEEDBACK_UPDATE
@@ -76,6 +66,13 @@ enum ChangelogStatus {
   PUBLISHED
   SCHEDULED
   DRAFT
+}
+
+enum StatusType {
+  DEFAULT
+  ACTIVE
+  COMPLETE
+  CLOSED
 }
 
 model User {
@@ -162,6 +159,7 @@ model Application {
   preferredLanguage       Language @default(EN)
   isChangelogPublic       Boolean  @default(true)
   isChangelogSubscribable Boolean  @default(false)
+  isRoadmapPublic         Boolean  @default(true)
 
   ownerId String
   owner   User   @relation("ApplicationOwner", fields: [ownerId], references: [id])
@@ -175,6 +173,7 @@ model Application {
   changelogLabels      ChangelogLabel[]
   changelogSubscribers User[]              @relation("ChangelogSubscriber")
   domains              Domain[]
+  statuses             Status[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -221,16 +220,17 @@ model ApplicationInvite {
 }
 
 model Feedback {
-  id                String         @id @default(uuid())
+  id                String        @id @default(uuid())
   title             String
   description       String?
   slug              String
-  status            FeedbackStatus @default(OPEN)
   estimatedDelivery DateTime?
-  publicEstimate    Boolean        @default(true)
-  edited            Boolean        @default(false)
+  publicEstimate    Boolean       @default(true)
+  edited            Boolean       @default(false)
   roadmapItems      RoadmapItem[]
 
+  statusId      String
+  status        Status            @relation(fields: [statusId], references: [id])
   boardId       String
   board         Board             @relation(fields: [boardId], references: [id], onDelete: Cascade)
   authorId      String?
@@ -258,7 +258,7 @@ model Feedback {
   updatedAt DateTime @updatedAt
 
   @@unique([boardId, slug])
-  @@index([applicationId, status])
+  @@index([applicationId, boardId, statusId])
 }
 
 model File {
@@ -298,11 +298,12 @@ model FeedbackCategory {
 }
 
 model Board {
-  id          String  @id @default(uuid())
-  name        String
-  description String?
-  slug        String  @default("feature-requests")
-  public      Boolean @default(false)
+  id               String  @id @default(uuid())
+  name             String
+  description      String?
+  slug             String  @default("feature-requests")
+  public           Boolean @default(false)
+  includeInRoadmap Boolean @default(true)
 
   callToAction    String  @default("Share your feedback...")
   title           String? @default("Short, descriptive title")
@@ -318,6 +319,26 @@ model Board {
   feedbacks  Feedback[]
   categories FeedbackCategory[]
   tags       Tag[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([applicationId, slug])
+}
+
+model Status {
+  id               String     @id @default(uuid())
+  name             String
+  color            String     @default("blue-500")
+  slug             String
+  type             StatusType
+  order            Int
+  includeInRoadmap Boolean    @default(false)
+
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  feedbacks Feedback[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -409,9 +430,10 @@ model RoadmapItem {
 }
 
 model Roadmap {
-  id   String @id @default(uuid())
-  name String
-  slug String
+  id         String  @id @default(uuid())
+  name       String
+  slug       String
+  isArchived Boolean @default(false)
 
   applicationId String
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)

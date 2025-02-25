@@ -219,7 +219,7 @@ function RouteComponent() {
           />
           <span className="vertical justify-between">
             <h1 className="font-medium text-lg">{feedback.title}</h1>
-            {feedback.status !== 'OPEN' && <StatusBadge status={feedback.status} />}
+            {feedback.status.type !== 'DEFAULT' && <StatusBadge status={feedback.status.slug} />}
           </span>
         </span>
 

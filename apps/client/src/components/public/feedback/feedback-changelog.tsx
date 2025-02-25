@@ -10,7 +10,7 @@ export const FeedbackChangelog = ({ feedback }: FeedbackChangelogProps) => {
     if (!feedback.changelogSlug) return null;
     return (
         <div className="grid grid-cols-[auto_1fr] gap-2 p-4 border rounded-lg">
-            {feedback.status === 'RESOLVED' && <StatusBadge status={feedback.status} variant='text' />}
+            {feedback.status.type === 'COMPLETE' && <StatusBadge status={feedback.status.slug} variant='text' />}
             <p className="text-sm font-light text-gray-500 dark:text-zinc-400 col-span-full">
                 Visit our changelog to read the official release notes 🎉
             </p>

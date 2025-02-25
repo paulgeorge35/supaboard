@@ -35,7 +35,7 @@ export const Textbox = ({ className, maxLength, mention, wrapperClassName, onCha
             {maxLength && <CharacterLimit content={props.value as string} max={maxLength} />}
             {typeof props.value === 'string' && mention && (
                 <div
-                    className={cn("absolute top-0 left-0 pointer-events-none z-10",{
+                    className={cn("absolute top-0 left-0 pointer-events-none z-10 mt-1.5",{
                         "pr-14": maxLength
                     })}
                 >

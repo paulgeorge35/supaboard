@@ -129,7 +129,7 @@ export const MergeButton = ({ feedback, boardSlug, className }: MergeButtonProps
                                 className='px-3 py-2 cursor-pointer vertical gap-1 hover:bg-[var(--color-primary)]/10 dark:hover:bg-[var(--color-primary)]/10 transition-colors rounded-md'
                             >
                                 <h1 className='text-sm font-medium'>{feedback.title}</h1>
-                                <StatusBadge status={feedback.status} variant='text' />
+                                <StatusBadge status={feedback.status.slug} variant='text' />
                                 <span className='horizontal gap-2 center-v mt-2'>
                                     <Icons.ClipboardList className='size-3 stroke-1 stroke-gray-500 dark:stroke-zinc-400' />
                                     <p className='text-xs text-gray-500 dark:text-zinc-400'>{feedback.board.name}</p>

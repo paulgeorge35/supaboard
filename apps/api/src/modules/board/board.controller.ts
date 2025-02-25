@@ -1,6 +1,6 @@
 import type { BareSessionRequest } from "@/types";
 import { parseAndThrowFirstError } from "@/util/error-parser";
-import { db, FeedbackStatus, Prisma } from "@repo/database";
+import { db, Prisma, StatusType } from "@repo/database";
 import type { Response } from "express";
 import { z } from "zod";
 
@@ -37,7 +37,7 @@ const getBoardBySlugDetailedSchema = z.object({
         }
     ),
     sort: z.enum(['newest', 'top']).default('newest').optional(),
-    status: z.union([z.array(z.nativeEnum(FeedbackStatus)), z.nativeEnum(FeedbackStatus)]).optional().default(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS']),
+    status: z.union([z.array(z.string()), z.string()]).optional(),
 });
 
 export async function getBoardBySlugDetailed(req: BareSessionRequest, res: Response) {
@@ -58,7 +58,13 @@ export async function getBoardBySlugDetailed(req: BareSessionRequest, res: Respo
     }
 
     if (status) {
-        where.status = { in: Array.isArray(status) ? status : [status] };
+        where.status = { slug: { in: Array.isArray(status) ? status : [status] } };
+    } else {
+        where.status = {
+            type: {
+                notIn: [StatusType.CLOSED, StatusType.COMPLETE],
+            }
+        }
     }
 
     let orderBy: Prisma.FeedbackOrderByWithRelationInput = {};

@@ -1,6 +1,6 @@
 import { Board as BoardComponent, Icons, NotFoundPage, StatusBoard } from '@/components'
 import { Invitation } from '@/components/public/invitations'
-import { applicationBoardsQuery } from '@/lib/query'
+import { applicationBoardsQuery, statusesQuery } from '@/lib/query'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
@@ -11,16 +11,7 @@ export const Route = createFileRoute('/_public/')({
 
 function HomeComponent() {
   const { data: boards } = useSuspenseQuery(applicationBoardsQuery)
-
-  const plannedFeedbacks = boards.flatMap((board) =>
-    board.feedbacks.filter((feedback) => feedback.status === 'PLANNED'),
-  )
-  const inProgressFeedbacks = boards.flatMap((board) =>
-    board.feedbacks.filter((feedback) => feedback.status === 'IN_PROGRESS'),
-  )
-  const underReviewFeedbacks = boards.flatMap((board) =>
-    board.feedbacks.filter((feedback) => feedback.status === 'UNDER_REVIEW'),
-  )
+  const { data: statuses } = useSuspenseQuery(statusesQuery)
 
   const hasPublicBoards = boards.some((board) => board.showOnHome)
 
@@ -57,9 +48,9 @@ function HomeComponent() {
       </span>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <StatusBoard status="UNDER_REVIEW" items={underReviewFeedbacks} />
-        <StatusBoard status="PLANNED" items={plannedFeedbacks} />
-        <StatusBoard status="IN_PROGRESS" items={inProgressFeedbacks} />
+        {statuses?.filter(status => status.includeInRoadmap).map(status => (
+          <StatusBoard key={status.slug} status={status} items={boards.flatMap(board => board.feedbacks.filter(feedback => feedback.status.slug === status.slug))} />
+        ))}
       </div>
     </>
   )

@@ -1,6 +1,5 @@
 import { Icons, StatusBadge, VoteButton } from "@/components";
 import { fetchClient } from "@/lib/client";
-import { FeedbackStatus } from "@repo/database";
 import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { DateTime } from "luxon";
@@ -11,7 +10,7 @@ type StalePostsQueryData = {
     title: string;
     slug: string;
     boardSlug: string;
-    status: FeedbackStatus;
+    status: string;
     createdAt: Date;
     lastActivityAt: Date;
     votes: number;

@@ -3,12 +3,12 @@ import { ComboSelect } from '@/components/combo-select';
 import { DateRangeSelector } from '@/components/date-range-selector';
 import { SelectComponent } from '@/components/select';
 import { Switch } from '@/components/switch';
-import { applicationBoardsQuery, ApplicationBoardsQueryData, membersQuery } from '@/lib/query';
-import { cn, FeedbackStatusConfig } from '@/lib/utils';
+import { applicationBoardsQuery, ApplicationBoardsQueryData, membersQuery, statusesQuery } from '@/lib/query';
+import { cn } from '@/lib/utils';
 import { RoadmapField, useRoadmapStore } from '@/stores/roadmap-store';
 import { useBoolean } from '@paulgeorge35/hooks';
 import { MemberSummary } from '@repo/database';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { createFileRoute, getRouteApi, useParams, useRouter, useSearch } from '@tanstack/react-router';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
@@ -272,16 +272,14 @@ const CategoryField = ({ categories }: CategoryFieldProps) => {
   )
 }
 
-type StatusType = keyof typeof FeedbackStatusConfig;
-
 const StatusField = () => {
   const router = useRouter();
   const { roadmapSlug } = useParams({ from: Route.fullPath });
   const visibleFields = useRoadmapStore((state) => state.visibleFields);
+  const { data } = useQuery(statusesQuery);
   const search = useSearch({ from: Route.fullPath });
 
   const isVisible = useMemo(() => visibleFields.includes('status' as RoadmapField), [visibleFields]);
-  const options = Object.keys(FeedbackStatusConfig).map((status) => ({ label: FeedbackStatusConfig[status as StatusType].label, value: status }));
   const selectedStatuses = useMemo(() => search.status ? (Array.isArray(search.status) ? search.status : [search.status]) : [], [search]);
 
   return (
@@ -291,11 +289,12 @@ const StatusField = () => {
         name='status'
         placeholder='All statuses'
         selectionMode='multiple'
-        options={options}
+        options={data?.map((status) => ({ label: status.name, value: status.slug })) ?? []}
         className='min-h-9'
         value={selectedStatuses}
         onChange={(value) => {
-          router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, status: value.length > 0 ? value as StatusType[] : undefined }, replace: true });
+          console.log(value);
+          router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, status: value.length > 0 ? value : undefined }, replace: true });
         }}
       />}
     </div>

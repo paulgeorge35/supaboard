@@ -3,10 +3,11 @@ import { Icons } from "@/components/icons";
 import { ImageFile } from "@/components/image-file";
 import { Popover } from "@/components/popover";
 import { fetchClient } from "@/lib/client";
+import { Status, statusesQuery } from "@/lib/query";
 import { membersQuery } from "@/lib/query/application";
 import { meQuery, MeQueryData } from "@/lib/query/auth";
 import { feedbackActivitiesQuery, FeedbackActivitiesQueryData, FeedbackPage, feedbackQuery, FeedbackQueryData, feedbacksInfiniteQuery } from "@/lib/query/feedback";
-import { cn, FeedbackStatusConfig } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Route as FeedbackRoute } from "@/routes/admin/feedback";
 import { Route } from "@/routes/admin/feedback/$boardSlug/$feedbackSlug";
 import { categoriesQuery } from "@/routes/admin/settings/boards.$boardSlug.categories";
@@ -16,16 +17,8 @@ import { InfiniteData, useMutation, useQuery, useQueryClient } from "@tanstack/r
 import { useParams, useRouter, useSearch } from "@tanstack/react-router";
 import { DateTime } from "luxon";
 import { ChangeEvent, RefObject, useEffect, useMemo, useRef, useState } from "react";
+import colors from 'tailwindcss/colors';
 import { v4 as uuidv4 } from 'uuid';
-
-enum FeedbackStatus {
-    OPEN = 'OPEN',
-    UNDER_REVIEW = 'UNDER_REVIEW',
-    PLANNED = 'PLANNED',
-    IN_PROGRESS = 'IN_PROGRESS',
-    RESOLVED = 'RESOLVED',
-    CLOSED = 'CLOSED'
-}
 
 enum ActivityType {
     FEEDBACK_CREATE = 'FEEDBACK_CREATE',
@@ -37,7 +30,7 @@ enum ActivityType {
 
 type FeedbackUpdateData = {
     boardId?: string;
-    status?: FeedbackStatus;
+    status?: string;
     categoryId?: string | null;
     ownerId?: string | null;
     estimatedDelivery?: Date | null;
@@ -48,13 +41,14 @@ type FeedbackUpdateData = {
 
 export function Details() {
     const queryClient = useQueryClient();
+    const { data: statuses } = useQuery(statusesQuery);
     const { user, application } = useAuthStore();
     const search = useSearch({ from: FeedbackRoute.fullPath });
     const router = useRouter();
     const { boardSlug, feedbackSlug } = useParams({
         from: Route.fullPath,
     });
-    const [statusChange, setStatusChange] = useState<FeedbackStatus | undefined>(undefined);
+    const [statusChange, setStatusChange] = useState<string | undefined>(undefined);
     const estimateRef = useRef<HTMLDivElement>(null);
     const estimateOpen = useBoolean(false);
     
@@ -81,6 +75,7 @@ export function Details() {
                     return {
                         ...old,
                         ...data,
+                        status: statuses?.find(status => status.slug === data.status) ?? old.status,
                         files: data.files?.map(file => file.key) ?? [],
                     }
                 }
@@ -222,7 +217,7 @@ export function Details() {
             <p className="text-gray-500 dark:text-zinc-300 text-sm font-light col-start-1 horizontal center-v py-1">Board</p>
             <BoardComponent isPending={isPending} updateData={mutate} />
             <p className="text-gray-500 dark:text-zinc-300 text-sm font-light col-start-1 horizontal center-v py-1">Status</p>
-            <StatusComponent isPending={isPending} updateData={mutate} statusChange={statusChange} setStatusChange={setStatusChange} />
+            <StatusComponent isPending={isPending} updateData={mutate} statusChange={statusChange} setStatusChange={setStatusChange} statuses={statuses ?? []} />
             <p className="text-gray-500 dark:text-zinc-300 text-sm font-light col-start-1 horizontal center-v py-1">Owner</p>
             <OwnerComponent isPending={isPending} updateData={mutate} />
             <div ref={estimateRef} className="col-span-full grid grid-cols-subgrid">
@@ -303,11 +298,12 @@ const BoardComponent = ({ isPending, updateData }: { isPending: boolean, updateD
 type StatusComponentProps = {
     isPending: boolean;
     updateData: (data: FeedbackUpdateData) => void;
-    statusChange: FeedbackStatus | undefined;
-    setStatusChange: (statusChange: FeedbackStatus | undefined) => void;
+    statusChange: string | undefined;
+    setStatusChange: (statusChange: string | undefined) => void;
+    statuses: Status[];
 }
 
-const StatusComponent = ({ isPending, updateData, statusChange, setStatusChange }: StatusComponentProps) => {
+const StatusComponent = ({ isPending, updateData, statusChange, setStatusChange, statuses }: StatusComponentProps) => {
     const { boardSlug, feedbackSlug } = useParams({
         from: Route.fullPath,
     })
@@ -315,9 +311,9 @@ const StatusComponent = ({ isPending, updateData, statusChange, setStatusChange 
 
     if (!feedback) return null;
 
-    const status = FeedbackStatusConfig[feedback.status];
+    const status = statuses?.find(status => status.slug === feedback.status.slug);
 
-    const newStatus = statusChange ? FeedbackStatusConfig[statusChange] : undefined;
+    const newStatus = statusChange ? statuses?.find(status => status.slug === statusChange) : undefined;
 
     return (
         <>
@@ -327,26 +323,29 @@ const StatusComponent = ({ isPending, updateData, statusChange, setStatusChange 
                     <div className={cn("text-sm font-light rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-800/50 transition-colors duration-150 cursor-pointer gap-1",
                         "horizontal center-v min-w-0 group relative px-2 py-1"
                     )}>
-                        <span className="truncate">{newStatus?.label ?? status.label}</span>
+                        <span className="truncate">{newStatus?.name ?? status?.name}</span>
                         <Icons.ChevronDown className="size-3" />
                     </div>
                 }
                 content={
                     <div className="flex flex-col gap-1">
-                        {Object.entries(FeedbackStatusConfig).map(([key, value]) => {
-                            const colorClass = `${value.text} dark:${value.text}`;
+                        {statuses?.map((status) => {
+                            const color = status.color.split('-')[0] as Exclude<keyof typeof colors, 'white' | 'black' | 'transparent' | 'inherit' | 'current'>;
+                            const shade = status.color.split('-')[1] as keyof typeof colors[typeof color];
                             return (
                                 <button
-                                    key={key}
+                                    key={status.slug}
                                     data-popover-close
-                                    disabled={isPending || key === feedback.status}
+                                    disabled={isPending || status.slug === feedback.status.slug}
                                     className={cn(
-                                        'block text-xs font-medium uppercase text-nowrap w-full text-left px-4 py-2 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-zinc-800/20',
-                                        colorClass
+                                        'block text-xs font-medium uppercase text-nowrap w-full text-left px-4 py-2 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-zinc-800/20'
                                     )}
-                                    onClick={() => setStatusChange(key as FeedbackStatus)}
+                                    style={{
+                                        color: colors[color][shade],
+                                    }}
+                                    onClick={() => setStatusChange(status.slug)}
                                 >
-                                    {value.label}
+                                    {status.name}
                                 </button>
                             )
                         })}
@@ -359,7 +358,7 @@ const StatusComponent = ({ isPending, updateData, statusChange, setStatusChange 
 }
 
 type CommentFormProps = {
-    statusChange: FeedbackStatus;
+    statusChange: string;
     className?: string;
     updateData: (data: FeedbackUpdateData) => void;
     isPending: boolean;

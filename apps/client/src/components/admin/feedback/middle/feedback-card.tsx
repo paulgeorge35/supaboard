@@ -35,8 +35,8 @@ export function FeedbackCard({ feedback, ref }: FeedbackCardProps) {
                         <span className="text-xs text-gray-500">
                             {_count.activities}
                         </span>
-                        {status !== 'OPEN' && (
-                            <StatusBadge status={status} className="ml-auto" />
+                        {status.type !== 'DEFAULT' && (
+                            <StatusBadge status={status.slug} className="ml-auto" />
                         )}
                     </span>
                 </div>

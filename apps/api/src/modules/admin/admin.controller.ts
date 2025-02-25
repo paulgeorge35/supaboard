@@ -1,5 +1,5 @@
 import { sendInvitationEmail } from "@/util";
-import { activityOverview, ActivityType, applicationInviteSummarySelect, createMergeActivity, db, FeedbackStatus, feeedbackSummarySelect, getLatestPosts, memberActivity, membersDetail, memberSummarySelect, mergeActivities, mergeVotes, postOverviewAllBoards, postOverviewCategories, postOverviewTags, Role, unmergeActivities, unmergeVotes, userSummarySelect } from "@repo/database";
+import { activityOverview, ActivityType, applicationInviteSummarySelect, createMergeActivity, db, feeedbackSummarySelect, getLatestPosts, memberActivity, membersDetail, memberSummarySelect, mergeActivities, mergeVotes, postOverviewAllBoards, postOverviewCategories, postOverviewTags, Role, StatusType, unmergeActivities, unmergeVotes, userSummarySelect } from "@repo/database";
 import type { Response } from "express";
 import { DateTime } from "luxon";
 import { z } from "zod";
@@ -15,7 +15,7 @@ const fileSchema = z.object({
 
 const updateFeedbackSchema = z.object({
     boardId: z.string().uuid().optional(),
-    status: z.nativeEnum(FeedbackStatus).optional(),
+    status: z.string().optional(),
     ownerId: z.string().uuid().nullish(),
     estimatedDelivery: z.coerce.date().nullish(),
     publicEstimate: z.boolean().optional().default(true),
@@ -30,7 +30,7 @@ const updateFeedbackSchema = z.object({
 
 export async function updateFeedback(request: BareSessionRequest, res: Response) {
     const userId = request.auth?.id;
-    const applicationId = request.application?.id;
+    const applicationId = request.application?.id!;
 
     if (!userId) {
         res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
@@ -61,6 +61,7 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
                     name: true,
                 },
             },
+            status: true,
             owner: {
                 select: {
                     name: true,
@@ -113,6 +114,7 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
                 },
             });
         }
+        const newStatus = status ? await tx.status.findUnique({ where: { applicationId_slug: { applicationId, slug: status } } }) : null;
         const updatedFeedback = await tx.feedback.update({
             where: { id: feedback.id },
             include: {
@@ -126,6 +128,7 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
                         name: true,
                     },
                 },
+                status: true,
                 board: {
                     select: {
                         name: true,
@@ -135,7 +138,7 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
             },
             data: {
                 boardId,
-                status,
+                statusId: newStatus?.id,
                 ownerId,
                 estimatedDelivery,
                 publicEstimate,
@@ -162,13 +165,13 @@ export async function updateFeedback(request: BareSessionRequest, res: Response)
                 },
             });
         }
-        if (updatedFeedback.status !== feedback.status) {
+        if (updatedFeedback.status.slug !== feedback.status.slug) {
             await tx.activity.create({
                 data: {
                     type: ActivityType.FEEDBACK_STATUS_CHANGE,
                     data: {
-                        from: feedback.status,
-                        to: updatedFeedback.status,
+                        from: feedback.status.slug,
+                        to: updatedFeedback.status.slug,
                         content,
                     },
                     files: files ? {
@@ -958,7 +961,9 @@ const getMergeCompatibleFeedbacks = async (req: BareSessionRequest, res: Respons
         where: {
             boardId: feedback.boardId,
             status: {
-                notIn: [FeedbackStatus.CLOSED, FeedbackStatus.RESOLVED],
+                type: {
+                    notIn: [StatusType.CLOSED, StatusType.COMPLETE],
+                }
             },
             mergedIntoId: null,
             changelog: null,

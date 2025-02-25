@@ -173,6 +173,7 @@ export async function getBoards(req: BareSessionRequest, res: Response) {
         name: board.name,
         slug: board.slug,
         showOnHome: board.showOnHome,
+        includeInRoadmap: board.includeInRoadmap,
         count: board._count.feedbacks,
         feedbacks: board.feedbacks.map(feedback => ({
             id: feedback.id,

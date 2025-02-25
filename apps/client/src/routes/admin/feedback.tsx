@@ -14,7 +14,7 @@ const feedbackSearchSchema = z.object({
   take: z.number().optional(),
   order: z.enum(['newest', 'oldest']).optional(),
   boards: z.array(z.string()).optional(),
-  status: z.array(z.enum(['OPEN', 'UNDER_REVIEW', 'PLANNED', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'])).optional(),
+  status: z.array(z.string()).optional(),
   categories: z.array(z.string()).optional(),
   uncategorized: z.boolean().optional(),
   tags: z.array(z.string()).optional(),
