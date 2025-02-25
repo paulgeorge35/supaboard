@@ -67,7 +67,7 @@ export const CommentContent = ({ content, className, mention }: CommentContentPr
         // Handle regular text lines
         flushList()
         result.push(
-            <p key={`p-${index}`}>
+            <p key={`p-${index}`} className='whitespace-pre-wrap'>
                 {parseLine(line, mention)}
             </p>
         )

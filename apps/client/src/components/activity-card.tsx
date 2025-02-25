@@ -124,8 +124,7 @@ export function ActivityCard({ activity, feedbackSlug, boardSlug, className }: A
             <MergedActivityCard activity={activity} />
 
             {/* Activity text content */}
-            {/* {activity.data.content && <p className='text-sm hyphens-auto font-light col-start-2'>{activity.data.content}</p>} */}
-            <CommentContent content={activity.data.content} className="col-start-2" mention={activity.threadId ? activity.thread?.author?.name : undefined} />
+            <CommentContent content={activity.data.content} className="col-start-2" mention={activity.threadId ? activity.data.mention : undefined} />
             {/* Activity attachments */}
             {activity.files.length > 0 && <div className="col-start-2 horizontal flex-wrap gap-2">
                 {activity.files.map(file => <ImageFile key={file} fileKey={file} />)}

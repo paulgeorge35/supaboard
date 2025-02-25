@@ -286,6 +286,7 @@ export async function getVoters(req: BareSessionRequest, res: Response) {
 const commentDataSchema = z.object({
     type: z.literal(ActivityType.FEEDBACK_COMMENT),
     content: z.string().min(1),
+    mention: z.string().optional(),
 });
 
 const statusChangeDataSchema = z.object({
@@ -428,6 +429,7 @@ export async function getActivities(req: BareSessionRequest, res: Response) {
 
 const commentSchema = z.object({
     content: z.string().min(1).max(1000, { message: 'Comment must be less than 1000 characters' }),
+    mention: z.string().optional(),
     public: z.boolean().optional().default(true),
     files: z.array(fileSchema).optional(),
     threadId: z.string().optional(),
@@ -466,6 +468,7 @@ export async function comment(req: BareSessionRequest, res: Response) {
 
     const activityJson = {
         content: data.content,
+        mention: data.mention,
     }
 
     const comment = await db.activity.create({

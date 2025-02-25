@@ -70,6 +70,7 @@ export const feedbackQuery = (boardSlug: string, feedbackSlug: string) => queryO
 
 export interface ActivityCommentData {
     content: string;
+    mention?: string;
     from?: string;
     to?: string;
 }
@@ -78,13 +79,16 @@ export interface ActivityStatusChangeData {
     from: string;
     to: string;
     content?: string;
+    mention?: string;
 }
 
 export interface ActivityMergeData {
     from: string;
     to?: string;
     content?: string;
+    mention?: string;
 }
+
 type FeedbackActivitySummaryCore = Omit<FeedbackActivity, '_count' | 'files' | 'likes' | 'replies'> & {
     likes: number;
     likedByMe: boolean;

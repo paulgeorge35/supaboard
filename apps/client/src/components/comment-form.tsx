@@ -32,15 +32,16 @@ export const CommentForm = ({ className, boardSlug, feedbackSlug, isReply = fals
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const { mutate: comment, isPending } = useMutation({
-        mutationFn: async (content: string) => await fetchClient(`feedback/${boardSlug}/${feedbackSlug}/comment`, {
+        mutationFn: async ({ content, mention }: { content: string, mention?: string }) => await fetchClient(`feedback/${boardSlug}/${feedbackSlug}/comment`, {
             method: 'POST',
             body: JSON.stringify({
                 content,
                 files: attachments,
                 threadId,
+                mention
             })
         }),
-        onMutate: (content) => {
+        onMutate: ({ content, mention }) => {
             queryClient.cancelQueries({ queryKey: ['feedback', 'activities', boardSlug, feedbackSlug] });
 
             if (!user) return;
@@ -75,7 +76,8 @@ export const CommentForm = ({ className, boardSlug, feedbackSlug, isReply = fals
                                     pinned: false,
                                     type: 'FEEDBACK_COMMENT',
                                     data: {
-                                        content
+                                        content,
+                                        mention
                                     },
                                     feedbackId: feedbackSlug,
                                     authorId: user.id,
@@ -201,7 +203,7 @@ export const CommentForm = ({ className, boardSlug, feedbackSlug, isReply = fals
                         onFocus={expanded.setTrue}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && e.metaKey && !isCommentDisabled) {
-                                comment(content);
+                                comment({ content, mention: replyTo });
                             }
                         }}
                         maxLength={1000}
@@ -224,7 +226,7 @@ export const CommentForm = ({ className, boardSlug, feedbackSlug, isReply = fals
                 </Button>
                 <button
                     className='button button-primary'
-                    onClick={() => comment(content)}
+                    onClick={() => comment({ content, mention: replyTo })}
                     disabled={isCommentDisabled}
                 >
                     {isPending ? 'Submitting...' : 'Submit'}

@@ -8,9 +8,10 @@ interface TextboxProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement>
     maxLength?: number;
     mention?: string;
     onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    expanded?: boolean;
 }
 
-export const Textbox = ({ className, maxLength, mention, wrapperClassName, onChange, ...props }: TextboxProps) => {
+export const Textbox = ({ className, maxLength, mention, wrapperClassName, onChange, expanded, ...props }: TextboxProps) => {
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         props.onKeyDown?.(e)
         if (!mention) return
@@ -35,7 +36,7 @@ export const Textbox = ({ className, maxLength, mention, wrapperClassName, onCha
             {maxLength && <CharacterLimit content={props.value as string} max={maxLength} />}
             {typeof props.value === 'string' && mention && (
                 <div
-                    className={cn("absolute top-0 left-0 pointer-events-none z-10 mt-1.5",{
+                    className={cn("absolute top-0 left-0 pointer-events-none z-10 mt-1.5 h-full overflow-clip",{
                         "pr-14": maxLength
                     })}
                 >
