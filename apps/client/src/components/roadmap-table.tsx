@@ -46,6 +46,49 @@ const weights = {
   effort: 1
 };
 
+// Define regular filter functions instead of using hooks at the module level
+const numberFilter = (value: number, operator?: string, filterValue?: number) => {
+  if (!operator || !filterValue) return true;
+  if (operator === 'gt') return value > filterValue;
+  if (operator === 'lt') return value < filterValue;
+  if (operator === 'equals') return value === filterValue;
+  if (operator === 'not_equals') return value !== filterValue;
+  return true;
+};
+
+const statusFilter = (value: string, filterValue: string[]) => {
+  if (!filterValue?.length) return true;
+  return filterValue.includes(value);
+};
+
+const boardFilter = (value: string, filterValue: string[]) => {
+  if (!filterValue?.length) return true;
+  return filterValue.includes(value);
+};
+
+const categoryFilter = (value: string, filterValue: string[]) => {
+  if (!filterValue?.length) return true;
+  return filterValue.includes(value);
+};
+
+const ownerFilter = (value: string, filterValue: string[]) => {
+  if (!filterValue?.length) return true;
+  return filterValue.includes(value);
+};
+
+const tagFilter = (value: string[], filterValue: string[]) => {
+  if (!filterValue?.length) return true;
+  return filterValue.some(tag => value.includes(tag));
+};
+
+const dateFilter = (value: Date | null, filterValue: string, operator?: 'gte' | 'lte') => {
+  if (!filterValue) return true;
+  if (!value) return false;
+  if (operator === 'gte') return new Date(value) >= new Date(filterValue);
+  if (operator === 'lte') return new Date(value) <= new Date(filterValue);
+  return false;
+};
+
 const getTotalScore = (table: Table<RoadmapItem>) => {
   const allItems = table.getRowModel().rows.map(row => row.original);
   const maxVotes = Math.max(...allItems.map(item => item.votes));
@@ -67,9 +110,149 @@ type ColumnProps = {
   setCheckedItems: (items: string[]) => void;
   isMobile: boolean;
   maxVotes: number;
+  roadmapSlug: string;
 }
 
-const columns = ({ checkedItems, setCheckedItems, isMobile, maxVotes }: ColumnProps) => [
+// Create separate components for cells that use hooks
+const ImpactCell = React.memo(({ value, feedbackId, roadmapSlug }: { value: number; feedbackId: string; roadmapSlug: string }) => {
+  const impact = useNumber(value, { min: 0, max: 10, step: 1 });
+  const [inputRef, isFocused] = useFocus<HTMLInputElement>({
+    onBlur: () => {
+      if (impact.value !== value) {
+        updateRoadmapItem({ feedbackId, impact: impact.value });
+      }
+    },
+    onFocus: () => {
+      inputRef.current?.select();
+    }
+  });
+  const { mutate: updateRoadmapItem } = useUpdateRoadmapItemMutation(roadmapSlug);
+  
+  return (
+    <div className='relative'>
+      <Input
+        readOnly={!isFocused}
+        ref={inputRef}
+        value={impact.value}
+        type='number'
+        className='w-fit border-none px-0'
+        onChange={(e) => impact.setValue(parseFloat(e.target.value === '' ? '0' : e.target.value))}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            updateRoadmapItem({ feedbackId, impact: impact.value });
+          }
+        }}
+      />
+    </div>
+  );
+});
+
+ImpactCell.displayName = 'ImpactCell';
+
+const EffortCell = React.memo(({ value, feedbackId, roadmapSlug }: { value: number; feedbackId: string; roadmapSlug: string }) => {
+  const effort = useNumber(value, { min: 1, max: 100, step: 1 });
+  const [inputRef, isFocused] = useFocus<HTMLInputElement>({
+    onBlur: () => {
+      if (effort.value !== value) {
+        updateRoadmapItem({ feedbackId, effort: effort.value });
+      }
+    },
+    onFocus: () => {
+      inputRef.current?.select();
+    }
+  });
+  const { mutate: updateRoadmapItem } = useUpdateRoadmapItemMutation(roadmapSlug);
+  
+  return (
+    <div className='relative'>
+      <Input
+        readOnly={!isFocused}
+        ref={inputRef}
+        value={effort.value}
+        type='number'
+        className='w-fit border-none px-0'
+        onChange={(e) => effort.setValue(parseFloat(e.target.value === '' ? '0' : e.target.value))}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            updateRoadmapItem({ feedbackId, effort: effort.value });
+          }
+        }}
+      />
+    </div>
+  );
+});
+
+EffortCell.displayName = 'EffortCell';
+
+const TitleCell = React.memo(({ 
+  item, 
+  isChecked, 
+  index, 
+  checkedItems, 
+  setCheckedItems, 
+  roadmapSlug 
+}: { 
+  item: RoadmapItem; 
+  isChecked: boolean; 
+  index: number; 
+  checkedItems: string[]; 
+  setCheckedItems: (items: string[]) => void; 
+  roadmapSlug: string;
+}) => {
+  const router = useRouter();
+  
+  return (
+    <div className='horizontal gap-4 center-v group'>
+      <Checkbox
+        wrapperClassName={cn('opacity-0 group-hover/title:opacity-100 transition-opacity', isChecked && 'opacity-100')}
+        checked={isChecked}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onChange={(value) => {
+          setCheckedItems(
+            value.target.checked ?
+              [...checkedItems, item.id] :
+              checkedItems.filter(id => id !== item.id)
+          )
+        }}
+      />
+      <p className='text-gray-500 dark:text-zinc-400'>{index + 1}</p>
+      <Link
+        to='/admin/feedback/$boardSlug/$feedbackSlug'
+        params={{ boardSlug: item.board.slug, feedbackSlug: item.slug }}
+        className='w-full text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-300 transition-colors hover:underline underline-offset-2'
+      >
+        {item.title}
+      </Link>
+      <button
+        type='button'
+        className='ml-auto opacity-0 group-hover/title:opacity-100 transition-opacity size-6 horizontal center cursor-pointer shrink-0'
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          router.navigate({ 
+            to: '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove', 
+            params: { 
+              roadmapSlug, 
+              boardSlug: item.board.slug, 
+              feedbackSlug: item.slug, 
+              feedbackId: item.id 
+            } 
+          });
+        }}
+      >
+        <Icons.X className='size-4' />
+      </button>
+    </div>
+  );
+});
+
+TitleCell.displayName = 'TitleCell';
+
+// Update the createColumns function to use the extracted components
+const createColumns = ({ checkedItems, setCheckedItems, isMobile, maxVotes, roadmapSlug }: ColumnProps) => [
   columnHelper.accessor('title', {
     header: (info) => <div className='horizontal gap-4 center-v'>
       <Checkbox
@@ -84,49 +267,16 @@ const columns = ({ checkedItems, setCheckedItems, isMobile, maxVotes }: ColumnPr
       />
       <p className='text-gray-500 dark:text-zinc-400'>Posts ({info.table.getRowModel().rows.length})</p>
     </div>,
-    cell: (info) => {
-      const isChecked = checkedItems.includes(info.row.original.id);
-      const router = useRouter();
-      const { roadmapSlug } = useParams({ from: Route.fullPath });
-      return (
-        <div className='horizontal gap-4 center-v group'>
-          <Checkbox
-            wrapperClassName={cn('opacity-0 group-hover/title:opacity-100 transition-opacity', isChecked && 'opacity-100')}
-            checked={isChecked}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            onChange={(value) => {
-              setCheckedItems(
-                value.target.checked ?
-                  [...checkedItems, info.row.original.id] :
-                  checkedItems.filter(item => item !== info.row.original.id)
-              )
-            }}
-          />
-          <p className='text-gray-500 dark:text-zinc-400'>{info.row.index + 1}</p>
-          <Link
-            to='/admin/feedback/$boardSlug/$feedbackSlug'
-            params={{ boardSlug: info.row.original.board.slug, feedbackSlug: info.row.original.slug }}
-            className='w-full text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-300 transition-colors hover:underline underline-offset-2'
-          >
-            {info.getValue()}
-          </Link>
-          <button
-            type='button'
-            className='ml-auto opacity-0 group-hover/title:opacity-100 transition-opacity size-6 horizontal center cursor-pointer shrink-0'
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              router.navigate({ to: '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove', params: { roadmapSlug, boardSlug: info.row.original.board.slug, feedbackSlug: info.row.original.slug, feedbackId: info.row.original.id } });
-            }}
-          >
-            <Icons.X className='size-4' />
-          </button>
-        </div >
-      )
-    },
+    cell: (info) => (
+      <TitleCell
+        item={info.row.original}
+        isChecked={checkedItems.includes(info.row.original.id)}
+        index={info.row.index}
+        checkedItems={checkedItems}
+        setCheckedItems={setCheckedItems}
+        roadmapSlug={roadmapSlug}
+      />
+    ),
     enablePinning: true,
     enableResizing: true,
     enableHiding: false,
@@ -197,38 +347,13 @@ const columns = ({ checkedItems, setCheckedItems, isMobile, maxVotes }: ColumnPr
   }),
   columnHelper.accessor('impact', {
     header: 'Impact',
-    cell: (info) => {
-      const impact = useNumber(info.getValue(), { min: 0, max: 10, step: 1 });
-      const [inputRef, isFocused] = useFocus<HTMLInputElement>({
-        onBlur: () => {
-          if (impact.value !== info.getValue()) {
-            updateRoadmapItem({ feedbackId: info.row.original.id, impact: impact.value });
-          }
-        },
-        onFocus: () => {
-          inputRef.current?.select();
-        }
-      });
-      const { roadmapSlug } = useParams({ from: Route.fullPath });
-      const { mutate: updateRoadmapItem } = useUpdateRoadmapItemMutation(roadmapSlug);
-      return (
-        <div className='relative'>
-          <Input
-            readOnly={!isFocused}
-            ref={inputRef}
-            value={impact.value}
-            type='number'
-            className='w-fit border-none px-0'
-            onChange={(e) => impact.setValue(parseFloat(e.target.value === '' ? '0' : e.target.value))}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                updateRoadmapItem({ feedbackId: info.row.original.id, impact: impact.value });
-              }
-            }}
-          />
-        </div>
-      )
-    },
+    cell: (info) => (
+      <ImpactCell 
+        value={info.getValue()} 
+        feedbackId={info.row.original.id} 
+        roadmapSlug={roadmapSlug} 
+      />
+    ),
     enableResizing: true,
     minSize: isMobile ? 100 : 130,
     maxSize: isMobile ? 150 : 600,
@@ -247,38 +372,13 @@ const columns = ({ checkedItems, setCheckedItems, isMobile, maxVotes }: ColumnPr
   }),
   columnHelper.accessor('effort', {
     header: 'Effort',
-    cell: (info) => {
-      const effort = useNumber(info.getValue(), { min: 1, max: 100, step: 1 });
-      const [inputRef, isFocused] = useFocus<HTMLInputElement>({
-        onBlur: () => {
-          if (effort.value !== info.getValue()) {
-            updateRoadmapItem({ feedbackId: info.row.original.id, effort: effort.value });
-          }
-        },
-        onFocus: () => {
-          inputRef.current?.select();
-        }
-      });
-      const { roadmapSlug } = useParams({ from: Route.fullPath });
-      const { mutate: updateRoadmapItem } = useUpdateRoadmapItemMutation(roadmapSlug);
-      return (
-        <div className='relative'>
-          <Input
-            readOnly={!isFocused}
-            ref={inputRef}
-            value={effort.value}
-            type='number'
-            className='w-fit border-none px-0'
-            onChange={(e) => effort.setValue(parseFloat(e.target.value === '' ? '0' : e.target.value))}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                updateRoadmapItem({ feedbackId: info.row.original.id, effort: effort.value });
-              }
-            }}
-          />
-        </div>
-      )
-    },
+    cell: (info) => (
+      <EffortCell 
+        value={info.getValue()} 
+        feedbackId={info.row.original.id} 
+        roadmapSlug={roadmapSlug} 
+      />
+    ),
     enableResizing: true,
     minSize: isMobile ? 100 : 130,
     maxSize: isMobile ? 150 : 600,
@@ -317,7 +417,7 @@ interface RoadmapTableProps {
   items?: RoadmapItem[];
 }
 
-function RoadmapTableSkeleton() {
+const RoadmapTableSkeleton = React.memo(function RoadmapTableSkeleton() {
   return (
     <div className="w-full border border-t-0">
       <div className="relative w-full overflow-auto">
@@ -379,9 +479,9 @@ function RoadmapTableSkeleton() {
       </div>
     </div>
   );
-}
+});
 
-function EmptyPlaceholder() {
+const EmptyPlaceholder = React.memo(function EmptyPlaceholder() {
   return (
     <div className="w-full grow border border-t-0 vertical center">
       <div className="py-12 flex flex-col items-center justify-center text-center">
@@ -395,11 +495,17 @@ function EmptyPlaceholder() {
       </div>
     </div>
   );
-}
+});
 
 type GroupedItems = Record<string, { expanded: boolean, items: RoadmapItem[] }>;
 
-function SelectionDock({ selectedCount, onClear, selectedItems }: { selectedCount: number; onClear: () => void; selectedItems: RoadmapItem[] }) {
+interface SelectionDockProps {
+  selectedCount: number;
+  onClear: () => void;
+  selectedItems: RoadmapItem[];
+}
+
+const SelectionDock = React.memo(({ selectedCount, onClear, selectedItems }: SelectionDockProps) => {
   // Check if selected posts are from multiple boards
   const uniqueBoards = new Set(selectedItems.map(item => item.board.slug));
   const isMultipleBoards = uniqueBoards.size > 1;
@@ -466,7 +572,9 @@ function SelectionDock({ selectedCount, onClear, selectedItems }: { selectedCoun
       </div>
     </motion.div>
   );
-}
+});
+
+SelectionDock.displayName = 'SelectionDock';
 
 export function RoadmapTable({ items }: RoadmapTableProps) {
   const visibleFields = useRoadmapStore((state) => state.visibleFields);
@@ -484,6 +592,42 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
     id: 'score',
     desc: true,
   }]);
+  
+  // Add state for column sizing to ensure responsive resizing
+  const [columnSizing, setColumnSizing] = useState({});
+
+  // Get visible fields with null check
+  const visibleFieldsArray = visibleFields || [];
+  
+  // Calculate filtered fields once
+  const filteredFields = visibleFieldsArray.filter((item: RoadmapField) => 
+    !['title', 'score', 'impact', 'effort', 'votes'].includes(item)
+  );
+  const hasFilteredFields = filteredFields.length > 0;
+
+  // Memoize the toggle group handler
+  const toggleGroup = React.useCallback((group: string) => {
+    setGroupedItems(prev => ({ ...prev, [group]: { ...prev[group], expanded: !prev[group].expanded } }));
+  }, []);
+
+  // Memoize the handler for adding a new roadmap item
+  const handleAddNewRoadmapItem = React.useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && newRoadmapItemTitle && newRoadmapItemBoard && boards) {
+      addNewRoadmapItem({ 
+        title: newRoadmapItemTitle, 
+        board: { 
+          name: boards.find(board => board.slug === newRoadmapItemBoard)?.name ?? '', 
+          slug: newRoadmapItemBoard 
+        } 
+      });
+      setNewRoadmapItemTitle(undefined);
+    }
+  }, [newRoadmapItemTitle, newRoadmapItemBoard, boards, addNewRoadmapItem]);
+
+  // Memoize the handler for clearing checked items
+  const handleClearCheckedItems = React.useCallback(() => {
+    setCheckedItems([]);
+  }, []);
 
   useEffect(() => {
     if (boards && boards[0]) {
@@ -491,11 +635,12 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
     }
   }, [boards]);
 
+  // Memoize the grouping logic
   useEffect(() => {
     if (groupBy && items) {
-      const groupedItems: GroupedItems = {};
+      const newGroupedItems: GroupedItems = {};
       for (let item of items) {
-        let group = 'Unkown';
+        let group = 'Unknown';
         if (groupBy === 'board') {
           group = item.board.name;
         } else if (groupBy === 'category') {
@@ -505,63 +650,21 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
         } else if (groupBy === 'status') {
           group = item.status.name;
         }
-        groupedItems[group] = { expanded: true, items: [...(groupedItems[group]?.items ?? []), item] };
+        newGroupedItems[group] = { 
+          expanded: groupedItems[group]?.expanded ?? true, 
+          items: [...(newGroupedItems[group]?.items ?? []), item] 
+        };
       }
-      setGroupedItems(groupedItems);
+      setGroupedItems(newGroupedItems);
     }
     else {
       setGroupedItems({});
     }
   }, [items, groupBy]);
 
-  const toggleGroup = (group: string) => {
-    setGroupedItems(prev => ({ ...prev, [group]: { ...prev[group], expanded: !prev[group].expanded } }));
-  }
-
-  const numberFilter = (value: number, operator?: string, filterValue?: number) => {
-    if (!operator || !filterValue) return true;
-    if (operator === 'gt') return value > filterValue;
-    if (operator === 'lt') return value < filterValue;
-    if (operator === 'equals') return value === filterValue;
-    if (operator === 'not_equals') return value !== filterValue;
-    return true;
-  }
-
-  const statusFilter = (value: string, filterValue: string[]) => {
-    if (!filterValue) return true;
-    return filterValue.includes(value);
-  }
-
-  const boardFilter = (value: string, filterValue: string[]) => {
-    if (!filterValue) return true;
-    return filterValue.includes(value);
-  }
-
-  const categoryFilter = (value: string, filterValue: string[]) => {
-    if (!filterValue) return true;
-    return filterValue.includes(value);
-  }
-
-  const ownerFilter = (value: string, filterValue: string[]) => {
-    if (!filterValue) return true;
-    return filterValue.includes(value);
-  }
-
-  const tagFilter = (value: string[], filterValue: string[]) => {
-    if (!filterValue) return true;
-    return filterValue.some(tag => value.includes(tag));
-  }
-
-  const dateFilter = (value: Date | null, filterValue: string, operator?: 'gte' | 'lte') => {
-    if (!filterValue) return true;
-    if (!value) return false;
-    if (operator === 'gte') return new Date(value) >= new Date(filterValue);
-    if (operator === 'lte') return new Date(value) <= new Date(filterValue);
-    return false;
-  }
-
   const { status, board, category, owner, tags, eta_start, eta_end } = searchParams;
 
+  // Memoize filtered items to avoid recalculation on every render
   const filteredItems = useMemo(() => {
     if (!items) return [];
     return items.filter((item) => item.title.toLowerCase().includes(search?.toLowerCase() ?? '') &&
@@ -576,11 +679,33 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
       dateFilter(item.estimatedDelivery, eta_start as string, 'gte') &&
       dateFilter(item.estimatedDelivery, eta_end as string, 'lte')
     )
-  }, [items, search, impact, votes, effort, status, board, category, owner, tags, eta_start, eta_end]);
+  }, [
+    items, search, 
+    impact, votes, effort, 
+    status, board, category, owner, tags, 
+    eta_start, eta_end
+  ]);
 
+  // Memoize the maximum votes value
+  const maxVotes = useMemo(() => {
+    return items?.reduce((max, item) => Math.max(max, item.votes), 0) ?? 0;
+  }, [items]);
+
+  // Memoize the columns configuration
+  const columns = useMemo(() => {
+    return createColumns({ 
+      checkedItems, 
+      setCheckedItems, 
+      isMobile, 
+      maxVotes,
+      roadmapSlug
+    });
+  }, [checkedItems, setCheckedItems, isMobile, maxVotes, roadmapSlug]);
+
+  // Create table instance at the top level (not inside useMemo)
   const table = useReactTable({
-    data: filteredItems ?? [],
-    columns: columns({ checkedItems, setCheckedItems, isMobile, maxVotes: items?.reduce((max, item) => Math.max(max, item.votes), 0) ?? 0 }),
+    data: filteredItems,
+    columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     enableColumnResizing: true,
@@ -588,8 +713,10 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
     columnResizeMode: 'onChange',
     state: {
       sorting,
+      columnSizing,
     },
     onSortingChange: setSorting,
+    onColumnSizingChange: setColumnSizing,
     defaultColumn: {
       minSize: 80,
       maxSize: 1000,
@@ -603,6 +730,16 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
       },
     }
   });
+
+  // Memoize the selected items for the selection dock
+  const selectedItems = useMemo(() => {
+    return items?.filter(item => checkedItems.includes(item.id)) ?? [];
+  }, [items, checkedItems]);
+
+  // Memoize the total score calculation
+  const totalScore = useMemo(() => {
+    return getTotalScore(table);
+  }, [table]);
 
   if (!items) {
     return <RoadmapTableSkeleton />;
@@ -628,7 +765,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                   {headerGroup.headers.map((header) => {
                     const isPinned = isMobile ? false : header.column.getIsPinned();
                     const alwaysShowLeftBorder = header.column.columnDef.meta && 'alwaysShowLeftBorder' in header.column.columnDef.meta ? true : false;
-                    const isVisible = visibleFields.includes(header.column.id as RoadmapField);
+                    const isVisible = visibleFieldsArray.includes(header.column.id as RoadmapField);
 
                     if (!isVisible) {
                       return null;
@@ -720,7 +857,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                     const isPinned = isMobile ? false : cell.column.getIsPinned();
                     const isResizing = cell.column.getIsResizing();
                     const alwaysShowLeftBorder = cell.column.columnDef.meta && 'alwaysShowLeftBorder' in cell.column.columnDef.meta ? true : false;
-                    const isVisible = visibleFields.includes(cell.column.id as RoadmapField);
+                    const isVisible = visibleFieldsArray.includes(cell.column.id as RoadmapField);
 
                     if (!isVisible) {
                       return null;
@@ -831,7 +968,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                                           const isPinned = isMobile ? false : cell.column.getIsPinned();
                                           const isResizing = cell.column.getIsResizing();
                                           const alwaysShowLeftBorder = cell.column.columnDef.meta && 'alwaysShowLeftBorder' in cell.column.columnDef.meta ? true : false;
-                                          const isVisible = visibleFields.includes(cell.column.id as RoadmapField);
+                                          const isVisible = visibleFieldsArray.includes(cell.column.id as RoadmapField);
 
                                           if (!isVisible) {
                                             return null;
@@ -913,12 +1050,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                           className='w-full border-none px-2'
                           value={newRoadmapItemTitle ?? ''}
                           onChange={(e) => setNewRoadmapItemTitle(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && newRoadmapItemTitle && newRoadmapItemBoard) {
-                              addNewRoadmapItem({ title: newRoadmapItemTitle, board: { name: boards?.find(board => board.slug === newRoadmapItemBoard)?.name ?? '', slug: newRoadmapItemBoard } });
-                              setNewRoadmapItemTitle(undefined);
-                            }
-                          }}
+                          onKeyDown={handleAddNewRoadmapItem}
                           autoFocus
                         />
                         in
@@ -943,19 +1075,19 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                     }
                   </div>
                 </td>
-                {visibleFields.filter((item => !['title', 'score', 'impact', 'effort', 'votes'].includes(item))).length > 0 && <td colSpan={visibleFields.filter((item => !['title', 'score', 'impact', 'effort', 'votes'].includes(item))).length}>
+                {hasFilteredFields && <td colSpan={filteredFields.length}>
                   <div className='horizontal gap-4' />
                 </td>}
-                {visibleFields.includes('impact') && <td className='relative'>
+                {visibleFieldsArray.includes('impact') && <td className='relative'>
                   <div className='absolute inset-y-0 left-[-1px] w-[1px] bg-gray-200 dark:bg-zinc-800' />
                   <div className='horizontal gap-4'>
                   </div>
                 </td>}
-                {visibleFields.includes('votes') && <td className='relative'>
+                {visibleFieldsArray.includes('votes') && <td className='relative'>
                   <div className='horizontal gap-4'>
                   </div>
                 </td>}
-                {visibleFields.includes('effort') && <td className='px-4 py-2 relative text-zinc-800 dark:text-zinc-200 font-light'>
+                {visibleFieldsArray.includes('effort') && <td className='px-4 py-2 relative text-zinc-800 dark:text-zinc-200 font-light'>
                   <div className='absolute inset-y-0 left-[-1px] w-[1px] bg-gray-200 dark:bg-zinc-800' />
                   <div className='horizontal gap-4'>
                     {table.getRowModel().rows.reduce((acc, row) => {
@@ -970,7 +1102,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                   <div className='horizontal gap-4'>
                     <span className='text-[var(--color-primary)] text-xs font-bold bg-[var(--color-primary)]/10 rounded-full size-10 horizontal center'>
                       {formatNumber(
-                        getTotalScore(table)
+                        totalScore
                       )}
                     </span>
                   </div>
@@ -984,8 +1116,8 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
         {checkedItems.length > 0 && (
           <SelectionDock
             selectedCount={checkedItems.length}
-            onClear={() => setCheckedItems([])}
-            selectedItems={items?.filter(item => checkedItems.includes(item.id)) ?? []}
+            onClear={handleClearCheckedItems}
+            selectedItems={selectedItems}
           />
         )}
       </AnimatePresence>

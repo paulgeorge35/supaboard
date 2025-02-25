@@ -35,7 +35,7 @@ export const useRoadmapSearchStore = create<RoadmapSearchStore>()(
     (set) => ({
       searchParams: {},
       setSearchParams: (params) => set((state) => ({
-        searchParams: { ...state.searchParams, ...params }
+        searchParams: {  ...params }
       })),
       resetSearchParams: () => set({ searchParams: {} }),
     }),

@@ -56,6 +56,8 @@ function RouteComponent() {
     delay: 200,
   });
 
+  const [initializedSearchParams, setInitializedSearchParams] = useState(false);
+
   const roadmaps = getRouteApi(Route.fullPath).useLoaderData();
   const { roadmapSlug } = useParams({ strict: false });
   const { mutate: createRoadmap, isPending: isCreatingRoadmap } = useCreateRoadmapMutation();
@@ -68,17 +70,29 @@ function RouteComponent() {
   // Load persisted search params on initial render
   useEffect(() => {
     if (Object.keys(searchParams).length > 0 && roadmapSlug) {
+      setInitializedSearchParams(true);
       router.navigate({
         to: '/admin/roadmap/$roadmapSlug',
         params: { roadmapSlug },
-        search: searchParams
+        search: searchParams,
+        replace: true
       });
     }
   }, []);
 
   // Update store when URL search params change
   useEffect(() => {
-    setSearchParams(search);
+    // Don't update search params if they're not initialized
+    if (Object.keys(search).length === 0 && !initializedSearchParams) {
+      return;
+    }
+    console.log(JSON.stringify(search))
+    console.log(JSON.stringify(searchParams))
+    // Prevent unnecessary updates by checking if values are different
+    const isDifferent = JSON.stringify(search) !== JSON.stringify(searchParams);
+    if (isDifferent) {
+      setSearchParams(search);
+    }
   }, [search, setSearchParams]);
 
   useEffect(() => {
@@ -88,29 +102,41 @@ function RouteComponent() {
           return;
         }
       }
-      router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: roadmaps[0].slug }, search: searchParams });
+      router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: roadmaps[0].slug }, search: searchParams, replace: true });
     }
   }, [roadmaps, router, roadmapSlug, searchParams]);
 
   useEffect(() => {
     if (debouncedSearch.value !== undefined) {
+      // Only update if the values are actually different
       if (roadmapSlug && searchParams.search !== debouncedSearch.value) {
         const newSearchParams = {
           ...searchParams,
           search: debouncedSearch.value.length > 0 ? debouncedSearch.value : undefined,
         };
-        setSearchParams(newSearchParams);
-        router.navigate({
-          to: '/admin/roadmap/$roadmapSlug',
-          params: { roadmapSlug },
-          search: newSearchParams
-        });
-        if (debouncedSearch.value.length === 0) {
-          setSearchQuery(undefined);
+        
+        // Only update state and navigate if there's an actual change
+        const currentSearch = searchParams.search || '';
+        const newSearch = debouncedSearch.value || '';
+        
+        if (currentSearch !== newSearch) {
+          setSearchParams(newSearchParams);
+          router.navigate({
+            to: '/admin/roadmap/$roadmapSlug',
+            params: { roadmapSlug },
+            search: newSearchParams,
+            replace: true
+          });
+          
+          // Only clear searchQuery if we've actually emptied the input
+          // and only if we need to (prevents another state update)
+          if (debouncedSearch.value.length === 0 && searchQuery !== undefined) {
+            setSearchQuery(undefined);
+          }
         }
       }
     }
-  }, [debouncedSearch, router, searchParams, setSearchParams]);
+  }, [debouncedSearch, router, roadmapSlug]);  // Remove searchParams and setSearchParams from dependencies
 
   const filtersApplied: number = useMemo(() => {
     return Object.keys(searchParams)
@@ -142,7 +168,7 @@ function RouteComponent() {
           options={roadmaps?.map((roadmap) => ({ label: roadmap.name, value: roadmap.slug })) ?? []}
           onChange={(value) => {
             if (value && typeof value === 'string')
-              router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: value }, search: searchParams });
+              router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug: value }, search: searchParams, replace: true });
           }}
           disabled={isDuplicatingRoadmap || isCreatingRoadmap}
         />
@@ -150,7 +176,7 @@ function RouteComponent() {
           disabled={isDuplicatingRoadmap || isCreatingRoadmap}
           onRename={() => {
             if (roadmapSlug)
-              router.navigate({ to: '/admin/roadmap/$roadmapSlug/rename', params: { roadmapSlug }, search: searchParams });
+              router.navigate({ to: '/admin/roadmap/$roadmapSlug/rename', params: { roadmapSlug }, search: searchParams, replace: true });
           }}
           onDuplicate={() => {
             if (roadmapSlug)
@@ -158,7 +184,7 @@ function RouteComponent() {
           }}
           onDelete={roadmaps.length > 1 ? () => {
             if (roadmapSlug)
-              router.navigate({ to: '/admin/roadmap/$roadmapSlug/delete', params: { roadmapSlug }, search: searchParams });
+              router.navigate({ to: '/admin/roadmap/$roadmapSlug/delete', params: { roadmapSlug }, search: searchParams, replace: true });
           } : undefined}
         />
         <div className='h-5 border-l hidden md:block' />
@@ -196,7 +222,8 @@ function RouteComponent() {
             router.navigate({
               to: '/admin/roadmap/$roadmapSlug',
               params: { roadmapSlug },
-              search: newSearchParams
+              search: newSearchParams,
+              replace: true
             });
           }}
           clearable
