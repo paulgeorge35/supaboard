@@ -3,8 +3,8 @@ import { ChangelogContent } from '@/components/admin/changelog/changelog-rendere
 import { useLikeChangelogMutation } from '@/lib/mutation'
 import { changelogPublicBySlugQuery } from '@/lib/query'
 import { cn } from '@/lib/utils'
-import { QueryClient } from '@tanstack/react-query'
-import { createFileRoute, getRouteApi, Link, notFound } from '@tanstack/react-router'
+import { QueryClient, useQuery } from '@tanstack/react-query'
+import { createFileRoute, Link, notFound, useParams } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_public/changelog/$changelogSlug')({
   context: () => {
@@ -55,7 +55,8 @@ function ChangelogSkeleton() {
 }
 
 function RouteComponent() {
-  const { data: changelog, isLoading } = getRouteApi('/_public/changelog/$changelogSlug').useLoaderData();
+  const { changelogSlug } = useParams({ from: '/_public/changelog/$changelogSlug' })
+  const { data: changelog, isLoading } = useQuery(changelogPublicBySlugQuery(changelogSlug))
   const { mutate: likeChangelog } = useLikeChangelogMutation()
 
   return (
