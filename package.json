@@ -16,18 +16,18 @@
     "lint": "turbo run lint"
   },
   "devDependencies": {
-    "@tanstack/router-devtools": "^1.111.3",
-    "prettier": "^3.2.5",
-    "prisma": "latest",
-    "tsx": "4.19.1",
-    "turbo": "^2.4.2"
+    "@tanstack/router-devtools": "^1.111.11",
+    "prettier": "^3.5.2",
+    "prisma": "^6.4.1",
+    "tsx": "4.19.3",
+    "turbo": "^2.4.4"
   },
   "engines": {
     "node": ">=18"
   },
   "name": "with-prisma",
   "dependencies": {
-    "@prisma/client": "latest"
+    "@prisma/client": "^6.4.1"
   },
   "packageManager": "bun@1.2.2",
   "workspaces": [
