@@ -11,7 +11,7 @@ function RouteComponent() {
     const router = useRouter();
     const { roadmapSlug } = useParams({ from: Route.fullPath })
     const search = useSearch({ from: Route.fullPath })
-    const { mutate: deleteRoadmap, isPending: isDeletingRoadmap } = useDeleteRoadmapMutation(roadmapSlug);
+    const { mutate: deleteRoadmap, isPending: isDeletingRoadmap } = useDeleteRoadmapMutation();
 
     const onClose = () => {
         router.navigate({ to: '/admin/roadmap/$roadmapSlug', params: { roadmapSlug }, search });
@@ -33,7 +33,7 @@ function RouteComponent() {
                     Cancel
                 </Button>
                 <Button
-                    onPress={() => deleteRoadmap()}
+                    onPress={() => deleteRoadmap(roadmapSlug!)}
                     isDisabled={isDeletingRoadmap}
                     className='rounded-md text-sm px-2 py-1 bg-[var(--color-primary)] text-zinc-100 hover:bg-[var(--color-primary)]/80 transition-colors duration-100 font-light disabled:opacity-50 disabled:cursor-not-allowed'
                 >

@@ -14,6 +14,7 @@ router.post("/:roadmapSlug/duplicate", member(Role.ADMIN, Role.COLLABORATOR), co
 router.delete("/:roadmapSlug", member(Role.ADMIN, Role.COLLABORATOR), controller.delete)
 router.post("/:roadmapSlug/archive", member(Role.ADMIN, Role.COLLABORATOR), controller.archive)
 router.post("/:roadmapSlug/restore", member(Role.ADMIN, Role.COLLABORATOR), controller.restore)
+router.post("/:roadmapSlug/delete", member(Role.ADMIN, Role.COLLABORATOR), controller.delete)
 
 router.post("/:roadmapSlug/:feedbackId/add", member(Role.ADMIN, Role.COLLABORATOR), controller.add)
 router.post("/:roadmapSlug/:feedbackId/remove", member(Role.ADMIN, Role.COLLABORATOR), controller.remove)

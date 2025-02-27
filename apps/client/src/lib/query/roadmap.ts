@@ -8,6 +8,11 @@ export const roadmapsQuery = queryOptions<RoadmapSummary[]>({
     queryFn: () => fetchClient('/roadmap'),
 })
 
+export const archivedRoadmapsQuery = queryOptions<RoadmapSummary[]>({
+    queryKey: ['archived-roadmaps'],
+    queryFn: () => fetchClient('/roadmap', { queryParams: { isArchived: true } }),
+})
+
 export type RoadmapDetailResponse = Omit<RoadmapDetail, 'items'> & {
     items: (Pick<Feedback, 'id' | 'title' | 'slug' | 'estimatedDelivery'> & {
         status: Status,

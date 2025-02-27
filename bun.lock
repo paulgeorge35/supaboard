@@ -4,14 +4,14 @@
     "": {
       "name": "with-prisma",
       "dependencies": {
-        "@prisma/client": "latest",
+        "@prisma/client": "^6.4.1",
       },
       "devDependencies": {
-        "@tanstack/router-devtools": "latest",
-        "prettier": "latest",
-        "prisma": "latest",
-        "tsx": "latest",
-        "turbo": "latest",
+        "@tanstack/router-devtools": "^1.111.11",
+        "prettier": "^3.5.2",
+        "prisma": "^6.4.1",
+        "tsx": "4.19.3",
+        "turbo": "^2.4.4",
       },
     },
     "apps/api": {

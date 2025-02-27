@@ -30,7 +30,7 @@ const CompanyLinks = [
     to: '/admin/settings/boards',
   },
   {
-    label: 'Roadmap',
+    label: 'Roadmap and Statuses',
     to: '/admin/settings/roadmap',
   },
   {

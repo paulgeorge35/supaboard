@@ -122,12 +122,17 @@ const removeFromRoadmap = async (req: BareSessionRequest, res: Response) => {
     res.status(200).json({ success: true })
 }
 
+const getRoadmapsSchema = z.object({
+    isArchived: z.coerce.boolean().default(false),
+})
+
 const getAllRoadmaps = async (req: BareSessionRequest, res: Response) => {
     const applicationId = req.application?.id!
+    const { isArchived } = parseAndThrowFirstError(getRoadmapsSchema, req.query, res);
 
     const roadmaps = await db.roadmap.findMany({
         select: roadmapSummarySelect,
-        where: { applicationId, isArchived: false },
+        where: { applicationId, isArchived, },
         orderBy: { createdAt: "asc" }
     })
     res.status(200).json(roadmaps)

@@ -4,6 +4,11 @@ export const roadmapSummarySelect = Prisma.validator<Prisma.RoadmapSelect>()({
     id: true,
     name: true,
     slug: true,
+    _count: {
+        select: {
+            items: true,
+        },
+    },
 });
 
 export type RoadmapSummary = Prisma.RoadmapGetPayload<{
