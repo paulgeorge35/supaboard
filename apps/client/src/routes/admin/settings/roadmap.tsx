@@ -11,10 +11,10 @@ function RouteComponent() {
     const location = useLocation()
 
     useEffect(() => {
-        if (router.state.location.pathname === '/admin/settings/roadmap') {
+        if (location.pathname === '/admin/settings/roadmap') {
             router.navigate({ to: '/admin/settings/roadmap/public', replace: true })
         }
-    }, [router])
+    }, [location.pathname])
 
     const isWide = useMemo(() => location.pathname.endsWith('/admin/settings/roadmap/statuses'), [location.pathname])
 

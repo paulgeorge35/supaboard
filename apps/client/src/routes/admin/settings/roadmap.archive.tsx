@@ -39,7 +39,7 @@ function ArchivedRoadmaps() {
         )}>
           Archived ({data?.length})
         </h1>
-        <Icons.ChevronUp className={cn('size-4',
+        <Icons.ChevronUp className={cn('size-4 transition-transform duration-150',
           { 'rotate-180': expanded.value }
         )} />
       </button>
@@ -104,7 +104,7 @@ function ActiveRoadmaps() {
         )}>
           Active ({data?.length})
         </h1>
-        <Icons.ChevronUp className={cn('size-4',
+        <Icons.ChevronUp className={cn('size-4 transition-transform duration-150',
           { 'rotate-180': expanded.value }
         )} />
       </button>

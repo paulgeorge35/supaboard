@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Link, Outlet, useLocation, useRouter } from '@tanstack/react-router'
 import { useEffect } from 'react'
 
 export const Route = createFileRoute('/admin/settings/company')({
@@ -22,12 +22,13 @@ const CompanyLinks = [
 
 function RouteComponent() {
   const router = useRouter()
+  const location = useLocation()
 
   useEffect(() => {
-    if (router.state.location.pathname === '/admin/settings/company') {
+    if (location.pathname === '/admin/settings/company') {
       router.navigate({ to: '/admin/settings/company/branding' })
     }
-  }, [router])
+  }, [location.pathname])
 
   return (
     <div className='relative h-[calc(100dvh-72px)] vertical items-start'>

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Link, Outlet, useLocation, useRouter } from '@tanstack/react-router'
 import { useEffect } from 'react'
 
 export const Route = createFileRoute('/admin/settings/changelog')({
@@ -18,12 +18,13 @@ const ChangelogLinks = [
 
 function RouteComponent() {
     const router = useRouter()
+    const location = useLocation()
   
     useEffect(() => {
-      if (router.state.location.pathname === '/admin/settings/changelog') {
+      if (location.pathname === '/admin/settings/changelog') {
         router.navigate({ to: '/admin/settings/changelog/labels', replace: true })
       }
-    }, [router])
+    }, [location.pathname])
   
     return (
       <div className='relative h-[calc(100dvh-72px)] vertical items-start'>
