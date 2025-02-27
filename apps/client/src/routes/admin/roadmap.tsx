@@ -67,7 +67,6 @@ function RouteComponent() {
     return searchParams.groupBy ?? search.groupBy;
   }, [searchParams.groupBy, search.groupBy]);
 
-  // Load persisted search params on initial render
   useEffect(() => {
     if (Object.keys(searchParams).length > 0 && roadmapSlug) {
       setInitializedSearchParams(true);
@@ -80,15 +79,10 @@ function RouteComponent() {
     }
   }, []);
 
-  // Update store when URL search params change
   useEffect(() => {
-    // Don't update search params if they're not initialized
     if (Object.keys(search).length === 0 && !initializedSearchParams) {
       return;
     }
-    console.log(JSON.stringify(search))
-    console.log(JSON.stringify(searchParams))
-    // Prevent unnecessary updates by checking if values are different
     const isDifferent = JSON.stringify(search) !== JSON.stringify(searchParams);
     if (isDifferent) {
       setSearchParams(search);

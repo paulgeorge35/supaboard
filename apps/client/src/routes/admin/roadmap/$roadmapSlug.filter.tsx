@@ -293,7 +293,6 @@ const StatusField = () => {
         className='min-h-9'
         value={selectedStatuses}
         onChange={(value) => {
-          console.log(value);
           router.navigate({ to: '/admin/roadmap/$roadmapSlug/filter', params: { roadmapSlug }, search: { ...search, status: value.length > 0 ? value : undefined }, replace: true });
         }}
       />}
