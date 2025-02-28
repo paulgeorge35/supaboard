@@ -1,7 +1,8 @@
 import type { BareSessionRequest } from "@/types"
 import { parseAndThrowFirstError } from "@/util/error-parser"
-import { db, roadmapDetailSelect, roadmapSummarySelect } from "@repo/database"
+import { addTagsToFeedbacks as addTagsToFeedbacksSql, db, roadmapDetailSelect, roadmapItemSelect, roadmapSummarySelect } from "@repo/database"
 import type { Response } from "express"
+import { DateTime } from "luxon"
 import { z } from "zod"
 
 const generateUniqueSlug = async (name: string, applicationId: string, existingSlug?: string) => {
@@ -148,17 +149,37 @@ const getRoadmapBySlug = async (req: BareSessionRequest, res: Response) => {
         res.status(404).json({ error: "Roadmap not found" })
         return;
     }
+    
+    const maxVotes = roadmap.items.reduce((max, item) => 
+        Math.max(max, item.feedback._count.votes), 0);
+    
+    const weights = {
+        impact: 1,
+        votes: 1,
+        effort: 1
+    };
 
     res.status(200).json({
         ...roadmap,
-        items: roadmap.items.map((item) => ({
-            ...item.feedback,
-            impact: item.impact,
-            effort: item.effort,
-            tags: item.feedback.tags.map((tag) => tag.name),
-            votes: item.feedback._count.votes,
-            _count: undefined,
-        })),
+        items: roadmap.items.map((item) => {
+            const voteScore = maxVotes ? (item.feedback._count.votes / maxVotes) * 100 : 0;
+            const score = item.effort > 0 ? Math.round(
+                1000 * (
+                    (Math.pow(item.impact, 2) * weights.impact) +
+                    (voteScore * weights.votes)
+                ) / (item.effort * weights.effort)
+            ) : 0;
+            
+            return {
+                ...item.feedback,
+                impact: item.impact,
+                effort: item.effort,
+                tags: item.feedback.tags.map((tag) => tag.name),
+                votes: item.feedback._count.votes,
+                score: score,
+                _count: undefined,
+            };
+        }),
     })
 }
 
@@ -230,6 +251,265 @@ const updateRoadmapSettings = async (req: BareSessionRequest, res: Response) => 
     res.status(200).json({ success: true })
 }
 
+const addFeedbacksToRoadmapSchema = z.object({
+    feedbackIds: z.array(z.string()),
+    roadmapId: z.string(),
+})
+
+const addFeedbacksToRoadmap = async (req: BareSessionRequest, res: Response) => {
+    const applicationId = req.application?.id!
+    const { feedbackIds, roadmapId } = parseAndThrowFirstError(addFeedbacksToRoadmapSchema, req.body, res);
+
+    const feedbacks = await db.feedback.findMany({ where: { id: { in: feedbackIds }, applicationId } })
+
+    if (feedbacks.length !== feedbackIds.length) {
+        res.status(400).json({ error: "Some feedbacks not found" })
+        return;
+    }
+
+    if (feedbacks.length === 0) {
+        res.status(400).json({ error: "No feedbacks to add" })
+        return;
+    }
+
+    await db.roadmapItem.createMany({ data: feedbacks.map((feedback) => ({ feedbackId: feedback.id, roadmapId })) });
+
+    res.status(200).json({ success: true })
+}
+
+const moveFeedbacksToBoardSchema = z.object({
+    feedbackIds: z.array(z.string()),
+    boardSlug: z.string(),
+})
+
+const moveFeedbacksToBoard = async (req: BareSessionRequest, res: Response) => {
+    const applicationId = req.application?.id!
+    const { feedbackIds, boardSlug } = parseAndThrowFirstError(moveFeedbacksToBoardSchema, req.body, res);
+
+    const board = await db.board.findUnique({ where: { applicationId_slug: { applicationId, slug: boardSlug } } })
+
+    if (!board) {
+        res.status(404).json({ error: "Board not found" })
+        return;
+    }
+
+    const feedbacks = await db.feedback.findMany({ where: { id: { in: feedbackIds }, applicationId } })
+
+    if (feedbacks.length !== feedbackIds.length) {
+        res.status(400).json({ error: "Some feedbacks not found" })
+        return;
+    }
+
+    if (feedbacks.length === 0) {
+        res.status(400).json({ error: "No feedbacks to move" })
+        return;
+    }
+
+    await db.feedback.updateMany({ where: { id: { in: feedbackIds }, applicationId }, data: { boardId: board.id } })
+
+    res.status(200).json({ success: true })
+}
+
+const changeOwnerSchema = z.object({
+    feedbackIds: z.array(z.string()),
+    newOwnerId: z.string(),
+})
+
+const changeOwner = async (req: BareSessionRequest, res: Response) => {
+    const applicationId = req.application?.id!
+    const { feedbackIds, newOwnerId } = parseAndThrowFirstError(changeOwnerSchema, req.body, res);
+
+    const feedbacks = await db.feedback.findMany({ where: { id: { in: feedbackIds }, applicationId } })
+
+    if (feedbacks.length !== feedbackIds.length) {
+        res.status(400).json({ error: "Some feedbacks not found" })
+        return;
+    }
+
+    if (feedbacks.length === 0) {
+        res.status(400).json({ error: "No feedbacks to change owner" })
+        return;
+    }
+    
+    const owner = await db.user.findFirst({ where: { id: newOwnerId, members: { some: { applicationId } } } })
+
+    if (!owner) {
+        res.status(400).json({ error: "Owner not found" })
+        return;
+    }
+
+    await db.feedback.updateMany({ where: { id: { in: feedbacks.map((feedback) => feedback.id) }, applicationId }, data: { ownerId: owner.id } })
+
+    res.status(200).json({ success: true })
+}
+
+const changeCategorySchema = z.object({
+    feedbackIds: z.array(z.string()),
+    newCategoryId: z.string(),
+})
+
+const changeCategory = async (req: BareSessionRequest, res: Response) => {
+    const applicationId = req.application?.id!
+    const { feedbackIds, newCategoryId } = parseAndThrowFirstError(changeCategorySchema, req.body, res);
+
+    const feedbacks = await db.feedback.findMany({ where: { id: { in: feedbackIds }, applicationId }, include: { board: true } })
+
+    if (feedbacks.length !== feedbackIds.length) {
+        res.status(400).json({ error: "Some feedbacks not found" })
+        return;
+    }
+
+    if (feedbacks.length === 0) {
+        res.status(400).json({ error: "No feedbacks to change category" })
+        return;
+    }
+
+    const boards = await db.board.findMany({ where: { applicationId, slug: { in: feedbacks.map((feedback) => feedback.board.slug) } } })
+
+    if (boards.length > 1) {
+        res.status(400).json({ error: "Not all feedbacks belong to the same board" })
+        return;
+    }
+
+    const category = await db.feedbackCategory.findUnique({ where: { id: newCategoryId } })
+
+    if (!category) {
+        res.status(400).json({ error: "Category not found" })
+        return;
+    }
+
+    await db.feedback.updateMany({ where: { id: { in: feedbacks.map((feedback) => feedback.id) }, applicationId }, data: { categoryId: category.id } })
+
+    res.status(200).json({ success: true })
+}
+
+const addTagsToFeedbacksSchema = z.object({
+    feedbackIds: z.array(z.string()),
+    tagIds: z.array(z.string()),
+})
+
+const addTagsToFeedbacks = async (req: BareSessionRequest, res: Response) => {
+    const applicationId = req.application?.id!
+    const { feedbackIds, tagIds } = parseAndThrowFirstError(addTagsToFeedbacksSchema, req.body, res);
+
+    const feedbacks = await db.feedback.findMany({ where: { id: { in: feedbackIds }, applicationId }, include: { board: true } })
+
+    if (feedbacks.length !== feedbackIds.length) {
+        res.status(400).json({ error: "Some feedbacks not found" })
+        return;
+    }
+
+    if (feedbacks.length === 0) {
+        res.status(400).json({ error: "No feedbacks to add tags to" })
+        return;
+    }
+    
+    const boards = await db.board.findMany({ where: { applicationId, slug: { in: feedbacks.map((feedback) => feedback.board.slug) } } })
+
+    if (boards.length !== 1) {
+        res.status(400).json({ error: "Not all feedbacks belong to the same board" })
+        return;
+    }
+
+    const tags = await db.tag.findMany({ where: { id: { in: tagIds }, boardId: boards[0].id } })
+
+    if (tags.length !== tagIds.length) {
+        res.status(400).json({ error: "Some tags not found" })
+        return;
+    }
+
+    await db.$queryRawTyped(addTagsToFeedbacksSql(feedbackIds, tagIds))
+
+    res.status(200).json({ success: true })
+}
+
+const exportRoadmapItemsSchema = z.object({
+    feedbackIds: z.array(z.string()),
+    timezone: z.string().optional(),
+})
+
+const exportRoadmapItems = async (req: BareSessionRequest, res: Response) => {
+    const applicationId = req.application?.id!
+    const roadmapSlug = req.params.roadmapSlug
+    const { feedbackIds,timezone } = parseAndThrowFirstError(exportRoadmapItemsSchema, req.body, res);
+
+    const roadmap = await db.roadmap.findUnique({ where: { applicationId_slug: { applicationId, slug: roadmapSlug } } })
+
+    if (!roadmap) {
+        res.status(404).json({ error: "Roadmap not found" })
+        return;
+    }
+
+    const items = await db.roadmapItem.findMany({ where: { roadmapId: roadmap.id, feedbackId: { in: feedbackIds } }, select: roadmapItemSelect })
+
+    if (items.length !== feedbackIds.length) {
+        res.status(400).json({ error: "Some feedbacks not found" })
+        return;
+    }
+
+    const maxVotes = items.reduce((max, item) => 
+        Math.max(max, item.feedback._count.votes), 0);
+    
+    const weights = {
+        impact: 1,
+        votes: 1,
+        effort: 1
+    };
+
+    const feedbacks = items.map((item, index) => ({
+        "No.": index + 1,
+        "Title": item.feedback.title,
+        "Description": item.feedback.description,
+        "URL": `https://${req.headers.origin}/${item.feedback.board.slug}/${item.feedback.slug}`,
+        "ETA": item.feedback.estimatedDelivery ? DateTime.fromJSDate(item.feedback.estimatedDelivery).setZone(timezone).toFormat("LLL yyyy") : "",
+        "Owner": item.feedback.owner?.name,
+        "Owner Email": item.feedback.owner?.email,
+        "Author": item.feedback.author?.name,
+        "Author Email": item.feedback.author?.email,
+        "Category": item.feedback.category?.name,
+        "Status": item.feedback.status.name,
+        "Tags": item.feedback.tags.map((tag) => tag.name).join(", "),
+        "Board": item.feedback.board.name,
+        "Impact": item.impact,
+        "Effort": item.effort,
+        "Votes": item.feedback._count.votes,
+        "Score": item.effort > 0 ? Math.round(
+            1000 * (
+                (Math.pow(item.impact, 2) * weights.impact) +
+                ((maxVotes ? (item.feedback._count.votes / maxVotes) * 100 : 0) * weights.votes)
+            ) / (item.effort * weights.effort)
+        ) : 0,
+        "Comments": item.feedback._count.activities,
+        "Created At": DateTime.fromJSDate(item.feedback.createdAt).setZone(timezone).toFormat("yyyy-MM-dd HH:mm:ss"),
+    }))
+
+    // Create CSV header and content
+    const headers = Object.keys(feedbacks[0] || {});
+    const csvHeader = headers.join(',');
+    
+    const csvRows = feedbacks.map(row => {
+        return headers.map(header => {
+            // Handle undefined values and escape quotes in cell values
+            const cellValue = row[header as keyof typeof row];
+            const valueStr = cellValue !== undefined && cellValue !== null ? String(cellValue) : '';
+            // Escape quotes and wrap in quotes if contains comma, newline or quote
+            return valueStr.includes(',') || valueStr.includes('\n') || valueStr.includes('"') 
+                ? `"${valueStr.replace(/"/g, '""')}"` 
+                : valueStr;
+        }).join(',');
+    });
+    
+    const csvContent = [csvHeader, ...csvRows].join('\n');
+    
+    // Set appropriate headers for a CSV file download
+    const fileName = `roadmap-${roadmap.slug}-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    
+    // Send the CSV content
+    res.status(200).send(csvContent);
+}
+    
 export default {
     getAll: getAllRoadmaps,
     getBySlug: getRoadmapBySlug,
@@ -243,4 +523,12 @@ export default {
     remove: removeFromRoadmap,
     update: updateRoadmapItem,
     updateSettings: updateRoadmapSettings,
+    actions: {
+        addFeedbacksToRoadmap: addFeedbacksToRoadmap,
+        moveFeedbacksToBoard: moveFeedbacksToBoard,
+        changeOwner: changeOwner,
+        changeCategory: changeCategory,
+        addTagsToFeedbacks: addTagsToFeedbacks,
+        exportRoadmapItems: exportRoadmapItems,
+    }
 }

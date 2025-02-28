@@ -488,3 +488,51 @@ export const useDeleteRoadmapMutation = ({ onSuccess }: UseDeleteRoadmapMutation
         },
     })
 }
+
+type UseExportRoadmapItemsMutationProps = {
+    onSuccess?: () => void;
+}
+
+export const useExportRoadmapItemsMutation = ({ onSuccess }: UseExportRoadmapItemsMutationProps) => {
+    return useMutation({
+        mutationFn: async ({ roadmapSlug, feedbackIds }: { roadmapSlug: string, feedbackIds: string[] }) => {
+            const apiURL = window.location.hostname.endsWith('supaboard.io') ? 'https://api.supaboard.io' : `https://${window.location.hostname}/api`
+            const response = await fetch(`${apiURL}/roadmap/action/export/${roadmapSlug}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    feedbackIds,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                }),
+                credentials: 'include',
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to export roadmap items');
+            }
+            
+            return response.blob();
+        },
+        onSuccess: (blob, variables) => {
+            // Create a URL for the blob
+            const url = window.URL.createObjectURL(blob);
+            
+            // Create a temporary link element
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `roadmap-${variables.roadmapSlug}-export-${new Date().toISOString().slice(0, 10)}.csv`;
+            
+            // Append to body, click, and clean up
+            document.body.appendChild(link);
+            link.click();
+            
+            // Clean up
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(link);
+            
+            onSuccess?.();
+        },
+    });
+}

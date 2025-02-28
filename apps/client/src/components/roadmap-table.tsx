@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/skeleton';
-import { useAddNewRoadmapItemMutation, useUpdateRoadmapItemMutation } from '@/lib/mutation/roadmap';
+import { useAddNewRoadmapItemMutation, useExportRoadmapItemsMutation, useUpdateRoadmapItemMutation } from '@/lib/mutation/roadmap';
 import { applicationBoardsQuery } from '@/lib/query';
 import type { RoadmapDetailResponse } from '@/lib/query/roadmap';
 import { cn } from '@/lib/utils';
@@ -14,12 +14,12 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   SortingState,
-  Table,
-  useReactTable
+  useReactTable,
 } from '@tanstack/react-table';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DateTime } from 'luxon';
 import React, { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { Avatar } from './avatar';
 import { Button } from './button';
 import { Checkbox } from './checkbox';
@@ -29,7 +29,10 @@ import { SelectComponent } from './select-v2';
 import { StatusBadge } from './status-badge';
 import { Tooltip } from './tooltip-content';
 
-type RoadmapItem = RoadmapDetailResponse['items'][0];
+// Extend the RoadmapItem type to include the score property
+type RoadmapItem = RoadmapDetailResponse['items'][0] & {
+  score: number;
+};
 
 const columnHelper = createColumnHelper<RoadmapItem>();
 
@@ -89,27 +92,10 @@ const dateFilter = (value: Date | null, filterValue: string, operator?: 'gte' | 
   return false;
 };
 
-const getTotalScore = (table: Table<RoadmapItem>) => {
-  const allItems = table.getRowModel().rows.map(row => row.original);
-  const maxVotes = Math.max(...allItems.map(item => item.votes));
-
-  const scores = allItems.map(item => {
-    const voteScore = maxVotes ? (item.votes / maxVotes) * 100 : 0;
-    return item.effort > 0 ? Math.round(
-      1000 * (
-        (Math.pow(item.impact, 2) * weights.impact) +
-        (voteScore * weights.votes)
-      ) / (item.effort * weights.effort)
-    ) : 0;
-  });
-  return scores.reduce((a, b) => a + b, 0);
-}
-
 type ColumnProps = {
   checkedItems: string[];
   setCheckedItems: (items: string[]) => void;
   isMobile: boolean;
-  maxVotes: number;
   roadmapSlug: string;
 }
 
@@ -252,7 +238,7 @@ const TitleCell = React.memo(({
 TitleCell.displayName = 'TitleCell';
 
 // Update the createColumns function to use the extracted components
-const createColumns = ({ checkedItems, setCheckedItems, isMobile, maxVotes, roadmapSlug }: ColumnProps) => [
+const createColumns = ({ checkedItems, setCheckedItems, isMobile, roadmapSlug }: ColumnProps) => [
   columnHelper.accessor('title', {
     header: (info) => <div className='horizontal gap-4 center-v'>
       <Checkbox
@@ -387,15 +373,7 @@ const createColumns = ({ checkedItems, setCheckedItems, isMobile, maxVotes, road
       alwaysShowLeftBorder: true,
     }
   }),
-  columnHelper.accessor((row) => {
-    return row.effort > 0 ? Math.round(
-      1000 * (
-        (Math.pow(row.impact, 2) * weights.impact) +
-        (maxVotes ? (row.votes / maxVotes) * 100 : 0 * weights.votes)
-      ) / (row.effort * weights.effort)
-    ) : 0;
-  }, {
-    id: 'score',
+  columnHelper.accessor('score', {
     header: 'Score',
     cell: (info) => {
       return (
@@ -509,6 +487,14 @@ const SelectionDock = React.memo(({ selectedCount, onClear, selectedItems }: Sel
   // Check if selected posts are from multiple boards
   const uniqueBoards = new Set(selectedItems.map(item => item.board.slug));
   const isMultipleBoards = uniqueBoards.size > 1;
+  const { roadmapSlug } = useParams({ from: '/admin/roadmap/$roadmapSlug' });
+  
+  const { mutate: exportRoadmapItems } = useExportRoadmapItemsMutation({
+    onSuccess: () => {
+      toast.success('Posts exported successfully');
+      onClear();
+    },
+  });
 
   return (
     <motion.div
@@ -560,7 +546,7 @@ const SelectionDock = React.memo(({ selectedCount, onClear, selectedItems }: Sel
             </span>
           </Tooltip>
           <Tooltip content="Export">
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" onClick={() => exportRoadmapItems({ roadmapSlug, feedbackIds: selectedItems.map(item => item.id) })}>
               <Icons.Download className='size-4' />
             </Button>
           </Tooltip>
@@ -686,23 +672,17 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
     eta_start, eta_end
   ]);
 
-  // Memoize the maximum votes value
-  const maxVotes = useMemo(() => {
-    return items?.reduce((max, item) => Math.max(max, item.votes), 0) ?? 0;
-  }, [items]);
-
   // Memoize the columns configuration
   const columns = useMemo(() => {
     return createColumns({ 
       checkedItems, 
       setCheckedItems, 
-      isMobile, 
-      maxVotes,
+      isMobile,
       roadmapSlug
     });
-  }, [checkedItems, setCheckedItems, isMobile, maxVotes, roadmapSlug]);
+  }, [checkedItems, setCheckedItems, isMobile, roadmapSlug]);
 
-  // Create table instance at the top level (not inside useMemo)
+  // Create table instance
   const table = useReactTable({
     data: filteredItems,
     columns,
@@ -735,11 +715,11 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
   const selectedItems = useMemo(() => {
     return items?.filter(item => checkedItems.includes(item.id)) ?? [];
   }, [items, checkedItems]);
-
+  
   // Memoize the total score calculation
   const totalScore = useMemo(() => {
-    return getTotalScore(table);
-  }, [table]);
+    return filteredItems.reduce((total, item) => total + (item.score || 0), 0);
+  }, [filteredItems]);
 
   if (!items) {
     return <RoadmapTableSkeleton />;
@@ -1090,8 +1070,8 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                 {visibleFieldsArray.includes('effort') && <td className='px-4 py-2 relative text-zinc-800 dark:text-zinc-200 font-light'>
                   <div className='absolute inset-y-0 left-[-1px] w-[1px] bg-gray-200 dark:bg-zinc-800' />
                   <div className='horizontal gap-4'>
-                    {table.getRowModel().rows.reduce((acc, row) => {
-                      return acc + row.original.effort;
+                    {filteredItems.reduce((acc, item) => {
+                      return acc + item.effort;
                     }, 0)}
                   </div>
                 </td>}
@@ -1101,9 +1081,7 @@ export function RoadmapTable({ items }: RoadmapTableProps) {
                 )}>
                   <div className='horizontal gap-4'>
                     <span className='text-[var(--color-primary)] text-xs font-bold bg-[var(--color-primary)]/10 rounded-full size-10 horizontal center'>
-                      {formatNumber(
-                        totalScore
-                      )}
+                      {formatNumber(filteredItems.reduce((total, item) => total + (item.score || 0), 0))}
                     </span>
                   </div>
                 </td>

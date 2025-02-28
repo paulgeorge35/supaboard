@@ -20,6 +20,7 @@ export type RoadmapDetailResponse = Omit<RoadmapDetail, 'items'> & {
         tags: string[];
         impact: number;
         effort: number;
+        score: number;
         owner: Pick<User, 'id' | 'name' | 'avatar'> | null;
         category: Pick<FeedbackCategory, 'name' | 'slug'> | null;
         board: Pick<Board, 'name' | 'slug'>;
