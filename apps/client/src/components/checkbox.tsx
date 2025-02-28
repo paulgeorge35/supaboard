@@ -40,7 +40,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     return (
       <div className={cn('flex flex-col gap-1', wrapperClassName)}>
         <div className="flex items-center gap-2 group">
-          <div className="relative inline-flex h-5 w-5">
+          <div className="relative inline-flex h-5 w-5 shrink-0">
             <input
               type="checkbox"
               id={checkboxId}
