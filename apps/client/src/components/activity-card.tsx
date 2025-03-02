@@ -144,7 +144,7 @@ export function ActivityCard({ activity, feedbackSlug, boardSlug, className }: A
                 <LikeButton likes={activity.likes} likedByMe={activity.likedByMe} like={() => like(activity.id)} isPending={isLikePending} />
 
                 {/* Activity timestamp for desktop */}
-                <span className='text-xs text-gray-500 dark:text-zinc-400 hidden md:flex horizontal center-v gap-1'>
+                <span className='text-xs text-gray-500 dark:text-zinc-400 hidden md:flex horizontal center-v gap-2'>
                     <p className='text-xs text-gray-500 dark:text-zinc-400'>&bull;</p>
                     {
                         DateTime.fromJSDate(new Date(activity.createdAt)).diffNow().as('hours') > -24

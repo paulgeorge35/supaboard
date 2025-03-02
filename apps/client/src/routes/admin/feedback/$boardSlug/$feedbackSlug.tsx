@@ -136,7 +136,7 @@ function RouteComponent() {
     })
 
     return (
-        <div className="border-4 border-zinc-300 dark:border-zinc-800 rounded-2xl max-h-full h-full min-w-[100dvw] lg:min-w-0">
+        <div className="md:border-4 border-zinc-300 dark:border-zinc-800 rounded-2xl max-h-full h-full min-w-[100dvw] lg:min-w-0">
             <span className="horizontal gap-2 center-v p-4 border-b h-20">
                 <VoteButton
                     votes={feedback?.votes ?? 0}

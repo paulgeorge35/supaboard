@@ -171,7 +171,7 @@ export function ImageFile({ file, fileKey: key, width, height, ratio, onRemove, 
     return (
         <>
             {uploadedFile && <ModalComponent isOpen={imageModal.value} onClose={imageModal.toggle} className="!p-0 rounded-none border-none max-w-none horizontal center !bg-transparent !shadow-none">
-                {imageModal.value && <ImageComponent src={uploadedFile?.url} alt={file?.name} className="h-full cursor-pointer shadow-md" onClick={handleClick} />}
+                {imageModal.value && <ImageComponent src={uploadedFile?.url} alt={file?.name} className="max-h-screen max-w-screen cursor-pointer shadow-md" onClick={handleClick} />}
             </ModalComponent>}
             <span className={cn("relative max-h-24 h-24 rounded-xl overflow-hidden shadow-lg", className)}>
                 {uploadedFile && uploaded ?

@@ -1,4 +1,4 @@
-import { Icons, LoadingSpinner } from '@/components'
+import { Button, Icons, LoadingSpinner } from '@/components'
 import { FeedbackCard } from '@/components/admin'
 import { Skeleton } from '@/components/skeleton'
 import { feedbacksInfiniteQuery } from '@/lib/query/feedback'
@@ -36,7 +36,7 @@ function RouteComponent() {
           </div>
         </div>
       </div>
-      <div className="col-span-1 p-8 relative vertical border-l max-h-[calc(100dvh-72px)] bg-white dark:bg-zinc-900">
+      <div className="col-span-1 md:p-8 relative vertical border-l max-h-[calc(100dvh-72px)] bg-white dark:bg-zinc-900">
         <Outlet />
       </div>
     </>
@@ -47,7 +47,7 @@ function FeedbackList({ searchQuery }: { searchQuery: string }) {
   const router = useRouter()
   const { boardSlug, feedbackSlug } = useParams({ strict: false })
   const search = useSearch({ from: Route.fullPath })
-  const { data, isLoading, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(feedbacksInfiniteQuery({ ...search, search: searchQuery }))
+  const { data, isLoading, fetchNextPage, isFetchingNextPage, hasNextPage } = useInfiniteQuery(feedbacksInfiniteQuery({ ...search, search: searchQuery }))
 
   const handleFetchNextPage = (params: UseVisibility<HTMLDivElement>) => {
     if (params.isVisible && data?.pages[data?.pages.length - 1]) {
@@ -110,6 +110,11 @@ function FeedbackList({ searchQuery }: { searchQuery: string }) {
         <Skeleton className="w-full h-full vertical center">
           <LoadingSpinner className='stroke-gray-500 dark:stroke-zinc-400 size-10' />
         </Skeleton>
+      </div>}
+      {hasNextPage && !isFetchingNextPage && <div className="w-full h-32 border-b mb-[2px]">
+        <Button variant="ghost" className='w-full rounded-none' color='secondary' onClick={() => fetchNextPage()}>
+          Load more
+        </Button>
       </div>}
     </>
   )
