@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
+import AnimatedNumber from 'react-animated-numbers';
 import { Line, LineChart, ResponsiveContainer } from "recharts";
 import colors from "tailwindcss/colors";
 
@@ -117,7 +118,13 @@ export function ActivityOverview() {
                             {config.title}
                         </h2>
                         <div className="text-2xl font-bold mb-4 horizontal center-v gap-1">
-                            {config.total ?? '-'}
+                            {config.total ? (
+                                <AnimatedNumber
+                                    animateToNumber={config.total}
+                                    fontStyle={{ fontSize: 24 }}
+                                    includeComma
+                                />
+                            ) : ('-')}
                             <Trend trend={config.trend} percentageIncrease={config.percentageIncrease} />
                         </div>
                         <div className="h-[100px] w-full">
