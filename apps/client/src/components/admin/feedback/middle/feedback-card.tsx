@@ -27,11 +27,11 @@ export function FeedbackCard({ feedback, ref }: FeedbackCardProps) {
                         {description}
                     </p>
                     <span className="horizontal gap-2 center-v">
-                        <Icons.Triangle size={12} />
+                        <Icons.Triangle size={12} className="stroke-gray-500 dark:stroke-zinc-400" />
                         <span className="text-xs text-gray-500">
                             {_count.votes}
                         </span>
-                        <Icons.MessageSquare size={12} />
+                        <Icons.MessageSquare size={12} className="stroke-gray-500 dark:stroke-zinc-400" />
                         <span className="text-xs text-gray-500">
                             {_count.activities}
                         </span>

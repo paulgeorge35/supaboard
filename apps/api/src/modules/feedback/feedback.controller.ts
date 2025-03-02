@@ -744,7 +744,7 @@ export async function editHistory(req: BareSessionRequest, res: Response) {
 
 const feedbacksSchema = z.object({
     cursor: z.string().optional(),
-    take: z.coerce.number().default(10),
+    take: z.coerce.number().default(15),
     order: z.enum(['newest', 'oldest']).default('newest'),
     boards: z.union([z.array(z.string()), z.string()]).optional(),
     status: z.union([z.array(z.string()), z.string()]).optional(),
