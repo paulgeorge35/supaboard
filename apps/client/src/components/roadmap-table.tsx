@@ -509,36 +509,42 @@ const SelectionDock = React.memo(({ selectedCount, onClear, selectedItems }: Sel
         </p>
         <div className="h-4 w-[1px] bg-gray-200 dark:bg-zinc-800" />
         <div className="horizontal center gap-2">
-          <Tooltip content={selectedCount === 1 ? "You must select at least two posts to merge." : "Merge selected posts"}>
+          <Tooltip content={selectedCount === 1 ? "You must select at least two posts to merge." : "Merge selected posts (coming soon)"}>
             <span>
-              <Button variant="outline" size="icon" disabled={selectedCount === 1}>
+              <Button variant="outline" size="icon" disabled>
                 <Icons.Merge className='size-4' />
               </Button>
             </span>
           </Tooltip>
-          <Tooltip content="Add to roadmap">
-            <Button variant="outline" size="icon">
-              <Icons.Map className='size-4' />
-            </Button>
+          <Tooltip content="Add to roadmap (coming soon)">
+            <span>
+              <Button variant="outline" size="icon" disabled>
+                <Icons.Map className='size-4' />
+              </Button>
+            </span>
           </Tooltip>
-          <Tooltip content="Move to board">
-            <Button variant="outline" size="icon">
-              <Icons.ClipboardPaste className='size-4' />
-            </Button>
+          <Tooltip content="Move to board (coming soon)">
+            <span>
+              <Button variant="outline" size="icon" disabled>
+                <Icons.ClipboardPaste className='size-4' />
+              </Button>
+            </span>
           </Tooltip>
-          <Tooltip content="Change owner">
-            <Button variant="outline" size="icon">
-              <Icons.User className='size-4' />
-            </Button>
+          <Tooltip content="Change owner (coming soon)">
+            <span>
+              <Button variant="outline" size="icon" disabled>
+                <Icons.User className='size-4' />
+              </Button>
+            </span>
           </Tooltip>
-          <Tooltip content={isMultipleBoards ? "You can only perform this action with posts from one board selected." : "Change category"}>
+          <Tooltip content={isMultipleBoards ? "You can only perform this action with posts from one board selected." : "Change category (coming soon)"}>
             <span>
               <Button variant="outline" size="icon" disabled={isMultipleBoards}>
                 <Icons.LayoutGrid className='size-4' />
               </Button>
             </span>
           </Tooltip>
-          <Tooltip content={isMultipleBoards ? "You can only perform this action with posts from one board selected." : "Add tags"}>
+          <Tooltip content={isMultipleBoards ? "You can only perform this action with posts from one board selected." : "Add tags (coming soon)"}>
             <span>
               <Button variant="outline" size="icon" disabled={isMultipleBoards}>
                 <Icons.Tag className='size-4' />
