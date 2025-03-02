@@ -3,15 +3,34 @@ import { ChangelogContent } from "@/components/admin/changelog/changelog-rendere
 import { useLikeChangelogMutation } from "@/lib/mutation"
 import { ChangelogPublic } from "@/lib/query"
 import { cn } from "@/lib/utils"
+import { useAuthStore } from "@/stores/auth-store"
 import { Link } from "@tanstack/react-router"
 import { DateTime } from "luxon"
+import { toast } from "sonner"
 
 type ChangelogItemProps = {
     changelog: ChangelogPublic;
 }
 
 export const ChangelogItem = ({ changelog }: ChangelogItemProps) => {
+    const { user } = useAuthStore()
     const { mutate: likeChangelog } = useLikeChangelogMutation()
+
+    const handleLikeChangelog = ({
+        changelogSlug,
+        likedByMe,
+        likes
+    }: {
+        changelogSlug: string
+        likedByMe: boolean
+        likes: number
+    }) => {
+        if (!user) {
+            toast.error('You must be logged in to like a changelog')
+            return
+        }
+        likeChangelog({ changelogSlug, likedByMe, likes })
+    }
 
     return (
         <div key={changelog.id} className='grid grid-cols-subgrid col-span-full'>
@@ -24,7 +43,7 @@ export const ChangelogItem = ({ changelog }: ChangelogItemProps) => {
                 </Link>
                 <span className='horizontal gap-2 center-v'>
                     <Button variant='outline' size='icon'
-                        onClick={() => likeChangelog({
+                        onClick={() => handleLikeChangelog({
                             changelogSlug: changelog.slug,
                             likedByMe: changelog.likedByMe,
                             likes: changelog.likes

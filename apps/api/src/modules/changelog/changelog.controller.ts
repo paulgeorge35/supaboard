@@ -431,14 +431,14 @@ const getPublic = async (req: BareSessionRequest, res: Response) => {
         where: { applicationId, status: 'PUBLISHED', publishedAt: { not: null } },
         orderBy: { publishedAt: 'desc' },
         include: {
-            likes: {
+            likes: userId ? {
                 select: {
                     id: true
                 },
                 where: {
-                    authorId: req.auth?.id
+                    authorId: userId
                 }
-            },
+            } : undefined,
             _count: {
                 select: {
                     likes: true
@@ -459,6 +459,7 @@ const getPublic = async (req: BareSessionRequest, res: Response) => {
 
 const getPublicBySlug = async (req: BareSessionRequest, res: Response) => {
     const applicationId = req.application?.id!;
+    const userId = req.auth?.id;
     const { changelogSlug } = req.params;
     const ip = req.ip;
     const userAgent = req.headers['user-agent'];
@@ -490,14 +491,14 @@ const getPublicBySlug = async (req: BareSessionRequest, res: Response) => {
         const changelog = await db.changelog.findUnique({
             where: { applicationId_slug: { applicationId, slug: changelogSlug } },
             include: {
-                likes: {
+                likes: userId ? {
                     select: {
                         id: true
                     },
                     where: {
-                        authorId: req.auth?.id
+                        authorId: userId
                     }
-                },
+                } : undefined,
                 _count: {
                     select: {
                         likes: true
@@ -514,7 +515,7 @@ const getPublicBySlug = async (req: BareSessionRequest, res: Response) => {
         res.status(200).json({
             ...changelog,
             likes: changelog._count.likes ?? 0,
-            likedByMe: changelog.likes.length > 0
+            likedByMe: changelog.likes && changelog.likes.length > 0 ? true : false,
         });
 
     } catch (error) {

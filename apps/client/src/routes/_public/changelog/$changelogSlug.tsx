@@ -3,15 +3,17 @@ import { ChangelogContent } from '@/components/admin/changelog/changelog-rendere
 import { useLikeChangelogMutation } from '@/lib/mutation'
 import { changelogPublicBySlugQuery } from '@/lib/query'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth-store'
 import { QueryClient, useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, notFound, useParams } from '@tanstack/react-router'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/_public/changelog/$changelogSlug')({
   context: () => {
-      const queryClient = new QueryClient()
-      return {
-          queryClient,
-      }
+    const queryClient = new QueryClient()
+    return {
+      queryClient,
+    }
   },
   loader: async ({ context, params }) => {
     const { queryClient } = context;
@@ -55,9 +57,30 @@ function ChangelogSkeleton() {
 }
 
 function RouteComponent() {
+  const { user } = useAuthStore()
   const { changelogSlug } = useParams({ from: '/_public/changelog/$changelogSlug' })
   const { data: changelog, isLoading } = useQuery(changelogPublicBySlugQuery(changelogSlug))
   const { mutate: likeChangelog } = useLikeChangelogMutation()
+
+  const handleLikeChangelog = ({
+    changelogSlug,
+    likedByMe,
+    likes
+  }: {
+    changelogSlug: string
+    likedByMe: boolean
+    likes: number
+  }) => {
+    if (!user) {
+      toast.error('You must be logged in to like a changelog')
+      return
+    }
+    likeChangelog({
+      changelogSlug,
+      likedByMe,
+      likes
+    })
+  }
 
   return (
     <div className='grid md:grid-cols-[minmax(300px,1fr)_2fr] gap-8'>
@@ -80,7 +103,7 @@ function RouteComponent() {
             />
             <span className='horizontal gap-2 center-v'>
               <Button variant='outline' size='icon'
-                onClick={() => likeChangelog({
+                onClick={() => handleLikeChangelog({
                   changelogSlug: changelog.slug,
                   likedByMe: changelog.likedByMe,
                   likes: changelog.likes
