@@ -108,7 +108,7 @@ function RouteComponent() {
             <form.Subscribe
                 selector={(state) => [state.canSubmit, state.isSubmitting, state.isDirty]}
                 children={([canSubmit, isSubmitting, isDirty]) => (
-                    <Button className='ml-auto' size='sm' type='submit' color='primary' isLoading={isSubmitting || isPending} disabled={!canSubmit || !isDirty}>
+                    <Button className='ml-auto' type='submit' color='primary' isLoading={isSubmitting || isPending} disabled={!canSubmit || !isDirty}>
                         Save
                     </Button>
                 )}

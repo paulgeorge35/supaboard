@@ -62,17 +62,19 @@ function RouteComponent() {
 
   return (
     <span className='vertical h-[100dvh]'>
-      <nav className="flex items-center justify-between p-4 fixed top-0 left-0 right-0 z-40 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 h-18 overflow-x-auto overflow-y-hidden">
-        <span className='horizontal gap-2 center-v'>
-          <Link to="/admin" activeOptions={{ exact: true }} className='button button-navigation font-medium gap-0 text-base'>
+      <nav className="flex items-center justify-between fixed top-0 left-0 right-0 z-40 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 h-18 overflow-x-auto overflow-y-hidden">
+        <span className='horizontal gap-2 center-v h-full'>
+          <Link to="/admin" activeOptions={{ exact: true }} className='button button-navigation h-full w-auto aspect-square center-v rounded-none font-medium gap-0 text-base'>
             <Logo className='size-6 stroke-0' />
           </Link>
-          <Link to="/admin/feedback" className='button button-navigation'>Feedback</Link>
-          <Link to="/admin/roadmap" className='button button-navigation'>Roadmap</Link>
-          <Link to="/admin/users" className='button button-navigation'>Users</Link>
-          <Link to="/admin/changelog" className='button button-navigation'>Changelog</Link>
+          <span className='horizontal gap-2 center-v p-4'>
+            <Link to="/admin/feedback" className='button button-navigation'>Feedback</Link>
+            <Link to="/admin/roadmap" className='button button-navigation'>Roadmap</Link>
+            <Link to="/admin/users" className='button button-navigation'>Users</Link>
+            <Link to="/admin/changelog" className='button button-navigation'>Changelog</Link>
+          </span>
         </span>
-        <span className='horizontal center-v gap-2 ml-2'>
+        <span className='horizontal center-v gap-2 ml-2 pr-4'>
           <PublicButton />
           <ThemeToggle />
           <AdminAuthButtons user={user} workspaces={workspaces} currentWorkspace={application?.id} />
