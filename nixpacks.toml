@@ -18,7 +18,7 @@ dependsOn = ['setup']
 cmds = [
     'echo "@paulgeorge35:registry=https://npm.pkg.github.com" >> /root/.npmrc',
     'echo "//npm.pkg.github.com/:_authToken=$NPM_TOKEN" >> /root/.npmrc',
-    'bun install --frozen-lockfile'
+    'bun install'
 ]
 cacheDirectories = ['/root/.bun']
 
