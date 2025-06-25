@@ -34,8 +34,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8000
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 bun
+# Create a non-root user (bun user might already exist in the base image)
+RUN addgroup -g 1001 -S nodejs || true
+RUN adduser -S -D -H -h /app -s /bin/sh -u 1001 -G nodejs bun || true
 
 # Copy built application
 COPY --from=builder --chown=bun:nodejs /app/apps/api/dist ./apps/api/dist
