@@ -21,9 +21,12 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma client
+# Generate Prisma client without SQL validation (for build)
 ENV DATABASE_URL="postgres://postgres:FnbwvTDtZyp42DJuPSfYTmuKWfOt3y5EnN6iWetDbP2b2wGJVE9CNAViiX4MkgN1@ockkkwswg80cks0g480sgw4c:5432/postgres"
-RUN bun run generate
+RUN cd packages/database && bunx prisma generate
+
+# Build database package first
+RUN cd packages/database && bun run prebuild
 
 # Build all packages first
 RUN bun run build --filter=@repo/database
