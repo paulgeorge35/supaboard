@@ -22,7 +22,13 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Generate Prisma client
+ENV DATABASE_URL="postgres://postgres:FnbwvTDtZyp42DJuPSfYTmuKWfOt3y5EnN6iWetDbP2b2wGJVE9CNAViiX4MkgN1@ockkkwswg80cks0g480sgw4c:5432/postgres"
 RUN bun run generate
+
+# Build all packages first
+RUN bun run build --filter=@repo/database
+RUN bun run build --filter=@repo/eslint-config
+RUN bun run build --filter=@repo/typescript-config
 
 # Build the API
 RUN bun run build --filter=@repo/api
@@ -38,12 +44,13 @@ ENV PORT=8000
 RUN addgroup -g 1001 -S nodejs || true
 RUN adduser -S -D -H -h /app -s /bin/sh -u 1001 -G nodejs bun || true
 
-# Copy built application
+# Copy built application and packages
 COPY --from=builder --chown=bun:nodejs /app/apps/api/dist ./apps/api/dist
 COPY --from=builder --chown=bun:nodejs /app/apps/api/src ./apps/api/src
 COPY --from=builder --chown=bun:nodejs /app/packages ./packages
 COPY --from=builder --chown=bun:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=bun:nodejs /app/bun.lock ./bun.lock
+COPY --from=builder --chown=bun:nodejs /app/node_modules ./node_modules
 
 USER bun
 

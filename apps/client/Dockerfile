@@ -20,6 +20,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Build all packages first
+RUN bun run build --filter=@repo/eslint-config
+RUN bun run build --filter=@repo/typescript-config
+
 # Build the client
 RUN bun run build --filter=@repo/client
 
@@ -34,10 +38,11 @@ ENV PORT=3000
 RUN addgroup -g 1001 -S nodejs || true
 RUN adduser -S -D -H -h /app -s /bin/sh -u 1001 -G nodejs bun || true
 
-# Copy built application and necessary files
+# Copy built application and packages
 COPY --from=builder --chown=bun:nodejs /app/apps/client/dist ./apps/client/dist
 COPY --from=builder --chown=bun:nodejs /app/apps/client/package.json ./apps/client/package.json
 COPY --from=builder --chown=bun:nodejs /app/apps/client/vite.config.ts ./apps/client/vite.config.ts
+COPY --from=builder --chown=bun:nodejs /app/packages ./packages
 COPY --from=builder --chown=bun:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=bun:nodejs /app/bun.lock ./bun.lock
 COPY --from=builder --chown=bun:nodejs /app/node_modules ./node_modules
