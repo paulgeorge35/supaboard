@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "dev": "vite --port=3000",
+    "dev": "vite --port=3001",
     "build": "vite build && rsync -av --delete dist/ /var/www/supaboard/",
     "serve": "vite preview",
     "start": "vite"
@@ -26,7 +26,8 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.1",
     "tailwindcss": "^4.0.3",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "vite-plugin-pwa": "^0.21.2"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

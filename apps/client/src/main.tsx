@@ -5,6 +5,8 @@ import ReactDOM from 'react-dom/client'
 import { routeTree } from './routeTree.gen'
 import { initializeModals } from './utils/modal'
 import { initializePopovers } from './utils/popover'
+import { useRegisterSW } from 'virtual:pwa-register/react'
+import UpdatePrompt from './components/update-prompt'
 
 // Set up a Router instance
 const router = createRouter({
@@ -31,6 +33,7 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
+        <UpdatePrompt />
         <RouterProvider router={router} />
       </QueryClientProvider>
     </StrictMode>

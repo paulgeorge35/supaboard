@@ -3,6 +3,7 @@ import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
 import { fileURLToPath } from 'url'
 import { defineConfig, searchForWorkspaceRoot } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // Vendor package groups
 const vendorChunks = {
@@ -32,7 +33,11 @@ export default defineConfig(({ command, mode }) => ({
       }
     }),
     TanStackRouterVite({}),
-    tailwindcss()
+    tailwindcss(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'script'
+    })
   ],
   server: {
     allowedHosts: true,
