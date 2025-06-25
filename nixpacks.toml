@@ -18,9 +18,14 @@ dependsOn = ['setup']
 cmds = [
     'echo "@paulgeorge35:registry=https://npm.pkg.github.com" >> /root/.npmrc',
     'echo "//npm.pkg.github.com/:_authToken=$NPM_TOKEN" >> /root/.npmrc',
-    'bun install'
+    'rm -f bun.lock',  # Remove the incompatible lockfile
+    'bun install'      # Install without --frozen-lockfile
 ]
 cacheDirectories = ['/root/.bun']
+
+[phases.install.environment]
+NPM_TOKEN = "${NPM_TOKEN}"
+
 
 [phases.build]
 dependsOn = ['install']
