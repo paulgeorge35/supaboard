@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    container_name: supaboard-api
+    ports:
+      - "3102:8000"
+    environment:
+      - NODE_ENV=production
+      - PORT=${PORT:-8000}
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - COOKIE_NAME=${COOKIE_NAME}
+      - APP_DOMAIN=${APP_DOMAIN}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_SIGN_IN_CALLBACK_URL=${GOOGLE_SIGN_IN_CALLBACK_URL}
+      - GOOGLE_SIGN_UP_CALLBACK_URL=${GOOGLE_SIGN_UP_CALLBACK_URL}
+      - REDIS_URL=${REDIS_URL}
+      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
+      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
+      - R2_BUCKET_NAME=${R2_BUCKET_NAME}
+      - R2_ENDPOINT=${R2_ENDPOINT}
+      - R2_PUBLIC_ENDPOINT=${R2_PUBLIC_ENDPOINT}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - ICLOUD_USER=${ICLOUD_USER}
+      - ICLOUD_PASSWORD=${ICLOUD_PASSWORD}
+    volumes:
+      - ./apps/api:/app/apps/api
+      - ./packages:/app/packages
+    working_dir: /app
+    depends_on: []
+
+  client:
+    build:
+      context: .
+      dockerfile: ./apps/client/Dockerfile
+    container_name: supaboard-client
+    ports:
+      - "3103:3000"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=${VITE_API_URL}
+      - VITE_APP_DOMAIN=${VITE_APP_DOMAIN}
+      - VITE_APP_URL=${VITE_APP_URL}
+      - VITE_R2_PUBLIC_ENDPOINT=${VITE_R2_PUBLIC_ENDPOINT}
+      - VITE_IMAGE_PROCESSOR_URL=${VITE_IMAGE_PROCESSOR_URL}
+    volumes:
+      - ./apps/client:/app/apps/client
+      - ./packages:/app/packages
+    working_dir: /app
+    depends_on:
+      - api
