@@ -1,0 +1,36 @@
+FROM oven/bun:1.2.2-alpine as base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat curl
+WORKDIR /app
+
+# Copy package files
+COPY package.json bun.lock ./
+COPY apps/client/package.json ./apps/client/
+COPY packages/config-eslint/package.json ./packages/config-eslint/
+COPY packages/config-typescript/package.json ./packages/config-typescript/
+
+# Install dependencies
+RUN bun install
+
+# Development stage
+FROM base AS development
+RUN apk add --no-cache libc6-compat curl
+WORKDIR /app
+
+# Copy dependencies
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Build packages first
+RUN bun run build --filter=@repo/eslint-config
+RUN bun run build --filter=@repo/typescript-config
+
+ENV NODE_ENV=development
+ENV PORT=3000
+
+EXPOSE 3000
+
+# Use development command with hot reloading
+CMD ["bun", "run", "--cwd", "apps/client", "dev", "--host", "0.0.0.0"]

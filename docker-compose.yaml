@@ -1,25 +1,73 @@
 version: '3.8'
 
+networks:
+  supaboard-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+
 services:
+  # Database service
+  postgres:
+    image: postgres:15-alpine
+    container_name: supaboard-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=supaboard
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=supaboard_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - supaboard-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis service
+  redis:
+    image: redis:7-alpine
+    container_name: supaboard-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - supaboard-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # API service
   api:
     build:
       context: .
       dockerfile: ./apps/api/Dockerfile
     container_name: supaboard-api
+    restart: unless-stopped
     ports:
       - "3102:8000"
     environment:
       - NODE_ENV=production
-      - PORT=${PORT:-8000}
-      - DATABASE_URL=${DATABASE_URL}
-      - JWT_SECRET=${JWT_SECRET}
-      - COOKIE_NAME=${COOKIE_NAME}
-      - APP_DOMAIN=${APP_DOMAIN}
+      - PORT=8000
+      - DATABASE_URL=postgresql://postgres:supaboard_password@postgres:5432/supaboard
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-here}
+      - COOKIE_NAME=${COOKIE_NAME:-supaboard-auth}
+      - APP_DOMAIN=${APP_DOMAIN:-localhost:3103}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_SIGN_IN_CALLBACK_URL=${GOOGLE_SIGN_IN_CALLBACK_URL}
       - GOOGLE_SIGN_UP_CALLBACK_URL=${GOOGLE_SIGN_UP_CALLBACK_URL}
-      - REDIS_URL=${REDIS_URL}
       - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
       - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
       - R2_BUCKET_NAME=${R2_BUCKET_NAME}
@@ -32,25 +80,67 @@ services:
       - ./apps/api:/app/apps/api
       - ./packages:/app/packages
     working_dir: /app
-    depends_on: []
+    networks:
+      - supaboard-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
+  # Client service
   client:
     build:
       context: .
       dockerfile: ./apps/client/Dockerfile
     container_name: supaboard-client
+    restart: unless-stopped
     ports:
       - "3103:3000"
     environment:
       - NODE_ENV=production
-      - VITE_API_URL=${VITE_API_URL}
-      - VITE_APP_DOMAIN=${VITE_APP_DOMAIN}
-      - VITE_APP_URL=${VITE_APP_URL}
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3102}
+      - VITE_APP_DOMAIN=${VITE_APP_DOMAIN:-localhost:3103}
+      - VITE_APP_URL=${VITE_APP_URL:-http://localhost:3103}
       - VITE_R2_PUBLIC_ENDPOINT=${VITE_R2_PUBLIC_ENDPOINT}
       - VITE_IMAGE_PROCESSOR_URL=${VITE_IMAGE_PROCESSOR_URL}
     volumes:
       - ./apps/client:/app/apps/client
       - ./packages:/app/packages
     working_dir: /app
+    networks:
+      - supaboard-network
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Database migration service (runs once)
+  migrate:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    container_name: supaboard-migrate
+    environment:
+      - DATABASE_URL=postgresql://postgres:supaboard_password@postgres:5432/supaboard
+    volumes:
+      - ./packages/database:/app/packages/database
+      - ./package.json:/app/package.json
+      - ./bun.lock:/app/bun.lock
+    working_dir: /app
+    networks:
+      - supaboard-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["bun", "run", "db:migrate:deploy"]
+    restart: "no"

@@ -1,0 +1,71 @@
+version: '3.8'
+
+# Development override for docker-compose.yaml
+# Use with: docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up
+
+services:
+  # Development API with hot reloading
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile.dev
+      target: development
+    environment:
+      - NODE_ENV=development
+      - PORT=8000
+      - DATABASE_URL=postgresql://postgres:supaboard_password@postgres:5432/supaboard
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+      - ./packages:/app/packages
+      - /app/node_modules
+    command: ["bun", "run", "--cwd", "apps/api", "dev"]
+    ports:
+      - "3102:8000"
+      - "9229:9229" # Debug port
+
+  # Development Client with hot reloading
+  client:
+    build:
+      context: .
+      dockerfile: ./apps/client/Dockerfile.dev
+      target: development
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3102
+    volumes:
+      - ./apps/client/src:/app/apps/client/src
+      - ./apps/client/public:/app/apps/client/public
+      - ./packages:/app/packages
+      - /app/node_modules
+    command: ["bun", "run", "--cwd", "apps/client", "dev", "--host", "0.0.0.0"]
+    ports:
+      - "3103:3000"
+
+  # PgAdmin for database management (development only)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: supaboard-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    ports:
+      - "5050:80"
+    networks:
+      - supaboard-network
+    depends_on:
+      - postgres
+
+  # Redis Commander for Redis management (development only)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: supaboard-redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - supaboard-network
+    depends_on:
+      - redis

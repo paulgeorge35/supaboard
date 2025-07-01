@@ -1,0 +1,46 @@
+FROM oven/bun:1.2.2-alpine as base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat curl
+WORKDIR /app
+
+# Copy package files
+COPY package.json bun.lock ./
+COPY apps/api/package.json ./apps/api/
+COPY packages/database/package.json ./packages/database/
+COPY packages/config-eslint/package.json ./packages/config-eslint/
+COPY packages/config-typescript/package.json ./packages/config-typescript/
+
+# Install dependencies
+RUN bun install
+
+# Development stage
+FROM base AS development
+RUN apk add --no-cache libc6-compat curl
+WORKDIR /app
+
+# Copy dependencies
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Generate Prisma client
+ENV DATABASE_URL="postgresql://postgres:supaboard_password@postgres:5432/supaboard"
+RUN cd packages/database && bunx prisma generate
+
+# Build database package for development
+RUN cd packages/database && bun run prebuild
+
+# Build packages
+RUN bun run build --filter=@repo/database
+RUN bun run build --filter=@repo/eslint-config
+RUN bun run build --filter=@repo/typescript-config
+
+ENV NODE_ENV=development
+ENV PORT=8000
+
+EXPOSE 8000
+EXPOSE 9229
+
+# Use development command with hot reloading
+CMD ["bun", "run", "--cwd", "apps/api", "dev"]
