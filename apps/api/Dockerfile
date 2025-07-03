@@ -2,11 +2,10 @@ FROM oven/bun:1.2.18 AS builder
 
 WORKDIR /app
 
-# Install OpenSSL and other dependencies
+# Install OpenSSL + necessary dev libraries for Prisma
 RUN apt-get update -y && \
-    apt-get install -y openssl libssl-dev ca-certificates && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y openssl libssl-dev pkg-config build-essential && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy entire repo (including packages, apps)
 COPY . .
