@@ -10,7 +10,7 @@ COPY . .
 RUN bun install --use-workspaces
 
 # Build your client app
-RUN bun run build
+RUN bun run --filter @repo/client build
 
 # --- Serve stage ---
 FROM node:20-alpine as runner
