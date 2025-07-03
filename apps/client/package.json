@@ -6,7 +6,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "dev": "vite --port=3000",
-    "build": "vite build && rsync -av --delete dist/ /var/www/supaboard/",
+    "build": "vite build",
     "serve": "vite preview",
     "start": "vite"
   },
