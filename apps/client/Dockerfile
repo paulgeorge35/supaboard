@@ -1,5 +1,5 @@
 # --- Build stage ---
-FROM oven/bun:1.2.18 as builder
+FROM oven/bun:1.2.18 AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN bun install --use-workspaces
 RUN bun run --filter @repo/client build
 
 # --- Serve stage ---
-FROM node:20-alpine as runner
+FROM node:20-alpine AS runner
 
 RUN npm install -g serve
 

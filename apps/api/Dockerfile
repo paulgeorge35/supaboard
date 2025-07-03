@@ -1,4 +1,4 @@
-FROM oven/bun:1.2.18 as base
+FROM oven/bun:1.2.18 AS builder
 
 WORKDIR /app
 
@@ -24,7 +24,7 @@ RUN bun run build --filter=@repo/typescript-config
 RUN bun run build --filter=@repo/api
 
 # Production image, copy all the files and run the app
-FROM base AS runner
+FROM oven/bun:1.2.18 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
