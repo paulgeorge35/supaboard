@@ -2,8 +2,11 @@ FROM oven/bun:1.2.18 AS builder
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update -y && apt-get install -y openssl
+# Install OpenSSL and other dependencies
+RUN apt-get update -y && \
+    apt-get install -y openssl libssl-dev ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy entire repo (including packages, apps)
 COPY . .
