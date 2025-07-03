@@ -10,6 +10,7 @@ generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearchPostgres", "typedSql"]
   output          = "../generated/client"
+  binaryTargets   = ["native", "linux-arm64-openssl-1.1.x"]
 }
 
 enum Role {
