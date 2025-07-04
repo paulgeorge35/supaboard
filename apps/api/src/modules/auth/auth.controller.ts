@@ -211,7 +211,6 @@ export async function login(req: Request, res: Response) {
     avatar: user.avatar ?? undefined,
   });
 
-  console.log("ENVIRONMENT", process.env.NODE_ENV);
   const customCookieOptions = {
     ...cookieOptions,
     domain: req.headers.referer?.includes(APP_DOMAIN)

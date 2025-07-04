@@ -521,17 +521,6 @@ export async function getMemberActivity(
       )
     : [];
 
-  console.log({
-    applicationId,
-    start: start ?? DateTime.fromFormat("2000-01-01", "yyyy-MM-dd").toJSDate(),
-    end: end ?? DateTime.fromFormat("2100-01-01", "yyyy-MM-dd").toJSDate(),
-    userId,
-    filterComments: filter?.includes("comments"),
-    filterVotes: filter?.includes("votes"),
-    filterPosts: filter?.includes("posts"),
-    take,
-    cursor,
-  });
   const members = await db.$queryRawTyped(
     memberActivity(
       applicationId,
