@@ -8,926 +8,1243 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as PublicRouteImport } from './routes/_public'
+import { Route as PasswordResetIndexRouteImport } from './routes/password-reset/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as PasswordResetTokenRouteImport } from './routes/password-reset/$token'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminRoadmapRouteImport } from './routes/admin/roadmap'
+import { Route as AdminFeedbackRouteImport } from './routes/admin/feedback'
+import { Route as AdminSettingsIndexRouteImport } from './routes/admin/settings/index'
+import { Route as AdminChangelogIndexRouteImport } from './routes/admin/changelog/index'
+import { Route as PublicChangelogIndexRouteImport } from './routes/_public/changelog/index'
+import { Route as PublicBoardSlugIndexRouteImport } from './routes/_public/$boardSlug/index'
+import { Route as AdminUsersUserSlugRouteImport } from './routes/admin/users/$userSlug'
+import { Route as AdminSettingsRoadmapRouteImport } from './routes/admin/settings/roadmap'
+import { Route as AdminSettingsProfileRouteImport } from './routes/admin/settings/profile'
+import { Route as AdminSettingsPreferencesRouteImport } from './routes/admin/settings/preferences'
+import { Route as AdminSettingsCompanyRouteImport } from './routes/admin/settings/company'
+import { Route as AdminSettingsChangelogRouteImport } from './routes/admin/settings/changelog'
+import { Route as AdminSettingsBoardsRouteImport } from './routes/admin/settings/boards'
+import { Route as AdminSettingsAdminsRouteImport } from './routes/admin/settings/admins'
+import { Route as AdminRoadmapRoadmapSlugRouteImport } from './routes/admin/roadmap/$roadmapSlug'
+import { Route as AdminFeedbackBoardSlugRouteImport } from './routes/admin/feedback/$boardSlug'
+import { Route as AdminChangelogCreateRouteImport } from './routes/admin/changelog/create'
+import { Route as PublicChangelogChangelogSlugRouteImport } from './routes/_public/changelog/$changelogSlug'
+import { Route as AdminSettingsCustomDomainsIndexRouteImport } from './routes/admin/settings/custom-domains.index'
+import { Route as PublicBoardSlugFeedbackSlugIndexRouteImport } from './routes/_public/$boardSlug/$feedbackSlug/index'
+import { Route as AdminSettingsRoadmapStatusesRouteImport } from './routes/admin/settings/roadmap.statuses'
+import { Route as AdminSettingsRoadmapPublicRouteImport } from './routes/admin/settings/roadmap.public'
+import { Route as AdminSettingsRoadmapArchiveRouteImport } from './routes/admin/settings/roadmap.archive'
+import { Route as AdminSettingsPreferencesLanguageRouteImport } from './routes/admin/settings/preferences.language'
+import { Route as AdminSettingsPreferencesEmailRouteImport } from './routes/admin/settings/preferences.email'
+import { Route as AdminSettingsCompanyPreferencesRouteImport } from './routes/admin/settings/company.preferences'
+import { Route as AdminSettingsCompanyDeleteRouteImport } from './routes/admin/settings/company.delete'
+import { Route as AdminSettingsCompanyBrandingRouteImport } from './routes/admin/settings/company.branding'
+import { Route as AdminSettingsChangelogPrivacyRouteImport } from './routes/admin/settings/changelog.privacy'
+import { Route as AdminSettingsChangelogLabelsRouteImport } from './routes/admin/settings/changelog.labels'
+import { Route as AdminSettingsBoardsCreateNewRouteImport } from './routes/admin/settings/boards.create-new'
+import { Route as AdminSettingsAdminsPeopleRouteImport } from './routes/admin/settings/admins.people'
+import { Route as AdminRoadmapRoadmapSlugRenameRouteImport } from './routes/admin/roadmap/$roadmapSlug.rename'
+import { Route as AdminRoadmapRoadmapSlugNewRouteImport } from './routes/admin/roadmap/$roadmapSlug.new'
+import { Route as AdminRoadmapRoadmapSlugFilterRouteImport } from './routes/admin/roadmap/$roadmapSlug.filter'
+import { Route as AdminRoadmapRoadmapSlugDeleteRouteImport } from './routes/admin/roadmap/$roadmapSlug.delete'
+import { Route as AdminFeedbackBoardSlugFeedbackSlugRouteImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug'
+import { Route as AdminChangelogChangelogSlugEditRouteImport } from './routes/admin/changelog/$changelogSlug.edit'
+import { Route as PublicBoardSlugFeedbackSlugVotersRouteImport } from './routes/_public/$boardSlug/$feedbackSlug/voters'
+import { Route as PublicBoardSlugFeedbackSlugEditHistoryRouteImport } from './routes/_public/$boardSlug/$feedbackSlug/edit-history'
+import { Route as PublicBoardSlugFeedbackSlugEditRouteImport } from './routes/_public/$boardSlug/$feedbackSlug/edit'
+import { Route as AdminFeedbackBoardSlugFeedbackSlugIndexRouteImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/index'
+import { Route as AdminSettingsBoardsBoardSlugTagsRouteImport } from './routes/admin/settings/boards.$boardSlug.tags'
+import { Route as AdminSettingsBoardsBoardSlugPrivacyRouteImport } from './routes/admin/settings/boards.$boardSlug.privacy'
+import { Route as AdminSettingsBoardsBoardSlugGeneralRouteImport } from './routes/admin/settings/boards.$boardSlug.general'
+import { Route as AdminSettingsBoardsBoardSlugDeleteRouteImport } from './routes/admin/settings/boards.$boardSlug.delete'
+import { Route as AdminSettingsBoardsBoardSlugCreateFormRouteImport } from './routes/admin/settings/boards.$boardSlug.create-form'
+import { Route as AdminSettingsBoardsBoardSlugCategoriesRouteImport } from './routes/admin/settings/boards.$boardSlug.categories'
+import { Route as AdminFeedbackBoardSlugFeedbackSlugVotersRouteImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/voters'
+import { Route as AdminFeedbackBoardSlugFeedbackSlugEditHistoryRouteImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
+import { Route as AdminFeedbackBoardSlugFeedbackSlugEditRouteImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/edit'
+import { Route as AdminChangelogChangelogSlugEditPublishRouteImport } from './routes/admin/changelog/$changelogSlug.edit.publish'
+import { Route as AdminChangelogChangelogSlugEditDeleteRouteImport } from './routes/admin/changelog/$changelogSlug.edit.delete'
+import { Route as AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRouteImport } from './routes/admin/roadmap/$roadmapSlug.$boardSlug.$feedbackSlug.$feedbackId.remove'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as AdminImport } from './routes/admin'
-import { Route as PublicImport } from './routes/_public'
-import { Route as PasswordResetIndexImport } from './routes/password-reset/index'
-import { Route as AdminIndexImport } from './routes/admin/index'
-import { Route as PublicIndexImport } from './routes/_public/index'
-import { Route as PasswordResetTokenImport } from './routes/password-reset/$token'
-import { Route as AdminUsersImport } from './routes/admin/users'
-import { Route as AdminSettingsImport } from './routes/admin/settings'
-import { Route as AdminRoadmapImport } from './routes/admin/roadmap'
-import { Route as AdminFeedbackImport } from './routes/admin/feedback'
-import { Route as AdminSettingsIndexImport } from './routes/admin/settings/index'
-import { Route as AdminChangelogIndexImport } from './routes/admin/changelog/index'
-import { Route as PublicChangelogIndexImport } from './routes/_public/changelog/index'
-import { Route as PublicBoardSlugIndexImport } from './routes/_public/$boardSlug/index'
-import { Route as AdminUsersUserSlugImport } from './routes/admin/users/$userSlug'
-import { Route as AdminSettingsRoadmapImport } from './routes/admin/settings/roadmap'
-import { Route as AdminSettingsProfileImport } from './routes/admin/settings/profile'
-import { Route as AdminSettingsPreferencesImport } from './routes/admin/settings/preferences'
-import { Route as AdminSettingsCompanyImport } from './routes/admin/settings/company'
-import { Route as AdminSettingsChangelogImport } from './routes/admin/settings/changelog'
-import { Route as AdminSettingsBoardsImport } from './routes/admin/settings/boards'
-import { Route as AdminSettingsAdminsImport } from './routes/admin/settings/admins'
-import { Route as AdminRoadmapRoadmapSlugImport } from './routes/admin/roadmap/$roadmapSlug'
-import { Route as AdminFeedbackBoardSlugImport } from './routes/admin/feedback/$boardSlug'
-import { Route as AdminChangelogCreateImport } from './routes/admin/changelog/create'
-import { Route as PublicChangelogChangelogSlugImport } from './routes/_public/changelog/$changelogSlug'
-import { Route as AdminSettingsCustomDomainsIndexImport } from './routes/admin/settings/custom-domains.index'
-import { Route as PublicBoardSlugFeedbackSlugIndexImport } from './routes/_public/$boardSlug/$feedbackSlug/index'
-import { Route as AdminSettingsRoadmapStatusesImport } from './routes/admin/settings/roadmap.statuses'
-import { Route as AdminSettingsRoadmapPublicImport } from './routes/admin/settings/roadmap.public'
-import { Route as AdminSettingsRoadmapArchiveImport } from './routes/admin/settings/roadmap.archive'
-import { Route as AdminSettingsPreferencesLanguageImport } from './routes/admin/settings/preferences.language'
-import { Route as AdminSettingsPreferencesEmailImport } from './routes/admin/settings/preferences.email'
-import { Route as AdminSettingsCompanyPreferencesImport } from './routes/admin/settings/company.preferences'
-import { Route as AdminSettingsCompanyDeleteImport } from './routes/admin/settings/company.delete'
-import { Route as AdminSettingsCompanyBrandingImport } from './routes/admin/settings/company.branding'
-import { Route as AdminSettingsChangelogPrivacyImport } from './routes/admin/settings/changelog.privacy'
-import { Route as AdminSettingsChangelogLabelsImport } from './routes/admin/settings/changelog.labels'
-import { Route as AdminSettingsBoardsCreateNewImport } from './routes/admin/settings/boards.create-new'
-import { Route as AdminSettingsAdminsPeopleImport } from './routes/admin/settings/admins.people'
-import { Route as AdminRoadmapRoadmapSlugRenameImport } from './routes/admin/roadmap/$roadmapSlug.rename'
-import { Route as AdminRoadmapRoadmapSlugNewImport } from './routes/admin/roadmap/$roadmapSlug.new'
-import { Route as AdminRoadmapRoadmapSlugFilterImport } from './routes/admin/roadmap/$roadmapSlug.filter'
-import { Route as AdminRoadmapRoadmapSlugDeleteImport } from './routes/admin/roadmap/$roadmapSlug.delete'
-import { Route as AdminFeedbackBoardSlugFeedbackSlugImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug'
-import { Route as AdminChangelogChangelogSlugEditImport } from './routes/admin/changelog/$changelogSlug.edit'
-import { Route as PublicBoardSlugFeedbackSlugVotersImport } from './routes/_public/$boardSlug/$feedbackSlug/voters'
-import { Route as PublicBoardSlugFeedbackSlugEditHistoryImport } from './routes/_public/$boardSlug/$feedbackSlug/edit-history'
-import { Route as PublicBoardSlugFeedbackSlugEditImport } from './routes/_public/$boardSlug/$feedbackSlug/edit'
-import { Route as AdminFeedbackBoardSlugFeedbackSlugIndexImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/index'
-import { Route as AdminSettingsBoardsBoardSlugTagsImport } from './routes/admin/settings/boards.$boardSlug.tags'
-import { Route as AdminSettingsBoardsBoardSlugPrivacyImport } from './routes/admin/settings/boards.$boardSlug.privacy'
-import { Route as AdminSettingsBoardsBoardSlugGeneralImport } from './routes/admin/settings/boards.$boardSlug.general'
-import { Route as AdminSettingsBoardsBoardSlugDeleteImport } from './routes/admin/settings/boards.$boardSlug.delete'
-import { Route as AdminSettingsBoardsBoardSlugCreateFormImport } from './routes/admin/settings/boards.$boardSlug.create-form'
-import { Route as AdminSettingsBoardsBoardSlugCategoriesImport } from './routes/admin/settings/boards.$boardSlug.categories'
-import { Route as AdminFeedbackBoardSlugFeedbackSlugVotersImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/voters'
-import { Route as AdminFeedbackBoardSlugFeedbackSlugEditHistoryImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
-import { Route as AdminFeedbackBoardSlugFeedbackSlugEditImport } from './routes/admin/feedback/$boardSlug/$feedbackSlug/edit'
-import { Route as AdminChangelogChangelogSlugEditPublishImport } from './routes/admin/changelog/$changelogSlug.edit.publish'
-import { Route as AdminChangelogChangelogSlugEditDeleteImport } from './routes/admin/changelog/$changelogSlug.edit.delete'
-import { Route as AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveImport } from './routes/admin/roadmap/$roadmapSlug.$boardSlug.$feedbackSlug.$feedbackId.remove'
-
-// Create/Update Routes
-
-const AdminRoute = AdminImport.update({
+const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const PublicRoute = PublicImport.update({
+const PublicRoute = PublicRouteImport.update({
   id: '/_public',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const PasswordResetIndexRoute = PasswordResetIndexImport.update({
+const PasswordResetIndexRoute = PasswordResetIndexRouteImport.update({
   id: '/password-reset/',
   path: '/password-reset/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AdminIndexRoute = AdminIndexImport.update({
+const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
-
-const PublicIndexRoute = PublicIndexImport.update({
+const PublicIndexRoute = PublicIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PublicRoute,
 } as any)
-
-const PasswordResetTokenRoute = PasswordResetTokenImport.update({
+const PasswordResetTokenRoute = PasswordResetTokenRouteImport.update({
   id: '/password-reset/$token',
   path: '/password-reset/$token',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AdminUsersRoute = AdminUsersImport.update({
+const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
-
-const AdminSettingsRoute = AdminSettingsImport.update({
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
-
-const AdminRoadmapRoute = AdminRoadmapImport.update({
+const AdminRoadmapRoute = AdminRoadmapRouteImport.update({
   id: '/roadmap',
   path: '/roadmap',
   getParentRoute: () => AdminRoute,
 } as any)
-
-const AdminFeedbackRoute = AdminFeedbackImport.update({
+const AdminFeedbackRoute = AdminFeedbackRouteImport.update({
   id: '/feedback',
   path: '/feedback',
   getParentRoute: () => AdminRoute,
 } as any)
-
-const AdminSettingsIndexRoute = AdminSettingsIndexImport.update({
+const AdminSettingsIndexRoute = AdminSettingsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminSettingsRoute,
 } as any)
-
-const AdminChangelogIndexRoute = AdminChangelogIndexImport.update({
+const AdminChangelogIndexRoute = AdminChangelogIndexRouteImport.update({
   id: '/changelog/',
   path: '/changelog/',
   getParentRoute: () => AdminRoute,
 } as any)
-
-const PublicChangelogIndexRoute = PublicChangelogIndexImport.update({
+const PublicChangelogIndexRoute = PublicChangelogIndexRouteImport.update({
   id: '/changelog/',
   path: '/changelog/',
   getParentRoute: () => PublicRoute,
 } as any)
-
-const PublicBoardSlugIndexRoute = PublicBoardSlugIndexImport.update({
+const PublicBoardSlugIndexRoute = PublicBoardSlugIndexRouteImport.update({
   id: '/$boardSlug/',
   path: '/$boardSlug/',
   getParentRoute: () => PublicRoute,
 } as any)
-
-const AdminUsersUserSlugRoute = AdminUsersUserSlugImport.update({
+const AdminUsersUserSlugRoute = AdminUsersUserSlugRouteImport.update({
   id: '/$userSlug',
   path: '/$userSlug',
   getParentRoute: () => AdminUsersRoute,
 } as any)
-
-const AdminSettingsRoadmapRoute = AdminSettingsRoadmapImport.update({
+const AdminSettingsRoadmapRoute = AdminSettingsRoadmapRouteImport.update({
   id: '/roadmap',
   path: '/roadmap',
   getParentRoute: () => AdminSettingsRoute,
 } as any)
-
-const AdminSettingsProfileRoute = AdminSettingsProfileImport.update({
+const AdminSettingsProfileRoute = AdminSettingsProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
   getParentRoute: () => AdminSettingsRoute,
 } as any)
-
-const AdminSettingsPreferencesRoute = AdminSettingsPreferencesImport.update({
-  id: '/preferences',
-  path: '/preferences',
-  getParentRoute: () => AdminSettingsRoute,
-} as any)
-
-const AdminSettingsCompanyRoute = AdminSettingsCompanyImport.update({
+const AdminSettingsPreferencesRoute =
+  AdminSettingsPreferencesRouteImport.update({
+    id: '/preferences',
+    path: '/preferences',
+    getParentRoute: () => AdminSettingsRoute,
+  } as any)
+const AdminSettingsCompanyRoute = AdminSettingsCompanyRouteImport.update({
   id: '/company',
   path: '/company',
   getParentRoute: () => AdminSettingsRoute,
 } as any)
-
-const AdminSettingsChangelogRoute = AdminSettingsChangelogImport.update({
+const AdminSettingsChangelogRoute = AdminSettingsChangelogRouteImport.update({
   id: '/changelog',
   path: '/changelog',
   getParentRoute: () => AdminSettingsRoute,
 } as any)
-
-const AdminSettingsBoardsRoute = AdminSettingsBoardsImport.update({
+const AdminSettingsBoardsRoute = AdminSettingsBoardsRouteImport.update({
   id: '/boards',
   path: '/boards',
   getParentRoute: () => AdminSettingsRoute,
 } as any)
-
-const AdminSettingsAdminsRoute = AdminSettingsAdminsImport.update({
+const AdminSettingsAdminsRoute = AdminSettingsAdminsRouteImport.update({
   id: '/admins',
   path: '/admins',
   getParentRoute: () => AdminSettingsRoute,
 } as any)
-
-const AdminRoadmapRoadmapSlugRoute = AdminRoadmapRoadmapSlugImport.update({
+const AdminRoadmapRoadmapSlugRoute = AdminRoadmapRoadmapSlugRouteImport.update({
   id: '/$roadmapSlug',
   path: '/$roadmapSlug',
   getParentRoute: () => AdminRoadmapRoute,
 } as any)
-
-const AdminFeedbackBoardSlugRoute = AdminFeedbackBoardSlugImport.update({
+const AdminFeedbackBoardSlugRoute = AdminFeedbackBoardSlugRouteImport.update({
   id: '/$boardSlug',
   path: '/$boardSlug',
   getParentRoute: () => AdminFeedbackRoute,
 } as any)
-
-const AdminChangelogCreateRoute = AdminChangelogCreateImport.update({
+const AdminChangelogCreateRoute = AdminChangelogCreateRouteImport.update({
   id: '/changelog/create',
   path: '/changelog/create',
   getParentRoute: () => AdminRoute,
 } as any)
-
 const PublicChangelogChangelogSlugRoute =
-  PublicChangelogChangelogSlugImport.update({
+  PublicChangelogChangelogSlugRouteImport.update({
     id: '/changelog/$changelogSlug',
     path: '/changelog/$changelogSlug',
     getParentRoute: () => PublicRoute,
   } as any)
-
 const AdminSettingsCustomDomainsIndexRoute =
-  AdminSettingsCustomDomainsIndexImport.update({
+  AdminSettingsCustomDomainsIndexRouteImport.update({
     id: '/custom-domains/',
     path: '/custom-domains/',
     getParentRoute: () => AdminSettingsRoute,
   } as any)
-
 const PublicBoardSlugFeedbackSlugIndexRoute =
-  PublicBoardSlugFeedbackSlugIndexImport.update({
+  PublicBoardSlugFeedbackSlugIndexRouteImport.update({
     id: '/$boardSlug/$feedbackSlug/',
     path: '/$boardSlug/$feedbackSlug/',
     getParentRoute: () => PublicRoute,
   } as any)
-
 const AdminSettingsRoadmapStatusesRoute =
-  AdminSettingsRoadmapStatusesImport.update({
+  AdminSettingsRoadmapStatusesRouteImport.update({
     id: '/statuses',
     path: '/statuses',
     getParentRoute: () => AdminSettingsRoadmapRoute,
   } as any)
-
-const AdminSettingsRoadmapPublicRoute = AdminSettingsRoadmapPublicImport.update(
-  {
+const AdminSettingsRoadmapPublicRoute =
+  AdminSettingsRoadmapPublicRouteImport.update({
     id: '/public',
     path: '/public',
     getParentRoute: () => AdminSettingsRoadmapRoute,
-  } as any,
-)
-
+  } as any)
 const AdminSettingsRoadmapArchiveRoute =
-  AdminSettingsRoadmapArchiveImport.update({
+  AdminSettingsRoadmapArchiveRouteImport.update({
     id: '/archive',
     path: '/archive',
     getParentRoute: () => AdminSettingsRoadmapRoute,
   } as any)
-
 const AdminSettingsPreferencesLanguageRoute =
-  AdminSettingsPreferencesLanguageImport.update({
+  AdminSettingsPreferencesLanguageRouteImport.update({
     id: '/language',
     path: '/language',
     getParentRoute: () => AdminSettingsPreferencesRoute,
   } as any)
-
 const AdminSettingsPreferencesEmailRoute =
-  AdminSettingsPreferencesEmailImport.update({
+  AdminSettingsPreferencesEmailRouteImport.update({
     id: '/email',
     path: '/email',
     getParentRoute: () => AdminSettingsPreferencesRoute,
   } as any)
-
 const AdminSettingsCompanyPreferencesRoute =
-  AdminSettingsCompanyPreferencesImport.update({
+  AdminSettingsCompanyPreferencesRouteImport.update({
     id: '/preferences',
     path: '/preferences',
     getParentRoute: () => AdminSettingsCompanyRoute,
   } as any)
-
-const AdminSettingsCompanyDeleteRoute = AdminSettingsCompanyDeleteImport.update(
-  {
+const AdminSettingsCompanyDeleteRoute =
+  AdminSettingsCompanyDeleteRouteImport.update({
     id: '/delete',
     path: '/delete',
     getParentRoute: () => AdminSettingsCompanyRoute,
-  } as any,
-)
-
+  } as any)
 const AdminSettingsCompanyBrandingRoute =
-  AdminSettingsCompanyBrandingImport.update({
+  AdminSettingsCompanyBrandingRouteImport.update({
     id: '/branding',
     path: '/branding',
     getParentRoute: () => AdminSettingsCompanyRoute,
   } as any)
-
 const AdminSettingsChangelogPrivacyRoute =
-  AdminSettingsChangelogPrivacyImport.update({
+  AdminSettingsChangelogPrivacyRouteImport.update({
     id: '/privacy',
     path: '/privacy',
     getParentRoute: () => AdminSettingsChangelogRoute,
   } as any)
-
 const AdminSettingsChangelogLabelsRoute =
-  AdminSettingsChangelogLabelsImport.update({
+  AdminSettingsChangelogLabelsRouteImport.update({
     id: '/labels',
     path: '/labels',
     getParentRoute: () => AdminSettingsChangelogRoute,
   } as any)
-
 const AdminSettingsBoardsCreateNewRoute =
-  AdminSettingsBoardsCreateNewImport.update({
+  AdminSettingsBoardsCreateNewRouteImport.update({
     id: '/create-new',
     path: '/create-new',
     getParentRoute: () => AdminSettingsBoardsRoute,
   } as any)
-
-const AdminSettingsAdminsPeopleRoute = AdminSettingsAdminsPeopleImport.update({
-  id: '/people',
-  path: '/people',
-  getParentRoute: () => AdminSettingsAdminsRoute,
-} as any)
-
+const AdminSettingsAdminsPeopleRoute =
+  AdminSettingsAdminsPeopleRouteImport.update({
+    id: '/people',
+    path: '/people',
+    getParentRoute: () => AdminSettingsAdminsRoute,
+  } as any)
 const AdminRoadmapRoadmapSlugRenameRoute =
-  AdminRoadmapRoadmapSlugRenameImport.update({
+  AdminRoadmapRoadmapSlugRenameRouteImport.update({
     id: '/rename',
     path: '/rename',
     getParentRoute: () => AdminRoadmapRoadmapSlugRoute,
   } as any)
-
-const AdminRoadmapRoadmapSlugNewRoute = AdminRoadmapRoadmapSlugNewImport.update(
-  {
+const AdminRoadmapRoadmapSlugNewRoute =
+  AdminRoadmapRoadmapSlugNewRouteImport.update({
     id: '/new',
     path: '/new',
     getParentRoute: () => AdminRoadmapRoadmapSlugRoute,
-  } as any,
-)
-
+  } as any)
 const AdminRoadmapRoadmapSlugFilterRoute =
-  AdminRoadmapRoadmapSlugFilterImport.update({
+  AdminRoadmapRoadmapSlugFilterRouteImport.update({
     id: '/filter',
     path: '/filter',
     getParentRoute: () => AdminRoadmapRoadmapSlugRoute,
   } as any)
-
 const AdminRoadmapRoadmapSlugDeleteRoute =
-  AdminRoadmapRoadmapSlugDeleteImport.update({
+  AdminRoadmapRoadmapSlugDeleteRouteImport.update({
     id: '/delete',
     path: '/delete',
     getParentRoute: () => AdminRoadmapRoadmapSlugRoute,
   } as any)
-
 const AdminFeedbackBoardSlugFeedbackSlugRoute =
-  AdminFeedbackBoardSlugFeedbackSlugImport.update({
+  AdminFeedbackBoardSlugFeedbackSlugRouteImport.update({
     id: '/$feedbackSlug',
     path: '/$feedbackSlug',
     getParentRoute: () => AdminFeedbackBoardSlugRoute,
   } as any)
-
 const AdminChangelogChangelogSlugEditRoute =
-  AdminChangelogChangelogSlugEditImport.update({
+  AdminChangelogChangelogSlugEditRouteImport.update({
     id: '/changelog/$changelogSlug/edit',
     path: '/changelog/$changelogSlug/edit',
     getParentRoute: () => AdminRoute,
   } as any)
-
 const PublicBoardSlugFeedbackSlugVotersRoute =
-  PublicBoardSlugFeedbackSlugVotersImport.update({
+  PublicBoardSlugFeedbackSlugVotersRouteImport.update({
     id: '/$boardSlug/$feedbackSlug/voters',
     path: '/$boardSlug/$feedbackSlug/voters',
     getParentRoute: () => PublicRoute,
   } as any)
-
 const PublicBoardSlugFeedbackSlugEditHistoryRoute =
-  PublicBoardSlugFeedbackSlugEditHistoryImport.update({
+  PublicBoardSlugFeedbackSlugEditHistoryRouteImport.update({
     id: '/$boardSlug/$feedbackSlug/edit-history',
     path: '/$boardSlug/$feedbackSlug/edit-history',
     getParentRoute: () => PublicRoute,
   } as any)
-
 const PublicBoardSlugFeedbackSlugEditRoute =
-  PublicBoardSlugFeedbackSlugEditImport.update({
+  PublicBoardSlugFeedbackSlugEditRouteImport.update({
     id: '/$boardSlug/$feedbackSlug/edit',
     path: '/$boardSlug/$feedbackSlug/edit',
     getParentRoute: () => PublicRoute,
   } as any)
-
 const AdminFeedbackBoardSlugFeedbackSlugIndexRoute =
-  AdminFeedbackBoardSlugFeedbackSlugIndexImport.update({
+  AdminFeedbackBoardSlugFeedbackSlugIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AdminFeedbackBoardSlugFeedbackSlugRoute,
   } as any)
-
 const AdminSettingsBoardsBoardSlugTagsRoute =
-  AdminSettingsBoardsBoardSlugTagsImport.update({
+  AdminSettingsBoardsBoardSlugTagsRouteImport.update({
     id: '/$boardSlug/tags',
     path: '/$boardSlug/tags',
     getParentRoute: () => AdminSettingsBoardsRoute,
   } as any)
-
 const AdminSettingsBoardsBoardSlugPrivacyRoute =
-  AdminSettingsBoardsBoardSlugPrivacyImport.update({
+  AdminSettingsBoardsBoardSlugPrivacyRouteImport.update({
     id: '/$boardSlug/privacy',
     path: '/$boardSlug/privacy',
     getParentRoute: () => AdminSettingsBoardsRoute,
   } as any)
-
 const AdminSettingsBoardsBoardSlugGeneralRoute =
-  AdminSettingsBoardsBoardSlugGeneralImport.update({
+  AdminSettingsBoardsBoardSlugGeneralRouteImport.update({
     id: '/$boardSlug/general',
     path: '/$boardSlug/general',
     getParentRoute: () => AdminSettingsBoardsRoute,
   } as any)
-
 const AdminSettingsBoardsBoardSlugDeleteRoute =
-  AdminSettingsBoardsBoardSlugDeleteImport.update({
+  AdminSettingsBoardsBoardSlugDeleteRouteImport.update({
     id: '/$boardSlug/delete',
     path: '/$boardSlug/delete',
     getParentRoute: () => AdminSettingsBoardsRoute,
   } as any)
-
 const AdminSettingsBoardsBoardSlugCreateFormRoute =
-  AdminSettingsBoardsBoardSlugCreateFormImport.update({
+  AdminSettingsBoardsBoardSlugCreateFormRouteImport.update({
     id: '/$boardSlug/create-form',
     path: '/$boardSlug/create-form',
     getParentRoute: () => AdminSettingsBoardsRoute,
   } as any)
-
 const AdminSettingsBoardsBoardSlugCategoriesRoute =
-  AdminSettingsBoardsBoardSlugCategoriesImport.update({
+  AdminSettingsBoardsBoardSlugCategoriesRouteImport.update({
     id: '/$boardSlug/categories',
     path: '/$boardSlug/categories',
     getParentRoute: () => AdminSettingsBoardsRoute,
   } as any)
-
 const AdminFeedbackBoardSlugFeedbackSlugVotersRoute =
-  AdminFeedbackBoardSlugFeedbackSlugVotersImport.update({
+  AdminFeedbackBoardSlugFeedbackSlugVotersRouteImport.update({
     id: '/voters',
     path: '/voters',
     getParentRoute: () => AdminFeedbackBoardSlugFeedbackSlugRoute,
   } as any)
-
 const AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute =
-  AdminFeedbackBoardSlugFeedbackSlugEditHistoryImport.update({
+  AdminFeedbackBoardSlugFeedbackSlugEditHistoryRouteImport.update({
     id: '/edit-history',
     path: '/edit-history',
     getParentRoute: () => AdminFeedbackBoardSlugFeedbackSlugRoute,
   } as any)
-
 const AdminFeedbackBoardSlugFeedbackSlugEditRoute =
-  AdminFeedbackBoardSlugFeedbackSlugEditImport.update({
+  AdminFeedbackBoardSlugFeedbackSlugEditRouteImport.update({
     id: '/edit',
     path: '/edit',
     getParentRoute: () => AdminFeedbackBoardSlugFeedbackSlugRoute,
   } as any)
-
 const AdminChangelogChangelogSlugEditPublishRoute =
-  AdminChangelogChangelogSlugEditPublishImport.update({
+  AdminChangelogChangelogSlugEditPublishRouteImport.update({
     id: '/publish',
     path: '/publish',
     getParentRoute: () => AdminChangelogChangelogSlugEditRoute,
   } as any)
-
 const AdminChangelogChangelogSlugEditDeleteRoute =
-  AdminChangelogChangelogSlugEditDeleteImport.update({
+  AdminChangelogChangelogSlugEditDeleteRouteImport.update({
     id: '/delete',
     path: '/delete',
     getParentRoute: () => AdminChangelogChangelogSlugEditRoute,
   } as any)
-
 const AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute =
-  AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveImport.update({
-    id: '/$boardSlug/$feedbackSlug/$feedbackId/remove',
-    path: '/$boardSlug/$feedbackSlug/$feedbackId/remove',
-    getParentRoute: () => AdminRoadmapRoadmapSlugRoute,
-  } as any)
+  AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRouteImport.update(
+    {
+      id: '/$boardSlug/$feedbackSlug/$feedbackId/remove',
+      path: '/$boardSlug/$feedbackSlug/$feedbackId/remove',
+      getParentRoute: () => AdminRoadmapRoadmapSlugRoute,
+    } as any,
+  )
 
-// Populate the FileRoutesByPath interface
+export interface FileRoutesByFullPath {
+  '/admin': typeof AdminRouteWithChildren
+  '/admin/feedback': typeof AdminFeedbackRouteWithChildren
+  '/admin/roadmap': typeof AdminRoadmapRouteWithChildren
+  '/admin/settings': typeof AdminSettingsRouteWithChildren
+  '/admin/users': typeof AdminUsersRouteWithChildren
+  '/password-reset/$token': typeof PasswordResetTokenRoute
+  '/': typeof PublicIndexRoute
+  '/admin/': typeof AdminIndexRoute
+  '/password-reset': typeof PasswordResetIndexRoute
+  '/changelog/$changelogSlug': typeof PublicChangelogChangelogSlugRoute
+  '/admin/changelog/create': typeof AdminChangelogCreateRoute
+  '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
+  '/admin/roadmap/$roadmapSlug': typeof AdminRoadmapRoadmapSlugRouteWithChildren
+  '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
+  '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
+  '/admin/settings/changelog': typeof AdminSettingsChangelogRouteWithChildren
+  '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
+  '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
+  '/admin/settings/profile': typeof AdminSettingsProfileRoute
+  '/admin/settings/roadmap': typeof AdminSettingsRoadmapRouteWithChildren
+  '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
+  '/$boardSlug': typeof PublicBoardSlugIndexRoute
+  '/changelog': typeof PublicChangelogIndexRoute
+  '/admin/changelog': typeof AdminChangelogIndexRoute
+  '/admin/settings/': typeof AdminSettingsIndexRoute
+  '/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
+  '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
+  '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
+  '/admin/changelog/$changelogSlug/edit': typeof AdminChangelogChangelogSlugEditRouteWithChildren
+  '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
+  '/admin/roadmap/$roadmapSlug/delete': typeof AdminRoadmapRoadmapSlugDeleteRoute
+  '/admin/roadmap/$roadmapSlug/filter': typeof AdminRoadmapRoadmapSlugFilterRoute
+  '/admin/roadmap/$roadmapSlug/new': typeof AdminRoadmapRoadmapSlugNewRoute
+  '/admin/roadmap/$roadmapSlug/rename': typeof AdminRoadmapRoadmapSlugRenameRoute
+  '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
+  '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
+  '/admin/settings/changelog/labels': typeof AdminSettingsChangelogLabelsRoute
+  '/admin/settings/changelog/privacy': typeof AdminSettingsChangelogPrivacyRoute
+  '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
+  '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
+  '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
+  '/admin/settings/preferences/email': typeof AdminSettingsPreferencesEmailRoute
+  '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
+  '/admin/settings/roadmap/archive': typeof AdminSettingsRoadmapArchiveRoute
+  '/admin/settings/roadmap/public': typeof AdminSettingsRoadmapPublicRoute
+  '/admin/settings/roadmap/statuses': typeof AdminSettingsRoadmapStatusesRoute
+  '/$boardSlug/$feedbackSlug': typeof PublicBoardSlugFeedbackSlugIndexRoute
+  '/admin/settings/custom-domains': typeof AdminSettingsCustomDomainsIndexRoute
+  '/admin/changelog/$changelogSlug/edit/delete': typeof AdminChangelogChangelogSlugEditDeleteRoute
+  '/admin/changelog/$changelogSlug/edit/publish': typeof AdminChangelogChangelogSlugEditPublishRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
+  '/admin/settings/boards/$boardSlug/categories': typeof AdminSettingsBoardsBoardSlugCategoriesRoute
+  '/admin/settings/boards/$boardSlug/create-form': typeof AdminSettingsBoardsBoardSlugCreateFormRoute
+  '/admin/settings/boards/$boardSlug/delete': typeof AdminSettingsBoardsBoardSlugDeleteRoute
+  '/admin/settings/boards/$boardSlug/general': typeof AdminSettingsBoardsBoardSlugGeneralRoute
+  '/admin/settings/boards/$boardSlug/privacy': typeof AdminSettingsBoardsBoardSlugPrivacyRoute
+  '/admin/settings/boards/$boardSlug/tags': typeof AdminSettingsBoardsBoardSlugTagsRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
+  '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove': typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute
+}
+export interface FileRoutesByTo {
+  '/admin/feedback': typeof AdminFeedbackRouteWithChildren
+  '/admin/roadmap': typeof AdminRoadmapRouteWithChildren
+  '/admin/users': typeof AdminUsersRouteWithChildren
+  '/password-reset/$token': typeof PasswordResetTokenRoute
+  '/': typeof PublicIndexRoute
+  '/admin': typeof AdminIndexRoute
+  '/password-reset': typeof PasswordResetIndexRoute
+  '/changelog/$changelogSlug': typeof PublicChangelogChangelogSlugRoute
+  '/admin/changelog/create': typeof AdminChangelogCreateRoute
+  '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
+  '/admin/roadmap/$roadmapSlug': typeof AdminRoadmapRoadmapSlugRouteWithChildren
+  '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
+  '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
+  '/admin/settings/changelog': typeof AdminSettingsChangelogRouteWithChildren
+  '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
+  '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
+  '/admin/settings/profile': typeof AdminSettingsProfileRoute
+  '/admin/settings/roadmap': typeof AdminSettingsRoadmapRouteWithChildren
+  '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
+  '/$boardSlug': typeof PublicBoardSlugIndexRoute
+  '/changelog': typeof PublicChangelogIndexRoute
+  '/admin/changelog': typeof AdminChangelogIndexRoute
+  '/admin/settings': typeof AdminSettingsIndexRoute
+  '/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
+  '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
+  '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
+  '/admin/changelog/$changelogSlug/edit': typeof AdminChangelogChangelogSlugEditRouteWithChildren
+  '/admin/roadmap/$roadmapSlug/delete': typeof AdminRoadmapRoadmapSlugDeleteRoute
+  '/admin/roadmap/$roadmapSlug/filter': typeof AdminRoadmapRoadmapSlugFilterRoute
+  '/admin/roadmap/$roadmapSlug/new': typeof AdminRoadmapRoadmapSlugNewRoute
+  '/admin/roadmap/$roadmapSlug/rename': typeof AdminRoadmapRoadmapSlugRenameRoute
+  '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
+  '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
+  '/admin/settings/changelog/labels': typeof AdminSettingsChangelogLabelsRoute
+  '/admin/settings/changelog/privacy': typeof AdminSettingsChangelogPrivacyRoute
+  '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
+  '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
+  '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
+  '/admin/settings/preferences/email': typeof AdminSettingsPreferencesEmailRoute
+  '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
+  '/admin/settings/roadmap/archive': typeof AdminSettingsRoadmapArchiveRoute
+  '/admin/settings/roadmap/public': typeof AdminSettingsRoadmapPublicRoute
+  '/admin/settings/roadmap/statuses': typeof AdminSettingsRoadmapStatusesRoute
+  '/$boardSlug/$feedbackSlug': typeof PublicBoardSlugFeedbackSlugIndexRoute
+  '/admin/settings/custom-domains': typeof AdminSettingsCustomDomainsIndexRoute
+  '/admin/changelog/$changelogSlug/edit/delete': typeof AdminChangelogChangelogSlugEditDeleteRoute
+  '/admin/changelog/$changelogSlug/edit/publish': typeof AdminChangelogChangelogSlugEditPublishRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
+  '/admin/settings/boards/$boardSlug/categories': typeof AdminSettingsBoardsBoardSlugCategoriesRoute
+  '/admin/settings/boards/$boardSlug/create-form': typeof AdminSettingsBoardsBoardSlugCreateFormRoute
+  '/admin/settings/boards/$boardSlug/delete': typeof AdminSettingsBoardsBoardSlugDeleteRoute
+  '/admin/settings/boards/$boardSlug/general': typeof AdminSettingsBoardsBoardSlugGeneralRoute
+  '/admin/settings/boards/$boardSlug/privacy': typeof AdminSettingsBoardsBoardSlugPrivacyRoute
+  '/admin/settings/boards/$boardSlug/tags': typeof AdminSettingsBoardsBoardSlugTagsRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
+  '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove': typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/_public': typeof PublicRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
+  '/admin/feedback': typeof AdminFeedbackRouteWithChildren
+  '/admin/roadmap': typeof AdminRoadmapRouteWithChildren
+  '/admin/settings': typeof AdminSettingsRouteWithChildren
+  '/admin/users': typeof AdminUsersRouteWithChildren
+  '/password-reset/$token': typeof PasswordResetTokenRoute
+  '/_public/': typeof PublicIndexRoute
+  '/admin/': typeof AdminIndexRoute
+  '/password-reset/': typeof PasswordResetIndexRoute
+  '/_public/changelog/$changelogSlug': typeof PublicChangelogChangelogSlugRoute
+  '/admin/changelog/create': typeof AdminChangelogCreateRoute
+  '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
+  '/admin/roadmap/$roadmapSlug': typeof AdminRoadmapRoadmapSlugRouteWithChildren
+  '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
+  '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
+  '/admin/settings/changelog': typeof AdminSettingsChangelogRouteWithChildren
+  '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
+  '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
+  '/admin/settings/profile': typeof AdminSettingsProfileRoute
+  '/admin/settings/roadmap': typeof AdminSettingsRoadmapRouteWithChildren
+  '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
+  '/_public/$boardSlug/': typeof PublicBoardSlugIndexRoute
+  '/_public/changelog/': typeof PublicChangelogIndexRoute
+  '/admin/changelog/': typeof AdminChangelogIndexRoute
+  '/admin/settings/': typeof AdminSettingsIndexRoute
+  '/_public/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
+  '/_public/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
+  '/_public/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
+  '/admin/changelog/$changelogSlug/edit': typeof AdminChangelogChangelogSlugEditRouteWithChildren
+  '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
+  '/admin/roadmap/$roadmapSlug/delete': typeof AdminRoadmapRoadmapSlugDeleteRoute
+  '/admin/roadmap/$roadmapSlug/filter': typeof AdminRoadmapRoadmapSlugFilterRoute
+  '/admin/roadmap/$roadmapSlug/new': typeof AdminRoadmapRoadmapSlugNewRoute
+  '/admin/roadmap/$roadmapSlug/rename': typeof AdminRoadmapRoadmapSlugRenameRoute
+  '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
+  '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
+  '/admin/settings/changelog/labels': typeof AdminSettingsChangelogLabelsRoute
+  '/admin/settings/changelog/privacy': typeof AdminSettingsChangelogPrivacyRoute
+  '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
+  '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
+  '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
+  '/admin/settings/preferences/email': typeof AdminSettingsPreferencesEmailRoute
+  '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
+  '/admin/settings/roadmap/archive': typeof AdminSettingsRoadmapArchiveRoute
+  '/admin/settings/roadmap/public': typeof AdminSettingsRoadmapPublicRoute
+  '/admin/settings/roadmap/statuses': typeof AdminSettingsRoadmapStatusesRoute
+  '/_public/$boardSlug/$feedbackSlug/': typeof PublicBoardSlugFeedbackSlugIndexRoute
+  '/admin/settings/custom-domains/': typeof AdminSettingsCustomDomainsIndexRoute
+  '/admin/changelog/$changelogSlug/edit/delete': typeof AdminChangelogChangelogSlugEditDeleteRoute
+  '/admin/changelog/$changelogSlug/edit/publish': typeof AdminChangelogChangelogSlugEditPublishRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
+  '/admin/settings/boards/$boardSlug/categories': typeof AdminSettingsBoardsBoardSlugCategoriesRoute
+  '/admin/settings/boards/$boardSlug/create-form': typeof AdminSettingsBoardsBoardSlugCreateFormRoute
+  '/admin/settings/boards/$boardSlug/delete': typeof AdminSettingsBoardsBoardSlugDeleteRoute
+  '/admin/settings/boards/$boardSlug/general': typeof AdminSettingsBoardsBoardSlugGeneralRoute
+  '/admin/settings/boards/$boardSlug/privacy': typeof AdminSettingsBoardsBoardSlugPrivacyRoute
+  '/admin/settings/boards/$boardSlug/tags': typeof AdminSettingsBoardsBoardSlugTagsRoute
+  '/admin/feedback/$boardSlug/$feedbackSlug/': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
+  '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove': typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/admin'
+    | '/admin/feedback'
+    | '/admin/roadmap'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/password-reset/$token'
+    | '/'
+    | '/admin/'
+    | '/password-reset'
+    | '/changelog/$changelogSlug'
+    | '/admin/changelog/create'
+    | '/admin/feedback/$boardSlug'
+    | '/admin/roadmap/$roadmapSlug'
+    | '/admin/settings/admins'
+    | '/admin/settings/boards'
+    | '/admin/settings/changelog'
+    | '/admin/settings/company'
+    | '/admin/settings/preferences'
+    | '/admin/settings/profile'
+    | '/admin/settings/roadmap'
+    | '/admin/users/$userSlug'
+    | '/$boardSlug'
+    | '/changelog'
+    | '/admin/changelog'
+    | '/admin/settings/'
+    | '/$boardSlug/$feedbackSlug/edit'
+    | '/$boardSlug/$feedbackSlug/edit-history'
+    | '/$boardSlug/$feedbackSlug/voters'
+    | '/admin/changelog/$changelogSlug/edit'
+    | '/admin/feedback/$boardSlug/$feedbackSlug'
+    | '/admin/roadmap/$roadmapSlug/delete'
+    | '/admin/roadmap/$roadmapSlug/filter'
+    | '/admin/roadmap/$roadmapSlug/new'
+    | '/admin/roadmap/$roadmapSlug/rename'
+    | '/admin/settings/admins/people'
+    | '/admin/settings/boards/create-new'
+    | '/admin/settings/changelog/labels'
+    | '/admin/settings/changelog/privacy'
+    | '/admin/settings/company/branding'
+    | '/admin/settings/company/delete'
+    | '/admin/settings/company/preferences'
+    | '/admin/settings/preferences/email'
+    | '/admin/settings/preferences/language'
+    | '/admin/settings/roadmap/archive'
+    | '/admin/settings/roadmap/public'
+    | '/admin/settings/roadmap/statuses'
+    | '/$boardSlug/$feedbackSlug'
+    | '/admin/settings/custom-domains'
+    | '/admin/changelog/$changelogSlug/edit/delete'
+    | '/admin/changelog/$changelogSlug/edit/publish'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
+    | '/admin/settings/boards/$boardSlug/categories'
+    | '/admin/settings/boards/$boardSlug/create-form'
+    | '/admin/settings/boards/$boardSlug/delete'
+    | '/admin/settings/boards/$boardSlug/general'
+    | '/admin/settings/boards/$boardSlug/privacy'
+    | '/admin/settings/boards/$boardSlug/tags'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/'
+    | '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/admin/feedback'
+    | '/admin/roadmap'
+    | '/admin/users'
+    | '/password-reset/$token'
+    | '/'
+    | '/admin'
+    | '/password-reset'
+    | '/changelog/$changelogSlug'
+    | '/admin/changelog/create'
+    | '/admin/feedback/$boardSlug'
+    | '/admin/roadmap/$roadmapSlug'
+    | '/admin/settings/admins'
+    | '/admin/settings/boards'
+    | '/admin/settings/changelog'
+    | '/admin/settings/company'
+    | '/admin/settings/preferences'
+    | '/admin/settings/profile'
+    | '/admin/settings/roadmap'
+    | '/admin/users/$userSlug'
+    | '/$boardSlug'
+    | '/changelog'
+    | '/admin/changelog'
+    | '/admin/settings'
+    | '/$boardSlug/$feedbackSlug/edit'
+    | '/$boardSlug/$feedbackSlug/edit-history'
+    | '/$boardSlug/$feedbackSlug/voters'
+    | '/admin/changelog/$changelogSlug/edit'
+    | '/admin/roadmap/$roadmapSlug/delete'
+    | '/admin/roadmap/$roadmapSlug/filter'
+    | '/admin/roadmap/$roadmapSlug/new'
+    | '/admin/roadmap/$roadmapSlug/rename'
+    | '/admin/settings/admins/people'
+    | '/admin/settings/boards/create-new'
+    | '/admin/settings/changelog/labels'
+    | '/admin/settings/changelog/privacy'
+    | '/admin/settings/company/branding'
+    | '/admin/settings/company/delete'
+    | '/admin/settings/company/preferences'
+    | '/admin/settings/preferences/email'
+    | '/admin/settings/preferences/language'
+    | '/admin/settings/roadmap/archive'
+    | '/admin/settings/roadmap/public'
+    | '/admin/settings/roadmap/statuses'
+    | '/$boardSlug/$feedbackSlug'
+    | '/admin/settings/custom-domains'
+    | '/admin/changelog/$changelogSlug/edit/delete'
+    | '/admin/changelog/$changelogSlug/edit/publish'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
+    | '/admin/settings/boards/$boardSlug/categories'
+    | '/admin/settings/boards/$boardSlug/create-form'
+    | '/admin/settings/boards/$boardSlug/delete'
+    | '/admin/settings/boards/$boardSlug/general'
+    | '/admin/settings/boards/$boardSlug/privacy'
+    | '/admin/settings/boards/$boardSlug/tags'
+    | '/admin/feedback/$boardSlug/$feedbackSlug'
+    | '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
+  id:
+    | '__root__'
+    | '/_public'
+    | '/admin'
+    | '/admin/feedback'
+    | '/admin/roadmap'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/password-reset/$token'
+    | '/_public/'
+    | '/admin/'
+    | '/password-reset/'
+    | '/_public/changelog/$changelogSlug'
+    | '/admin/changelog/create'
+    | '/admin/feedback/$boardSlug'
+    | '/admin/roadmap/$roadmapSlug'
+    | '/admin/settings/admins'
+    | '/admin/settings/boards'
+    | '/admin/settings/changelog'
+    | '/admin/settings/company'
+    | '/admin/settings/preferences'
+    | '/admin/settings/profile'
+    | '/admin/settings/roadmap'
+    | '/admin/users/$userSlug'
+    | '/_public/$boardSlug/'
+    | '/_public/changelog/'
+    | '/admin/changelog/'
+    | '/admin/settings/'
+    | '/_public/$boardSlug/$feedbackSlug/edit'
+    | '/_public/$boardSlug/$feedbackSlug/edit-history'
+    | '/_public/$boardSlug/$feedbackSlug/voters'
+    | '/admin/changelog/$changelogSlug/edit'
+    | '/admin/feedback/$boardSlug/$feedbackSlug'
+    | '/admin/roadmap/$roadmapSlug/delete'
+    | '/admin/roadmap/$roadmapSlug/filter'
+    | '/admin/roadmap/$roadmapSlug/new'
+    | '/admin/roadmap/$roadmapSlug/rename'
+    | '/admin/settings/admins/people'
+    | '/admin/settings/boards/create-new'
+    | '/admin/settings/changelog/labels'
+    | '/admin/settings/changelog/privacy'
+    | '/admin/settings/company/branding'
+    | '/admin/settings/company/delete'
+    | '/admin/settings/company/preferences'
+    | '/admin/settings/preferences/email'
+    | '/admin/settings/preferences/language'
+    | '/admin/settings/roadmap/archive'
+    | '/admin/settings/roadmap/public'
+    | '/admin/settings/roadmap/statuses'
+    | '/_public/$boardSlug/$feedbackSlug/'
+    | '/admin/settings/custom-domains/'
+    | '/admin/changelog/$changelogSlug/edit/delete'
+    | '/admin/changelog/$changelogSlug/edit/publish'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
+    | '/admin/settings/boards/$boardSlug/categories'
+    | '/admin/settings/boards/$boardSlug/create-form'
+    | '/admin/settings/boards/$boardSlug/delete'
+    | '/admin/settings/boards/$boardSlug/general'
+    | '/admin/settings/boards/$boardSlug/privacy'
+    | '/admin/settings/boards/$boardSlug/tags'
+    | '/admin/feedback/$boardSlug/$feedbackSlug/'
+    | '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  PublicRoute: typeof PublicRouteWithChildren
+  AdminRoute: typeof AdminRouteWithChildren
+  PasswordResetTokenRoute: typeof PasswordResetTokenRoute
+  PasswordResetIndexRoute: typeof PasswordResetIndexRoute
+}
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_public': {
-      id: '/_public'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof PublicImport
-      parentRoute: typeof rootRoute
-    }
     '/admin': {
       id: '/admin'
       path: '/admin'
       fullPath: '/admin'
-      preLoaderRoute: typeof AdminImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/admin/feedback': {
-      id: '/admin/feedback'
-      path: '/feedback'
-      fullPath: '/admin/feedback'
-      preLoaderRoute: typeof AdminFeedbackImport
-      parentRoute: typeof AdminImport
-    }
-    '/admin/roadmap': {
-      id: '/admin/roadmap'
-      path: '/roadmap'
-      fullPath: '/admin/roadmap'
-      preLoaderRoute: typeof AdminRoadmapImport
-      parentRoute: typeof AdminImport
-    }
-    '/admin/settings': {
-      id: '/admin/settings'
-      path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AdminSettingsImport
-      parentRoute: typeof AdminImport
-    }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersImport
-      parentRoute: typeof AdminImport
-    }
-    '/password-reset/$token': {
-      id: '/password-reset/$token'
-      path: '/password-reset/$token'
-      fullPath: '/password-reset/$token'
-      preLoaderRoute: typeof PasswordResetTokenImport
-      parentRoute: typeof rootRoute
-    }
-    '/_public/': {
-      id: '/_public/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof PublicIndexImport
-      parentRoute: typeof PublicImport
-    }
-    '/admin/': {
-      id: '/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexImport
-      parentRoute: typeof AdminImport
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof PublicRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/password-reset/': {
       id: '/password-reset/'
       path: '/password-reset'
       fullPath: '/password-reset'
-      preLoaderRoute: typeof PasswordResetIndexImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof PasswordResetIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_public/changelog/$changelogSlug': {
-      id: '/_public/changelog/$changelogSlug'
-      path: '/changelog/$changelogSlug'
-      fullPath: '/changelog/$changelogSlug'
-      preLoaderRoute: typeof PublicChangelogChangelogSlugImport
-      parentRoute: typeof PublicImport
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/admin/changelog/create': {
-      id: '/admin/changelog/create'
-      path: '/changelog/create'
-      fullPath: '/admin/changelog/create'
-      preLoaderRoute: typeof AdminChangelogCreateImport
-      parentRoute: typeof AdminImport
+    '/_public/': {
+      id: '/_public/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/admin/feedback/$boardSlug': {
-      id: '/admin/feedback/$boardSlug'
-      path: '/$boardSlug'
-      fullPath: '/admin/feedback/$boardSlug'
-      preLoaderRoute: typeof AdminFeedbackBoardSlugImport
-      parentRoute: typeof AdminFeedbackImport
+    '/password-reset/$token': {
+      id: '/password-reset/$token'
+      path: '/password-reset/$token'
+      fullPath: '/password-reset/$token'
+      preLoaderRoute: typeof PasswordResetTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/admin/roadmap/$roadmapSlug': {
-      id: '/admin/roadmap/$roadmapSlug'
-      path: '/$roadmapSlug'
-      fullPath: '/admin/roadmap/$roadmapSlug'
-      preLoaderRoute: typeof AdminRoadmapRoadmapSlugImport
-      parentRoute: typeof AdminRoadmapImport
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/admin/settings/admins': {
-      id: '/admin/settings/admins'
-      path: '/admins'
-      fullPath: '/admin/settings/admins'
-      preLoaderRoute: typeof AdminSettingsAdminsImport
-      parentRoute: typeof AdminSettingsImport
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/admin/settings/boards': {
-      id: '/admin/settings/boards'
-      path: '/boards'
-      fullPath: '/admin/settings/boards'
-      preLoaderRoute: typeof AdminSettingsBoardsImport
-      parentRoute: typeof AdminSettingsImport
-    }
-    '/admin/settings/changelog': {
-      id: '/admin/settings/changelog'
-      path: '/changelog'
-      fullPath: '/admin/settings/changelog'
-      preLoaderRoute: typeof AdminSettingsChangelogImport
-      parentRoute: typeof AdminSettingsImport
-    }
-    '/admin/settings/company': {
-      id: '/admin/settings/company'
-      path: '/company'
-      fullPath: '/admin/settings/company'
-      preLoaderRoute: typeof AdminSettingsCompanyImport
-      parentRoute: typeof AdminSettingsImport
-    }
-    '/admin/settings/preferences': {
-      id: '/admin/settings/preferences'
-      path: '/preferences'
-      fullPath: '/admin/settings/preferences'
-      preLoaderRoute: typeof AdminSettingsPreferencesImport
-      parentRoute: typeof AdminSettingsImport
-    }
-    '/admin/settings/profile': {
-      id: '/admin/settings/profile'
-      path: '/profile'
-      fullPath: '/admin/settings/profile'
-      preLoaderRoute: typeof AdminSettingsProfileImport
-      parentRoute: typeof AdminSettingsImport
-    }
-    '/admin/settings/roadmap': {
-      id: '/admin/settings/roadmap'
+    '/admin/roadmap': {
+      id: '/admin/roadmap'
       path: '/roadmap'
-      fullPath: '/admin/settings/roadmap'
-      preLoaderRoute: typeof AdminSettingsRoadmapImport
-      parentRoute: typeof AdminSettingsImport
+      fullPath: '/admin/roadmap'
+      preLoaderRoute: typeof AdminRoadmapRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/admin/users/$userSlug': {
-      id: '/admin/users/$userSlug'
-      path: '/$userSlug'
-      fullPath: '/admin/users/$userSlug'
-      preLoaderRoute: typeof AdminUsersUserSlugImport
-      parentRoute: typeof AdminUsersImport
-    }
-    '/_public/$boardSlug/': {
-      id: '/_public/$boardSlug/'
-      path: '/$boardSlug'
-      fullPath: '/$boardSlug'
-      preLoaderRoute: typeof PublicBoardSlugIndexImport
-      parentRoute: typeof PublicImport
-    }
-    '/_public/changelog/': {
-      id: '/_public/changelog/'
-      path: '/changelog'
-      fullPath: '/changelog'
-      preLoaderRoute: typeof PublicChangelogIndexImport
-      parentRoute: typeof PublicImport
-    }
-    '/admin/changelog/': {
-      id: '/admin/changelog/'
-      path: '/changelog'
-      fullPath: '/admin/changelog'
-      preLoaderRoute: typeof AdminChangelogIndexImport
-      parentRoute: typeof AdminImport
+    '/admin/feedback': {
+      id: '/admin/feedback'
+      path: '/feedback'
+      fullPath: '/admin/feedback'
+      preLoaderRoute: typeof AdminFeedbackRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/settings/': {
       id: '/admin/settings/'
       path: '/'
       fullPath: '/admin/settings/'
-      preLoaderRoute: typeof AdminSettingsIndexImport
-      parentRoute: typeof AdminSettingsImport
+      preLoaderRoute: typeof AdminSettingsIndexRouteImport
+      parentRoute: typeof AdminSettingsRoute
     }
-    '/_public/$boardSlug/$feedbackSlug/edit': {
-      id: '/_public/$boardSlug/$feedbackSlug/edit'
-      path: '/$boardSlug/$feedbackSlug/edit'
-      fullPath: '/$boardSlug/$feedbackSlug/edit'
-      preLoaderRoute: typeof PublicBoardSlugFeedbackSlugEditImport
-      parentRoute: typeof PublicImport
+    '/admin/changelog/': {
+      id: '/admin/changelog/'
+      path: '/changelog'
+      fullPath: '/admin/changelog'
+      preLoaderRoute: typeof AdminChangelogIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/_public/$boardSlug/$feedbackSlug/edit-history': {
-      id: '/_public/$boardSlug/$feedbackSlug/edit-history'
-      path: '/$boardSlug/$feedbackSlug/edit-history'
-      fullPath: '/$boardSlug/$feedbackSlug/edit-history'
-      preLoaderRoute: typeof PublicBoardSlugFeedbackSlugEditHistoryImport
-      parentRoute: typeof PublicImport
+    '/_public/changelog/': {
+      id: '/_public/changelog/'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof PublicChangelogIndexRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/_public/$boardSlug/$feedbackSlug/voters': {
-      id: '/_public/$boardSlug/$feedbackSlug/voters'
-      path: '/$boardSlug/$feedbackSlug/voters'
-      fullPath: '/$boardSlug/$feedbackSlug/voters'
-      preLoaderRoute: typeof PublicBoardSlugFeedbackSlugVotersImport
-      parentRoute: typeof PublicImport
+    '/_public/$boardSlug/': {
+      id: '/_public/$boardSlug/'
+      path: '/$boardSlug'
+      fullPath: '/$boardSlug'
+      preLoaderRoute: typeof PublicBoardSlugIndexRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/admin/changelog/$changelogSlug/edit': {
-      id: '/admin/changelog/$changelogSlug/edit'
-      path: '/changelog/$changelogSlug/edit'
-      fullPath: '/admin/changelog/$changelogSlug/edit'
-      preLoaderRoute: typeof AdminChangelogChangelogSlugEditImport
-      parentRoute: typeof AdminImport
+    '/admin/users/$userSlug': {
+      id: '/admin/users/$userSlug'
+      path: '/$userSlug'
+      fullPath: '/admin/users/$userSlug'
+      preLoaderRoute: typeof AdminUsersUserSlugRouteImport
+      parentRoute: typeof AdminUsersRoute
     }
-    '/admin/feedback/$boardSlug/$feedbackSlug': {
-      id: '/admin/feedback/$boardSlug/$feedbackSlug'
-      path: '/$feedbackSlug'
-      fullPath: '/admin/feedback/$boardSlug/$feedbackSlug'
-      preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugImport
-      parentRoute: typeof AdminFeedbackBoardSlugImport
+    '/admin/settings/roadmap': {
+      id: '/admin/settings/roadmap'
+      path: '/roadmap'
+      fullPath: '/admin/settings/roadmap'
+      preLoaderRoute: typeof AdminSettingsRoadmapRouteImport
+      parentRoute: typeof AdminSettingsRoute
     }
-    '/admin/roadmap/$roadmapSlug/delete': {
-      id: '/admin/roadmap/$roadmapSlug/delete'
-      path: '/delete'
-      fullPath: '/admin/roadmap/$roadmapSlug/delete'
-      preLoaderRoute: typeof AdminRoadmapRoadmapSlugDeleteImport
-      parentRoute: typeof AdminRoadmapRoadmapSlugImport
+    '/admin/settings/profile': {
+      id: '/admin/settings/profile'
+      path: '/profile'
+      fullPath: '/admin/settings/profile'
+      preLoaderRoute: typeof AdminSettingsProfileRouteImport
+      parentRoute: typeof AdminSettingsRoute
     }
-    '/admin/roadmap/$roadmapSlug/filter': {
-      id: '/admin/roadmap/$roadmapSlug/filter'
-      path: '/filter'
-      fullPath: '/admin/roadmap/$roadmapSlug/filter'
-      preLoaderRoute: typeof AdminRoadmapRoadmapSlugFilterImport
-      parentRoute: typeof AdminRoadmapRoadmapSlugImport
-    }
-    '/admin/roadmap/$roadmapSlug/new': {
-      id: '/admin/roadmap/$roadmapSlug/new'
-      path: '/new'
-      fullPath: '/admin/roadmap/$roadmapSlug/new'
-      preLoaderRoute: typeof AdminRoadmapRoadmapSlugNewImport
-      parentRoute: typeof AdminRoadmapRoadmapSlugImport
-    }
-    '/admin/roadmap/$roadmapSlug/rename': {
-      id: '/admin/roadmap/$roadmapSlug/rename'
-      path: '/rename'
-      fullPath: '/admin/roadmap/$roadmapSlug/rename'
-      preLoaderRoute: typeof AdminRoadmapRoadmapSlugRenameImport
-      parentRoute: typeof AdminRoadmapRoadmapSlugImport
-    }
-    '/admin/settings/admins/people': {
-      id: '/admin/settings/admins/people'
-      path: '/people'
-      fullPath: '/admin/settings/admins/people'
-      preLoaderRoute: typeof AdminSettingsAdminsPeopleImport
-      parentRoute: typeof AdminSettingsAdminsImport
-    }
-    '/admin/settings/boards/create-new': {
-      id: '/admin/settings/boards/create-new'
-      path: '/create-new'
-      fullPath: '/admin/settings/boards/create-new'
-      preLoaderRoute: typeof AdminSettingsBoardsCreateNewImport
-      parentRoute: typeof AdminSettingsBoardsImport
-    }
-    '/admin/settings/changelog/labels': {
-      id: '/admin/settings/changelog/labels'
-      path: '/labels'
-      fullPath: '/admin/settings/changelog/labels'
-      preLoaderRoute: typeof AdminSettingsChangelogLabelsImport
-      parentRoute: typeof AdminSettingsChangelogImport
-    }
-    '/admin/settings/changelog/privacy': {
-      id: '/admin/settings/changelog/privacy'
-      path: '/privacy'
-      fullPath: '/admin/settings/changelog/privacy'
-      preLoaderRoute: typeof AdminSettingsChangelogPrivacyImport
-      parentRoute: typeof AdminSettingsChangelogImport
-    }
-    '/admin/settings/company/branding': {
-      id: '/admin/settings/company/branding'
-      path: '/branding'
-      fullPath: '/admin/settings/company/branding'
-      preLoaderRoute: typeof AdminSettingsCompanyBrandingImport
-      parentRoute: typeof AdminSettingsCompanyImport
-    }
-    '/admin/settings/company/delete': {
-      id: '/admin/settings/company/delete'
-      path: '/delete'
-      fullPath: '/admin/settings/company/delete'
-      preLoaderRoute: typeof AdminSettingsCompanyDeleteImport
-      parentRoute: typeof AdminSettingsCompanyImport
-    }
-    '/admin/settings/company/preferences': {
-      id: '/admin/settings/company/preferences'
+    '/admin/settings/preferences': {
+      id: '/admin/settings/preferences'
       path: '/preferences'
-      fullPath: '/admin/settings/company/preferences'
-      preLoaderRoute: typeof AdminSettingsCompanyPreferencesImport
-      parentRoute: typeof AdminSettingsCompanyImport
+      fullPath: '/admin/settings/preferences'
+      preLoaderRoute: typeof AdminSettingsPreferencesRouteImport
+      parentRoute: typeof AdminSettingsRoute
     }
-    '/admin/settings/preferences/email': {
-      id: '/admin/settings/preferences/email'
-      path: '/email'
-      fullPath: '/admin/settings/preferences/email'
-      preLoaderRoute: typeof AdminSettingsPreferencesEmailImport
-      parentRoute: typeof AdminSettingsPreferencesImport
+    '/admin/settings/company': {
+      id: '/admin/settings/company'
+      path: '/company'
+      fullPath: '/admin/settings/company'
+      preLoaderRoute: typeof AdminSettingsCompanyRouteImport
+      parentRoute: typeof AdminSettingsRoute
     }
-    '/admin/settings/preferences/language': {
-      id: '/admin/settings/preferences/language'
-      path: '/language'
-      fullPath: '/admin/settings/preferences/language'
-      preLoaderRoute: typeof AdminSettingsPreferencesLanguageImport
-      parentRoute: typeof AdminSettingsPreferencesImport
+    '/admin/settings/changelog': {
+      id: '/admin/settings/changelog'
+      path: '/changelog'
+      fullPath: '/admin/settings/changelog'
+      preLoaderRoute: typeof AdminSettingsChangelogRouteImport
+      parentRoute: typeof AdminSettingsRoute
     }
-    '/admin/settings/roadmap/archive': {
-      id: '/admin/settings/roadmap/archive'
-      path: '/archive'
-      fullPath: '/admin/settings/roadmap/archive'
-      preLoaderRoute: typeof AdminSettingsRoadmapArchiveImport
-      parentRoute: typeof AdminSettingsRoadmapImport
+    '/admin/settings/boards': {
+      id: '/admin/settings/boards'
+      path: '/boards'
+      fullPath: '/admin/settings/boards'
+      preLoaderRoute: typeof AdminSettingsBoardsRouteImport
+      parentRoute: typeof AdminSettingsRoute
     }
-    '/admin/settings/roadmap/public': {
-      id: '/admin/settings/roadmap/public'
-      path: '/public'
-      fullPath: '/admin/settings/roadmap/public'
-      preLoaderRoute: typeof AdminSettingsRoadmapPublicImport
-      parentRoute: typeof AdminSettingsRoadmapImport
+    '/admin/settings/admins': {
+      id: '/admin/settings/admins'
+      path: '/admins'
+      fullPath: '/admin/settings/admins'
+      preLoaderRoute: typeof AdminSettingsAdminsRouteImport
+      parentRoute: typeof AdminSettingsRoute
     }
-    '/admin/settings/roadmap/statuses': {
-      id: '/admin/settings/roadmap/statuses'
-      path: '/statuses'
-      fullPath: '/admin/settings/roadmap/statuses'
-      preLoaderRoute: typeof AdminSettingsRoadmapStatusesImport
-      parentRoute: typeof AdminSettingsRoadmapImport
+    '/admin/roadmap/$roadmapSlug': {
+      id: '/admin/roadmap/$roadmapSlug'
+      path: '/$roadmapSlug'
+      fullPath: '/admin/roadmap/$roadmapSlug'
+      preLoaderRoute: typeof AdminRoadmapRoadmapSlugRouteImport
+      parentRoute: typeof AdminRoadmapRoute
     }
-    '/_public/$boardSlug/$feedbackSlug/': {
-      id: '/_public/$boardSlug/$feedbackSlug/'
-      path: '/$boardSlug/$feedbackSlug'
-      fullPath: '/$boardSlug/$feedbackSlug'
-      preLoaderRoute: typeof PublicBoardSlugFeedbackSlugIndexImport
-      parentRoute: typeof PublicImport
+    '/admin/feedback/$boardSlug': {
+      id: '/admin/feedback/$boardSlug'
+      path: '/$boardSlug'
+      fullPath: '/admin/feedback/$boardSlug'
+      preLoaderRoute: typeof AdminFeedbackBoardSlugRouteImport
+      parentRoute: typeof AdminFeedbackRoute
+    }
+    '/admin/changelog/create': {
+      id: '/admin/changelog/create'
+      path: '/changelog/create'
+      fullPath: '/admin/changelog/create'
+      preLoaderRoute: typeof AdminChangelogCreateRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_public/changelog/$changelogSlug': {
+      id: '/_public/changelog/$changelogSlug'
+      path: '/changelog/$changelogSlug'
+      fullPath: '/changelog/$changelogSlug'
+      preLoaderRoute: typeof PublicChangelogChangelogSlugRouteImport
+      parentRoute: typeof PublicRoute
     }
     '/admin/settings/custom-domains/': {
       id: '/admin/settings/custom-domains/'
       path: '/custom-domains'
       fullPath: '/admin/settings/custom-domains'
-      preLoaderRoute: typeof AdminSettingsCustomDomainsIndexImport
-      parentRoute: typeof AdminSettingsImport
+      preLoaderRoute: typeof AdminSettingsCustomDomainsIndexRouteImport
+      parentRoute: typeof AdminSettingsRoute
     }
-    '/admin/changelog/$changelogSlug/edit/delete': {
-      id: '/admin/changelog/$changelogSlug/edit/delete'
+    '/_public/$boardSlug/$feedbackSlug/': {
+      id: '/_public/$boardSlug/$feedbackSlug/'
+      path: '/$boardSlug/$feedbackSlug'
+      fullPath: '/$boardSlug/$feedbackSlug'
+      preLoaderRoute: typeof PublicBoardSlugFeedbackSlugIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/admin/settings/roadmap/statuses': {
+      id: '/admin/settings/roadmap/statuses'
+      path: '/statuses'
+      fullPath: '/admin/settings/roadmap/statuses'
+      preLoaderRoute: typeof AdminSettingsRoadmapStatusesRouteImport
+      parentRoute: typeof AdminSettingsRoadmapRoute
+    }
+    '/admin/settings/roadmap/public': {
+      id: '/admin/settings/roadmap/public'
+      path: '/public'
+      fullPath: '/admin/settings/roadmap/public'
+      preLoaderRoute: typeof AdminSettingsRoadmapPublicRouteImport
+      parentRoute: typeof AdminSettingsRoadmapRoute
+    }
+    '/admin/settings/roadmap/archive': {
+      id: '/admin/settings/roadmap/archive'
+      path: '/archive'
+      fullPath: '/admin/settings/roadmap/archive'
+      preLoaderRoute: typeof AdminSettingsRoadmapArchiveRouteImport
+      parentRoute: typeof AdminSettingsRoadmapRoute
+    }
+    '/admin/settings/preferences/language': {
+      id: '/admin/settings/preferences/language'
+      path: '/language'
+      fullPath: '/admin/settings/preferences/language'
+      preLoaderRoute: typeof AdminSettingsPreferencesLanguageRouteImport
+      parentRoute: typeof AdminSettingsPreferencesRoute
+    }
+    '/admin/settings/preferences/email': {
+      id: '/admin/settings/preferences/email'
+      path: '/email'
+      fullPath: '/admin/settings/preferences/email'
+      preLoaderRoute: typeof AdminSettingsPreferencesEmailRouteImport
+      parentRoute: typeof AdminSettingsPreferencesRoute
+    }
+    '/admin/settings/company/preferences': {
+      id: '/admin/settings/company/preferences'
+      path: '/preferences'
+      fullPath: '/admin/settings/company/preferences'
+      preLoaderRoute: typeof AdminSettingsCompanyPreferencesRouteImport
+      parentRoute: typeof AdminSettingsCompanyRoute
+    }
+    '/admin/settings/company/delete': {
+      id: '/admin/settings/company/delete'
       path: '/delete'
-      fullPath: '/admin/changelog/$changelogSlug/edit/delete'
-      preLoaderRoute: typeof AdminChangelogChangelogSlugEditDeleteImport
-      parentRoute: typeof AdminChangelogChangelogSlugEditImport
+      fullPath: '/admin/settings/company/delete'
+      preLoaderRoute: typeof AdminSettingsCompanyDeleteRouteImport
+      parentRoute: typeof AdminSettingsCompanyRoute
     }
-    '/admin/changelog/$changelogSlug/edit/publish': {
-      id: '/admin/changelog/$changelogSlug/edit/publish'
-      path: '/publish'
-      fullPath: '/admin/changelog/$changelogSlug/edit/publish'
-      preLoaderRoute: typeof AdminChangelogChangelogSlugEditPublishImport
-      parentRoute: typeof AdminChangelogChangelogSlugEditImport
+    '/admin/settings/company/branding': {
+      id: '/admin/settings/company/branding'
+      path: '/branding'
+      fullPath: '/admin/settings/company/branding'
+      preLoaderRoute: typeof AdminSettingsCompanyBrandingRouteImport
+      parentRoute: typeof AdminSettingsCompanyRoute
     }
-    '/admin/feedback/$boardSlug/$feedbackSlug/edit': {
-      id: '/admin/feedback/$boardSlug/$feedbackSlug/edit'
-      path: '/edit'
-      fullPath: '/admin/feedback/$boardSlug/$feedbackSlug/edit'
-      preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugEditImport
-      parentRoute: typeof AdminFeedbackBoardSlugFeedbackSlugImport
+    '/admin/settings/changelog/privacy': {
+      id: '/admin/settings/changelog/privacy'
+      path: '/privacy'
+      fullPath: '/admin/settings/changelog/privacy'
+      preLoaderRoute: typeof AdminSettingsChangelogPrivacyRouteImport
+      parentRoute: typeof AdminSettingsChangelogRoute
     }
-    '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': {
-      id: '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
-      path: '/edit-history'
-      fullPath: '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
-      preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryImport
-      parentRoute: typeof AdminFeedbackBoardSlugFeedbackSlugImport
+    '/admin/settings/changelog/labels': {
+      id: '/admin/settings/changelog/labels'
+      path: '/labels'
+      fullPath: '/admin/settings/changelog/labels'
+      preLoaderRoute: typeof AdminSettingsChangelogLabelsRouteImport
+      parentRoute: typeof AdminSettingsChangelogRoute
     }
-    '/admin/feedback/$boardSlug/$feedbackSlug/voters': {
-      id: '/admin/feedback/$boardSlug/$feedbackSlug/voters'
-      path: '/voters'
-      fullPath: '/admin/feedback/$boardSlug/$feedbackSlug/voters'
-      preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugVotersImport
-      parentRoute: typeof AdminFeedbackBoardSlugFeedbackSlugImport
+    '/admin/settings/boards/create-new': {
+      id: '/admin/settings/boards/create-new'
+      path: '/create-new'
+      fullPath: '/admin/settings/boards/create-new'
+      preLoaderRoute: typeof AdminSettingsBoardsCreateNewRouteImport
+      parentRoute: typeof AdminSettingsBoardsRoute
     }
-    '/admin/settings/boards/$boardSlug/categories': {
-      id: '/admin/settings/boards/$boardSlug/categories'
-      path: '/$boardSlug/categories'
-      fullPath: '/admin/settings/boards/$boardSlug/categories'
-      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugCategoriesImport
-      parentRoute: typeof AdminSettingsBoardsImport
+    '/admin/settings/admins/people': {
+      id: '/admin/settings/admins/people'
+      path: '/people'
+      fullPath: '/admin/settings/admins/people'
+      preLoaderRoute: typeof AdminSettingsAdminsPeopleRouteImport
+      parentRoute: typeof AdminSettingsAdminsRoute
     }
-    '/admin/settings/boards/$boardSlug/create-form': {
-      id: '/admin/settings/boards/$boardSlug/create-form'
-      path: '/$boardSlug/create-form'
-      fullPath: '/admin/settings/boards/$boardSlug/create-form'
-      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugCreateFormImport
-      parentRoute: typeof AdminSettingsBoardsImport
+    '/admin/roadmap/$roadmapSlug/rename': {
+      id: '/admin/roadmap/$roadmapSlug/rename'
+      path: '/rename'
+      fullPath: '/admin/roadmap/$roadmapSlug/rename'
+      preLoaderRoute: typeof AdminRoadmapRoadmapSlugRenameRouteImport
+      parentRoute: typeof AdminRoadmapRoadmapSlugRoute
     }
-    '/admin/settings/boards/$boardSlug/delete': {
-      id: '/admin/settings/boards/$boardSlug/delete'
-      path: '/$boardSlug/delete'
-      fullPath: '/admin/settings/boards/$boardSlug/delete'
-      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugDeleteImport
-      parentRoute: typeof AdminSettingsBoardsImport
+    '/admin/roadmap/$roadmapSlug/new': {
+      id: '/admin/roadmap/$roadmapSlug/new'
+      path: '/new'
+      fullPath: '/admin/roadmap/$roadmapSlug/new'
+      preLoaderRoute: typeof AdminRoadmapRoadmapSlugNewRouteImport
+      parentRoute: typeof AdminRoadmapRoadmapSlugRoute
     }
-    '/admin/settings/boards/$boardSlug/general': {
-      id: '/admin/settings/boards/$boardSlug/general'
-      path: '/$boardSlug/general'
-      fullPath: '/admin/settings/boards/$boardSlug/general'
-      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugGeneralImport
-      parentRoute: typeof AdminSettingsBoardsImport
+    '/admin/roadmap/$roadmapSlug/filter': {
+      id: '/admin/roadmap/$roadmapSlug/filter'
+      path: '/filter'
+      fullPath: '/admin/roadmap/$roadmapSlug/filter'
+      preLoaderRoute: typeof AdminRoadmapRoadmapSlugFilterRouteImport
+      parentRoute: typeof AdminRoadmapRoadmapSlugRoute
     }
-    '/admin/settings/boards/$boardSlug/privacy': {
-      id: '/admin/settings/boards/$boardSlug/privacy'
-      path: '/$boardSlug/privacy'
-      fullPath: '/admin/settings/boards/$boardSlug/privacy'
-      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugPrivacyImport
-      parentRoute: typeof AdminSettingsBoardsImport
+    '/admin/roadmap/$roadmapSlug/delete': {
+      id: '/admin/roadmap/$roadmapSlug/delete'
+      path: '/delete'
+      fullPath: '/admin/roadmap/$roadmapSlug/delete'
+      preLoaderRoute: typeof AdminRoadmapRoadmapSlugDeleteRouteImport
+      parentRoute: typeof AdminRoadmapRoadmapSlugRoute
     }
-    '/admin/settings/boards/$boardSlug/tags': {
-      id: '/admin/settings/boards/$boardSlug/tags'
-      path: '/$boardSlug/tags'
-      fullPath: '/admin/settings/boards/$boardSlug/tags'
-      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugTagsImport
-      parentRoute: typeof AdminSettingsBoardsImport
+    '/admin/feedback/$boardSlug/$feedbackSlug': {
+      id: '/admin/feedback/$boardSlug/$feedbackSlug'
+      path: '/$feedbackSlug'
+      fullPath: '/admin/feedback/$boardSlug/$feedbackSlug'
+      preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugRouteImport
+      parentRoute: typeof AdminFeedbackBoardSlugRoute
+    }
+    '/admin/changelog/$changelogSlug/edit': {
+      id: '/admin/changelog/$changelogSlug/edit'
+      path: '/changelog/$changelogSlug/edit'
+      fullPath: '/admin/changelog/$changelogSlug/edit'
+      preLoaderRoute: typeof AdminChangelogChangelogSlugEditRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_public/$boardSlug/$feedbackSlug/voters': {
+      id: '/_public/$boardSlug/$feedbackSlug/voters'
+      path: '/$boardSlug/$feedbackSlug/voters'
+      fullPath: '/$boardSlug/$feedbackSlug/voters'
+      preLoaderRoute: typeof PublicBoardSlugFeedbackSlugVotersRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/$boardSlug/$feedbackSlug/edit-history': {
+      id: '/_public/$boardSlug/$feedbackSlug/edit-history'
+      path: '/$boardSlug/$feedbackSlug/edit-history'
+      fullPath: '/$boardSlug/$feedbackSlug/edit-history'
+      preLoaderRoute: typeof PublicBoardSlugFeedbackSlugEditHistoryRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/$boardSlug/$feedbackSlug/edit': {
+      id: '/_public/$boardSlug/$feedbackSlug/edit'
+      path: '/$boardSlug/$feedbackSlug/edit'
+      fullPath: '/$boardSlug/$feedbackSlug/edit'
+      preLoaderRoute: typeof PublicBoardSlugFeedbackSlugEditRouteImport
+      parentRoute: typeof PublicRoute
     }
     '/admin/feedback/$boardSlug/$feedbackSlug/': {
       id: '/admin/feedback/$boardSlug/$feedbackSlug/'
       path: '/'
       fullPath: '/admin/feedback/$boardSlug/$feedbackSlug/'
-      preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugIndexImport
-      parentRoute: typeof AdminFeedbackBoardSlugFeedbackSlugImport
+      preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugIndexRouteImport
+      parentRoute: typeof AdminFeedbackBoardSlugFeedbackSlugRoute
+    }
+    '/admin/settings/boards/$boardSlug/tags': {
+      id: '/admin/settings/boards/$boardSlug/tags'
+      path: '/$boardSlug/tags'
+      fullPath: '/admin/settings/boards/$boardSlug/tags'
+      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugTagsRouteImport
+      parentRoute: typeof AdminSettingsBoardsRoute
+    }
+    '/admin/settings/boards/$boardSlug/privacy': {
+      id: '/admin/settings/boards/$boardSlug/privacy'
+      path: '/$boardSlug/privacy'
+      fullPath: '/admin/settings/boards/$boardSlug/privacy'
+      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugPrivacyRouteImport
+      parentRoute: typeof AdminSettingsBoardsRoute
+    }
+    '/admin/settings/boards/$boardSlug/general': {
+      id: '/admin/settings/boards/$boardSlug/general'
+      path: '/$boardSlug/general'
+      fullPath: '/admin/settings/boards/$boardSlug/general'
+      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugGeneralRouteImport
+      parentRoute: typeof AdminSettingsBoardsRoute
+    }
+    '/admin/settings/boards/$boardSlug/delete': {
+      id: '/admin/settings/boards/$boardSlug/delete'
+      path: '/$boardSlug/delete'
+      fullPath: '/admin/settings/boards/$boardSlug/delete'
+      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugDeleteRouteImport
+      parentRoute: typeof AdminSettingsBoardsRoute
+    }
+    '/admin/settings/boards/$boardSlug/create-form': {
+      id: '/admin/settings/boards/$boardSlug/create-form'
+      path: '/$boardSlug/create-form'
+      fullPath: '/admin/settings/boards/$boardSlug/create-form'
+      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugCreateFormRouteImport
+      parentRoute: typeof AdminSettingsBoardsRoute
+    }
+    '/admin/settings/boards/$boardSlug/categories': {
+      id: '/admin/settings/boards/$boardSlug/categories'
+      path: '/$boardSlug/categories'
+      fullPath: '/admin/settings/boards/$boardSlug/categories'
+      preLoaderRoute: typeof AdminSettingsBoardsBoardSlugCategoriesRouteImport
+      parentRoute: typeof AdminSettingsBoardsRoute
+    }
+    '/admin/feedback/$boardSlug/$feedbackSlug/voters': {
+      id: '/admin/feedback/$boardSlug/$feedbackSlug/voters'
+      path: '/voters'
+      fullPath: '/admin/feedback/$boardSlug/$feedbackSlug/voters'
+      preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugVotersRouteImport
+      parentRoute: typeof AdminFeedbackBoardSlugFeedbackSlugRoute
+    }
+    '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': {
+      id: '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
+      path: '/edit-history'
+      fullPath: '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
+      preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRouteImport
+      parentRoute: typeof AdminFeedbackBoardSlugFeedbackSlugRoute
+    }
+    '/admin/feedback/$boardSlug/$feedbackSlug/edit': {
+      id: '/admin/feedback/$boardSlug/$feedbackSlug/edit'
+      path: '/edit'
+      fullPath: '/admin/feedback/$boardSlug/$feedbackSlug/edit'
+      preLoaderRoute: typeof AdminFeedbackBoardSlugFeedbackSlugEditRouteImport
+      parentRoute: typeof AdminFeedbackBoardSlugFeedbackSlugRoute
+    }
+    '/admin/changelog/$changelogSlug/edit/publish': {
+      id: '/admin/changelog/$changelogSlug/edit/publish'
+      path: '/publish'
+      fullPath: '/admin/changelog/$changelogSlug/edit/publish'
+      preLoaderRoute: typeof AdminChangelogChangelogSlugEditPublishRouteImport
+      parentRoute: typeof AdminChangelogChangelogSlugEditRoute
+    }
+    '/admin/changelog/$changelogSlug/edit/delete': {
+      id: '/admin/changelog/$changelogSlug/edit/delete'
+      path: '/delete'
+      fullPath: '/admin/changelog/$changelogSlug/edit/delete'
+      preLoaderRoute: typeof AdminChangelogChangelogSlugEditDeleteRouteImport
+      parentRoute: typeof AdminChangelogChangelogSlugEditRoute
     }
     '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove': {
       id: '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
       path: '/$boardSlug/$feedbackSlug/$feedbackId/remove'
       fullPath: '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
-      preLoaderRoute: typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveImport
-      parentRoute: typeof AdminRoadmapRoadmapSlugImport
+      preLoaderRoute: typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRouteImport
+      parentRoute: typeof AdminRoadmapRoadmapSlugRoute
     }
   }
 }
-
-// Create and export the route tree
 
 interface PublicRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
@@ -1227,754 +1544,12 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
-export interface FileRoutesByFullPath {
-  '': typeof PublicRouteWithChildren
-  '/admin': typeof AdminRouteWithChildren
-  '/admin/feedback': typeof AdminFeedbackRouteWithChildren
-  '/admin/roadmap': typeof AdminRoadmapRouteWithChildren
-  '/admin/settings': typeof AdminSettingsRouteWithChildren
-  '/admin/users': typeof AdminUsersRouteWithChildren
-  '/password-reset/$token': typeof PasswordResetTokenRoute
-  '/': typeof PublicIndexRoute
-  '/admin/': typeof AdminIndexRoute
-  '/password-reset': typeof PasswordResetIndexRoute
-  '/changelog/$changelogSlug': typeof PublicChangelogChangelogSlugRoute
-  '/admin/changelog/create': typeof AdminChangelogCreateRoute
-  '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
-  '/admin/roadmap/$roadmapSlug': typeof AdminRoadmapRoadmapSlugRouteWithChildren
-  '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
-  '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
-  '/admin/settings/changelog': typeof AdminSettingsChangelogRouteWithChildren
-  '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
-  '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
-  '/admin/settings/profile': typeof AdminSettingsProfileRoute
-  '/admin/settings/roadmap': typeof AdminSettingsRoadmapRouteWithChildren
-  '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
-  '/$boardSlug': typeof PublicBoardSlugIndexRoute
-  '/changelog': typeof PublicChangelogIndexRoute
-  '/admin/changelog': typeof AdminChangelogIndexRoute
-  '/admin/settings/': typeof AdminSettingsIndexRoute
-  '/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
-  '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
-  '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
-  '/admin/changelog/$changelogSlug/edit': typeof AdminChangelogChangelogSlugEditRouteWithChildren
-  '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
-  '/admin/roadmap/$roadmapSlug/delete': typeof AdminRoadmapRoadmapSlugDeleteRoute
-  '/admin/roadmap/$roadmapSlug/filter': typeof AdminRoadmapRoadmapSlugFilterRoute
-  '/admin/roadmap/$roadmapSlug/new': typeof AdminRoadmapRoadmapSlugNewRoute
-  '/admin/roadmap/$roadmapSlug/rename': typeof AdminRoadmapRoadmapSlugRenameRoute
-  '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
-  '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
-  '/admin/settings/changelog/labels': typeof AdminSettingsChangelogLabelsRoute
-  '/admin/settings/changelog/privacy': typeof AdminSettingsChangelogPrivacyRoute
-  '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
-  '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
-  '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
-  '/admin/settings/preferences/email': typeof AdminSettingsPreferencesEmailRoute
-  '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
-  '/admin/settings/roadmap/archive': typeof AdminSettingsRoadmapArchiveRoute
-  '/admin/settings/roadmap/public': typeof AdminSettingsRoadmapPublicRoute
-  '/admin/settings/roadmap/statuses': typeof AdminSettingsRoadmapStatusesRoute
-  '/$boardSlug/$feedbackSlug': typeof PublicBoardSlugFeedbackSlugIndexRoute
-  '/admin/settings/custom-domains': typeof AdminSettingsCustomDomainsIndexRoute
-  '/admin/changelog/$changelogSlug/edit/delete': typeof AdminChangelogChangelogSlugEditDeleteRoute
-  '/admin/changelog/$changelogSlug/edit/publish': typeof AdminChangelogChangelogSlugEditPublishRoute
-  '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
-  '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
-  '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
-  '/admin/settings/boards/$boardSlug/categories': typeof AdminSettingsBoardsBoardSlugCategoriesRoute
-  '/admin/settings/boards/$boardSlug/create-form': typeof AdminSettingsBoardsBoardSlugCreateFormRoute
-  '/admin/settings/boards/$boardSlug/delete': typeof AdminSettingsBoardsBoardSlugDeleteRoute
-  '/admin/settings/boards/$boardSlug/general': typeof AdminSettingsBoardsBoardSlugGeneralRoute
-  '/admin/settings/boards/$boardSlug/privacy': typeof AdminSettingsBoardsBoardSlugPrivacyRoute
-  '/admin/settings/boards/$boardSlug/tags': typeof AdminSettingsBoardsBoardSlugTagsRoute
-  '/admin/feedback/$boardSlug/$feedbackSlug/': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
-  '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove': typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute
-}
-
-export interface FileRoutesByTo {
-  '/admin/feedback': typeof AdminFeedbackRouteWithChildren
-  '/admin/roadmap': typeof AdminRoadmapRouteWithChildren
-  '/admin/users': typeof AdminUsersRouteWithChildren
-  '/password-reset/$token': typeof PasswordResetTokenRoute
-  '/': typeof PublicIndexRoute
-  '/admin': typeof AdminIndexRoute
-  '/password-reset': typeof PasswordResetIndexRoute
-  '/changelog/$changelogSlug': typeof PublicChangelogChangelogSlugRoute
-  '/admin/changelog/create': typeof AdminChangelogCreateRoute
-  '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
-  '/admin/roadmap/$roadmapSlug': typeof AdminRoadmapRoadmapSlugRouteWithChildren
-  '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
-  '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
-  '/admin/settings/changelog': typeof AdminSettingsChangelogRouteWithChildren
-  '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
-  '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
-  '/admin/settings/profile': typeof AdminSettingsProfileRoute
-  '/admin/settings/roadmap': typeof AdminSettingsRoadmapRouteWithChildren
-  '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
-  '/$boardSlug': typeof PublicBoardSlugIndexRoute
-  '/changelog': typeof PublicChangelogIndexRoute
-  '/admin/changelog': typeof AdminChangelogIndexRoute
-  '/admin/settings': typeof AdminSettingsIndexRoute
-  '/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
-  '/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
-  '/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
-  '/admin/changelog/$changelogSlug/edit': typeof AdminChangelogChangelogSlugEditRouteWithChildren
-  '/admin/roadmap/$roadmapSlug/delete': typeof AdminRoadmapRoadmapSlugDeleteRoute
-  '/admin/roadmap/$roadmapSlug/filter': typeof AdminRoadmapRoadmapSlugFilterRoute
-  '/admin/roadmap/$roadmapSlug/new': typeof AdminRoadmapRoadmapSlugNewRoute
-  '/admin/roadmap/$roadmapSlug/rename': typeof AdminRoadmapRoadmapSlugRenameRoute
-  '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
-  '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
-  '/admin/settings/changelog/labels': typeof AdminSettingsChangelogLabelsRoute
-  '/admin/settings/changelog/privacy': typeof AdminSettingsChangelogPrivacyRoute
-  '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
-  '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
-  '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
-  '/admin/settings/preferences/email': typeof AdminSettingsPreferencesEmailRoute
-  '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
-  '/admin/settings/roadmap/archive': typeof AdminSettingsRoadmapArchiveRoute
-  '/admin/settings/roadmap/public': typeof AdminSettingsRoadmapPublicRoute
-  '/admin/settings/roadmap/statuses': typeof AdminSettingsRoadmapStatusesRoute
-  '/$boardSlug/$feedbackSlug': typeof PublicBoardSlugFeedbackSlugIndexRoute
-  '/admin/settings/custom-domains': typeof AdminSettingsCustomDomainsIndexRoute
-  '/admin/changelog/$changelogSlug/edit/delete': typeof AdminChangelogChangelogSlugEditDeleteRoute
-  '/admin/changelog/$changelogSlug/edit/publish': typeof AdminChangelogChangelogSlugEditPublishRoute
-  '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
-  '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
-  '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
-  '/admin/settings/boards/$boardSlug/categories': typeof AdminSettingsBoardsBoardSlugCategoriesRoute
-  '/admin/settings/boards/$boardSlug/create-form': typeof AdminSettingsBoardsBoardSlugCreateFormRoute
-  '/admin/settings/boards/$boardSlug/delete': typeof AdminSettingsBoardsBoardSlugDeleteRoute
-  '/admin/settings/boards/$boardSlug/general': typeof AdminSettingsBoardsBoardSlugGeneralRoute
-  '/admin/settings/boards/$boardSlug/privacy': typeof AdminSettingsBoardsBoardSlugPrivacyRoute
-  '/admin/settings/boards/$boardSlug/tags': typeof AdminSettingsBoardsBoardSlugTagsRoute
-  '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
-  '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove': typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute
-}
-
-export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/_public': typeof PublicRouteWithChildren
-  '/admin': typeof AdminRouteWithChildren
-  '/admin/feedback': typeof AdminFeedbackRouteWithChildren
-  '/admin/roadmap': typeof AdminRoadmapRouteWithChildren
-  '/admin/settings': typeof AdminSettingsRouteWithChildren
-  '/admin/users': typeof AdminUsersRouteWithChildren
-  '/password-reset/$token': typeof PasswordResetTokenRoute
-  '/_public/': typeof PublicIndexRoute
-  '/admin/': typeof AdminIndexRoute
-  '/password-reset/': typeof PasswordResetIndexRoute
-  '/_public/changelog/$changelogSlug': typeof PublicChangelogChangelogSlugRoute
-  '/admin/changelog/create': typeof AdminChangelogCreateRoute
-  '/admin/feedback/$boardSlug': typeof AdminFeedbackBoardSlugRouteWithChildren
-  '/admin/roadmap/$roadmapSlug': typeof AdminRoadmapRoadmapSlugRouteWithChildren
-  '/admin/settings/admins': typeof AdminSettingsAdminsRouteWithChildren
-  '/admin/settings/boards': typeof AdminSettingsBoardsRouteWithChildren
-  '/admin/settings/changelog': typeof AdminSettingsChangelogRouteWithChildren
-  '/admin/settings/company': typeof AdminSettingsCompanyRouteWithChildren
-  '/admin/settings/preferences': typeof AdminSettingsPreferencesRouteWithChildren
-  '/admin/settings/profile': typeof AdminSettingsProfileRoute
-  '/admin/settings/roadmap': typeof AdminSettingsRoadmapRouteWithChildren
-  '/admin/users/$userSlug': typeof AdminUsersUserSlugRoute
-  '/_public/$boardSlug/': typeof PublicBoardSlugIndexRoute
-  '/_public/changelog/': typeof PublicChangelogIndexRoute
-  '/admin/changelog/': typeof AdminChangelogIndexRoute
-  '/admin/settings/': typeof AdminSettingsIndexRoute
-  '/_public/$boardSlug/$feedbackSlug/edit': typeof PublicBoardSlugFeedbackSlugEditRoute
-  '/_public/$boardSlug/$feedbackSlug/edit-history': typeof PublicBoardSlugFeedbackSlugEditHistoryRoute
-  '/_public/$boardSlug/$feedbackSlug/voters': typeof PublicBoardSlugFeedbackSlugVotersRoute
-  '/admin/changelog/$changelogSlug/edit': typeof AdminChangelogChangelogSlugEditRouteWithChildren
-  '/admin/feedback/$boardSlug/$feedbackSlug': typeof AdminFeedbackBoardSlugFeedbackSlugRouteWithChildren
-  '/admin/roadmap/$roadmapSlug/delete': typeof AdminRoadmapRoadmapSlugDeleteRoute
-  '/admin/roadmap/$roadmapSlug/filter': typeof AdminRoadmapRoadmapSlugFilterRoute
-  '/admin/roadmap/$roadmapSlug/new': typeof AdminRoadmapRoadmapSlugNewRoute
-  '/admin/roadmap/$roadmapSlug/rename': typeof AdminRoadmapRoadmapSlugRenameRoute
-  '/admin/settings/admins/people': typeof AdminSettingsAdminsPeopleRoute
-  '/admin/settings/boards/create-new': typeof AdminSettingsBoardsCreateNewRoute
-  '/admin/settings/changelog/labels': typeof AdminSettingsChangelogLabelsRoute
-  '/admin/settings/changelog/privacy': typeof AdminSettingsChangelogPrivacyRoute
-  '/admin/settings/company/branding': typeof AdminSettingsCompanyBrandingRoute
-  '/admin/settings/company/delete': typeof AdminSettingsCompanyDeleteRoute
-  '/admin/settings/company/preferences': typeof AdminSettingsCompanyPreferencesRoute
-  '/admin/settings/preferences/email': typeof AdminSettingsPreferencesEmailRoute
-  '/admin/settings/preferences/language': typeof AdminSettingsPreferencesLanguageRoute
-  '/admin/settings/roadmap/archive': typeof AdminSettingsRoadmapArchiveRoute
-  '/admin/settings/roadmap/public': typeof AdminSettingsRoadmapPublicRoute
-  '/admin/settings/roadmap/statuses': typeof AdminSettingsRoadmapStatusesRoute
-  '/_public/$boardSlug/$feedbackSlug/': typeof PublicBoardSlugFeedbackSlugIndexRoute
-  '/admin/settings/custom-domains/': typeof AdminSettingsCustomDomainsIndexRoute
-  '/admin/changelog/$changelogSlug/edit/delete': typeof AdminChangelogChangelogSlugEditDeleteRoute
-  '/admin/changelog/$changelogSlug/edit/publish': typeof AdminChangelogChangelogSlugEditPublishRoute
-  '/admin/feedback/$boardSlug/$feedbackSlug/edit': typeof AdminFeedbackBoardSlugFeedbackSlugEditRoute
-  '/admin/feedback/$boardSlug/$feedbackSlug/edit-history': typeof AdminFeedbackBoardSlugFeedbackSlugEditHistoryRoute
-  '/admin/feedback/$boardSlug/$feedbackSlug/voters': typeof AdminFeedbackBoardSlugFeedbackSlugVotersRoute
-  '/admin/settings/boards/$boardSlug/categories': typeof AdminSettingsBoardsBoardSlugCategoriesRoute
-  '/admin/settings/boards/$boardSlug/create-form': typeof AdminSettingsBoardsBoardSlugCreateFormRoute
-  '/admin/settings/boards/$boardSlug/delete': typeof AdminSettingsBoardsBoardSlugDeleteRoute
-  '/admin/settings/boards/$boardSlug/general': typeof AdminSettingsBoardsBoardSlugGeneralRoute
-  '/admin/settings/boards/$boardSlug/privacy': typeof AdminSettingsBoardsBoardSlugPrivacyRoute
-  '/admin/settings/boards/$boardSlug/tags': typeof AdminSettingsBoardsBoardSlugTagsRoute
-  '/admin/feedback/$boardSlug/$feedbackSlug/': typeof AdminFeedbackBoardSlugFeedbackSlugIndexRoute
-  '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove': typeof AdminRoadmapRoadmapSlugBoardSlugFeedbackSlugFeedbackIdRemoveRoute
-}
-
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | ''
-    | '/admin'
-    | '/admin/feedback'
-    | '/admin/roadmap'
-    | '/admin/settings'
-    | '/admin/users'
-    | '/password-reset/$token'
-    | '/'
-    | '/admin/'
-    | '/password-reset'
-    | '/changelog/$changelogSlug'
-    | '/admin/changelog/create'
-    | '/admin/feedback/$boardSlug'
-    | '/admin/roadmap/$roadmapSlug'
-    | '/admin/settings/admins'
-    | '/admin/settings/boards'
-    | '/admin/settings/changelog'
-    | '/admin/settings/company'
-    | '/admin/settings/preferences'
-    | '/admin/settings/profile'
-    | '/admin/settings/roadmap'
-    | '/admin/users/$userSlug'
-    | '/$boardSlug'
-    | '/changelog'
-    | '/admin/changelog'
-    | '/admin/settings/'
-    | '/$boardSlug/$feedbackSlug/edit'
-    | '/$boardSlug/$feedbackSlug/edit-history'
-    | '/$boardSlug/$feedbackSlug/voters'
-    | '/admin/changelog/$changelogSlug/edit'
-    | '/admin/feedback/$boardSlug/$feedbackSlug'
-    | '/admin/roadmap/$roadmapSlug/delete'
-    | '/admin/roadmap/$roadmapSlug/filter'
-    | '/admin/roadmap/$roadmapSlug/new'
-    | '/admin/roadmap/$roadmapSlug/rename'
-    | '/admin/settings/admins/people'
-    | '/admin/settings/boards/create-new'
-    | '/admin/settings/changelog/labels'
-    | '/admin/settings/changelog/privacy'
-    | '/admin/settings/company/branding'
-    | '/admin/settings/company/delete'
-    | '/admin/settings/company/preferences'
-    | '/admin/settings/preferences/email'
-    | '/admin/settings/preferences/language'
-    | '/admin/settings/roadmap/archive'
-    | '/admin/settings/roadmap/public'
-    | '/admin/settings/roadmap/statuses'
-    | '/$boardSlug/$feedbackSlug'
-    | '/admin/settings/custom-domains'
-    | '/admin/changelog/$changelogSlug/edit/delete'
-    | '/admin/changelog/$changelogSlug/edit/publish'
-    | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
-    | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
-    | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
-    | '/admin/settings/boards/$boardSlug/categories'
-    | '/admin/settings/boards/$boardSlug/create-form'
-    | '/admin/settings/boards/$boardSlug/delete'
-    | '/admin/settings/boards/$boardSlug/general'
-    | '/admin/settings/boards/$boardSlug/privacy'
-    | '/admin/settings/boards/$boardSlug/tags'
-    | '/admin/feedback/$boardSlug/$feedbackSlug/'
-    | '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/admin/feedback'
-    | '/admin/roadmap'
-    | '/admin/users'
-    | '/password-reset/$token'
-    | '/'
-    | '/admin'
-    | '/password-reset'
-    | '/changelog/$changelogSlug'
-    | '/admin/changelog/create'
-    | '/admin/feedback/$boardSlug'
-    | '/admin/roadmap/$roadmapSlug'
-    | '/admin/settings/admins'
-    | '/admin/settings/boards'
-    | '/admin/settings/changelog'
-    | '/admin/settings/company'
-    | '/admin/settings/preferences'
-    | '/admin/settings/profile'
-    | '/admin/settings/roadmap'
-    | '/admin/users/$userSlug'
-    | '/$boardSlug'
-    | '/changelog'
-    | '/admin/changelog'
-    | '/admin/settings'
-    | '/$boardSlug/$feedbackSlug/edit'
-    | '/$boardSlug/$feedbackSlug/edit-history'
-    | '/$boardSlug/$feedbackSlug/voters'
-    | '/admin/changelog/$changelogSlug/edit'
-    | '/admin/roadmap/$roadmapSlug/delete'
-    | '/admin/roadmap/$roadmapSlug/filter'
-    | '/admin/roadmap/$roadmapSlug/new'
-    | '/admin/roadmap/$roadmapSlug/rename'
-    | '/admin/settings/admins/people'
-    | '/admin/settings/boards/create-new'
-    | '/admin/settings/changelog/labels'
-    | '/admin/settings/changelog/privacy'
-    | '/admin/settings/company/branding'
-    | '/admin/settings/company/delete'
-    | '/admin/settings/company/preferences'
-    | '/admin/settings/preferences/email'
-    | '/admin/settings/preferences/language'
-    | '/admin/settings/roadmap/archive'
-    | '/admin/settings/roadmap/public'
-    | '/admin/settings/roadmap/statuses'
-    | '/$boardSlug/$feedbackSlug'
-    | '/admin/settings/custom-domains'
-    | '/admin/changelog/$changelogSlug/edit/delete'
-    | '/admin/changelog/$changelogSlug/edit/publish'
-    | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
-    | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
-    | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
-    | '/admin/settings/boards/$boardSlug/categories'
-    | '/admin/settings/boards/$boardSlug/create-form'
-    | '/admin/settings/boards/$boardSlug/delete'
-    | '/admin/settings/boards/$boardSlug/general'
-    | '/admin/settings/boards/$boardSlug/privacy'
-    | '/admin/settings/boards/$boardSlug/tags'
-    | '/admin/feedback/$boardSlug/$feedbackSlug'
-    | '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
-  id:
-    | '__root__'
-    | '/_public'
-    | '/admin'
-    | '/admin/feedback'
-    | '/admin/roadmap'
-    | '/admin/settings'
-    | '/admin/users'
-    | '/password-reset/$token'
-    | '/_public/'
-    | '/admin/'
-    | '/password-reset/'
-    | '/_public/changelog/$changelogSlug'
-    | '/admin/changelog/create'
-    | '/admin/feedback/$boardSlug'
-    | '/admin/roadmap/$roadmapSlug'
-    | '/admin/settings/admins'
-    | '/admin/settings/boards'
-    | '/admin/settings/changelog'
-    | '/admin/settings/company'
-    | '/admin/settings/preferences'
-    | '/admin/settings/profile'
-    | '/admin/settings/roadmap'
-    | '/admin/users/$userSlug'
-    | '/_public/$boardSlug/'
-    | '/_public/changelog/'
-    | '/admin/changelog/'
-    | '/admin/settings/'
-    | '/_public/$boardSlug/$feedbackSlug/edit'
-    | '/_public/$boardSlug/$feedbackSlug/edit-history'
-    | '/_public/$boardSlug/$feedbackSlug/voters'
-    | '/admin/changelog/$changelogSlug/edit'
-    | '/admin/feedback/$boardSlug/$feedbackSlug'
-    | '/admin/roadmap/$roadmapSlug/delete'
-    | '/admin/roadmap/$roadmapSlug/filter'
-    | '/admin/roadmap/$roadmapSlug/new'
-    | '/admin/roadmap/$roadmapSlug/rename'
-    | '/admin/settings/admins/people'
-    | '/admin/settings/boards/create-new'
-    | '/admin/settings/changelog/labels'
-    | '/admin/settings/changelog/privacy'
-    | '/admin/settings/company/branding'
-    | '/admin/settings/company/delete'
-    | '/admin/settings/company/preferences'
-    | '/admin/settings/preferences/email'
-    | '/admin/settings/preferences/language'
-    | '/admin/settings/roadmap/archive'
-    | '/admin/settings/roadmap/public'
-    | '/admin/settings/roadmap/statuses'
-    | '/_public/$boardSlug/$feedbackSlug/'
-    | '/admin/settings/custom-domains/'
-    | '/admin/changelog/$changelogSlug/edit/delete'
-    | '/admin/changelog/$changelogSlug/edit/publish'
-    | '/admin/feedback/$boardSlug/$feedbackSlug/edit'
-    | '/admin/feedback/$boardSlug/$feedbackSlug/edit-history'
-    | '/admin/feedback/$boardSlug/$feedbackSlug/voters'
-    | '/admin/settings/boards/$boardSlug/categories'
-    | '/admin/settings/boards/$boardSlug/create-form'
-    | '/admin/settings/boards/$boardSlug/delete'
-    | '/admin/settings/boards/$boardSlug/general'
-    | '/admin/settings/boards/$boardSlug/privacy'
-    | '/admin/settings/boards/$boardSlug/tags'
-    | '/admin/feedback/$boardSlug/$feedbackSlug/'
-    | '/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove'
-  fileRoutesById: FileRoutesById
-}
-
-export interface RootRouteChildren {
-  PublicRoute: typeof PublicRouteWithChildren
-  AdminRoute: typeof AdminRouteWithChildren
-  PasswordResetTokenRoute: typeof PasswordResetTokenRoute
-  PasswordResetIndexRoute: typeof PasswordResetIndexRoute
-}
-
 const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
   PasswordResetTokenRoute: PasswordResetTokenRoute,
   PasswordResetIndexRoute: PasswordResetIndexRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/_public",
-        "/admin",
-        "/password-reset/$token",
-        "/password-reset/"
-      ]
-    },
-    "/_public": {
-      "filePath": "_public.tsx",
-      "children": [
-        "/_public/",
-        "/_public/changelog/$changelogSlug",
-        "/_public/$boardSlug/",
-        "/_public/changelog/",
-        "/_public/$boardSlug/$feedbackSlug/edit",
-        "/_public/$boardSlug/$feedbackSlug/edit-history",
-        "/_public/$boardSlug/$feedbackSlug/voters",
-        "/_public/$boardSlug/$feedbackSlug/"
-      ]
-    },
-    "/admin": {
-      "filePath": "admin.tsx",
-      "children": [
-        "/admin/feedback",
-        "/admin/roadmap",
-        "/admin/settings",
-        "/admin/users",
-        "/admin/",
-        "/admin/changelog/create",
-        "/admin/changelog/",
-        "/admin/changelog/$changelogSlug/edit"
-      ]
-    },
-    "/admin/feedback": {
-      "filePath": "admin/feedback.tsx",
-      "parent": "/admin",
-      "children": [
-        "/admin/feedback/$boardSlug"
-      ]
-    },
-    "/admin/roadmap": {
-      "filePath": "admin/roadmap.tsx",
-      "parent": "/admin",
-      "children": [
-        "/admin/roadmap/$roadmapSlug"
-      ]
-    },
-    "/admin/settings": {
-      "filePath": "admin/settings.tsx",
-      "parent": "/admin",
-      "children": [
-        "/admin/settings/admins",
-        "/admin/settings/boards",
-        "/admin/settings/changelog",
-        "/admin/settings/company",
-        "/admin/settings/preferences",
-        "/admin/settings/profile",
-        "/admin/settings/roadmap",
-        "/admin/settings/",
-        "/admin/settings/custom-domains/"
-      ]
-    },
-    "/admin/users": {
-      "filePath": "admin/users.tsx",
-      "parent": "/admin",
-      "children": [
-        "/admin/users/$userSlug"
-      ]
-    },
-    "/password-reset/$token": {
-      "filePath": "password-reset/$token.tsx"
-    },
-    "/_public/": {
-      "filePath": "_public/index.tsx",
-      "parent": "/_public"
-    },
-    "/admin/": {
-      "filePath": "admin/index.tsx",
-      "parent": "/admin"
-    },
-    "/password-reset/": {
-      "filePath": "password-reset/index.tsx"
-    },
-    "/_public/changelog/$changelogSlug": {
-      "filePath": "_public/changelog/$changelogSlug.tsx",
-      "parent": "/_public"
-    },
-    "/admin/changelog/create": {
-      "filePath": "admin/changelog/create.tsx",
-      "parent": "/admin"
-    },
-    "/admin/feedback/$boardSlug": {
-      "filePath": "admin/feedback/$boardSlug.tsx",
-      "parent": "/admin/feedback",
-      "children": [
-        "/admin/feedback/$boardSlug/$feedbackSlug"
-      ]
-    },
-    "/admin/roadmap/$roadmapSlug": {
-      "filePath": "admin/roadmap/$roadmapSlug.tsx",
-      "parent": "/admin/roadmap",
-      "children": [
-        "/admin/roadmap/$roadmapSlug/delete",
-        "/admin/roadmap/$roadmapSlug/filter",
-        "/admin/roadmap/$roadmapSlug/new",
-        "/admin/roadmap/$roadmapSlug/rename",
-        "/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove"
-      ]
-    },
-    "/admin/settings/admins": {
-      "filePath": "admin/settings/admins.tsx",
-      "parent": "/admin/settings",
-      "children": [
-        "/admin/settings/admins/people"
-      ]
-    },
-    "/admin/settings/boards": {
-      "filePath": "admin/settings/boards.tsx",
-      "parent": "/admin/settings",
-      "children": [
-        "/admin/settings/boards/create-new",
-        "/admin/settings/boards/$boardSlug/categories",
-        "/admin/settings/boards/$boardSlug/create-form",
-        "/admin/settings/boards/$boardSlug/delete",
-        "/admin/settings/boards/$boardSlug/general",
-        "/admin/settings/boards/$boardSlug/privacy",
-        "/admin/settings/boards/$boardSlug/tags"
-      ]
-    },
-    "/admin/settings/changelog": {
-      "filePath": "admin/settings/changelog.tsx",
-      "parent": "/admin/settings",
-      "children": [
-        "/admin/settings/changelog/labels",
-        "/admin/settings/changelog/privacy"
-      ]
-    },
-    "/admin/settings/company": {
-      "filePath": "admin/settings/company.tsx",
-      "parent": "/admin/settings",
-      "children": [
-        "/admin/settings/company/branding",
-        "/admin/settings/company/delete",
-        "/admin/settings/company/preferences"
-      ]
-    },
-    "/admin/settings/preferences": {
-      "filePath": "admin/settings/preferences.tsx",
-      "parent": "/admin/settings",
-      "children": [
-        "/admin/settings/preferences/email",
-        "/admin/settings/preferences/language"
-      ]
-    },
-    "/admin/settings/profile": {
-      "filePath": "admin/settings/profile.tsx",
-      "parent": "/admin/settings"
-    },
-    "/admin/settings/roadmap": {
-      "filePath": "admin/settings/roadmap.tsx",
-      "parent": "/admin/settings",
-      "children": [
-        "/admin/settings/roadmap/archive",
-        "/admin/settings/roadmap/public",
-        "/admin/settings/roadmap/statuses"
-      ]
-    },
-    "/admin/users/$userSlug": {
-      "filePath": "admin/users/$userSlug.tsx",
-      "parent": "/admin/users"
-    },
-    "/_public/$boardSlug/": {
-      "filePath": "_public/$boardSlug/index.tsx",
-      "parent": "/_public"
-    },
-    "/_public/changelog/": {
-      "filePath": "_public/changelog/index.tsx",
-      "parent": "/_public"
-    },
-    "/admin/changelog/": {
-      "filePath": "admin/changelog/index.tsx",
-      "parent": "/admin"
-    },
-    "/admin/settings/": {
-      "filePath": "admin/settings/index.tsx",
-      "parent": "/admin/settings"
-    },
-    "/_public/$boardSlug/$feedbackSlug/edit": {
-      "filePath": "_public/$boardSlug/$feedbackSlug/edit.tsx",
-      "parent": "/_public"
-    },
-    "/_public/$boardSlug/$feedbackSlug/edit-history": {
-      "filePath": "_public/$boardSlug/$feedbackSlug/edit-history.tsx",
-      "parent": "/_public"
-    },
-    "/_public/$boardSlug/$feedbackSlug/voters": {
-      "filePath": "_public/$boardSlug/$feedbackSlug/voters.tsx",
-      "parent": "/_public"
-    },
-    "/admin/changelog/$changelogSlug/edit": {
-      "filePath": "admin/changelog/$changelogSlug.edit.tsx",
-      "parent": "/admin",
-      "children": [
-        "/admin/changelog/$changelogSlug/edit/delete",
-        "/admin/changelog/$changelogSlug/edit/publish"
-      ]
-    },
-    "/admin/feedback/$boardSlug/$feedbackSlug": {
-      "filePath": "admin/feedback/$boardSlug/$feedbackSlug.tsx",
-      "parent": "/admin/feedback/$boardSlug",
-      "children": [
-        "/admin/feedback/$boardSlug/$feedbackSlug/edit",
-        "/admin/feedback/$boardSlug/$feedbackSlug/edit-history",
-        "/admin/feedback/$boardSlug/$feedbackSlug/voters",
-        "/admin/feedback/$boardSlug/$feedbackSlug/"
-      ]
-    },
-    "/admin/roadmap/$roadmapSlug/delete": {
-      "filePath": "admin/roadmap/$roadmapSlug.delete.tsx",
-      "parent": "/admin/roadmap/$roadmapSlug"
-    },
-    "/admin/roadmap/$roadmapSlug/filter": {
-      "filePath": "admin/roadmap/$roadmapSlug.filter.tsx",
-      "parent": "/admin/roadmap/$roadmapSlug"
-    },
-    "/admin/roadmap/$roadmapSlug/new": {
-      "filePath": "admin/roadmap/$roadmapSlug.new.tsx",
-      "parent": "/admin/roadmap/$roadmapSlug"
-    },
-    "/admin/roadmap/$roadmapSlug/rename": {
-      "filePath": "admin/roadmap/$roadmapSlug.rename.tsx",
-      "parent": "/admin/roadmap/$roadmapSlug"
-    },
-    "/admin/settings/admins/people": {
-      "filePath": "admin/settings/admins.people.tsx",
-      "parent": "/admin/settings/admins"
-    },
-    "/admin/settings/boards/create-new": {
-      "filePath": "admin/settings/boards.create-new.tsx",
-      "parent": "/admin/settings/boards"
-    },
-    "/admin/settings/changelog/labels": {
-      "filePath": "admin/settings/changelog.labels.tsx",
-      "parent": "/admin/settings/changelog"
-    },
-    "/admin/settings/changelog/privacy": {
-      "filePath": "admin/settings/changelog.privacy.tsx",
-      "parent": "/admin/settings/changelog"
-    },
-    "/admin/settings/company/branding": {
-      "filePath": "admin/settings/company.branding.tsx",
-      "parent": "/admin/settings/company"
-    },
-    "/admin/settings/company/delete": {
-      "filePath": "admin/settings/company.delete.tsx",
-      "parent": "/admin/settings/company"
-    },
-    "/admin/settings/company/preferences": {
-      "filePath": "admin/settings/company.preferences.tsx",
-      "parent": "/admin/settings/company"
-    },
-    "/admin/settings/preferences/email": {
-      "filePath": "admin/settings/preferences.email.tsx",
-      "parent": "/admin/settings/preferences"
-    },
-    "/admin/settings/preferences/language": {
-      "filePath": "admin/settings/preferences.language.tsx",
-      "parent": "/admin/settings/preferences"
-    },
-    "/admin/settings/roadmap/archive": {
-      "filePath": "admin/settings/roadmap.archive.tsx",
-      "parent": "/admin/settings/roadmap"
-    },
-    "/admin/settings/roadmap/public": {
-      "filePath": "admin/settings/roadmap.public.tsx",
-      "parent": "/admin/settings/roadmap"
-    },
-    "/admin/settings/roadmap/statuses": {
-      "filePath": "admin/settings/roadmap.statuses.tsx",
-      "parent": "/admin/settings/roadmap"
-    },
-    "/_public/$boardSlug/$feedbackSlug/": {
-      "filePath": "_public/$boardSlug/$feedbackSlug/index.tsx",
-      "parent": "/_public"
-    },
-    "/admin/settings/custom-domains/": {
-      "filePath": "admin/settings/custom-domains.index.tsx",
-      "parent": "/admin/settings"
-    },
-    "/admin/changelog/$changelogSlug/edit/delete": {
-      "filePath": "admin/changelog/$changelogSlug.edit.delete.tsx",
-      "parent": "/admin/changelog/$changelogSlug/edit"
-    },
-    "/admin/changelog/$changelogSlug/edit/publish": {
-      "filePath": "admin/changelog/$changelogSlug.edit.publish.tsx",
-      "parent": "/admin/changelog/$changelogSlug/edit"
-    },
-    "/admin/feedback/$boardSlug/$feedbackSlug/edit": {
-      "filePath": "admin/feedback/$boardSlug/$feedbackSlug/edit.tsx",
-      "parent": "/admin/feedback/$boardSlug/$feedbackSlug"
-    },
-    "/admin/feedback/$boardSlug/$feedbackSlug/edit-history": {
-      "filePath": "admin/feedback/$boardSlug/$feedbackSlug/edit-history.tsx",
-      "parent": "/admin/feedback/$boardSlug/$feedbackSlug"
-    },
-    "/admin/feedback/$boardSlug/$feedbackSlug/voters": {
-      "filePath": "admin/feedback/$boardSlug/$feedbackSlug/voters.tsx",
-      "parent": "/admin/feedback/$boardSlug/$feedbackSlug"
-    },
-    "/admin/settings/boards/$boardSlug/categories": {
-      "filePath": "admin/settings/boards.$boardSlug.categories.tsx",
-      "parent": "/admin/settings/boards"
-    },
-    "/admin/settings/boards/$boardSlug/create-form": {
-      "filePath": "admin/settings/boards.$boardSlug.create-form.tsx",
-      "parent": "/admin/settings/boards"
-    },
-    "/admin/settings/boards/$boardSlug/delete": {
-      "filePath": "admin/settings/boards.$boardSlug.delete.tsx",
-      "parent": "/admin/settings/boards"
-    },
-    "/admin/settings/boards/$boardSlug/general": {
-      "filePath": "admin/settings/boards.$boardSlug.general.tsx",
-      "parent": "/admin/settings/boards"
-    },
-    "/admin/settings/boards/$boardSlug/privacy": {
-      "filePath": "admin/settings/boards.$boardSlug.privacy.tsx",
-      "parent": "/admin/settings/boards"
-    },
-    "/admin/settings/boards/$boardSlug/tags": {
-      "filePath": "admin/settings/boards.$boardSlug.tags.tsx",
-      "parent": "/admin/settings/boards"
-    },
-    "/admin/feedback/$boardSlug/$feedbackSlug/": {
-      "filePath": "admin/feedback/$boardSlug/$feedbackSlug/index.tsx",
-      "parent": "/admin/feedback/$boardSlug/$feedbackSlug"
-    },
-    "/admin/roadmap/$roadmapSlug/$boardSlug/$feedbackSlug/$feedbackId/remove": {
-      "filePath": "admin/roadmap/$roadmapSlug.$boardSlug.$feedbackSlug.$feedbackId.remove.tsx",
-      "parent": "/admin/roadmap/$roadmapSlug"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

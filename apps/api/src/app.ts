@@ -32,7 +32,12 @@ async function initializeCorsOrigins(): Promise<string[]> {
     (domain) => `https://${domain.domain}`
   );
 
-  return [...domains, "https://supaboard.io", "http://localhost:3000"];
+  return [
+    ...domains,
+    "https://supaboard.io",
+    "http://localhost:3000",
+    "https://app.supaboard.io",
+  ];
 }
 
 /**
@@ -70,6 +75,31 @@ async function createApp(): Promise<Application> {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
+
+  // Health check endpoint
+  app.get("/health", async (_, res) => {
+    try {
+      // Test database connectivity
+      await db.$queryRaw`SELECT 1`;
+
+      res.status(200).json({
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || "development",
+        database: "connected",
+      });
+    } catch (error) {
+      res.status(503).json({
+        status: "unhealthy",
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || "development",
+        database: "disconnected",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
 
   // Basic route (temporary)
   app.get("/hello", (_, res) => {
