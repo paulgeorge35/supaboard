@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
+import { ErrorBoundary } from "./components";
 import UpdatePrompt from "./components/update-prompt";
 import { routeTree } from "./routeTree.gen";
 import { initializeModals } from "./utils/modal";
@@ -31,10 +32,12 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <UpdatePrompt />
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <UpdatePrompt />
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </ErrorBoundary>
     </StrictMode>
   );
 }
