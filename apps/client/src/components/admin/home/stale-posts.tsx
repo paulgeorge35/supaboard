@@ -1,6 +1,5 @@
 import { Icons, StatusBadge, VoteButton } from "@/components";
 import { fetchClient } from "@/lib/client";
-import { Status } from "@/lib/query";
 import {
   queryOptions,
   useMutation,
@@ -16,7 +15,7 @@ type StalePostsQueryData = {
   title: string;
   slug: string;
   boardSlug: string;
-  status: Status;
+  status: string;
   createdAt: Date;
   lastActivityAt: Date;
   votes: number;
@@ -100,7 +99,7 @@ export function StalePosts() {
                 {post.title}
               </p>
               <span className="horizontal center-v gap-2">
-                <StatusBadge status={post.status.slug} variant="text" />
+                <StatusBadge status={post.status} variant="text" />
                 <p className="horizontal center-v gap-1 text-xs font-medium uppercase text-red-500 [&>svg]:stroke-red-500">
                   <Icons.Clock className="size-3" />
                   {DateTime.now()
