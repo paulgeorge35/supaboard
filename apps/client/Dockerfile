@@ -12,5 +12,8 @@ RUN bun install --use-workspaces
 # Expose the dev server port
 EXPOSE 4173
 
-# Start the Vite dev server for @repo/client
-CMD ["bun", "run", "--filter", "@repo/client", "dev"]
+# Build the application first
+RUN bun run --filter "@repo/client" build
+
+# Start the Vite preview server for @repo/client
+CMD ["bun", "run", "--filter", "@repo/client", "serve"]
