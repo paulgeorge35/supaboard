@@ -46,15 +46,15 @@ const vendorChunks = {
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => ({
   plugins: [
+    tanstackRouter({
+      autoCodeSplitting: true,
+    }),
     react({
       jsxRuntime: "automatic",
       jsxImportSource: "react",
       babel: {
         plugins: [["@babel/plugin-syntax-dynamic-import"]],
       },
-    }),
-    tanstackRouter({
-      autoCodeSplitting: true,
     }),
     tailwindcss(),
     VitePWA({
