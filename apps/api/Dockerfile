@@ -14,7 +14,7 @@ COPY . .
 RUN bun install --use-workspaces
 
 # Generate Prisma client without SQL validation (for build)
-ENV DATABASE_URL="postgres://postgres:FnbwvTDtZyp42DJuPSfYTmuKWfOt3y5EnN6iWetDbP2b2wGJVE9CNAViiX4MkgN1@ockkkwswg80cks0g480sgw4c:5432/postgres?connection_limit=20&pool_timeout=20"
+ENV DATABASE_URL="postgres://postgres:FnbwvTDtZyp42DJuPSfYTmuKWfOt3y5EnN6iWetDbP2b2wGJVE9CNAViiX4MkgN1@ockkkwswg80cks0g480sgw4c:5432/supaboard?connection_limit=20&pool_timeout=20"
 RUN cd packages/database && bunx prisma generate
 
 # Build database package first
