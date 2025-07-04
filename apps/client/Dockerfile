@@ -1,26 +1,16 @@
-# --- Build stage ---
-FROM oven/bun:1.2.18 AS builder
+# --- Dev stage ---
+FROM oven/bun:1.2.18
 
 WORKDIR /app
 
-# Copy entire repo (including packages, apps)
+# Copy entire monorepo (or only needed dirs if you want)
 COPY . .
 
-# Install deps with workspace linking
+# Install deps
 RUN bun install --use-workspaces
 
-# Build your client app
-RUN bun run --filter @repo/client build
-
-# --- Serve stage ---
-FROM node:20-alpine AS runner
-
-RUN npm install -g serve
-
-WORKDIR /app
-
-COPY --from=builder /app/apps/client/dist ./dist
-
+# Expose the dev server port
 EXPOSE 4173
 
-CMD ["serve", "-s", "dist", "-l", "4173"]
+# Start the Vite dev server for @repo/client
+CMD ["bun", "run", "--filter", "@repo/client", "dev"]
