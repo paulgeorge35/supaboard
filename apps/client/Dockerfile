@@ -6,8 +6,11 @@ WORKDIR /app
 # Copy entire monorepo (or only needed dirs if you want)
 COPY . .
 
-# Install deps
-RUN bun install --use-workspaces
+# Install deps and curl for healthcheck
+RUN bun install --use-workspaces && \
+    apt-get update && \
+    apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Expose the dev server port
 EXPOSE 4173
