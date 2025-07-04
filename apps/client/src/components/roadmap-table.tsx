@@ -1,15 +1,24 @@
 import { Skeleton } from "@/components/skeleton";
-import { useFocus, useMediaQuery, useNumber } from "@/hooks";
 import {
   useAddNewRoadmapItemMutation,
+  useBulkAddTagsMutation,
+  useBulkAddToRoadmapMutation,
+  useBulkChangeCategoryMutation,
+  useBulkChangeOwnerMutation,
+  useBulkMoveToBoardMutation,
   useExportRoadmapItemsMutation,
   useUpdateRoadmapItemMutation,
 } from "@/lib/mutation/roadmap";
 import { applicationBoardsQuery } from "@/lib/query";
+import { membersQuery } from "@/lib/query/application";
 import type { RoadmapDetailResponse } from "@/lib/query/roadmap";
+import { roadmapsQuery } from "@/lib/query/roadmap";
 import { cn } from "@/lib/utils";
 import { Route } from "@/routes/admin/roadmap/$roadmapSlug";
+import { categoriesQuery } from "@/routes/admin/settings/boards.$boardSlug.categories";
+import { tagsQuery } from "@/routes/admin/settings/boards.$boardSlug.tags";
 import { RoadmapField, useRoadmapStore } from "@/stores/roadmap-store";
+import { useFocus, useMediaQuery, useNumber } from "@paulgeorge35/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams, useRouter, useSearch } from "@tanstack/react-router";
 import {
@@ -29,6 +38,7 @@ import { Button } from "./button";
 import { Checkbox } from "./checkbox";
 import { Icons } from "./icons";
 import { Input } from "./input";
+import { ModalComponent } from "./modal-component";
 import { SelectComponent } from "./select-v2";
 import { StatusBadge } from "./status-badge";
 import { Tooltip } from "./tooltip-content";
@@ -564,9 +574,57 @@ const SelectionDock = React.memo(
     const isMultipleBoards = uniqueBoards.size > 1;
     const { roadmapSlug } = useParams({ from: "/admin/roadmap/$roadmapSlug" });
 
+    // Dialog states
+    const [showAddToRoadmapDialog, setShowAddToRoadmapDialog] = useState(false);
+    const [showMoveToBoardDialog, setShowMoveToBoardDialog] = useState(false);
+    const [showChangeOwnerDialog, setShowChangeOwnerDialog] = useState(false);
+    const [showChangeCategoryDialog, setShowChangeCategoryDialog] =
+      useState(false);
+    const [showAddTagsDialog, setShowAddTagsDialog] = useState(false);
+
     const { mutate: exportRoadmapItems } = useExportRoadmapItemsMutation({
       onSuccess: () => {
         toast.success("Posts exported successfully");
+        onClear();
+      },
+    });
+
+    const { mutate: bulkAddToRoadmap } = useBulkAddToRoadmapMutation({
+      roadmapSlug,
+      onSuccess: () => {
+        toast.success("Posts added to roadmap successfully");
+        onClear();
+      },
+    });
+
+    const { mutate: bulkMoveToBoard } = useBulkMoveToBoardMutation({
+      roadmapSlug,
+      onSuccess: () => {
+        toast.success("Posts moved to board successfully");
+        onClear();
+      },
+    });
+
+    const { mutate: bulkChangeOwner } = useBulkChangeOwnerMutation({
+      roadmapSlug,
+      onSuccess: () => {
+        toast.success("Owner changed successfully");
+        onClear();
+      },
+    });
+
+    const { mutate: bulkChangeCategory } = useBulkChangeCategoryMutation({
+      roadmapSlug,
+      onSuccess: () => {
+        toast.success("Category changed successfully");
+        onClear();
+      },
+    });
+
+    const { mutate: bulkAddTags } = useBulkAddTagsMutation({
+      roadmapSlug,
+      onSuccess: () => {
+        toast.success("Tags added successfully");
         onClear();
       },
     });
@@ -597,32 +655,38 @@ const SelectionDock = React.memo(
                 </Button>
               </span>
             </Tooltip>
-            <Tooltip content="Add to roadmap (coming soon)">
-              <span>
-                <Button variant="outline" size="icon" disabled>
-                  <Icons.Map className="size-4" />
-                </Button>
-              </span>
+            <Tooltip content="Add to roadmap">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowAddToRoadmapDialog(true)}
+              >
+                <Icons.Map className="size-4" />
+              </Button>
             </Tooltip>
-            <Tooltip content="Move to board (coming soon)">
-              <span>
-                <Button variant="outline" size="icon" disabled>
-                  <Icons.ClipboardPaste className="size-4" />
-                </Button>
-              </span>
+            <Tooltip content="Move to board">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowMoveToBoardDialog(true)}
+              >
+                <Icons.ClipboardPaste className="size-4" />
+              </Button>
             </Tooltip>
-            <Tooltip content="Change owner (coming soon)">
-              <span>
-                <Button variant="outline" size="icon" disabled>
-                  <Icons.User className="size-4" />
-                </Button>
-              </span>
+            <Tooltip content="Change owner">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowChangeOwnerDialog(true)}
+              >
+                <Icons.User className="size-4" />
+              </Button>
             </Tooltip>
             <Tooltip
               content={
                 isMultipleBoards
                   ? "You can only perform this action with posts from one board selected."
-                  : "Change category (coming soon)"
+                  : "Change category"
               }
             >
               <span>
@@ -630,6 +694,7 @@ const SelectionDock = React.memo(
                   variant="outline"
                   size="icon"
                   disabled={isMultipleBoards}
+                  onClick={() => setShowChangeCategoryDialog(true)}
                 >
                   <Icons.LayoutGrid className="size-4" />
                 </Button>
@@ -639,7 +704,7 @@ const SelectionDock = React.memo(
               content={
                 isMultipleBoards
                   ? "You can only perform this action with posts from one board selected."
-                  : "Add tags (coming soon)"
+                  : "Add tags"
               }
             >
               <span>
@@ -647,6 +712,7 @@ const SelectionDock = React.memo(
                   variant="outline"
                   size="icon"
                   disabled={isMultipleBoards}
+                  onClick={() => setShowAddTagsDialog(true)}
                 >
                   <Icons.Tag className="size-4" />
                 </Button>
@@ -672,12 +738,376 @@ const SelectionDock = React.memo(
             <Icons.X className="size-4" />
           </Button>
         </div>
+
+        {/* Add to Roadmap Dialog */}
+        <AddToRoadmapDialog
+          isOpen={showAddToRoadmapDialog}
+          onClose={() => setShowAddToRoadmapDialog(false)}
+          selectedItems={selectedItems}
+          onConfirm={bulkAddToRoadmap}
+        />
+
+        {/* Move to Board Dialog */}
+        <MoveToBoardDialog
+          isOpen={showMoveToBoardDialog}
+          onClose={() => setShowMoveToBoardDialog(false)}
+          selectedItems={selectedItems}
+          onConfirm={bulkMoveToBoard}
+        />
+
+        {/* Change Owner Dialog */}
+        <ChangeOwnerDialog
+          isOpen={showChangeOwnerDialog}
+          onClose={() => setShowChangeOwnerDialog(false)}
+          selectedItems={selectedItems}
+          onConfirm={bulkChangeOwner}
+        />
+
+        {/* Change Category Dialog */}
+        <ChangeCategoryDialog
+          isOpen={showChangeCategoryDialog}
+          onClose={() => setShowChangeCategoryDialog(false)}
+          selectedItems={selectedItems}
+          onConfirm={bulkChangeCategory}
+        />
+
+        {/* Add Tags Dialog */}
+        <AddTagsDialog
+          isOpen={showAddTagsDialog}
+          onClose={() => setShowAddTagsDialog(false)}
+          selectedItems={selectedItems}
+          onConfirm={bulkAddTags}
+        />
       </motion.div>
     );
   }
 );
 
 SelectionDock.displayName = "SelectionDock";
+
+// Dialog Components
+interface AddToRoadmapDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  selectedItems: RoadmapItem[];
+  onConfirm: (data: { feedbackIds: string[]; roadmapId: string }) => void;
+}
+
+const AddToRoadmapDialog = React.memo(
+  ({ isOpen, onClose, selectedItems, onConfirm }: AddToRoadmapDialogProps) => {
+    const [selectedRoadmapId, setSelectedRoadmapId] = useState<string>("");
+    const { data: roadmaps } = useQuery(roadmapsQuery);
+
+    const handleConfirm = () => {
+      if (selectedRoadmapId) {
+        onConfirm({
+          feedbackIds: selectedItems.map((item) => item.id),
+          roadmapId: selectedRoadmapId,
+        });
+        onClose();
+      }
+    };
+
+    return (
+      <ModalComponent isOpen={isOpen} onClose={onClose}>
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Add to Roadmap</h2>
+          <p className="text-sm text-gray-600 dark:text-zinc-400">
+            Add {selectedItems.length} selected{" "}
+            {selectedItems.length === 1 ? "post" : "posts"} to a roadmap.
+          </p>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Select Roadmap</label>
+            <SelectComponent
+              options={
+                roadmaps?.map((roadmap) => ({
+                  label: roadmap.name,
+                  value: roadmap.id,
+                })) ?? []
+              }
+              value={selectedRoadmapId}
+              onChange={(value) => setSelectedRoadmapId(value as string)}
+              placeholder="Choose a roadmap..."
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirm} disabled={!selectedRoadmapId}>
+              Add to Roadmap
+            </Button>
+          </div>
+        </div>
+      </ModalComponent>
+    );
+  }
+);
+
+AddToRoadmapDialog.displayName = "AddToRoadmapDialog";
+
+interface MoveToBoardDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  selectedItems: RoadmapItem[];
+  onConfirm: (data: { feedbackIds: string[]; boardSlug: string }) => void;
+}
+
+const MoveToBoardDialog = React.memo(
+  ({ isOpen, onClose, selectedItems, onConfirm }: MoveToBoardDialogProps) => {
+    const [selectedBoardSlug, setSelectedBoardSlug] = useState<string>("");
+    const { data: boards } = useQuery(applicationBoardsQuery);
+
+    const handleConfirm = () => {
+      if (selectedBoardSlug) {
+        onConfirm({
+          feedbackIds: selectedItems.map((item) => item.id),
+          boardSlug: selectedBoardSlug,
+        });
+        onClose();
+      }
+    };
+
+    return (
+      <ModalComponent isOpen={isOpen} onClose={onClose}>
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Move to Board</h2>
+          <p className="text-sm text-gray-600 dark:text-zinc-400">
+            Move {selectedItems.length} selected{" "}
+            {selectedItems.length === 1 ? "post" : "posts"} to a different
+            board.
+          </p>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Select Board</label>
+            <SelectComponent
+              options={
+                boards?.map((board) => ({
+                  label: board.name,
+                  value: board.slug,
+                })) ?? []
+              }
+              value={selectedBoardSlug}
+              onChange={(value) => setSelectedBoardSlug(value as string)}
+              placeholder="Choose a board..."
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirm} disabled={!selectedBoardSlug}>
+              Move to Board
+            </Button>
+          </div>
+        </div>
+      </ModalComponent>
+    );
+  }
+);
+
+MoveToBoardDialog.displayName = "MoveToBoardDialog";
+
+interface ChangeOwnerDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  selectedItems: RoadmapItem[];
+  onConfirm: (data: { feedbackIds: string[]; newOwnerId: string }) => void;
+}
+
+const ChangeOwnerDialog = React.memo(
+  ({ isOpen, onClose, selectedItems, onConfirm }: ChangeOwnerDialogProps) => {
+    const [selectedOwnerId, setSelectedOwnerId] = useState<string>("");
+    const { data: members } = useQuery(membersQuery);
+
+    const handleConfirm = () => {
+      if (selectedOwnerId) {
+        onConfirm({
+          feedbackIds: selectedItems.map((item) => item.id),
+          newOwnerId: selectedOwnerId,
+        });
+        onClose();
+      }
+    };
+
+    return (
+      <ModalComponent isOpen={isOpen} onClose={onClose}>
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Change Owner</h2>
+          <p className="text-sm text-gray-600 dark:text-zinc-400">
+            Change the owner of {selectedItems.length} selected{" "}
+            {selectedItems.length === 1 ? "post" : "posts"}.
+          </p>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Select Owner</label>
+            <SelectComponent
+              options={
+                members?.map((member) => ({
+                  label: member.user.name,
+                  value: member.user.id,
+                })) ?? []
+              }
+              value={selectedOwnerId}
+              onChange={(value) => setSelectedOwnerId(value as string)}
+              placeholder="Choose an owner..."
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirm} disabled={!selectedOwnerId}>
+              Change Owner
+            </Button>
+          </div>
+        </div>
+      </ModalComponent>
+    );
+  }
+);
+
+ChangeOwnerDialog.displayName = "ChangeOwnerDialog";
+
+interface ChangeCategoryDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  selectedItems: RoadmapItem[];
+  onConfirm: (data: { feedbackIds: string[]; newCategoryId: string }) => void;
+}
+
+const ChangeCategoryDialog = React.memo(
+  ({
+    isOpen,
+    onClose,
+    selectedItems,
+    onConfirm,
+  }: ChangeCategoryDialogProps) => {
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+    const boardSlug = selectedItems[0]?.board?.slug;
+    const { data: categories } = useQuery(
+      categoriesQuery(boardSlug ?? "", undefined, true)
+    );
+
+    const handleConfirm = () => {
+      if (selectedCategoryId) {
+        onConfirm({
+          feedbackIds: selectedItems.map((item) => item.id),
+          newCategoryId: selectedCategoryId,
+        });
+        onClose();
+      }
+    };
+
+    return (
+      <ModalComponent isOpen={isOpen} onClose={onClose}>
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Change Category</h2>
+          <p className="text-sm text-gray-600 dark:text-zinc-400">
+            Change the category of {selectedItems.length} selected{" "}
+            {selectedItems.length === 1 ? "post" : "posts"}.
+          </p>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Select Category</label>
+            <SelectComponent
+              options={
+                categories?.map((category) => ({
+                  label: category.name,
+                  value: category.id,
+                })) ?? []
+              }
+              value={selectedCategoryId}
+              onChange={(value) => setSelectedCategoryId(value as string)}
+              placeholder="Choose a category..."
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirm} disabled={!selectedCategoryId}>
+              Change Category
+            </Button>
+          </div>
+        </div>
+      </ModalComponent>
+    );
+  }
+);
+
+ChangeCategoryDialog.displayName = "ChangeCategoryDialog";
+
+interface AddTagsDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  selectedItems: RoadmapItem[];
+  onConfirm: (data: { feedbackIds: string[]; tagIds: string[] }) => void;
+}
+
+const AddTagsDialog = React.memo(
+  ({ isOpen, onClose, selectedItems, onConfirm }: AddTagsDialogProps) => {
+    const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+    const boardSlug = selectedItems[0]?.board?.slug;
+    const { data: tags } = useQuery(
+      tagsQuery(boardSlug ?? "", undefined, true)
+    );
+
+    const handleConfirm = () => {
+      if (selectedTagIds.length > 0) {
+        onConfirm({
+          feedbackIds: selectedItems.map((item) => item.id),
+          tagIds: selectedTagIds,
+        });
+        onClose();
+      }
+    };
+
+    return (
+      <ModalComponent isOpen={isOpen} onClose={onClose}>
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Add Tags</h2>
+          <p className="text-sm text-gray-600 dark:text-zinc-400">
+            Add tags to {selectedItems.length} selected{" "}
+            {selectedItems.length === 1 ? "post" : "posts"}.
+          </p>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Select Tags</label>
+            <div className="max-h-48 overflow-y-auto space-y-2">
+              {tags?.map((tag) => (
+                <label key={tag.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={selectedTagIds.includes(tag.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedTagIds((prev) => [...prev, tag.id]);
+                      } else {
+                        setSelectedTagIds((prev) =>
+                          prev.filter((id) => id !== tag.id)
+                        );
+                      }
+                    }}
+                  />
+                  <span className="text-sm">{tag.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirm}
+              disabled={selectedTagIds.length === 0}
+            >
+              Add Tags
+            </Button>
+          </div>
+        </div>
+      </ModalComponent>
+    );
+  }
+);
+
+AddTagsDialog.displayName = "AddTagsDialog";
 
 export function RoadmapTable({ items }: RoadmapTableProps) {
   const visibleFields = useRoadmapStore((state) => state.visibleFields);

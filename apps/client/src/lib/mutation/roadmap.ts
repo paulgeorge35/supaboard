@@ -536,3 +536,125 @@ export const useExportRoadmapItemsMutation = ({ onSuccess }: UseExportRoadmapIte
         },
     });
 }
+
+type UseBulkAddToRoadmapMutationProps = {
+    onSuccess?: () => void;
+    roadmapSlug?: string;
+}
+
+export const useBulkAddToRoadmapMutation = ({ onSuccess, roadmapSlug }: UseBulkAddToRoadmapMutationProps) => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: async ({ feedbackIds, roadmapId }: { feedbackIds: string[], roadmapId: string }) => 
+            fetchClient(`/roadmap/action/add-feedbacks-to-roadmap`, {
+                method: 'POST',
+                body: JSON.stringify({ feedbackIds, roadmapId }),
+            }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: roadmapsQuery.queryKey });
+            if (roadmapSlug) {
+                queryClient.invalidateQueries({ queryKey: roadmapQuery(roadmapSlug).queryKey });
+            }
+            onSuccess?.();
+        },
+    });
+}
+
+type UseBulkMoveToBoardMutationProps = {
+    onSuccess?: () => void;
+    roadmapSlug?: string;
+}
+
+export const useBulkMoveToBoardMutation = ({ onSuccess, roadmapSlug }: UseBulkMoveToBoardMutationProps) => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: async ({ feedbackIds, boardSlug }: { feedbackIds: string[], boardSlug: string }) => 
+            fetchClient(`/roadmap/action/move-feedbacks-to-board`, {
+                method: 'POST',
+                body: JSON.stringify({ feedbackIds, boardSlug }),
+            }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: applicationBoardsQuery.queryKey });
+            if (roadmapSlug) {
+                queryClient.invalidateQueries({ queryKey: roadmapQuery(roadmapSlug).queryKey });
+            }
+            onSuccess?.();
+        },
+    });
+}
+
+type UseBulkChangeOwnerMutationProps = {
+    onSuccess?: () => void;
+    roadmapSlug?: string;
+}
+
+export const useBulkChangeOwnerMutation = ({ onSuccess, roadmapSlug }: UseBulkChangeOwnerMutationProps) => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: async ({ feedbackIds, newOwnerId }: { feedbackIds: string[], newOwnerId: string }) => 
+            fetchClient(`/roadmap/action/change-owner`, {
+                method: 'POST',
+                body: JSON.stringify({ feedbackIds, newOwnerId }),
+            }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: roadmapsQuery.queryKey });
+            if (roadmapSlug) {
+                queryClient.invalidateQueries({ queryKey: roadmapQuery(roadmapSlug).queryKey });
+            }
+            onSuccess?.();
+        },
+    });
+}
+
+type UseBulkChangeCategoryMutationProps = {
+    onSuccess?: () => void;
+    roadmapSlug?: string;
+}
+
+export const useBulkChangeCategoryMutation = ({ onSuccess, roadmapSlug }: UseBulkChangeCategoryMutationProps) => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: async ({ feedbackIds, newCategoryId }: { feedbackIds: string[], newCategoryId: string }) => 
+            fetchClient(`/roadmap/action/change-category`, {
+                method: 'POST',
+                body: JSON.stringify({ feedbackIds, newCategoryId }),
+            }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: roadmapsQuery.queryKey });
+            if (roadmapSlug) {
+                queryClient.invalidateQueries({ queryKey: roadmapQuery(roadmapSlug).queryKey });
+            }
+            onSuccess?.();
+        },
+    });
+}
+
+type UseBulkAddTagsMutationProps = {
+    onSuccess?: () => void;
+    roadmapSlug?: string;
+}
+
+export const useBulkAddTagsMutation = ({ onSuccess, roadmapSlug }: UseBulkAddTagsMutationProps) => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: async ({ feedbackIds, tagIds }: { feedbackIds: string[], tagIds: string[] }) => 
+            fetchClient(`/roadmap/action/add-tags-to-feedbacks`, {
+                method: 'POST',
+                body: JSON.stringify({ feedbackIds, tagIds }),
+            }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: roadmapsQuery.queryKey });
+            if (roadmapSlug) {
+                queryClient.invalidateQueries({ queryKey: roadmapQuery(roadmapSlug).queryKey });
+            }
+            onSuccess?.();
+        },
+    });
+}
+
+
