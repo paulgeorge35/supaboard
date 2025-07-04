@@ -39,7 +39,7 @@ export async function verify(token: string): Promise<boolean> {
 export const cookieOptions: CookieOptions = {
   httpOnly: true,
   domain: `.${APP_DOMAIN}`,
-  secure: process.env.NODE_ENV !== "development",
+  secure: true,
   maxAge: 60 * 60 * 24 * 30, // 30 days
   path: "/",
   // sameSite: "lax",
