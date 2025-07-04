@@ -35,6 +35,11 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8000
 
+# Install OpenSSL for Prisma runtime
+RUN apt-get update -y && \
+    apt-get install -y openssl && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Create a non-root user (bun user might already exist in the base image)
 RUN addgroup -g 1001 -S nodejs || true
 RUN adduser -S -D -H -h /app -s /bin/sh -u 1001 -G nodejs bun || true
