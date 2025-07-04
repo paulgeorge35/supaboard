@@ -35,9 +35,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8000
 
-# Install OpenSSL for Prisma runtime
+# Install OpenSSL and curl for Prisma runtime and health checks
 RUN apt-get update -y && \
-    apt-get install -y openssl && \
+    apt-get install -y openssl curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user (bun user might already exist in the base image)
@@ -58,5 +58,9 @@ RUN echo "NODE_ENV=production" > ./packages/database/.env
 USER bun
 
 EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD bun --version && curl -f http://localhost:8000/health || exit 1
 
 CMD ["bun", "run", "apps/api/dist/index.js"] 
