@@ -47,6 +47,9 @@ COPY --from=builder --chown=bun:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=bun:nodejs /app/bun.lock ./bun.lock
 COPY --from=builder --chown=bun:nodejs /app/node_modules ./node_modules
 
+# Create .env file in packages/database
+RUN echo "NODE_ENV=production" > ./packages/database/.env
+
 USER bun
 
 EXPOSE 8000
