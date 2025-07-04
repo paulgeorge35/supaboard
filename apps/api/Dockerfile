@@ -51,4 +51,4 @@ USER bun
 
 EXPOSE 8000
 
-CMD ["bun", "run", "start"] 
+CMD ["bun", "run", "apps/api/dist/index.js"] 
