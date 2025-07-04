@@ -40,12 +40,8 @@ const createPrismaClient = () => {
     console.log(`Duration: ${e.duration}ms`);
   });
 
-  // Log connection pool events in development
-  if (process.env.NODE_ENV === "development") {
-    client.$on("beforeExit" as never, async () => {
-      console.log("Prisma client disconnecting...");
-    });
-  }
+  // Note: beforeExit event is not supported in Prisma 5.0.0+ with library engine
+  // Use process.on('beforeExit') instead if needed
 
   return client;
 };
