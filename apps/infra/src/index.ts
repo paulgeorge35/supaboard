@@ -218,6 +218,7 @@ const main = async () => {
       }
     }
   }
+  return;
 };
 
 console.log("🚀 Starting Supaboard Infrastructure Service...");
