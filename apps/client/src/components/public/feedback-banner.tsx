@@ -10,10 +10,14 @@ const SUPABOARD_DASHBOARD_URL = {
 };
 
 export const FeedbackBanner = () => {
+  const { application } = useAuthStore();
+  const isMainApp = !!application?.domains.find(
+    (domain) => SUPABOARD_DASHBOARD_URL.url === domain.domain
+  );
   const { dismissedFeedbackBanner, setDismissedFeedbackBanner } =
     useAuthStore();
 
-  if (dismissedFeedbackBanner) return null;
+  if (dismissedFeedbackBanner || isMainApp) return null;
 
   return (
     <div className="border border-[var(--color-primary)] bg-[var(--color-primary)]/10 rounded-lg p-4 vertical gap-2">
