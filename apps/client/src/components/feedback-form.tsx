@@ -2,6 +2,7 @@ import { fetchClient } from '@/lib/client';
 import { boardDetailedQuery } from '@/lib/query';
 import { categoriesQuery } from '@/routes/admin/settings/boards.$boardSlug.categories';
 import { useAuthStore } from '@/stores/auth-store';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from '@tanstack/react-router';
@@ -21,6 +22,7 @@ export function FeedbackForm() {
     const { boardSlug } = useParams({ from: '/_public/$boardSlug/' })
     const { data: board, isLoading } = useQuery(boardDetailedQuery(boardSlug))
     const { user } = useAuthStore()
+    const { trackForm, trackFeature, trackContent, trackClick, trackApiCall } = useAnalytics();
     const navigate = useNavigate();
     const [isExpanded, setIsExpanded] = useState(true);
 
@@ -30,14 +32,25 @@ export function FeedbackForm() {
     const { data: categories } = useQuery(categoriesQuery(boardSlug))
 
     const createFeedback = useMutation({
-        mutationFn: async (data: z.infer<typeof schema>) => await fetchClient(`/feedback/${board?.id}/create`, {
-            method: 'POST',
-            body: JSON.stringify({
-                ...data,
-                files: attachments,
+        mutationFn: async (data: z.infer<typeof schema>) => await trackApiCall(
+            () => fetchClient(`/feedback/${board?.id}/create`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    ...data,
+                    files: attachments,
+                }),
             }),
-        }),
-        onSuccess: (data) => {
+            `/feedback/${board?.id}/create`
+        ),
+        onSuccess: (data: any) => {
+            // Track successful feedback creation
+            trackContent('feedback', 'create', data.id, data.title, {
+                boardSlug,
+                categoryId: data.categoryId,
+                hasAttachments: attachments.length > 0,
+                attachmentCount: attachments.length,
+            });
+            
             toast.success('Feedback created successfully');
             setAttachments([]);
             form.reset();
@@ -49,6 +62,10 @@ export function FeedbackForm() {
                     feedbackSlug: data.slug,
                 }
             });
+        },
+        onError: (error: any) => {
+            // Track form submission error
+            trackForm('error', 'feedback-form', undefined, error.message);
         },
     });
 

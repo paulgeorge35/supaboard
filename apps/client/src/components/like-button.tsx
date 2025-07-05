@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "../lib/utils";
 import { useAuthStore } from "../stores/auth-store";
+import { useAnalytics } from "../hooks/useAnalytics";
 import { Icons } from "./icons";
 
 type LikeButtonProps = {
@@ -9,10 +10,13 @@ type LikeButtonProps = {
     likedByMe: boolean;
     like: () => void;
     isPending: boolean;
+    contentId?: string;
+    contentType?: 'feedback' | 'comment' | 'post';
 }
 
-export function LikeButton({ likes, likedByMe, like, isPending }: LikeButtonProps) {
+export function LikeButton({ likes, likedByMe, like, isPending, contentId, contentType = 'feedback' }: LikeButtonProps) {
     const { user } = useAuthStore();
+    const { trackClick, trackContent, trackFeature } = useAnalytics();
     const [showAnimation, setShowAnimation] = useState(false);
     const [prevLikedState, setPrevLikedState] = useState(likedByMe);
 
@@ -37,10 +41,23 @@ export function LikeButton({ likes, likedByMe, like, isPending }: LikeButtonProp
     const handleLike = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (isPending) return;
+        
+        // Track like button click
+        trackClick('like-button', 'engagement', likedByMe ? 'unlike' : 'like');
+        
         if (!user) {
+            // Track authentication prompt
+            trackFeature('authentication', 'prompt_required', 'like_action');
             toast.error("You must be logged in to like");
             return;
         }
+        
+        // Track content interaction
+        trackContent(contentType, likedByMe ? 'unlike' : 'like', contentId, undefined, {
+            currentLikes: likes,
+            userWasLiked: likedByMe,
+        });
+        
         like();
     }
 
