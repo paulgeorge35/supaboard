@@ -1,21 +1,41 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>supaboard | Feedback Board</title>
-    <link href="index.css" rel="stylesheet">
-    <script>
-      document.documentElement.classList.toggle(
-        "dark",
-        localStorage.currentTheme === "dark" ||
-          (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
-      );
-    </script>
-  </head>
 
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>supaboard | Feedback Board</title>
+  <link href="index.css" rel="stylesheet" />
+  <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
+  <script>
+    const path = window.location.pathname;
+
+    const isAdminRoute = path.startsWith("/admin");
+    const adminTheme = localStorage.getItem("adminCurrentTheme");
+    const userTheme = localStorage.getItem("currentTheme");
+
+    const theme =
+      isAdminRoute && adminTheme !== null
+        ? adminTheme
+        : userTheme !== null
+          ? userTheme
+          : window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+
+    document.documentElement.classList.toggle("dark", theme === "dark");
+
+    const themeColor = theme === "dark" ? "#18181b" : "#ffffff";
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute("content", themeColor);
+    }
+  </script>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
