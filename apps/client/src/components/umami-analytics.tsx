@@ -2,6 +2,7 @@ declare global {
   interface Window {
     umami?: {
       track: (eventName: string, data?: Record<string, any>) => void;
+      identify: (userId: string, data?: Record<string, any>) => void;
     };
   }
 }
@@ -86,9 +87,14 @@ export function UmamiAnalytics({ appId }: UmamiAnalyticsProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       if (window.umami) {
+        window.umami.identify(user?.id ?? "guest", {
+          name: user?.name,
+          email: user?.email,
+        });
         window.umami.track("tenant_page_view", {
-          tenant: application?.id,
-          user: user?.id ?? "guest",
+          tenantId: application?.id,
+          subdomain: application?.subdomain,
+          tenantName: application?.name,
           path: location.pathname,
         });
         clearInterval(interval);
