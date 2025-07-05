@@ -40,8 +40,9 @@ async function incrementVerificationAttempt(
   return attempts;
 }
 
-const refreshTraefik = async () => {
+const main = async () => {
   // Ensure the Traefik file exists before processing
+  console.log("🔍 Ensuring Traefik file exists...");
   await ensureTraefikFile();
 
   const domains = await sql`
@@ -226,13 +227,9 @@ console.log(`📁 Traefik dynamic config path: ${TRAEFIK_DYNAMIC_PATH}`);
 const checkFilePermissions = async () => {
   try {
     const fileExists = await Bun.file(TRAEFIK_DYNAMIC_PATH).exists();
-    if (fileExists) {
-      console.log("✅ Traefik configuration file exists");
-      // Try to write a test to verify permissions
-      await Bun.write(TRAEFIK_DYNAMIC_PATH, "# Test write\n");
-      console.log("✅ File is writable");
-    } else {
-      console.log("⚠️ Traefik configuration file does not exist yet");
+    if (!fileExists) {
+      console.error("❌ File does not exist:", TRAEFIK_DYNAMIC_PATH);
+      console.error("   Please ensure the file exists and is writable");
     }
   } catch (error) {
     console.error("❌ File permission check failed:", error);
@@ -241,11 +238,12 @@ const checkFilePermissions = async () => {
 
 // Run permission check on startup
 checkFilePermissions();
+main();
 
 CronJob.from({
   cronTime: "*/5 * * * * *",
   onTick: async () => {
-    await refreshTraefik();
+    await main();
   },
-  start: true,
+  start: false,
 });
