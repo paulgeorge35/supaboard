@@ -35,9 +35,9 @@ RUN apt-get update -y && \
     apt-get install -y openssl curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user (bun user might already exist in the base image)
-RUN addgroup -g 1001 -S nodejs || true
-RUN adduser -S -D -H -h /app -s /bin/sh -u 1001 -G nodejs bun || true
+# Create a non-root user
+RUN groupadd -g 1001 nodejs || true
+RUN useradd -r -u 1001 -g nodejs -d /app -s /bin/sh bun || true
 
 # Copy built application and packages
 COPY --from=builder --chown=bun:nodejs /app/apps/infra/dist ./apps/infra/dist
