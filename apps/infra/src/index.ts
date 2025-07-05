@@ -25,6 +25,7 @@ const refreshTraefik = async () => {
   const domains = await db.domain.findMany({
     where: {
       failedAt: null,
+      custom: true,
     },
   });
 
