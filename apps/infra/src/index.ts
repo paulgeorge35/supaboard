@@ -162,25 +162,54 @@ const refreshTraefik = async () => {
           TRAEFIK_DYNAMIC_PATH
         );
         console.error("   Expected owner: UID 1001 (bun user)");
-        console.error("   Expected permissions: 664");
+        console.error("   Expected permissions: 777 (world-writable)");
 
-        // Try to fix permissions programmatically as a fallback
+        // Try alternative approaches to write the file
         try {
+          console.log("🔧 Trying alternative write methods...");
+
+          // Method 1: Try writing to a temporary file first
+          const tempPath = `${TRAEFIK_DYNAMIC_PATH}.tmp`;
+          await Bun.write(tempPath, yamlString);
+
+          // Try to move the temp file to the target location
           const { execSync } = await import("child_process");
-          execSync(`chown 1001:1001 "${TRAEFIK_DYNAMIC_PATH}"`, {
+          execSync(`mv "${tempPath}" "${TRAEFIK_DYNAMIC_PATH}"`, {
             stdio: "pipe",
           });
-          execSync(`chmod 664 "${TRAEFIK_DYNAMIC_PATH}"`, { stdio: "pipe" });
-          console.log("🔧 Attempted to fix permissions programmatically");
 
-          // Try writing again
-          await Bun.write(TRAEFIK_DYNAMIC_PATH, yamlString);
-          console.log("✅ custom-domains.yaml updated after permission fix");
-        } catch (fixError) {
-          console.error(
-            "🔧 Could not fix permissions programmatically:",
-            fixError
+          // Also try to set permissions on the target file
+          execSync(`chmod 777 "${TRAEFIK_DYNAMIC_PATH}"`, { stdio: "pipe" });
+
+          console.log(
+            "✅ custom-domains.yaml updated using temporary file method"
           );
+        } catch (tempError) {
+          console.error("🔧 Temporary file method failed:", tempError);
+
+          // Method 2: Try using a different approach - write to stdout and redirect
+          try {
+            const { execSync } = await import("child_process");
+            execSync(
+              `echo '${yamlString.replace(/'/g, "'\"'\"'")}' > "${TRAEFIK_DYNAMIC_PATH}"`,
+              { stdio: "pipe" }
+            );
+            console.log("✅ custom-domains.yaml updated using echo method");
+          } catch (echoError) {
+            console.error("🔧 Echo method also failed:", echoError);
+
+            // Method 3: Try writing to a different location as last resort
+            try {
+              const fallbackPath = "/tmp/custom-domains.yaml";
+              await Bun.write(fallbackPath, yamlString);
+              console.log(`⚠️ Wrote to fallback location: ${fallbackPath}`);
+              console.log(
+                "⚠️ You may need to manually copy this file to the correct location"
+              );
+            } catch (fallbackError) {
+              console.error("🔧 All write methods failed:", fallbackError);
+            }
+          }
         }
       } else if (error.message.includes("ENOENT")) {
         console.error("📁 File or directory not found:", TRAEFIK_DYNAMIC_PATH);
