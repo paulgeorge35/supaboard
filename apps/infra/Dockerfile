@@ -13,13 +13,12 @@ COPY . .
 # Install deps with workspace linking
 RUN bun install --use-workspaces
 
-# Generate Prisma client without SQL validation (for build)
+# Generate Prisma TypeScript client
 ENV DATABASE_URL="postgres://postgres:FnbwvTDtZyp42DJuPSfYTmuKWfOt3y5EnN6iWetDbP2b2wGJVE9CNAViiX4MkgN1@ockkkwswg80cks0g480sgw4c:5432/supaboard?connection_limit=20&pool_timeout=20"
 RUN cd packages/database && bunx prisma generate
 
-# Build all packages first
-RUN bun run build --filter=@repo/eslint-config
-RUN bun run build --filter=@repo/typescript-config
+# Generate Prisma SQL client (requires database to be reachable)
+RUN cd packages/database && bun run prebuild
 
 # Build the infra service
 RUN bun run build --filter=@repo/infra
