@@ -6,8 +6,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "dev": "vite --host --port=4173",
-    "build": "vite build",
-    "serve": "vite --host --port=4173 preview",
+    "build": "export NODE_ENV=production && vite build",
+    "serve": "export NODE_ENV=production && vite --host --port=4173 preview",
     "start": "vite --host --port=4173"
   },
   "devDependencies": {
