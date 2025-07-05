@@ -1,4 +1,5 @@
 import { useBoolean } from "@/hooks";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { fetchClient } from "@/lib/client";
 import {
   FeedbackActivitiesQueryData,
@@ -36,6 +37,7 @@ export const CommentForm = ({
 }: CommentFormProps) => {
   const queryClient = useQueryClient();
   const { user, application } = useAuthStore();
+  const { trackForm, trackContent, trackFeature, trackApiCall } = useAnalytics();
   const [content, setContent] = useState("");
   const [attachments, setAttachments] = useState<ImageFile[]>([]);
   const expanded = useBoolean(false);
@@ -50,15 +52,18 @@ export const CommentForm = ({
       content: string;
       mention?: string;
     }) =>
-      await fetchClient(`feedback/${boardSlug}/${feedbackSlug}/comment`, {
-        method: "POST",
-        body: JSON.stringify({
-          content,
-          files: attachments,
-          threadId,
-          mention,
+      await trackApiCall(
+        () => fetchClient(`feedback/${boardSlug}/${feedbackSlug}/comment`, {
+          method: "POST",
+          body: JSON.stringify({
+            content,
+            files: attachments,
+            threadId,
+            mention,
+          }),
         }),
-      }),
+        `feedback/${boardSlug}/${feedbackSlug}/comment`
+      ),
     onMutate: ({ content, mention }) => {
       queryClient.cancelQueries({
         queryKey: ["feedback", "activities", boardSlug, feedbackSlug],
@@ -158,13 +163,28 @@ export const CommentForm = ({
 
       return { previousActivities };
     },
-    onError: (_, __, context) => {
+    onError: (error: any, __, context) => {
       queryClient.setQueryData<FeedbackActivitiesQueryData>(
         ["feedback", "activities", boardSlug, feedbackSlug],
         context?.previousActivities
       );
+      
+      // Track comment submission error
+      trackForm('error', 'comment-form', undefined, error.message);
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      // Track successful comment creation
+      trackContent('comment', 'create', data?.id, undefined, {
+        boardSlug,
+        feedbackSlug,
+        isReply,
+        threadId,
+        hasMention: !!variables.mention,
+        hasAttachments: attachments.length > 0,
+        attachmentCount: attachments.length,
+        contentLength: variables.content.length,
+      });
+      
       setContent("");
       setAttachments([]);
       resetReply?.();
@@ -196,6 +216,15 @@ export const CommentForm = ({
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
+    
+    // Track file attachment
+    trackFeature('file-upload', 'add_attachment', files.length, {
+      fileTypes: files.map(f => f.type),
+      totalSize: files.reduce((sum, f) => sum + f.size, 0),
+      context: 'comment-form',
+      isReply,
+    });
+    
     setAttachments([
       ...attachments,
       ...files.map((file) => ({
@@ -258,9 +287,15 @@ export const CommentForm = ({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             wrapperClassName={cn("", { "col-start-2": isReply })}
-            onFocus={expanded.setTrue}
+            onFocus={() => {
+              // Track comment form focus
+              trackForm('focus', 'comment-form', isReply ? 'reply' : 'comment');
+              expanded.setTrue();
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && e.metaKey && !isCommentDisabled) {
+                // Track keyboard shortcut usage
+                trackFeature('keyboard-shortcut', 'comment-submit', 'cmd+enter');
                 comment({ content, mention: replyTo });
               }
             }}
@@ -309,7 +344,16 @@ export const CommentForm = ({
         </Button>
         <button
           className="button button-primary"
-          onClick={() => comment({ content, mention: replyTo })}
+          onClick={() => {
+            // Track comment form submission
+            trackForm('submit', 'comment-form', isReply ? 'reply' : 'comment', undefined, {
+              contentLength: content.length,
+              hasAttachments: attachments.length > 0,
+              attachmentCount: attachments.length,
+              hasMention: !!replyTo,
+            });
+            comment({ content, mention: replyTo });
+          }}
           disabled={isCommentDisabled}
         >
           {isPending ? "Submitting..." : "Submit"}

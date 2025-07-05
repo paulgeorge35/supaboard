@@ -1,5 +1,7 @@
 export * from "./useAdminRoute";
+export * from "./useAnalytics";
 export * from "./useBoolean";
+export * from "./useClickTracking";
 export * from "./useDebounce";
 export * from "./useFocus";
 export * from "./useMediaQuery";
