@@ -121,6 +121,10 @@ export default defineConfig(({ command, mode }) => ({
     },
     // allowedHosts: [ 'supaboard.io'],
   },
+  preview: {
+    port: 4173,
+    host: true,
+  },
   build: {
     target: "esnext",
     chunkSizeWarningLimit: 700,
