@@ -1,5 +1,5 @@
-import { db } from "@repo/database";
 import * as Bun from "bun";
+import { sql } from "bun";
 import { CronJob } from "cron";
 import * as yaml from "js-yaml";
 import dns from "node:dns/promises";
@@ -22,12 +22,11 @@ async function incrementVerificationAttempt(
 }
 
 const refreshTraefik = async () => {
-  const domains = await db.domain.findMany({
-    where: {
-      failedAt: null,
-      custom: true,
-    },
-  });
+  const domains = await sql`
+    SELECT id, domain, verified_at, failed_at
+    FROM "Domain"
+    WHERE failed_at IS NULL AND custom = true
+  `;
 
   if (domains.length === 0) return;
 
@@ -39,7 +38,7 @@ const refreshTraefik = async () => {
       (record) => record === "cname.supaboard.io"
     );
 
-    if (domain.verifiedAt) {
+    if (domain.verified_at) {
       // If the domain is verified, we need to check if the CNAME is still valid
       if (valid) {
         // If the CNAME is still valid, we need to add the domain to the routers
@@ -54,19 +53,21 @@ const refreshTraefik = async () => {
         };
       } else {
         // If the CNAME is not valid we do NOT add it to the routers and we update the domain to failed
-        await db.domain.update({
-          where: { id: domain.id },
-          data: { failedAt: new Date(), verifiedAt: null },
-        });
+        await sql`
+          UPDATE "Domain"
+          SET failed_at = ${new Date()}, verified_at = NULL
+          WHERE id = ${domain.id}
+        `;
       }
     } else {
       // If the domain is not verified yet, we need to check if the CNAME is valid
       if (valid) {
         // If the CNAME is valid, we update the domain to verified and add it to the routers
-        await db.domain.update({
-          where: { id: domain.id },
-          data: { verifiedAt: new Date(), failedAt: null },
-        });
+        await sql`
+          UPDATE "Domain"
+          SET verified_at = ${new Date()}, failed_at = NULL
+          WHERE id = ${domain.id}
+        `;
 
         routers[`router-${domain.domain.replace(/\./g, "-")}`] = {
           rule: `Host(\`${domain.domain}\`)`,
@@ -84,10 +85,11 @@ const refreshTraefik = async () => {
           console.log(
             `CNAME verification failed after ${attempts} attempts for ${domain.domain}`
           );
-          await db.domain.update({
-            where: { id: domain.id },
-            data: { failedAt: new Date(), verifiedAt: null },
-          });
+          await sql`
+            UPDATE "Domain"
+            SET failed_at = ${new Date()}, verified_at = NULL
+            WHERE id = ${domain.id}
+          `;
           await redis.del(`verification:cname:${domain.id}`);
         }
       }
