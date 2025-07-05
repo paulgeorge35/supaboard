@@ -17,10 +17,10 @@ export const FeedbackBanner = () => {
 
   return (
     <div className="border border-[var(--color-primary)] bg-[var(--color-primary)]/10 rounded-lg p-4 vertical gap-2">
-      <span className="text-sm text-[var(--color-primary)] inline-flex flex-wrap items-center gap-1">
+      <span className="text-sm text-[var(--color-primary)] block flex-wrap items-center gap-1">
         If you've experienced any issues or have ideas for improvements, don't
         hesitate to leave a feedback on our
-        <span className="font-bold px-1 py-0.5 bg-[var(--color-primary)]/10 rounded-md text-[var(--color-primary)] inline-flex items-center gap-1">
+        <span className="font-bold px-1 py-0.5 bg-[var(--color-primary)]/10 rounded-md text-[var(--color-primary)] inline-flex items-center gap-1 mx-1 translate-y-0.5">
           {SUPABOARD_DASHBOARD_URL.logo && (
             <ImageComponent
               src={SUPABOARD_DASHBOARD_URL.logo}
@@ -30,11 +30,13 @@ export const FeedbackBanner = () => {
           )}
           {SUPABOARD_DASHBOARD_URL.name}
         </span>
-        board.
+        board
+      </span>
+      <span className="grid grid-cols-[1fr_auto] gap-2">
         <Button
           size="sm"
           variant="outline"
-          className="hidden md:flex ml-auto text-[var(--color-primary)] dark:text-[var(--color-primary)] border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 dark:hover:!bg-[var(--color-primary)]/10"
+          className="text-[var(--color-primary)] dark:text-[var(--color-primary)] border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 dark:hover:!bg-[var(--color-primary)]/10"
           onClick={() => window.open(SUPABOARD_DASHBOARD_URL.url, "_blank")}
         >
           Create a new post
@@ -42,7 +44,7 @@ export const FeedbackBanner = () => {
         <Button
           size="sm"
           variant="outline"
-          className="hidden md:flex ml-1 aspect-square text-[var(--color-primary)] dark:text-[var(--color-primary)] border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 dark:hover:!bg-[var(--color-primary)]/10"
+          className="aspect-square text-[var(--color-primary)] dark:text-[var(--color-primary)] border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 dark:hover:!bg-[var(--color-primary)]/10"
           onClick={() => setDismissedFeedbackBanner(true)}
         >
           <Icons.X className="size-4 !stroke-[var(--color-primary)] dark:!stroke-[var(--color-primary)]" />
