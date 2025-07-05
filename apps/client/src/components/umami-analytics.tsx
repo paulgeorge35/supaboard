@@ -9,6 +9,7 @@ declare global {
 
 import { useAuthStore } from "@/stores/auth-store";
 import { useEffect } from "react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 /**
  * Props for the UmamiAnalytics component
@@ -45,6 +46,7 @@ export function UmamiAnalytics({ appId }: UmamiAnalyticsProps) {
   const UMAMI_APP_ID = appId ?? import.meta.env.VITE_UMAMI_APP_ID;
   const NODE_ENV = import.meta.env.MODE;
   const { application, user } = useAuthStore();
+  const { trackPageView } = useAnalytics();
 
   useEffect(() => {
     if (!UMAMI_APP_ID) {
@@ -87,22 +89,25 @@ export function UmamiAnalytics({ appId }: UmamiAnalyticsProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       if (window.umami) {
+        // Enhanced user identification with more properties
         window.umami.identify(user?.id ?? "guest", {
           name: user?.name,
           email: user?.email,
-        });
-        window.umami.track("tenant_page_view", {
+          role: user?.role || 'guest',
           tenantId: application?.id,
-          subdomain: application?.subdomain,
           tenantName: application?.name,
-          path: location.pathname,
+          subdomain: application?.subdomain,
         });
+        
+        // Track enhanced page view using the new hook
+        trackPageView();
+        
         clearInterval(interval);
       }
     }, 250);
 
     return () => clearInterval(interval);
-  }, [location.pathname, application?.id, user?.id]);
+  }, [location.pathname, application?.id, user?.id, trackPageView]);
 
   // This component doesn't render anything visible
   return null;

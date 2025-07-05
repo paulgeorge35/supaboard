@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { toast } from "sonner";
 import { cn } from "../lib/utils";
 import { useAuthStore } from "../stores/auth-store";
+import { useAnalytics } from "../hooks/useAnalytics";
 import { Icons } from "./icons";
 import { Skeleton } from "./skeleton";
 
@@ -12,6 +13,8 @@ interface VoteButtonProps {
     vote: () => void;
     isPending: boolean;
     isLoading?: boolean;
+    contentId?: string;
+    contentType?: 'feedback' | 'comment' | 'post';
 }
 
 export const VoteButtonSkeleton = () => {
@@ -23,8 +26,9 @@ export const VoteButtonSkeleton = () => {
     )
 }
 
-export const VoteButton = ({ votes, votedByMe, className, vote, isPending, isLoading }: VoteButtonProps) => {
+export const VoteButton = ({ votes, votedByMe, className, vote, isPending, isLoading, contentId, contentType = 'feedback' }: VoteButtonProps) => {
     const { user } = useAuthStore();
+    const { trackClick, trackContent, trackFeature } = useAnalytics();
     
     const numberFormatted = useMemo(() => {
         if (votes > 1000) {
@@ -40,10 +44,23 @@ export const VoteButton = ({ votes, votedByMe, className, vote, isPending, isLoa
     const handleVote = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (isPending) return;
+        
+        // Track vote button click
+        trackClick('vote-button', 'engagement', votedByMe ? 'unvote' : 'vote');
+        
         if (!user) {
+            // Track authentication prompt
+            trackFeature('authentication', 'prompt_required', 'vote_action');
             toast.error("You must be logged in to vote")
             return;
         }
+        
+        // Track content interaction
+        trackContent(contentType, votedByMe ? 'unvote' : 'vote', contentId, undefined, {
+            currentVotes: votes,
+            userWasVoted: votedByMe,
+        });
+        
         vote()
     }
 
