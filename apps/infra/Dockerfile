@@ -17,11 +17,7 @@ RUN bun install --use-workspaces
 ENV DATABASE_URL="postgres://postgres:FnbwvTDtZyp42DJuPSfYTmuKWfOt3y5EnN6iWetDbP2b2wGJVE9CNAViiX4MkgN1@ockkkwswg80cks0g480sgw4c:5432/supaboard?connection_limit=20&pool_timeout=20"
 RUN cd packages/database && bunx prisma generate
 
-# Build database package first
-RUN cd packages/database && bun run prebuild
-
 # Build all packages first
-RUN bun run build --filter=@repo/database
 RUN bun run build --filter=@repo/eslint-config
 RUN bun run build --filter=@repo/typescript-config
 
