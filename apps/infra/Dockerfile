@@ -38,6 +38,9 @@ RUN apt-get update && \
 RUN groupadd -g 1001 nodejs || true && \
     useradd -r -u 1001 -g nodejs -d /app -s /bin/sh bun || true
 
+# Ensure the bun user can access the app directory
+RUN chown -R bun:nodejs /app || true
+
 # Copy built application
 COPY --from=builder /app/apps/infra/dist ./apps/infra/dist
 COPY --from=builder /app/apps/infra/src ./apps/infra/src
