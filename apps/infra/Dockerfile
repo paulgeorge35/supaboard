@@ -52,9 +52,6 @@ RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-# Drop privileges
-USER bun
-
 EXPOSE 8001
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
