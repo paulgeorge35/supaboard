@@ -20,11 +20,6 @@ RUN cd packages/database && bunx prisma generate
 # Build database package first
 RUN cd packages/database && bun run prebuild
 
-# Build all packages first
-RUN bun run build --filter=@repo/database
-RUN bun run build --filter=@repo/eslint-config
-RUN bun run build --filter=@repo/typescript-config
-
 # Build the API
 RUN bun run build --filter=@repo/api
 

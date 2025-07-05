@@ -6,6 +6,10 @@ services:
       context: .
       dockerfile: ./apps/infra/Dockerfile
     container_name: supaboard-infra
+    networks:
+      coolify:
+        name: coolify
+        external: true
     ports:
       - "3104:8001"
     environment:
