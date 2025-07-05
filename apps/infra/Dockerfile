@@ -46,6 +46,8 @@ COPY --from=builder --chown=bun:nodejs /app/packages ./packages
 COPY --from=builder --chown=bun:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=bun:nodejs /app/bun.lock ./bun.lock
 COPY --from=builder --chown=bun:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=bun:nodejs /app/packages/database/generated ./packages/database/generated
+COPY --from=builder --chown=bun:nodejs /app/packages/database/generated ./generated
 
 # Create .env file in packages/database
 RUN echo "NODE_ENV=production" > ./packages/database/.env
