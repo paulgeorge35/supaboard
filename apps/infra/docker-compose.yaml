@@ -2,25 +2,47 @@ version: '3.8'
 
 services:
   infra:
-    build:
-      context: .
-      dockerfile: ./apps/infra/Dockerfile
+    image: oven/bun:1.2.18
     container_name: supaboard-infra
     networks:
       coolify:
-        name: coolify
         external: true
     ports:
       - "3104:8001"
     environment:
-      - NODE_ENV=production
-      - PORT=${INFRA_PORT:-8001}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL}
-      - TRAEFIK_DYNAMIC_PATH=${TRAEFIK_DYNAMIC_PATH:-/data/coolify/proxy/dynamic/custom-domains.yaml}
+      NODE_ENV: production
+      PORT: ${INFRA_PORT:-8001}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      TRAEFIK_DYNAMIC_PATH: ${TRAEFIK_DYNAMIC_PATH:-/data/coolify/proxy/dynamic/custom-domains.yaml}
     volumes:
-      - ./src:/app/apps/infra/src
-      - ../../packages:/app/packages
+      - .:/app
       - /data/coolify/proxy/dynamic:/data/coolify/proxy/dynamic
     working_dir: /app
-    restart: unless-stopped 
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      apt-get update &&
+      apt-get install -y openssl libssl-dev pkg-config build-essential curl &&
+      bun install --use-workspaces &&
+      echo 'Generating Prisma clients...' &&
+      cd packages/database &&
+      bunx prisma generate &&
+      echo 'Waiting for DB to be ready...' &&
+      until bunx prisma generate --sql; do sleep 3; done &&
+      echo 'Building infra app...' &&
+      cd /app &&
+      bun run build --filter=@repo/infra &&
+      echo 'Ensuring Traefik config exists...' &&
+      mkdir -p /data/coolify/proxy/dynamic &&
+      touch /data/coolify/proxy/dynamic/custom-domains.yaml &&
+      chmod 666 /data/coolify/proxy/dynamic/custom-domains.yaml &&
+      echo 'Starting infra app...' &&
+      bun run apps/infra/dist/index.js
+      "
+    user: "0:0"
+    restart: unless-stopped
+
+networks:
+  coolify:
+    external: true
