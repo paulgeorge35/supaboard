@@ -1,3 +1,12 @@
+declare global {
+  interface Window {
+    umami?: {
+      track: (eventName: string, data?: Record<string, any>) => void;
+    };
+  }
+}
+
+import { useAuthStore } from "@/stores/auth-store";
 import { useEffect } from "react";
 
 /**
@@ -34,6 +43,7 @@ interface UmamiAnalyticsProps {
 export function UmamiAnalytics({ appId }: UmamiAnalyticsProps) {
   const UMAMI_APP_ID = appId ?? import.meta.env.VITE_UMAMI_APP_ID;
   const NODE_ENV = import.meta.env.MODE;
+  const { application, user } = useAuthStore();
 
   useEffect(() => {
     if (!UMAMI_APP_ID) {
@@ -58,6 +68,7 @@ export function UmamiAnalytics({ appId }: UmamiAnalyticsProps) {
     const script = document.createElement("script");
     script.src = "https://umami.paulgeorge.dev/script.js";
     script.setAttribute("data-website-id", UMAMI_APP_ID);
+    script.setAttribute("data-host-url", "https://umami.paulgeorge.dev");
     script.defer = true;
     script.async = true;
 
@@ -71,6 +82,21 @@ export function UmamiAnalytics({ appId }: UmamiAnalyticsProps) {
       }
     };
   }, [UMAMI_APP_ID, NODE_ENV]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (window.umami) {
+        window.umami.track("tenant_page_view", {
+          tenant: application?.id,
+          user: user?.id ?? "guest",
+          path: location.pathname,
+        });
+        clearInterval(interval);
+      }
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, [location.pathname, application?.id, user?.id]);
 
   // This component doesn't render anything visible
   return null;
