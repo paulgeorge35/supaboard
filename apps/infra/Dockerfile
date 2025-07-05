@@ -18,7 +18,7 @@ ENV DATABASE_URL="postgres://postgres:FnbwvTDtZyp42DJuPSfYTmuKWfOt3y5EnN6iWetDbP
 RUN cd packages/database && bunx prisma generate
 
 # Generate Prisma SQL client (requires database to be reachable)
-RUN cd packages/database && bun run prebuild
+RUN cd packages/database && bunx prisma generate --sql
 
 # Build the infra service
 RUN bun run build --filter=@repo/infra
