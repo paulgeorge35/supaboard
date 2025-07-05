@@ -71,7 +71,7 @@ const main = async () => {
           service: "supaboard-service",
           middlewares: ["redirect-to-https", "gzip"],
           tls: {
-            certResolver: "html",
+            certResolver: "letsencrypt",
           },
         };
       } else {
