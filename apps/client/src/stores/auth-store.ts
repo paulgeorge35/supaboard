@@ -1,39 +1,53 @@
-import type { ApplicationSummary, BoardSummary, Role, User, Workspace } from '@repo/database'
-import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
+import type {
+  ApplicationSummary,
+  BoardSummary,
+  Role,
+  User,
+  Workspace,
+} from "@repo/database";
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 interface AuthState {
-    user?: Pick<User, 'id' | 'email' | 'name' | 'avatar'>
-    application?: ApplicationSummary & {
-        boards: BoardSummary[]
-        hasChangelog: boolean
-        role: Role | null
-        url: string
-        api: string
-    }
-    workspaces?: Workspace[]
-    setUser: (user?: AuthState['user']) => void
-    setApplication: (application: AuthState['application']) => void
-    setWorkspaces: (workspaces: AuthState['workspaces']) => void
+  user?: Pick<User, "id" | "email" | "name" | "avatar">;
+  application?: ApplicationSummary & {
+    boards: BoardSummary[];
+    hasChangelog: boolean;
+    role: Role | null;
+    url: string;
+    api: string;
+  };
+  workspaces?: Workspace[];
+  dismissedFeedbackBanner?: boolean;
+  setDismissedFeedbackBanner: (dismissed: boolean) => void;
+  setUser: (user?: AuthState["user"]) => void;
+  setApplication: (application: AuthState["application"]) => void;
+  setWorkspaces: (workspaces: AuthState["workspaces"]) => void;
 }
 
-const initialState: Omit<AuthState, 'setUser' | 'setApplication' | 'setWorkspaces'> = {
-    user: undefined,
-    application: undefined,
-    workspaces: undefined,
-}
+const initialState: Omit<
+  AuthState,
+  "setUser" | "setApplication" | "setWorkspaces" | "setDismissedFeedbackBanner"
+> = {
+  user: undefined,
+  application: undefined,
+  workspaces: undefined,
+  dismissedFeedbackBanner: false,
+};
 
 export const useAuthStore = create<AuthState>()(
-    persist(
-        (set) => ({
-            ...initialState,
-            setUser: (user) => set({ user }),
-            setApplication: (application) => set({ application }),
-            setWorkspaces: (workspaces) => set({ workspaces }),
-        }),
-        {
-            name: 'auth-store',
-            storage: createJSONStorage(() => sessionStorage)
-        }
-    )
-) 
+  persist(
+    (set) => ({
+      ...initialState,
+      setUser: (user) => set({ user }),
+      setApplication: (application) => set({ application }),
+      setWorkspaces: (workspaces) => set({ workspaces }),
+      setDismissedFeedbackBanner: (dismissed) =>
+        set({ dismissedFeedbackBanner: dismissed }),
+    }),
+    {
+      name: "auth-store",
+      storage: createJSONStorage(() => sessionStorage),
+    }
+  )
+);
