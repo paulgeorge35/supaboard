@@ -23,9 +23,9 @@ async function incrementVerificationAttempt(
 
 const refreshTraefik = async () => {
   const domains = await sql`
-    SELECT id, domain, verified_at, failed_at
+    SELECT id, domain, "verifiedAt", "failedAt"
     FROM "Domain"
-    WHERE failed_at IS NULL AND custom = true
+    WHERE "failedAt" IS NULL AND custom = true
   `;
 
   if (domains.length === 0) return;
@@ -38,7 +38,7 @@ const refreshTraefik = async () => {
       (record) => record === "cname.supaboard.io"
     );
 
-    if (domain.verified_at) {
+    if (domain.verifiedAt) {
       // If the domain is verified, we need to check if the CNAME is still valid
       if (valid) {
         // If the CNAME is still valid, we need to add the domain to the routers
@@ -55,7 +55,7 @@ const refreshTraefik = async () => {
         // If the CNAME is not valid we do NOT add it to the routers and we update the domain to failed
         await sql`
           UPDATE "Domain"
-          SET failed_at = ${new Date()}, verified_at = NULL
+          SET "failedAt" = ${new Date()}, "verifiedAt" = NULL
           WHERE id = ${domain.id}
         `;
       }
@@ -65,7 +65,7 @@ const refreshTraefik = async () => {
         // If the CNAME is valid, we update the domain to verified and add it to the routers
         await sql`
           UPDATE "Domain"
-          SET verified_at = ${new Date()}, failed_at = NULL
+          SET "verifiedAt" = ${new Date()}, "failedAt" = NULL
           WHERE id = ${domain.id}
         `;
 
@@ -87,7 +87,7 @@ const refreshTraefik = async () => {
           );
           await sql`
             UPDATE "Domain"
-            SET failed_at = ${new Date()}, verified_at = NULL
+            SET "failedAt" = ${new Date()}, "verifiedAt" = NULL
             WHERE id = ${domain.id}
           `;
           await redis.del(`verification:cname:${domain.id}`);
