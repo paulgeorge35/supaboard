@@ -10,6 +10,25 @@ const TRAEFIK_DYNAMIC_PATH =
   Bun.env.TRAEFIK_DYNAMIC_PATH ||
   "/data/coolify/proxy/dynamic/custom-domains.yaml";
 
+/**
+ * Ensures the Traefik dynamic configuration file exists and has proper permissions
+ */
+const ensureTraefikFile = async (): Promise<void> => {
+  try {
+    // Check if file exists
+    const fileExists = await Bun.file(TRAEFIK_DYNAMIC_PATH).exists();
+
+    if (!fileExists) {
+      // Create empty file if it doesn't exist
+      await Bun.write(TRAEFIK_DYNAMIC_PATH, "");
+      console.log("📝 Created empty Traefik configuration file");
+    }
+  } catch (error) {
+    console.error("⚠️ Could not ensure Traefik file exists:", error);
+    // Continue anyway - the main write operation will handle the error
+  }
+};
+
 async function incrementVerificationAttempt(
   applicationId: string,
   type: "txt" | "cname"
@@ -22,6 +41,9 @@ async function incrementVerificationAttempt(
 }
 
 const refreshTraefik = async () => {
+  // Ensure the Traefik file exists before processing
+  await ensureTraefikFile();
+
   const domains = await sql`
     SELECT id, domain, "verifiedAt", "failedAt"
     FROM "Domain"
@@ -126,14 +148,70 @@ const refreshTraefik = async () => {
 
   const yamlString = yaml.dump(yamlData);
 
-  await Bun.write(TRAEFIK_DYNAMIC_PATH, yamlString)
-    .then(() => {
-      console.log("✅ custom-domains.yaml updated");
-    })
-    .catch((error) => {
-      console.error("❌ Error updating custom-domains.yaml:", error);
-    });
+  try {
+    await Bun.write(TRAEFIK_DYNAMIC_PATH, yamlString);
+    console.log("✅ custom-domains.yaml updated");
+  } catch (error) {
+    console.error("❌ Error updating custom-domains.yaml:", error);
+
+    // Provide more specific error messages for common issues
+    if (error instanceof Error) {
+      if (error.message.includes("EACCES")) {
+        console.error(
+          "🔐 Permission denied. Please check file permissions for:",
+          TRAEFIK_DYNAMIC_PATH
+        );
+        console.error("   Expected owner: UID 1001 (bun user)");
+        console.error("   Expected permissions: 664");
+
+        // Try to fix permissions programmatically as a fallback
+        try {
+          const { execSync } = await import("child_process");
+          execSync(`chown 1001:1001 "${TRAEFIK_DYNAMIC_PATH}"`, {
+            stdio: "pipe",
+          });
+          execSync(`chmod 664 "${TRAEFIK_DYNAMIC_PATH}"`, { stdio: "pipe" });
+          console.log("🔧 Attempted to fix permissions programmatically");
+
+          // Try writing again
+          await Bun.write(TRAEFIK_DYNAMIC_PATH, yamlString);
+          console.log("✅ custom-domains.yaml updated after permission fix");
+        } catch (fixError) {
+          console.error(
+            "🔧 Could not fix permissions programmatically:",
+            fixError
+          );
+        }
+      } else if (error.message.includes("ENOENT")) {
+        console.error("📁 File or directory not found:", TRAEFIK_DYNAMIC_PATH);
+        console.error("   Please ensure the directory exists and is writable");
+      }
+    }
+  }
 };
+
+console.log("🚀 Starting Supaboard Infrastructure Service...");
+console.log(`📁 Traefik dynamic config path: ${TRAEFIK_DYNAMIC_PATH}`);
+
+// Check file permissions on startup
+const checkFilePermissions = async () => {
+  try {
+    const fileExists = await Bun.file(TRAEFIK_DYNAMIC_PATH).exists();
+    if (fileExists) {
+      console.log("✅ Traefik configuration file exists");
+      // Try to write a test to verify permissions
+      await Bun.write(TRAEFIK_DYNAMIC_PATH, "# Test write\n");
+      console.log("✅ File is writable");
+    } else {
+      console.log("⚠️ Traefik configuration file does not exist yet");
+    }
+  } catch (error) {
+    console.error("❌ File permission check failed:", error);
+  }
+};
+
+// Run permission check on startup
+checkFilePermissions();
 
 CronJob.from({
   cronTime: "*/5 * * * * *",

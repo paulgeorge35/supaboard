@@ -31,7 +31,7 @@ ENV PORT=8001
 
 # Install system deps for runtime
 RUN apt-get update && \
-    apt-get install -y openssl curl && \
+    apt-get install -y openssl curl procps && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create unprivileged user
