@@ -1,93 +1,141 @@
-import { db } from '@repo/database';
-import * as Bun from 'bun';
-import { CronJob } from 'cron';
-import dns from 'node:dns/promises';
-import path from 'node:path';
-import { redis } from './redis';
+import { db } from "@repo/database";
+import * as Bun from "bun";
+import { CronJob } from "cron";
+import * as yaml from "js-yaml";
+import dns from "node:dns/promises";
+import { redis } from "./redis";
 
 const VERIFICATION_MAX_RETRIES = 5;
+const TRAEFIK_DYNAMIC_PATH =
+  Bun.env.TRAEFIK_DYNAMIC_PATH ||
+  "/data/coolify/proxy/dynamic/custom-domains.yaml";
 
-async function incrementVerificationAttempt(applicationId: string, type: 'txt' | 'cname'): Promise<number> {
-    const key = `verification:${type}:${applicationId}`;
-    const attempts = await redis.incr(key);
-    // Set expiry to 24 hours to cleanup old entries
-    await redis.expire(key, 24 * 60 * 60);
-    return attempts;
+async function incrementVerificationAttempt(
+  applicationId: string,
+  type: "txt" | "cname"
+): Promise<number> {
+  const key = `verification:${type}:${applicationId}`;
+  const attempts = await redis.incr(key);
+  // Set expiry to 24 hours to cleanup old entries
+  await redis.expire(key, 24 * 60 * 60);
+  return attempts;
 }
 
-const getScriptPath = (scriptName: string) => {
-    return path.join(import.meta.dir, scriptName);
-}
+const refreshTraefik = async () => {
+  const domains = await db.domain.findMany({
+    where: {
+      failedAt: null,
+    },
+  });
 
-const addDomain = async (domain: string) => {
-    const scriptPath = getScriptPath('add_domain.sh');
+  if (domains.length === 0) return;
 
-    const proc = Bun.spawn(['bash', scriptPath, domain], {
-        cwd: path.dirname(scriptPath),
-    });
+  const routers: Record<string, any> = {};
 
-    const output = await new Response(proc.stdout).text();
-    const error = await new Response(proc.stderr).text();
+  for (const domain of domains) {
+    const cnameRecords = await dns.resolveCname(domain.domain);
+    const valid = cnameRecords.some(
+      (record) => record === "cname.supaboard.io"
+    );
 
-    if (error) {
-        console.error('Script error:', error);
-        throw new Error(error);
+    if (domain.verifiedAt) {
+      // If the domain is verified, we need to check if the CNAME is still valid
+      if (valid) {
+        // If the CNAME is still valid, we need to add the domain to the routers
+        routers[`router-${domain.domain.replace(/\./g, "-")}`] = {
+          rule: `Host(\`${domain.domain}\`)`,
+          entryPoints: ["http", "https"],
+          service: "supaboard-service",
+          middlewares: ["redirect-to-https", "gzip"],
+          tls: {
+            certResolver: "html",
+          },
+        };
+      } else {
+        // If the CNAME is not valid we do NOT add it to the routers and we update the domain to failed
+        await db.domain.update({
+          where: { id: domain.id },
+          data: { failedAt: new Date(), verifiedAt: null },
+        });
+      }
+    } else {
+      // If the domain is not verified yet, we need to check if the CNAME is valid
+      if (valid) {
+        // If the CNAME is valid, we update the domain to verified and add it to the routers
+        await db.domain.update({
+          where: { id: domain.id },
+          data: { verifiedAt: new Date(), failedAt: null },
+        });
+
+        routers[`router-${domain.domain.replace(/\./g, "-")}`] = {
+          rule: `Host(\`${domain.domain}\`)`,
+          entryPoints: ["http", "https"],
+          service: "supaboard-service",
+          middlewares: ["redirect-to-https", "gzip"],
+          tls: {
+            certResolver: "html",
+          },
+        };
+      } else {
+        // If the CNAME is not valid we increment the verification attempt and if it reaches the max retries we update the domain to failed
+        const attempts = await incrementVerificationAttempt(domain.id, "cname");
+        if (attempts >= VERIFICATION_MAX_RETRIES) {
+          console.log(
+            `CNAME verification failed after ${attempts} attempts for ${domain.domain}`
+          );
+          await db.domain.update({
+            where: { id: domain.id },
+            data: { failedAt: new Date(), verifiedAt: null },
+          });
+          await redis.del(`verification:cname:${domain.id}`);
+        }
+      }
     }
+  }
 
-    return output;
+  // We update the Traefik dynamic configuration with the new routers
+  const yamlData = {
+    http: {
+      routers,
+      services: {
+        "supaboard-service": {
+          loadBalancer: {
+            servers: [
+              {
+                url: "http://supaboard-app:4173",
+              },
+            ],
+          },
+        },
+      },
+      middlewares: {
+        "redirect-to-https": {
+          redirectScheme: {
+            scheme: "https",
+          },
+        },
+        gzip: {
+          compress: true,
+        },
+      },
+    },
+  };
+
+  const yamlString = yaml.dump(yamlData);
+
+  await Bun.write(TRAEFIK_DYNAMIC_PATH, yamlString)
+    .then(() => {
+      console.log("✅ custom-domains.yaml updated");
+    })
+    .catch((error) => {
+      console.error("❌ Error updating custom-domains.yaml:", error);
+    });
 };
 
 CronJob.from({
-    cronTime: '*/5 * * * * *',
-    onTick: async () => {
-        const domains = await db.domain.findMany({
-            where: {
-                verifiedAt: null,
-                failedAt: null,
-            },
-        });
-
-        if (domains.length === 0) return;
-        console.log(`Checking CNAME for ${domains.length} domains`);
-
-        for (const domain of domains) {
-            try {
-                const cnameRecords = await dns.resolveCname(domain.domain);
-                const valid = cnameRecords.some(record => record === 'cname.supaboard.io');
-
-                if (valid) {
-                    console.log(`CNAME for ${domain.domain} is valid`);
-
-                    await addDomain(domain.domain);
-
-                    await db.domain.update({
-                        where: { id: domain.id },
-                        data: { verifiedAt: new Date(), failedAt: null },
-                    });
-                } else {
-                    const attempts = await incrementVerificationAttempt(domain.id, 'cname');
-                    if (attempts >= VERIFICATION_MAX_RETRIES) {
-                        console.log(`CNAME verification failed after ${attempts} attempts for ${domain.domain}`);
-                        await db.domain.update({
-                            where: { id: domain.id },
-                            data: { failedAt: new Date(), verifiedAt: null },
-                        });
-                        await redis.del(`verification:cname:${domain.id}`);
-                    }
-                }
-            } catch (error) {
-                console.log(`CNAME for ${domain.domain} is invalid`);
-                const attempts = await incrementVerificationAttempt(domain.id, 'cname');
-                if (attempts >= VERIFICATION_MAX_RETRIES) {
-                    console.log(`CNAME verification failed after ${attempts} attempts for ${domain.domain}`);
-                    await db.domain.update({
-                        where: { id: domain.id },
-                        data: { failedAt: new Date(), verifiedAt: null },
-                    });
-                    await redis.del(`verification:cname:${domain.id}`);
-                }
-            }
-        }
-    },
-    start: true,
+  cronTime: "*/5 * * * * *",
+  onTick: async () => {
+    await refreshTraefik();
+  },
+  start: true,
 });

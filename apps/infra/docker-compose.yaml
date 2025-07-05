@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  infra:
+    build:
+      context: .
+      dockerfile: ./apps/infra/Dockerfile
+    container_name: supaboard-infra
+    ports:
+      - "3104:8001"
+    environment:
+      - NODE_ENV=production
+      - PORT=${INFRA_PORT:-8001}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - TRAEFIK_DYNAMIC_PATH=${TRAEFIK_DYNAMIC_PATH:-/data/coolify/proxy/dynamic/custom-domains.yaml}
+    volumes:
+      - ./src:/app/apps/infra/src
+      - ../../packages:/app/packages
+      - /data/coolify/proxy/dynamic:/data/coolify/proxy/dynamic
+    working_dir: /app
+    restart: unless-stopped 
