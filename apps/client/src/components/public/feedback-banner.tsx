@@ -7,12 +7,13 @@ const SUPABOARD_DASHBOARD_URL = {
   name: "supaboard",
   logo: "https://pub-94f50e2c0f154399b75cb31a0ca78b47.r2.dev/logo/6599fa4e-a6d0-43a4-b3b5-edcc506a3de7-icon_128x128.png",
   url: "https://app.supaboard.io",
+  domain: "app.supaboard.io",
 };
 
 export const FeedbackBanner = () => {
   const { application } = useAuthStore();
   const isMainApp = !!application?.domains.find(
-    (domain) => SUPABOARD_DASHBOARD_URL.url === domain.domain
+    (domain) => SUPABOARD_DASHBOARD_URL.domain === domain.domain
   );
   const { dismissedFeedbackBanner, setDismissedFeedbackBanner } =
     useAuthStore();
