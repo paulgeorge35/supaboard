@@ -6,12 +6,8 @@ import { Outlet, createRootRoute, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
 export const Route = createRootRoute({
   notFoundComponent: () => <NotFoundPage redirect="https://supaboard.io" />,
-  errorComponent: ({ error }) => (
-    <ErrorPage
-      redirect="https://supaboard.io"
-      errorCode={error.message}
-      showErrorCode
-    />
+  errorComponent: (error) => (
+    <ErrorPage redirect="https://supaboard.io" error={error} />
   ),
   context: () => {
     const queryClient = new QueryClient();
