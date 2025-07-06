@@ -82,7 +82,7 @@ function RouteComponent() {
               <img
                 src={application?.logo}
                 alt={application?.name}
-                className="size-8"
+                className="size-8 dark:invert"
               />
             )}
             <h1 className="text-2xl font-medium">{application?.name}</h1>
