@@ -19,7 +19,6 @@ const vendorChunks = {
     "@tanstack/react-query",
     "@tanstack/react-router",
     "@tanstack/react-table",
-    "@tanstack/router-devtools",
     "@tanstack/react-form",
   ],
   "vendor-ui": [
@@ -144,7 +143,6 @@ export default defineConfig(({ command, mode }) => ({
             "@tanstack/react-query",
             "@tanstack/react-router",
             "@tanstack/react-table",
-            "@tanstack/router-devtools",
             "@tanstack/react-form",
           ],
           "vendor-ui": [
