@@ -102,9 +102,6 @@ export default defineConfig(({ command, mode }) => ({
     react({
       jsxRuntime: "automatic",
       jsxImportSource: "react",
-      babel: {
-        plugins: [["@babel/plugin-syntax-dynamic-import"]],
-      },
     }),
     tailwindcss(),
     VitePWA({
@@ -126,9 +123,9 @@ export default defineConfig(({ command, mode }) => ({
     host: true,
   },
   build: {
-    target: "esnext",
+    target: "es2020",
     chunkSizeWarningLimit: 700,
-    minify: ["build", "preview"].includes(command) ? false : "esbuild",
+    minify: "esbuild",
     cssCodeSplit: true,
     sourcemap: true,
     reportCompressedSize: false,
@@ -138,7 +135,6 @@ export default defineConfig(({ command, mode }) => ({
           "vendor-react": [
             "react",
             "react-dom",
-            "react/jsx-runtime",
             "scheduler",
             "react-aria",
             "react-aria-components",
@@ -178,18 +174,6 @@ export default defineConfig(({ command, mode }) => ({
     },
   },
   resolve: {
-    ...(["build", "preview"].includes(command)
-      ? [
-          {
-            find: "react",
-            replacement: "react/cjs/react.development.js",
-          },
-          {
-            find: "react-dom",
-            replacement: "react-dom/cjs/react-dom.development.js",
-          },
-        ]
-      : []),
     alias: [
       {
         find: "@",
@@ -231,7 +215,6 @@ export default defineConfig(({ command, mode }) => ({
     include: [
       "react",
       "react-dom",
-      "react/jsx-runtime",
       "scheduler",
       "@tanstack/react-router",
       "@tanstack/react-query",
@@ -239,7 +222,7 @@ export default defineConfig(({ command, mode }) => ({
     ],
     exclude: ["@tanstack/router-devtools"],
     esbuildOptions: {
-      target: "esnext",
+      target: "es2020",
       jsx: "automatic",
       jsxImportSource: "react",
     },
