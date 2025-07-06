@@ -74,6 +74,15 @@ const main = async () => {
             certResolver: "letsencrypt",
           },
         };
+        routers[`router-${domain.domain.replace(/\./g, "-")}-api`] = {
+          rule: `Host(\`${domain.domain}\`) && PathPrefix(\`/api\`)`,
+          entryPoints: ["http", "https"],
+          service: "api-service",
+          middlewares: ["redirect-to-https", "gzip"],
+          tls: {
+            certResolver: "letsencrypt",
+          },
+        };
       } else {
         // If the CNAME is not valid we do NOT add it to the routers and we update the domain to failed
         await sql`
@@ -99,6 +108,15 @@ const main = async () => {
           middlewares: ["redirect-to-https", "gzip"],
           tls: {
             certResolver: "html",
+          },
+        };
+        routers[`router-${domain.domain.replace(/\./g, "-")}-api`] = {
+          rule: `Host(\`${domain.domain}\`) && PathPrefix(\`/api\`)`,
+          entryPoints: ["http", "https"],
+          service: "api-service",
+          middlewares: ["redirect-to-https", "gzip"],
+          tls: {
+            certResolver: "letsencrypt",
           },
         };
       } else {
@@ -129,6 +147,15 @@ const main = async () => {
             servers: [
               {
                 url: "http://supaboard-app:4173",
+              },
+            ],
+          },
+        },
+        "api-service": {
+          loadBalancer: {
+            servers: [
+              {
+                url: "http://supaboard-api:8000",
               },
             ],
           },
@@ -239,12 +266,11 @@ const checkFilePermissions = async () => {
 
 // Run permission check on startup
 checkFilePermissions();
-main();
 
 CronJob.from({
-  cronTime: "*/5 * * * * *",
+  cronTime: "* * * * *",
   onTick: async () => {
     await main();
   },
-  start: false,
+  start: true,
 });
