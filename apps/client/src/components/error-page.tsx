@@ -107,15 +107,21 @@ export function ErrorPage({
         {description ??
           "An unexpected error occurred. Please try again later \nor contact support if the problem persists."}
       </p>
-      {showRetry && <Button onClick={() => error.reset()}>Retry</Button>}
-      {showRedirect && (
-        <Link
-          to={redirectTo}
-          className="m-4 text-sm text-[var(--color-primary)] px-4 py-2 rounded-md hover:bg-[var(--color-primary)]/10 dark:hover:bg-[var(--color-primary)]/10 transition-colors"
-        >
-          Go back
-        </Link>
-      )}
+      <div className="flex gap-2 justify-evenly items-center">
+        {showRetry && (
+          <Button size="sm" onClick={() => error.reset()}>
+            Retry
+          </Button>
+        )}
+        {showRedirect && (
+          <Link
+            to={redirectTo}
+            className="m-4 text-sm text-[var(--color-primary)] px-4 py-2 rounded-md hover:bg-[var(--color-primary)]/10 dark:hover:bg-[var(--color-primary)]/10 transition-colors"
+          >
+            Go back
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
