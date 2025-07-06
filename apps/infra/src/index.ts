@@ -172,7 +172,7 @@ const main = async () => {
         },
         "strip-api-prefix": {
           stripPrefix: {
-            prefix: "/api",
+            prefixes: ["/api"],
           },
         },
       },
