@@ -1,11 +1,11 @@
 import { DateRangeSelector } from "@/components/date-range-selector";
 import { Icons } from "@/components/icons";
+import SafeAnimatedNumber from "@/components/safe-animated-numbers";
 import { fetchClient } from "@/lib/client";
 import { cn } from "@/lib/utils";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
-import AnimatedNumber from "react-animated-numbers";
 import { Line, LineChart, ResponsiveContainer } from "recharts";
 import colors from "tailwindcss/colors";
 
@@ -156,7 +156,7 @@ export function ActivityOverview() {
             <h2 className="font-light text-sm">{config.title}</h2>
             <div className="text-2xl font-bold mb-4 horizontal center-v gap-1">
               {config.total ? (
-                <AnimatedNumber
+                <SafeAnimatedNumber
                   animateToNumber={config.total}
                   fontStyle={{ fontSize: 24 }}
                   useThousandsSeparator
