@@ -130,7 +130,7 @@ export default defineConfig(({ command, mode }) => ({
     chunkSizeWarningLimit: 700,
     minify: "esbuild",
     cssCodeSplit: true,
-    sourcemap: mode === "development",
+    sourcemap: true,
     reportCompressedSize: false,
     rollupOptions: {
       output: {
