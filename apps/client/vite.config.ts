@@ -178,6 +178,18 @@ export default defineConfig(({ command, mode }) => ({
     },
   },
   resolve: {
+    ...(mode !== "development"
+      ? [
+          {
+            find: "react",
+            replacement: "react/cjs/react.development.js",
+          },
+          {
+            find: "react-dom",
+            replacement: "react-dom/cjs/react-dom.development.js",
+          },
+        ]
+      : []),
     alias: [
       {
         find: "@",
