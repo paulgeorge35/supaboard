@@ -701,7 +701,7 @@ const updateRoleSchema = z.object({
 
 export async function updateRole(request: BareSessionRequest, res: Response) {
   const userId = request.auth?.id;
-  const memberId = request.params.memberId;
+  const memberUserId = request.params.memberId;
 
   if (!userId) {
     res.status(401).json({ error: "Unauthorized", code: "UNAUTHORIZED" });
@@ -710,7 +710,7 @@ export async function updateRole(request: BareSessionRequest, res: Response) {
 
   const { role } = updateRoleSchema.parse(request.body);
 
-  if (userId === memberId) {
+  if (userId === memberUserId) {
     res.status(400).json({
       error: "Cannot update your own role",
       code: "CANNOT_UPDATE_YOUR_OWN_ROLE",
@@ -718,9 +718,25 @@ export async function updateRole(request: BareSessionRequest, res: Response) {
     return;
   }
 
+  const member = await db.member.findUnique({
+    where: {
+      userId_applicationId: {
+        userId: memberUserId,
+        applicationId: request.application?.id!,
+      },
+    },
+  });
+
+  if (!member) {
+    res
+      .status(404)
+      .json({ error: "Member not found", code: "MEMBER_NOT_FOUND" });
+    return;
+  }
+
   await db.member.update({
     where: {
-      id: memberId,
+      id: member.id,
     },
     data: {
       role,
