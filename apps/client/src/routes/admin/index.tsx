@@ -1,5 +1,3 @@
-import { NewPosts } from "@/components/admin/home/new-posts";
-import { StalePosts } from "@/components/admin/home/stale-posts";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin/")({
@@ -12,8 +10,8 @@ function RouteComponent() {
       {/* <FeedbackBanner />
       <ActivityOverview /> */}
       <span className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <NewPosts />
-        <StalePosts />
+        {/* <NewPosts />
+        <StalePosts /> */}
       </span>
       {/* <UserActivity />
       <PostsOverview />
