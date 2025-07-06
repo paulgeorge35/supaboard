@@ -78,7 +78,7 @@ const main = async () => {
           rule: `Host(\`${domain.domain}\`) && PathPrefix(\`/api\`)`,
           entryPoints: ["http", "https"],
           service: "api-service",
-          middlewares: ["redirect-to-https", "gzip"],
+          middlewares: ["redirect-to-https", "gzip", "strip-api-prefix"],
           tls: {
             certResolver: "letsencrypt",
           },
@@ -114,7 +114,7 @@ const main = async () => {
           rule: `Host(\`${domain.domain}\`) && PathPrefix(\`/api\`)`,
           entryPoints: ["http", "https"],
           service: "api-service",
-          middlewares: ["redirect-to-https", "gzip"],
+          middlewares: ["redirect-to-https", "gzip", "strip-api-prefix"],
           tls: {
             certResolver: "letsencrypt",
           },
@@ -169,6 +169,11 @@ const main = async () => {
         },
         gzip: {
           compress: true,
+        },
+        "strip-api-prefix": {
+          stripPrefix: {
+            prefix: "/api",
+          },
         },
       },
     },
