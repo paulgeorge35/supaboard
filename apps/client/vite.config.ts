@@ -128,7 +128,7 @@ export default defineConfig(({ command, mode }) => ({
   build: {
     target: "esnext",
     chunkSizeWarningLimit: 700,
-    minify: "esbuild",
+    minify: ["build", "preview"].includes(command) ? false : "esbuild",
     cssCodeSplit: true,
     sourcemap: true,
     reportCompressedSize: false,
@@ -178,7 +178,7 @@ export default defineConfig(({ command, mode }) => ({
     },
   },
   resolve: {
-    ...(mode !== "development"
+    ...(["build", "preview"].includes(command)
       ? [
           {
             find: "react",
