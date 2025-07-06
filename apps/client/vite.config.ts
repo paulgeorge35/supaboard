@@ -6,10 +6,10 @@ import { defineConfig, searchForWorkspaceRoot } from "vite";
 import { ManifestOptions, VitePWA } from "vite-plugin-pwa";
 
 const manifest: Partial<ManifestOptions> = {
-  name: "Supaboard",
+  name: "supaboard | Feedback Board",
+  short_name: "supaboard",
   start_url: "/",
   display: "standalone",
-  short_name: "Supaboard",
   description: "Supaboard is a feedback board for your application.",
   theme_color: "#18181b",
   background_color: "#18181b",
@@ -103,6 +103,18 @@ const manifest: Partial<ManifestOptions> = {
       sizes: "390x844",
       type: "image/png",
       form_factor: "narrow",
+    },
+  ],
+  shortcuts: [
+    {
+      name: "Roadmap",
+      url: "/",
+      icons: [{ src: "shortcuts/roadmap.png", sizes: "96x96" }],
+    },
+    {
+      name: "Changelog",
+      url: "/changelog",
+      icons: [{ src: "shortcuts/changelog.png", sizes: "96x96" }],
     },
   ],
 };
