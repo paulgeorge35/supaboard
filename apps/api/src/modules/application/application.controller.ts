@@ -120,7 +120,14 @@ export async function updateApplication(
       .map((d) => d.domain)
       .includes(`${data.subdomain}.${APP_DOMAIN}`);
 
-  console.log(applicationId, data.subdomain, isSubdomainChange);
+  console.log(
+    applicationId,
+    data.subdomain,
+    isSubdomainChange,
+    !!data.subdomain,
+    existingApplication.domains.filter((d) => !d.custom).map((d) => d.domain),
+    APP_DOMAIN
+  );
 
   if (isSubdomainChange) {
     const application = await db.application.findFirst({
@@ -129,7 +136,7 @@ export async function updateApplication(
 
     if (application) {
       res.status(400).json({
-        error: "Subdomain is unavailable",
+        error: "Subdomain is already in use",
         code: "SUBDOMAIN_UNAVAILABLE",
       });
       return;
