@@ -27,6 +27,7 @@ const vendorChunks = {
     "lucide-react",
     "recharts",
     "sonner",
+    "react-animated-numbers",
   ],
   "vendor-utils": [
     "luxon",
@@ -151,6 +152,7 @@ export default defineConfig(({ command, mode }) => ({
             "lucide-react",
             "recharts",
             "sonner",
+            "react-animated-numbers",
           ],
           "vendor-utils": [
             "luxon",
@@ -217,6 +219,7 @@ export default defineConfig(({ command, mode }) => ({
       "@tanstack/react-router",
       "@tanstack/react-query",
       "zustand",
+      "react-animated-numbers",
     ],
     exclude: ["@tanstack/router-devtools"],
     esbuildOptions: {
