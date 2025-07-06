@@ -54,6 +54,7 @@ const main = async () => {
   if (domains.length === 0) return;
 
   const routers: Record<string, any> = {};
+  const domainsToUpdate: string[] = [];
 
   for (const domain of domains) {
     const cnameRecords = await dns.resolveCname(domain.domain);
@@ -65,6 +66,7 @@ const main = async () => {
       // If the domain is verified, we need to check if the CNAME is still valid
       if (valid) {
         // If the CNAME is still valid, we need to add the domain to the routers
+        domainsToUpdate.push(domain.domain);
         routers[`router-${domain.domain.replace(/\./g, "-")}`] = {
           rule: `Host(\`${domain.domain}\`)`,
           entryPoints: ["http", "https"],
@@ -101,6 +103,7 @@ const main = async () => {
           WHERE id = ${domain.id}
         `;
 
+        domainsToUpdate.push(domain.domain);
         routers[`router-${domain.domain.replace(/\./g, "-")}`] = {
           rule: `Host(\`${domain.domain}\`)`,
           entryPoints: ["http", "https"],
@@ -180,6 +183,17 @@ const main = async () => {
   };
 
   const yamlString = yaml.dump(yamlData);
+
+  if (Object.keys(routers).length === 0) {
+    console.log("🔍 No routers to update");
+    return;
+  }
+
+  console.log(
+    `🔍 ${domainsToUpdate.length} Domains to update: ${domainsToUpdate.join(
+      ", "
+    )}`
+  );
 
   try {
     await Bun.write(TRAEFIK_DYNAMIC_PATH, yamlString);
