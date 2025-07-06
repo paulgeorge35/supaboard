@@ -101,9 +101,6 @@ export async function updateApplication(
 
   const existingApplication = await db.application.findUnique({
     where: { id: applicationId },
-    include: {
-      domains: true,
-    },
   });
 
   if (!existingApplication) {
@@ -114,20 +111,7 @@ export async function updateApplication(
   const data = parseAndThrowFirstError(updateApplicationSchema, req.body, res);
 
   const isSubdomainChange =
-    !!data.subdomain &&
-    existingApplication.domains
-      .filter((d) => !d.custom)
-      .map((d) => d.domain)
-      .includes(`${data.subdomain}.${APP_DOMAIN}`);
-
-  console.log(
-    applicationId,
-    data.subdomain,
-    isSubdomainChange,
-    !!data.subdomain,
-    existingApplication.domains.filter((d) => !d.custom).map((d) => d.domain),
-    APP_DOMAIN
-  );
+    !!data.subdomain && existingApplication.subdomain !== data.subdomain;
 
   if (isSubdomainChange) {
     const application = await db.application.findFirst({
@@ -142,7 +126,7 @@ export async function updateApplication(
       return;
     }
 
-    if (!subdomainBlacklist.includes(data.subdomain!)) {
+    if (subdomainBlacklist.includes(data.subdomain!)) {
       res.status(400).json({
         error: "Subdomain is unavailable",
         code: "SUBDOMAIN_UNAVAILABLE",
