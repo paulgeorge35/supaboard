@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 type ApplicationLogoProps = {
@@ -12,6 +13,8 @@ export function ApplicationLogo({
   className = "size-8",
 }: ApplicationLogoProps) {
   const [isDarkLogo, setIsDarkLogo] = useState(false);
+  const [totalPixels, setTotalPixels] = useState(0);
+  const [darkPixels, setDarkPixels] = useState(0);
 
   useEffect(() => {
     if (!logo) return;
@@ -54,6 +57,8 @@ export function ApplicationLogo({
 
       // If more than 50% of non-transparent pixels are dark, consider it a dark logo
       setIsDarkLogo(totalPixels > 0 && darkPixels / totalPixels > 0.5);
+      setTotalPixels(totalPixels);
+      setDarkPixels(darkPixels);
     };
 
     img.onerror = () => {
@@ -66,14 +71,13 @@ export function ApplicationLogo({
 
   if (!logo) return null;
 
-  const isDarkMode = document.documentElement.classList.contains("dark");
-  const shouldInvert = isDarkLogo && isDarkMode;
-
   return (
     <img
       src={logo}
-      alt={alt}
-      className={`${className} ${shouldInvert ? "invert" : ""}`}
+      alt={`${alt} - Total ${totalPixels} pixels, ${darkPixels} dark pixels`}
+      className={cn(className, {
+        invert: isDarkLogo,
+      })}
     />
   );
 }
