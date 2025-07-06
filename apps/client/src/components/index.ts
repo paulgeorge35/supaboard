@@ -1,6 +1,7 @@
 export * from "./activities";
 export * from "./admin-button";
 export * from "./analytics-provider";
+export * from "./application-logo";
 export * from "./auth-buttons";
 export * from "./avatar";
 export * from "./board";
