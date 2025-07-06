@@ -20,7 +20,7 @@ export function ApplicationLogo({
       src={logo}
       alt={alt}
       className={cn(className, {
-        invert,
+        "dark:invert": invert,
       })}
     />
   );
