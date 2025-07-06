@@ -7,6 +7,8 @@ import { ManifestOptions, VitePWA } from "vite-plugin-pwa";
 
 const manifest: Partial<ManifestOptions> = {
   name: "Supaboard",
+  start_url: "/",
+  display: "standalone",
   short_name: "Supaboard",
   description: "Supaboard is a feedback board for your application.",
   theme_color: "#18181b",
@@ -51,6 +53,56 @@ const manifest: Partial<ManifestOptions> = {
       src: "icons/icon-512x512.png",
       sizes: "512x512",
       type: "image/png",
+    },
+  ],
+  screenshots: [
+    {
+      src: "screenshots/screenshot-desktop-home.png",
+      sizes: "1440x900",
+      type: "image/png",
+      form_factor: "wide",
+    },
+    {
+      src: "screenshots/screenshot-desktop-boards.png",
+      sizes: "1440x900",
+      type: "image/png",
+      form_factor: "wide",
+    },
+    {
+      src: "screenshots/screenshot-desktop-post.png",
+      sizes: "1440x900",
+      type: "image/png",
+      form_factor: "wide",
+    },
+    {
+      src: "screenshots/screenshot-desktop-changelog.png",
+      sizes: "1440x900",
+      type: "image/png",
+      form_factor: "wide",
+    },
+    {
+      src: "screenshots/screenshot-mobile-home.png",
+      sizes: "390x844",
+      type: "image/png",
+      form_factor: "narrow",
+    },
+    {
+      src: "screenshots/screenshot-mobile-boards.png",
+      sizes: "390x844",
+      type: "image/png",
+      form_factor: "narrow",
+    },
+    {
+      src: "screenshots/screenshot-mobile-post.png",
+      sizes: "390x844",
+      type: "image/png",
+      form_factor: "narrow",
+    },
+    {
+      src: "screenshots/screenshot-mobile-changelog.png",
+      sizes: "390x844",
+      type: "image/png",
+      form_factor: "narrow",
     },
   ],
 };
