@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
-// import AnimatedNumber from "react-animated-numbers";
+import AnimatedNumber from "react-animated-numbers";
 import { Line, LineChart, ResponsiveContainer } from "recharts";
 import colors from "tailwindcss/colors";
 
@@ -156,12 +156,11 @@ export function ActivityOverview() {
             <h2 className="font-light text-sm">{config.title}</h2>
             <div className="text-2xl font-bold mb-4 horizontal center-v gap-1">
               {config.total ? (
-                // <AnimatedNumber
-                //   animateToNumber={config.total}
-                //   fontStyle={{ fontSize: 24 }}
-                //   useThousandsSeparator
-                // />
-                <p className="text-2xl font-bold">{config.total}</p>
+                <AnimatedNumber
+                  animateToNumber={config.total}
+                  fontStyle={{ fontSize: 24 }}
+                  useThousandsSeparator
+                />
               ) : (
                 "-"
               )}
