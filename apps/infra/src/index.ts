@@ -51,16 +51,23 @@ const main = async () => {
     WHERE "failedAt" IS NULL AND custom = true
   `;
 
+  console.log(
+    `🔍 ${domains.length} domains to check`,
+    domains.map((domain: any) => domain.domain)
+  );
+
   if (domains.length === 0) return;
 
   const routers: Record<string, any> = {};
   const domainsToUpdate: string[] = [];
 
   for (const domain of domains) {
+    console.log(`🔍 Checking domain: ${domain.domain}`);
     const cnameRecords = await dns.resolveCname(domain.domain);
     const valid = cnameRecords.some(
       (record) => record === "cname.supaboard.io"
     );
+    console.log(`🔍 Valid: ${valid}`);
 
     if (domain.verifiedAt) {
       // If the domain is verified, we need to check if the CNAME is still valid
