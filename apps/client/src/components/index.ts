@@ -13,7 +13,6 @@ export * from "./dot";
 export * from "./dropdown";
 export * from "./edit-feedback-button";
 export * from "./edit-history-button";
-export * from "./error-boundary";
 export * from "./feedback-form";
 export * from "./feedback-skeleton";
 export * from "./field-info";
