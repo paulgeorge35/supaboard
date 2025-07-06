@@ -138,6 +138,7 @@ const main = async () => {
         }
       }
     }
+    console.log(Object.keys(routers).join(", "));
   }
 
   // We update the Traefik dynamic configuration with the new routers
