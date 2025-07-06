@@ -5,44 +5,6 @@ import { fileURLToPath } from "url";
 import { defineConfig, searchForWorkspaceRoot } from "vite";
 import { ManifestOptions, VitePWA } from "vite-plugin-pwa";
 
-// Vendor package groups
-const vendorChunks = {
-  "vendor-react": [
-    "react",
-    "react-dom",
-    "react-aria",
-    "react-aria-components",
-    "react-stately",
-    "scheduler",
-  ],
-  "vendor-tanstack": [
-    "@tanstack/react-query",
-    "@tanstack/react-router",
-    "@tanstack/react-table",
-    "@tanstack/react-form",
-  ],
-  "vendor-ui": [
-    "framer-motion",
-    "@radix-ui/react-tooltip",
-    "lucide-react",
-    "recharts",
-    "sonner",
-    "react-animated-numbers",
-  ],
-  "vendor-utils": [
-    "luxon",
-    "uuid",
-    "lodash.clonedeep",
-    "class-variance-authority",
-    "tailwind-merge",
-  ],
-  "vendor-state": [
-    "zustand",
-    "zustand/middleware",
-    "zustand/middleware/persist",
-  ],
-};
-
 const manifest: Partial<ManifestOptions> = {
   name: "Supaboard",
   short_name: "Supaboard",
@@ -152,7 +114,6 @@ export default defineConfig(({ command, mode }) => ({
             "lucide-react",
             "recharts",
             "sonner",
-            "react-animated-numbers",
           ],
           "vendor-utils": [
             "luxon",
@@ -219,7 +180,6 @@ export default defineConfig(({ command, mode }) => ({
       "@tanstack/react-router",
       "@tanstack/react-query",
       "zustand",
-      "react-animated-numbers",
     ],
     exclude: ["@tanstack/router-devtools"],
     esbuildOptions: {

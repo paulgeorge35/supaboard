@@ -8,7 +8,6 @@ type ErrorPageProps = {
   description?: string;
   showRedirect?: boolean;
   showRetry?: boolean;
-  showErrorDetails?: boolean;
   error: ErrorComponentProps;
 };
 
@@ -18,10 +17,10 @@ export function ErrorPage({
   description,
   showRedirect = true,
   showRetry = true,
-  showErrorDetails = true,
   error,
 }: ErrorPageProps) {
   const redirectTo = redirect ?? "/";
+  const showErrorDetails = import.meta.env.DEV;
 
   return (
     <div className="vertical center gap-2 grow">
@@ -41,23 +40,8 @@ export function ErrorPage({
             </div>
           </div>
 
-          {/* Error Type */}
-          {error.error.name && (
-            <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Error Type
-                </span>
-              </div>
-              <div className="font-mono text-sm text-gray-800 dark:text-gray-200">
-                {error.error.name}
-              </div>
-            </div>
-          )}
-
           {/* Stack Trace */}
-          {error.error.stack && (
+          {typeof error.error.stack === "string" && (
             <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
