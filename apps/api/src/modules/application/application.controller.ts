@@ -120,28 +120,26 @@ export async function updateApplication(
       .map((d) => d.domain)
       .includes(`${data.subdomain}.${APP_DOMAIN}`);
 
+  console.log(applicationId, data.subdomain, isSubdomainChange);
+
   if (isSubdomainChange) {
     const application = await db.application.findFirst({
       where: { subdomain: data.subdomain, id: { not: applicationId } },
     });
 
     if (application) {
-      res
-        .status(400)
-        .json({
-          error: "Subdomain is unavailable",
-          code: "SUBDOMAIN_UNAVAILABLE",
-        });
+      res.status(400).json({
+        error: "Subdomain is unavailable",
+        code: "SUBDOMAIN_UNAVAILABLE",
+      });
       return;
     }
 
     if (!subdomainBlacklist.includes(data.subdomain!)) {
-      res
-        .status(400)
-        .json({
-          error: "Subdomain is unavailable",
-          code: "SUBDOMAIN_UNAVAILABLE",
-        });
+      res.status(400).json({
+        error: "Subdomain is unavailable",
+        code: "SUBDOMAIN_UNAVAILABLE",
+      });
       return;
     }
   }
@@ -287,22 +285,18 @@ export async function removeDomain(req: BareSessionRequest, res: Response) {
   }
 
   if (applicationDomain.primary) {
-    res
-      .status(400)
-      .json({
-        error: "Cannot remove primary domain",
-        code: "CANNOT_REMOVE_PRIMARY_DOMAIN",
-      });
+    res.status(400).json({
+      error: "Cannot remove primary domain",
+      code: "CANNOT_REMOVE_PRIMARY_DOMAIN",
+    });
     return;
   }
 
   if (!applicationDomain.custom) {
-    res
-      .status(400)
-      .json({
-        error: "Cannot remove default domain",
-        code: "CANNOT_REMOVE_DEFAULT_DOMAIN",
-      });
+    res.status(400).json({
+      error: "Cannot remove default domain",
+      code: "CANNOT_REMOVE_DEFAULT_DOMAIN",
+    });
     return;
   }
 
