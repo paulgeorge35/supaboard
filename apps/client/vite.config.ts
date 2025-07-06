@@ -8,6 +8,7 @@ import { ManifestOptions, VitePWA } from "vite-plugin-pwa";
 const manifest: Partial<ManifestOptions> = {
   name: "supaboard | Feedback Board",
   short_name: "supaboard",
+  id: "/",
   start_url: "/",
   display: "standalone",
   description: "Supaboard is a feedback board for your application.",

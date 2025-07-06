@@ -1,11 +1,17 @@
 {
   "name": "supaboard | Feedback Board",
   "short_name": "supaboard",
+  "id": "/",
+  "start_url": "/",
   "theme_color": "#ffffff",
   "background_color": "#ffffff",
-  "start_url": "/",
   "display": "standalone",
   "description": "Supaboard is a feedback board for your application.",
+  "categories": [
+    "productivity",
+    "feedback",
+    "roadmap"
+  ],
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
