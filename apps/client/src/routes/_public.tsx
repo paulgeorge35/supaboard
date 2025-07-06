@@ -1,4 +1,10 @@
-import { AdminButton, AuthButtons, Icons, NotFoundPage } from "@/components";
+import {
+  AdminButton,
+  ApplicationLogo,
+  AuthButtons,
+  Icons,
+  NotFoundPage,
+} from "@/components";
 import { PoweredBy } from "@/components/powered-by";
 import { applicationBoardsQuery } from "@/lib/query/application";
 import { useAuthStore } from "@/stores/auth-store";
@@ -78,13 +84,10 @@ function RouteComponent() {
       <div className="vertical justify-end gap-2 text-lg max-w-4xl mx-auto w-full pt-4 z-[1]">
         <div className="horizontal center-v gap-2 justify-between px-4 md:px-0">
           <span className="horizontal gap-2 center-v">
-            {application?.logo && (
-              <img
-                src={application?.logo}
-                alt={application?.name}
-                className="size-8 dark:invert"
-              />
-            )}
+            <ApplicationLogo
+              logo={application?.logo}
+              alt={application?.name ?? "Logo"}
+            />
             <h1 className="text-2xl font-medium">{application?.name}</h1>
           </span>
           <span className="horizontal gap-2 center-v">
