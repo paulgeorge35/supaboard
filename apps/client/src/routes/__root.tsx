@@ -1,4 +1,4 @@
-import { NotFoundPage } from "@/components";
+import { ErrorPage, NotFoundPage } from "@/components";
 import { meQuery } from "@/lib/query/auth";
 import { useAuthStore } from "@/stores/auth-store";
 import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
@@ -6,6 +6,13 @@ import { Outlet, createRootRoute, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
 export const Route = createRootRoute({
   notFoundComponent: () => <NotFoundPage redirect="https://supaboard.io" />,
+  errorComponent: ({ error }) => (
+    <ErrorPage
+      redirect="https://supaboard.io"
+      errorCode={error.message}
+      showErrorCode
+    />
+  ),
   context: () => {
     const queryClient = new QueryClient();
     return {
