@@ -234,7 +234,7 @@ function RouteComponent() {
               required
               type='text'
               label='Subdomain'
-              suffix={`.${import.meta.env.VITE_APP_DOMAIN}`}
+              suffix={".supaboard.io"}
               name={field.name}
               value={field.state.value}
               onBlur={field.handleBlur}
