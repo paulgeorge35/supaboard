@@ -5,17 +5,22 @@ import {
   NotFoundPage,
   StatusBadge,
   VoteButton,
-} from '@/components'
-import { Skeleton } from '@/components/skeleton'
-import { fetchClient } from '@/lib/client'
-import { applicationBoardsQuery, boardDetailedQuery, BoardQueryData } from '@/lib/query'
-import { cn } from '@/lib/utils'
+} from "@/components";
+import { Skeleton } from "@/components/skeleton";
+import { fetchClient } from "@/lib/client";
+import {
+  applicationBoardsQuery,
+  ApplicationBoardsQueryData,
+  boardDetailedQuery,
+  BoardQueryData,
+} from "@/lib/query";
+import { cn } from "@/lib/utils";
 import {
   QueryClient,
   useMutation,
   useQueryClient,
-  useSuspenseQuery
-} from '@tanstack/react-query'
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import {
   createFileRoute,
   getRouteApi,
@@ -23,114 +28,161 @@ import {
   notFound,
   useParams,
   useRouter,
-  useSearch
-} from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
-import { z } from 'zod'
+  useSearch,
+} from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
 
 const searchSchema = z.object({
   search: z.string().optional(),
-})
+});
 
-export const Route = createFileRoute('/_public/$boardSlug/')({
+export const Route = createFileRoute("/_public/$boardSlug/")({
   validateSearch: searchSchema,
   context: () => {
-    const queryClient = new QueryClient()
+    const queryClient = new QueryClient();
     return {
       queryClient,
-    }
+    };
   },
   loaderDeps: ({ search: { search } }) => ({ search }),
   loader: async ({ context, params, deps: { search } }) => {
     const { queryClient } = context;
-    const board = await queryClient.fetchQuery(boardDetailedQuery(params.boardSlug, search));
+    const board = await queryClient.fetchQuery(
+      boardDetailedQuery(params.boardSlug, search)
+    );
     if (!board) {
       throw notFound();
     }
     return board;
   },
   component: RouteComponent,
-  notFoundComponent: () => <NotFoundPage title="Board not found" description="The board you are looking for does not exist." />,
-})
+  notFoundComponent: () => (
+    <NotFoundPage
+      title="Board not found"
+      description="The board you are looking for does not exist."
+    />
+  ),
+});
 
 function RouteComponent() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const { boardSlug } = useParams({ from: '/_public/$boardSlug/' })
-  const search = useSearch({ from: '/_public/$boardSlug/' });
+  const { boardSlug } = useParams({ from: "/_public/$boardSlug/" });
+  const search = useSearch({ from: "/_public/$boardSlug/" });
 
   const router = useRouter();
-  const { data: boards, isLoading: isBoardsLoading } = useSuspenseQuery(applicationBoardsQuery)
-  const board = getRouteApi('/_public/$boardSlug/').useLoaderData();
-  const queryClient = useQueryClient()
+  const { data: boards, isLoading: isBoardsLoading } = useSuspenseQuery(
+    applicationBoardsQuery
+  );
+  const board = getRouteApi("/_public/$boardSlug/").useLoaderData();
+  const queryClient = useQueryClient();
 
-  const toBoard = (slug: string) => `/${slug}`
+  const toBoard = (slug: string) => `/${slug}`;
 
   const { mutate: vote, isPending } = useMutation({
     mutationFn: (feedbackId: string) =>
-      fetchClient(`feedback/${feedbackId}/vote`, { method: 'POST' }),
+      fetchClient(`feedback/${feedbackId}/vote`, { method: "POST" }),
     onMutate: async (feedbackId: string) => {
-      const feedback = board?.feedbacks.find((f) => f.id === feedbackId)
-      if (!feedback) return
+      const feedback = board?.feedbacks.find((f) => f.id === feedbackId);
+      if (!feedback) return;
 
       await queryClient.cancelQueries({
-        queryKey: ['board', boardSlug, search],
-      })
+        queryKey: ["board", boardSlug, search],
+      });
+      await queryClient.cancelQueries({
+        queryKey: ["application", "boards"],
+      });
 
       const boardQueries = queryClient.getQueriesData<BoardQueryData>({
-        queryKey: ['board', boardSlug, search],
-      })
+        queryKey: ["board", boardSlug, search],
+      });
 
-      const previousBoardsData = new Map(boardQueries)
+      const boardsQueries =
+        queryClient.getQueriesData<ApplicationBoardsQueryData>({
+          queryKey: ["application", "boards"],
+        });
+
+      const previousBoardsData = new Map(boardQueries);
+      const previousBoardsQueries = new Map(boardsQueries);
 
       boardQueries.forEach(([queryKey, boardData]) => {
-        if (!boardData) return
+        if (!boardData) return;
 
         queryClient.setQueryData(queryKey, {
           ...boardData,
           feedbacks: boardData.feedbacks.map((feedback) =>
             feedback.id === feedbackId
               ? {
-                ...feedback,
-                votes: feedback.votedByMe
-                  ? feedback.votes - 1
-                  : feedback.votes + 1,
-                votedByMe: !feedback.votedByMe,
-              }
-              : feedback,
+                  ...feedback,
+                  votes: feedback.votedByMe
+                    ? feedback.votes - 1
+                    : feedback.votes + 1,
+                  votedByMe: !feedback.votedByMe,
+                }
+              : feedback
           ),
-        })
-      })
+        });
+      });
+
+      boardsQueries.forEach(([queryKey, boardsData]) => {
+        if (!boardsData) return;
+        queryClient.setQueryData(
+          queryKey,
+          boardsData.map((board) =>
+            board.slug === boardSlug
+              ? {
+                  ...board,
+                  feedbacks: board.feedbacks.map((feedback) =>
+                    feedback.id === feedbackId
+                      ? {
+                          ...feedback,
+                          votes: feedback.votedByMe
+                            ? feedback.votes - 1
+                            : feedback.votes + 1,
+                          votedByMe: !feedback.votedByMe,
+                        }
+                      : feedback
+                  ),
+                }
+              : board
+          )
+        );
+      });
 
       return {
         previousBoardsData,
-      }
+        previousBoardsQueries,
+      };
     },
     onError: (_, __, context) => {
       context?.previousBoardsData?.forEach((data, queryKey) => {
-        queryClient.setQueryData(queryKey, data)
-      })
+        queryClient.setQueryData(queryKey, data);
+      });
 
-      toast.error('Failed to vote')
+      queryClient.setQueryData(["application", "boards"], boards);
+
+      toast.error("Failed to vote");
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['board'] })
+      queryClient.invalidateQueries({ queryKey: ["board"] });
+      queryClient.invalidateQueries({ queryKey: ["application", "boards"] });
     },
-  })
+  });
 
   useEffect(() => {
     if (search) {
       setTimeout(() => {
         router.navigate({
-          to: '/$boardSlug',
+          to: "/$boardSlug",
           params: { boardSlug },
-          search: { search: searchQuery !== '' ? searchQuery : undefined },
+          search: { search: searchQuery !== "" ? searchQuery : undefined },
           replace: true,
-        })
-      }, 500)
+        });
+      }, 500);
     }
-  }, [searchQuery])
+  }, [searchQuery]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
@@ -153,7 +205,7 @@ function RouteComponent() {
                 className="text-sm font-light transition-colors duration-200 text-gray-500 hover:bg-gray-900/5 dark:text-zinc-400 dark:hover:bg-zinc-800/20 rounded-lg px-3 py-2 truncate"
                 activeProps={{
                   className:
-                    '!text-gray-800 dark:!text-zinc-100 !bg-gray-900/5 dark:!bg-zinc-800/20',
+                    "!text-gray-800 dark:!text-zinc-100 !bg-gray-900/5 dark:!bg-zinc-800/20",
                 }}
               >
                 {board.name}
@@ -188,27 +240,33 @@ function RouteComponent() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 type FeedbackCardProps = {
-  feedback: BoardQueryData['feedbacks'][number]
-  index: number
-  board: BoardQueryData
-  vote: (feedbackId: string) => void
-  isPending: boolean
-}
+  feedback: BoardQueryData["feedbacks"][number];
+  index: number;
+  board: BoardQueryData;
+  vote: (feedbackId: string) => void;
+  isPending: boolean;
+};
 
-const FeedbackCard = ({ feedback, index, board, vote, isPending }: FeedbackCardProps) => {
+const FeedbackCard = ({
+  feedback,
+  index,
+  board,
+  vote,
+  isPending,
+}: FeedbackCardProps) => {
   return (
     <Link
       key={feedback.slug}
       to={feedback.slug}
       className={cn(
-        'p-4 border border-t-0 grid grid-cols-[1fr_auto] items-start transition-colors duration-200 hover:bg-gray-300/20 dark:hover:bg-zinc-800/20',
+        "p-4 border border-t-0 grid grid-cols-[1fr_auto] items-start transition-colors duration-200 hover:bg-gray-300/20 dark:hover:bg-zinc-800/20",
         {
-          'rounded-b-lg': index === board?.feedbacks.length - 1,
-        },
+          "rounded-b-lg": index === board?.feedbacks.length - 1,
+        }
       )}
     >
       <div className="vertical gap-2">
@@ -218,10 +276,8 @@ const FeedbackCard = ({ feedback, index, board, vote, isPending }: FeedbackCardP
         </p>
         <span className="horizontal gap-2 center-v">
           <Icons.MessageSquare size={12} />
-          <span className="text-xs text-gray-500">
-            {feedback.activities}
-          </span>
-          {feedback.status.type !== 'DEFAULT' && (
+          <span className="text-xs text-gray-500">{feedback.activities}</span>
+          {feedback.status.type !== "DEFAULT" && (
             <>
               <span className="text-gray-500 text-xs">&bull;</span>
               <StatusBadge status={feedback.status.slug} />
@@ -236,17 +292,17 @@ const FeedbackCard = ({ feedback, index, board, vote, isPending }: FeedbackCardP
         isPending={isPending}
       />
     </Link>
-  )
-}
+  );
+};
 
 const FeedbackCardSkeleton = ({ isLast }: { isLast: boolean }) => {
   return (
     <div
       className={cn(
-        'p-4 border border-t-0 grid grid-cols-[1fr_auto] items-start gap-4',
+        "p-4 border border-t-0 grid grid-cols-[1fr_auto] items-start gap-4",
         {
-          'rounded-b-lg': isLast,
-        },
+          "rounded-b-lg": isLast,
+        }
       )}
     >
       <div className="vertical gap-2 w-full">
@@ -256,5 +312,5 @@ const FeedbackCardSkeleton = ({ isLast }: { isLast: boolean }) => {
       </div>
       <Skeleton className="h-[72px] w-[72px] rounded-lg" />
     </div>
-  )
-}
+  );
+};
