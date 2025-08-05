@@ -10,7 +10,6 @@ import { Skeleton } from "@/components/skeleton";
 import { fetchClient } from "@/lib/client";
 import {
   applicationBoardsQuery,
-  ApplicationBoardsQueryData,
   boardDetailedQuery,
   BoardQueryData,
 } from "@/lib/query";
@@ -76,7 +75,11 @@ function RouteComponent() {
   const { data: boards, isLoading: isBoardsLoading } = useSuspenseQuery(
     applicationBoardsQuery
   );
-  const board = getRouteApi("/_public/$boardSlug/").useLoaderData();
+  const boardInitialData = getRouteApi("/_public/$boardSlug/").useLoaderData();
+
+  const { data: board } = useSuspenseQuery(
+    boardDetailedQuery(boardSlug, search.search, undefined, boardInitialData)
+  );
   const queryClient = useQueryClient();
 
   const toBoard = (slug: string) => `/${slug}`;
@@ -98,14 +101,7 @@ function RouteComponent() {
       const boardQueries = queryClient.getQueriesData<BoardQueryData>({
         queryKey: ["board", boardSlug, search],
       });
-
-      const boardsQueries =
-        queryClient.getQueriesData<ApplicationBoardsQueryData>({
-          queryKey: ["application", "boards"],
-        });
-
       const previousBoardsData = new Map(boardQueries);
-      const previousBoardsQueries = new Map(boardsQueries);
 
       boardQueries.forEach(([queryKey, boardData]) => {
         if (!boardData) return;
@@ -126,34 +122,8 @@ function RouteComponent() {
         });
       });
 
-      boardsQueries.forEach(([queryKey, boardsData]) => {
-        if (!boardsData) return;
-        queryClient.setQueryData(
-          queryKey,
-          boardsData.map((board) =>
-            board.slug === boardSlug
-              ? {
-                  ...board,
-                  feedbacks: board.feedbacks.map((feedback) =>
-                    feedback.id === feedbackId
-                      ? {
-                          ...feedback,
-                          votes: feedback.votedByMe
-                            ? feedback.votes - 1
-                            : feedback.votes + 1,
-                          votedByMe: !feedback.votedByMe,
-                        }
-                      : feedback
-                  ),
-                }
-              : board
-          )
-        );
-      });
-
       return {
         previousBoardsData,
-        previousBoardsQueries,
       };
     },
     onError: (_, __, context) => {
@@ -161,13 +131,10 @@ function RouteComponent() {
         queryClient.setQueryData(queryKey, data);
       });
 
-      queryClient.setQueryData(["application", "boards"], boards);
-
       toast.error("Failed to vote");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["board"] });
-      queryClient.invalidateQueries({ queryKey: ["application", "boards"] });
     },
   });
 
