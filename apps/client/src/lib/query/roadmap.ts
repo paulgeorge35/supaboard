@@ -37,5 +37,5 @@ export type RoadmapDetailResponse = Omit<RoadmapDetail, "items"> & {
 export const roadmapQuery = (roadmapSlug: string) =>
   queryOptions<RoadmapDetailResponse>({
     queryKey: ["roadmap", roadmapSlug],
-    queryFn: () => fetchClient(`/roadmap/${roadmapSlug}`),
+    queryFn: () => fetchClient(`roadmap/${roadmapSlug}`),
   });

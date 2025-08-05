@@ -83,7 +83,7 @@ export const useUpdateStatusMutation = () => {
 
   return useMutation({
     mutationFn: (status: UpdateStatusValues) =>
-      fetchClient(`/status/${status.id}`, {
+      fetchClient(`status/${status.id}`, {
         method: "PUT",
         body: JSON.stringify(status),
       }),
@@ -172,7 +172,7 @@ export const useDeleteStatusMutation = () => {
 
   return useMutation({
     mutationFn: (id: string) =>
-      fetchClient(`/status/${id}`, {
+      fetchClient(`status/${id}`, {
         method: "DELETE",
       }),
     onMutate: (id) => {

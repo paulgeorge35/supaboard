@@ -104,7 +104,7 @@ function RouteComponent() {
 
   const { mutate: removeDomain } = useMutation({
     mutationFn: async (domainId: string) =>
-      await fetchClient(`/application/remove-domain/${domainId}`, {
+      await fetchClient(`application/remove-domain/${domainId}`, {
         method: "POST",
       }),
     onMutate: (domainId) => {
@@ -146,7 +146,7 @@ function RouteComponent() {
 
   const { mutate: retryVerification } = useMutation({
     mutationFn: async (domainId: string) =>
-      await fetchClient(`/application/retry-verification/${domainId}`, {
+      await fetchClient(`application/retry-verification/${domainId}`, {
         method: "POST",
       }),
     onMutate: (domainId) => {
@@ -187,7 +187,7 @@ function RouteComponent() {
 
   const { mutate: setPrimaryDomain } = useMutation({
     mutationFn: async (domainId: string) =>
-      await fetchClient(`/application/primary-domain/${domainId}`, {
+      await fetchClient(`application/primary-domain/${domainId}`, {
         method: "POST",
       }),
     onMutate: (domainId) => {

@@ -48,7 +48,7 @@ export const Roadmaps = ({
       feedbackId: string;
       roadmapSlug: string;
     }) =>
-      fetchClient(`/roadmap/${roadmapSlug}/${feedbackId}/add`, {
+      fetchClient(`roadmap/${roadmapSlug}/${feedbackId}/add`, {
         method: "POST",
       }),
     onMutate: ({ roadmapSlug }) => {
@@ -104,7 +104,7 @@ export const Roadmaps = ({
       feedbackId: string;
       roadmapSlug: string;
     }) =>
-      fetchClient(`/roadmap/${roadmapSlug}/${feedbackId}/remove`, {
+      fetchClient(`roadmap/${roadmapSlug}/${feedbackId}/remove`, {
         method: "POST",
       }),
     onMutate: ({ roadmapSlug }) => {

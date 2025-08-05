@@ -25,7 +25,7 @@ export const statusesQuery = queryOptions<Status[]>({
 export const statusBySlugQuery = (slug?: string) =>
   queryOptions<Status>({
     queryKey: ["status", slug],
-    queryFn: () => fetchClient(`/status/${slug}`),
+    queryFn: () => fetchClient(`status/${slug}`),
     retry: false,
     enabled: !!slug,
   });
