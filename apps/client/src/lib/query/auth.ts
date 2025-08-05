@@ -16,7 +16,7 @@ export type MeQueryData = {
 
 export const meQuery = queryOptions<MeQueryData>({
     queryKey: ['me'],
-    queryFn: () => fetchClient('/auth/me'),
+    queryFn: () => fetchClient('auth/me'),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -30,5 +30,5 @@ export type InvitationQueryData = Pick<ApplicationInvite, 'id' | 'email' | 'role
 
 export const invitationQuery = queryOptions<InvitationQueryData | null>({
     queryKey: ['invitation'],
-    queryFn: () => fetchClient('/auth/invitation'),
+    queryFn: () => fetchClient('auth/invitation'),
 });
