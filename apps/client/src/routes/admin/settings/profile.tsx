@@ -1,45 +1,53 @@
-import { Avatar, Button, FieldInfo, Input } from '@/components';
-import { fetchClient } from '@/lib/client';
-import { meQuery, MeQueryData } from '@/lib/query/auth';
-import { useAuthStore } from '@/stores/auth-store';
-import { User } from '@repo/database';
-import { useForm } from '@tanstack/react-form';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
-import { useRef, useState } from 'react';
-import { toast } from 'sonner';
-import { v4 as uuidv4 } from 'uuid';
-import { z } from 'zod';
+import { Avatar, Button, FieldInfo, Input } from "@/components";
+import { fetchClient } from "@/lib/client";
+import { meQuery, MeQueryData } from "@/lib/query/auth";
+import { useAuthStore } from "@/stores/auth-store";
+import { User } from "@repo/database";
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
+import { v4 as uuidv4 } from "uuid";
+import { z } from "zod";
 
-export const Route = createFileRoute('/admin/settings/profile')({
+export const Route = createFileRoute("/admin/settings/profile")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
-  const [previewUrl, setPreviewUrl] = useState<string | undefined>(user?.avatar ?? undefined);
-  const [file, setFile] = useState<{
-    file: File;
-    key: string;
-  } | undefined>(undefined);
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(
+    user?.avatar ?? undefined
+  );
+  const [file, setFile] = useState<
+    | {
+        file: File;
+        key: string;
+      }
+    | undefined
+  >(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const schema = z.object({
     avatar: z.string().optional(),
     name: z.string(),
     email: z.string().email(),
-  })
+  });
 
   const { mutate: updateUser, isPending } = useMutation({
-    mutationFn: (data: z.infer<typeof schema>) => fetchClient('/auth/update', {
-      method: 'PUT',
-      body: JSON.stringify(data)
-    }),
+    mutationFn: (data: z.infer<typeof schema>) =>
+      fetchClient("auth/update", {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
     onMutate: (data) => {
       queryClient.cancelQueries({ queryKey: meQuery.queryKey });
 
-      const previousUser = queryClient.getQueryData<MeQueryData>(meQuery.queryKey);
+      const previousUser = queryClient.getQueryData<MeQueryData>(
+        meQuery.queryKey
+      );
 
       queryClient.setQueryData<MeQueryData>(meQuery.queryKey, (old) => {
         if (!old) return undefined;
@@ -47,9 +55,9 @@ function RouteComponent() {
           ...old,
           user: {
             ...(old.user as User),
-            ...data
-          }
-        }
+            ...data,
+          },
+        };
       });
 
       return { previousUser };
@@ -58,64 +66,66 @@ function RouteComponent() {
       queryClient.setQueryData(meQuery.queryKey, context?.previousUser);
     },
     onSuccess: () => {
-      toast.success('User updated successfully')
-    }
-  })
+      toast.success("User updated successfully");
+    },
+  });
 
   const form = useForm({
     defaultValues: {
       avatar: user?.avatar ?? undefined,
-      name: user?.name ?? '',
-      email: user?.email ?? '',
+      name: user?.name ?? "",
+      email: user?.email ?? "",
     },
     validators: {
       onChange: schema,
     },
     onSubmit: async (data) => {
-      upload()
+      upload();
       updateUser({
         ...data.value,
         avatar: file?.key,
-      })
-    }
-  })
+      });
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    form.handleSubmit()
-  }
+    form.handleSubmit();
+  };
 
   const uploadFile = async (url: string, file?: File, key?: string) => {
     if (!file || !key) return;
     const response = await fetch(url, {
-      method: 'PUT',
+      method: "PUT",
       body: file,
-    })
+    });
 
     if (!response.ok) {
-      throw new Error('Failed to upload file');
+      throw new Error("Failed to upload file");
     }
 
     return key;
-  }
+  };
 
   const { data: uploadedFile } = useQuery<{ url: string }>({
-    queryKey: ['storage', user?.avatar, 'read'],
-    queryFn: async () => await fetchClient(`storage/${user?.avatar}/read`, {
-      method: 'GET',
-    }),
-    enabled: !!user?.avatar && user.avatar.startsWith('avatar/')
-  })
+    queryKey: ["storage", user?.avatar, "read"],
+    queryFn: async () =>
+      await fetchClient(`storage/${user?.avatar}/read`, {
+        method: "GET",
+      }),
+    enabled: !!user?.avatar && user.avatar.startsWith("avatar/"),
+  });
 
   const { mutate: upload } = useMutation({
-    mutationFn: async () => await fetchClient(`storage/${file?.key}/write`, {
-      method: 'PUT',
-    }),
+    mutationFn: async () =>
+      await fetchClient(`storage/${file?.key}/write`, {
+        method: "PUT",
+      }),
     onSuccess: (data) => {
       uploadFile(data.url, file?.file, file?.key);
     },
-  })
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -124,39 +134,46 @@ function RouteComponent() {
         file,
         key: `avatar/${uuidv4()}`,
       });
-      setPreviewUrl(
-        URL.createObjectURL(file)
-      );
+      setPreviewUrl(URL.createObjectURL(file));
     }
-  }
+  };
 
   return (
-    <div className='min-w-screen md:min-w-full'>
-      <div className='p-8 gap-2 vertical border-b'>
-        <h1 className='text-2xl'>Profile</h1>
-        <p className='text-sm text-gray-500 dark:text-zinc-400'>
+    <div className="min-w-screen md:min-w-full">
+      <div className="p-8 gap-2 vertical border-b">
+        <h1 className="text-2xl">Profile</h1>
+        <p className="text-sm text-gray-500 dark:text-zinc-400">
           Manage your profile information
         </p>
       </div>
-      <form onSubmit={handleSubmit} className='p-8 vertical items-start gap-4 md:max-w-2xl'>
-        <span className='horizontal center-v gap-4'>
+      <form
+        onSubmit={handleSubmit}
+        className="p-8 vertical items-start gap-4 md:max-w-2xl"
+      >
+        <span className="horizontal center-v gap-4">
           <Avatar
             width={80}
             quality={75}
             src={uploadedFile?.url ?? previewUrl}
             name={user?.name ?? "User"}
-            className='size-20 text-3xl'
+            className="size-20 text-3xl"
           />
-          <input ref={fileInputRef} accept='image/*' type='file' className='sr-only' onChange={handleFileChange} />
+          <input
+            ref={fileInputRef}
+            accept="image/*"
+            type="file"
+            className="sr-only"
+            onChange={handleFileChange}
+          />
           <Button
-            role='button'
-            color='secondary'
-            variant='outline'
-            size='md'
+            role="button"
+            color="secondary"
+            variant="outline"
+            size="md"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              fileInputRef.current?.click()
+              fileInputRef.current?.click();
             }}
           >
             Upload image
@@ -164,47 +181,56 @@ function RouteComponent() {
         </span>
 
         <form.Field
-          name='name'
+          name="name"
           children={(field) => (
             <>
               <Input
-                label='Name'
+                label="Name"
                 required
                 name={field.name}
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
-                className='w-full'
+                className="w-full"
               />
               <FieldInfo field={field} />
             </>
           )}
         />
         <form.Field
-          name='email'
+          name="email"
           children={(field) => (
             <>
               <Input
-                label='Email'
+                label="Email"
                 required
                 disabled
                 name={field.name}
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
-                className='w-full'
+                className="w-full"
               />
               <FieldInfo field={field} />
             </>
           )}
         />
         <form.Subscribe
-          selector={(state) => [state.canSubmit, state.isSubmitting, state.isDirty]}
+          selector={(state) => [
+            state.canSubmit,
+            state.isSubmitting,
+            state.isDirty,
+          ]}
           children={([canSubmit, isSubmitting, isDirty]) => (
-            <Button type='submit' color='primary' isLoading={isSubmitting || isPending} disabled={!canSubmit || !isDirty}>
+            <Button
+              type="submit"
+              color="primary"
+              isLoading={isSubmitting || isPending}
+              disabled={!canSubmit || !isDirty}
+            >
               Save
             </Button>
           )}
         />
       </form>
     </div>
-  )
+  );
 }
