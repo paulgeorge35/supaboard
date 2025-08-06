@@ -1,51 +1,64 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Button } from './button'
-import { Icons } from './icons'
+import { useVibration } from "@/hooks/useVibration";
+import { useCallback, useEffect, useState } from "react";
+import { Button } from "./button";
+import { Icons } from "./icons";
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>(() => {
-    if (typeof localStorage !== 'undefined' && localStorage.adminCurrentTheme) {
-      return localStorage.adminCurrentTheme as 'light' | 'dark'
+  const vibrate = useVibration(50, 30);
+  const [theme, setTheme] = useState<"light" | "dark" | "system">(() => {
+    if (typeof localStorage !== "undefined" && localStorage.adminCurrentTheme) {
+      return localStorage.adminCurrentTheme as "light" | "dark";
     }
-    return 'system'
-  })
+    return "system";
+  });
 
-  const updateTheme = useCallback((newTheme: 'light' | 'dark' | 'system') => {
-    if (newTheme === 'system') {
-      localStorage.removeItem('adminCurrentTheme')
+  const updateTheme = useCallback((newTheme: "light" | "dark" | "system") => {
+    vibrate();
+    if (newTheme === "system") {
+      localStorage.removeItem("adminCurrentTheme");
       document.documentElement.classList.toggle(
-        'dark',
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-      )
+        "dark",
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+      );
     } else {
-      localStorage.adminCurrentTheme = newTheme
-      document.documentElement.classList.toggle('dark', newTheme === 'dark')
+      localStorage.adminCurrentTheme = newTheme;
+      document.documentElement.classList.toggle("dark", newTheme === "dark");
     }
-    setTheme(newTheme)
-  }, [])
+    setTheme(newTheme);
+  }, []);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = () => {
-      if (theme === 'system') {
-        document.documentElement.classList.toggle('dark', mediaQuery.matches)
+      if (theme === "system") {
+        document.documentElement.classList.toggle("dark", mediaQuery.matches);
       }
-    }
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [theme])
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [theme]);
 
   return (
     <div className="relative">
       <Button
         type="button"
-        size='icon'
-        variant='outline'
+        size="icon"
+        variant="outline"
         className="[&>svg]:!stroke-gray-500 dark:[&>svg]:!stroke-zinc-400 [&>svg]:!size-4"
-        onClick={() => updateTheme(theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system')}
+        onClick={() =>
+          updateTheme(
+            theme === "system" ? "light" : theme === "light" ? "dark" : "system"
+          )
+        }
       >
-        {theme === 'system' ? <Icons.Monitor /> : theme === 'light' ? <Icons.Sun /> : <Icons.Moon />}
+        {theme === "system" ? (
+          <Icons.Monitor />
+        ) : theme === "light" ? (
+          <Icons.Sun />
+        ) : (
+          <Icons.Moon />
+        )}
       </Button>
     </div>
-  )
-} 
+  );
+}
