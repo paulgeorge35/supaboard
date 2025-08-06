@@ -24,7 +24,7 @@ type StalePostsQueryData = {
 
 const stalePostsQuery = queryOptions<StalePostsQueryData[]>({
   queryKey: ["admin", "stale-posts"],
-  queryFn: () => fetchClient("/admin/stale-posts"),
+  queryFn: () => fetchClient("admin/stale-posts"),
 });
 
 export function StalePosts() {

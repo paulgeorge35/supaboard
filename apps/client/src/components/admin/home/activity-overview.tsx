@@ -31,7 +31,7 @@ const activityOverviewQuery = (range: { start?: string; end?: string }) =>
   queryOptions<ActivityOverviewData>({
     queryKey: ["admin", "activity-overview", range],
     queryFn: () =>
-      fetchClient("/admin/activity-overview", {
+      fetchClient("admin/activity-overview", {
         queryParams: {
           start: range.start,
           end: range.end,
