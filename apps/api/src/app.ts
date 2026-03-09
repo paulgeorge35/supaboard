@@ -59,9 +59,9 @@ async function createApp(): Promise<Application> {
 
   // CORS configuration
   app.use(
-    cors({
-      origin: async (origin, callback) => {
-        // 1. Allow non-browser requests (like Postman/Curl) or same-origin
+  cors({
+    origin: async (origin, callback) => {
+      // 1. Allow non-browser requests (like Postman/Curl) or same-origin
       if (!origin) {
         return callback(null, true);
       }
@@ -84,13 +84,13 @@ async function createApp(): Promise<Application> {
         }
       } catch (err) {
         callback(err);
-      },
-      methods: ["GET", "POST", "PUT", "DELETE"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-      credentials: true,
-    })
-  );
-
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
   // Body parsing middleware
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
