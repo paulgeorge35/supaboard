@@ -58,19 +58,32 @@ async function createApp(): Promise<Application> {
   app.use(compression());
 
   // CORS configuration
-  const whitelist = await initializeCorsOrigins();
   app.use(
     cors({
-      origin: (origin, callback) => {
-        if (
-          !origin ||
-          whitelist.includes(origin) ||
-          origin.match(/^https:\/\/([a-z0-9-]+\.)*supaboard\.io$/)
-        ) {
-          callback(null, origin);
+      origin: async (origin, callback) => {
+        // 1. Allow non-browser requests (like Postman/Curl) or same-origin
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // 2. Check your static/regex patterns first (fastest)
+      const isInternal = origin.match(/^https:\/\/([a-z0-9-]+\.)*supaboard\.io$/);
+      if (isInternal) {
+        return callback(null, true);
+      }
+
+      try {
+        // 3. Dynamic Check: Query your DB or a fast Cache (Redis)
+        // This ensures newly created domains work immediately
+        const isValidDynamicDomain = await checkDomainInDatabase(origin); 
+        
+        if (isValidDynamicDomain) {
+          callback(null, true);
         } else {
           callback(new Error("Not allowed by CORS"));
         }
+      } catch (err) {
+        callback(err);
       },
       methods: ["GET", "POST", "PUT", "DELETE"],
       allowedHeaders: ["Content-Type", "Authorization"],
