@@ -16,7 +16,15 @@ import { storageRouter } from "./modules/storage/storage.router";
 /**
  * Initializes CORS configuration by fetching allowed origins from the database
  */
-async function initializeCorsOrigins(): Promise<string[]> {
+async function checkDomainInDatabase(origin: string): Promise<boolean> {
+  const isBase = [
+    "https://supaboard.io",
+    "http://localhost:3000",
+    "https://app.supaboard.io"
+  ].includes(origin);
+
+  if(isBase) return true;
+  
   const applicationDomains = await db.domain.findMany({
     where: {
       verifiedAt: {
@@ -31,20 +39,8 @@ async function initializeCorsOrigins(): Promise<string[]> {
   const domains = applicationDomains.map(
     (domain) => `https://${domain.domain}`
   );
-
-  console.log([
-    ...domains,
-    "https://supaboard.io",
-    "http://localhost:3000",
-    "https://app.supaboard.io",
-  ]);
-
-  return [
-    ...domains,
-    "https://supaboard.io",
-    "http://localhost:3000",
-    "https://app.supaboard.io",
-  ];
+  
+  return domains.includes(origin);
 }
 
 /**
