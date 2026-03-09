@@ -32,6 +32,13 @@ async function initializeCorsOrigins(): Promise<string[]> {
     (domain) => `https://${domain.domain}`
   );
 
+  console.log([
+    ...domains,
+    "https://supaboard.io",
+    "http://localhost:3000",
+    "https://app.supaboard.io",
+  ]);
+
   return [
     ...domains,
     "https://supaboard.io",
